@@ -1,0 +1,41 @@
+package com.vke.core.logger;
+
+import com.vke.api.logger.LogFormatter;
+import com.vke.api.logger.LoggerOutput;
+import com.vke.api.logger.LogEvent;
+import com.vke.utils.Colors;
+
+public class ConsoleOutput implements LoggerOutput {
+
+    static final LogFormatter defaultFormatter = (event) -> {
+        Colors text = new Colors();
+
+        text.write("[").green(event.timestamp).reset("]");
+        text.write("[").blue(event.thread.getName()).reset("]");
+        text.write("[").cyan(event.loggerName).reset("]");
+        text.write("[").write(event.level.getColor()).write(event.level).reset("]: ");
+        text.write(event.message);
+
+        if (event.throwable != null) {
+            text.red("\n").write(event.throwable.getMessage());
+        }
+
+        return text.toString();
+    };
+
+    private final LogFormatter formatter;
+
+    public ConsoleOutput(LogFormatter formatter) {
+        this.formatter = formatter;
+    }
+
+    public ConsoleOutput() {
+        this(defaultFormatter);
+    }
+
+    @Override
+    public synchronized void accept(LogEvent logEvent) {
+        System.out.println(formatter.format(logEvent));
+    }
+
+}
