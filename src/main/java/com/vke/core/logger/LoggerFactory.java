@@ -1,5 +1,6 @@
 package com.vke.core.logger;
 
+import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.LoggerOutput;
 
 import java.util.List;
@@ -7,6 +8,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class LoggerFactory {
+
+    static {
+        init(new LoggerConfig(LogLevel.TRACE), List.of(new ConsoleOutput()));
+    }
 
     private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
 
@@ -24,7 +29,7 @@ public final class LoggerFactory {
         return LOGGERS.computeIfAbsent(name, LoggerFactory::createLogger);
     }
 
-    public static Logger createLogger(String name) {
+    private static Logger createLogger(String name) {
         return new Logger(name, sharedOutputs, config.defaultLevel());
     }
 
