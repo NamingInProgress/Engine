@@ -1,9 +1,6 @@
 package com.vke;
 
-import com.vke.api.logger.LogLevel;
 import com.vke.core.logger.*;
-
-import java.util.List;
 
 public class Main {
 
