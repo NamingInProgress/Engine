@@ -5,6 +5,7 @@ import com.vke.core.logger.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
 
@@ -17,7 +18,7 @@ public class Main {
         log.info("Info");
         log.warn("Warn");
         log.error("Error");
-        log.fatal("Fatal");
+        log.fatal("A fatal error has occurred", new NullPointerException());
     }
 
 }

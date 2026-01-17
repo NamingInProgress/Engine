@@ -5,6 +5,9 @@ import com.vke.api.logger.LoggerOutput;
 import com.vke.api.logger.LogEvent;
 import com.vke.utils.Colors;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class ConsoleOutput implements LoggerOutput {
 
     static final LogFormatter defaultFormatter = (event) -> {
@@ -17,7 +20,7 @@ public class ConsoleOutput implements LoggerOutput {
         text.write(event.message);
 
         if (event.throwable != null) {
-            text.red("\n").write(event.throwable.getMessage());
+            text.red("\n").write(event.getThrowableFormatted());
         }
 
         return text.toString();

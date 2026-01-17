@@ -21,7 +21,7 @@ public class FileOutput implements LoggerOutput {
         text.write(event.message);
 
         if (event.throwable != null) {
-            text.write("\n%s".formatted(event.throwable.getMessage()));
+            text.red("\n").write(event.getThrowableFormatted());
         }
 
         return text.toString();
@@ -32,10 +32,6 @@ public class FileOutput implements LoggerOutput {
 
     public FileOutput(String path, LogFormatter formatter) throws IOException {
         this.formatter = formatter;
-        File f = new File(path);
-
-        if (!f.exists()) f.createNewFile();
-
         this.writer = new FileWriter(path, true);
     }
 

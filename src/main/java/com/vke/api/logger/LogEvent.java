@@ -1,5 +1,7 @@
 package com.vke.api.logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Instant;
 
 public final class LogEvent {
@@ -18,6 +20,15 @@ public final class LogEvent {
         this.message = message;
         this.throwable = throwable;
         this.thread = Thread.currentThread();
+    }
+
+    public String getThrowableFormatted() {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        this.throwable.printStackTrace(pw);
+        pw.flush();
+
+        return sw.toString();
     }
 
 }
