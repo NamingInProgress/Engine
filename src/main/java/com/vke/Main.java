@@ -7,7 +7,8 @@ public class Main {
     public static void main(String[] args) {
         Logger log = LoggerFactory.get("VkEngine");
 
-        log.trace("Trace");
+        String name = "guy";
+        log.trace("Trace %s", name);
         log.debug("Debug");
         log.info("Info");
         log.warn("Warn");
