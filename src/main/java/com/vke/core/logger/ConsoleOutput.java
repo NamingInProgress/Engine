@@ -5,6 +5,8 @@ import com.vke.api.logger.LoggerOutput;
 import com.vke.api.logger.LogEvent;
 import com.vke.utils.Colors;
 
+import java.io.PrintStream;
+
 public class ConsoleOutput implements LoggerOutput {
 
     static final LogFormatter defaultFormatter = (event) -> {
@@ -24,18 +26,20 @@ public class ConsoleOutput implements LoggerOutput {
     };
 
     private final LogFormatter formatter;
+    private final PrintStream output;
 
-    public ConsoleOutput(LogFormatter formatter) {
+    public ConsoleOutput(PrintStream output, LogFormatter formatter) {
+        this.output = output;
         this.formatter = formatter;
     }
 
-    public ConsoleOutput() {
-        this(defaultFormatter);
+    public ConsoleOutput(PrintStream output) {
+        this(output, defaultFormatter);
     }
 
     @Override
     public synchronized void accept(LogEvent logEvent) {
-        System.out.println(formatter.format(logEvent));
+        output.println(formatter.format(logEvent));
     }
 
 }

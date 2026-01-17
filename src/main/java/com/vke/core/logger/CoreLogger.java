@@ -6,24 +6,24 @@ import com.vke.api.logger.LogLevel;
 
 import java.util.List;
 
-public class Logger implements com.vke.api.logger.Logger {
+public class CoreLogger implements com.vke.api.logger.Logger {
 
     private final String name;
     private final List<LoggerOutput> outputs;
 
     private LogLevel minimumLogLevel;
 
-    Logger(String name, List<LoggerOutput> outputs, LogLevel minimumLogLevel) {
+    CoreLogger(String name, List<LoggerOutput> outputs, LogLevel minimumLogLevel) {
         this.name = name;
         this.outputs = outputs;
         this.minimumLogLevel = minimumLogLevel;
     }
 
-    Logger(String name, List<LoggerOutput> outputs) {
+    CoreLogger(String name, List<LoggerOutput> outputs) {
         this(name, outputs, LogLevel.INFO);
     }
 
-    public Logger setMinimumLogLevel(LogLevel level) {
+    public CoreLogger setMinimumLogLevel(LogLevel level) {
         this.minimumLogLevel = level;
         return this;
     }

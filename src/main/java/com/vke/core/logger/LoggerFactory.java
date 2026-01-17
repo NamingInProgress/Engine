@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class LoggerFactory {
 
     static {
-        init(new LoggerConfig(LogLevel.TRACE), List.of(new ConsoleOutput()));
+        init(new LoggerConfig(LogLevel.TRACE), List.of(new ConsoleOutput(System.out)));
     }
 
-    private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
+    private static final Map<String, CoreLogger> LOGGERS = new ConcurrentHashMap<>();
 
     private static LoggerConfig config;
     private static List<LoggerOutput> sharedOutputs;
@@ -25,12 +25,12 @@ public final class LoggerFactory {
         LoggerFactory.sharedOutputs = sharedOutputs;
     }
 
-    public static Logger get(String name) {
+    public static CoreLogger get(String name) {
         return LOGGERS.computeIfAbsent(name, LoggerFactory::createLogger);
     }
 
-    private static Logger createLogger(String name) {
-        return new Logger(name, sharedOutputs, config.defaultLevel());
+    private static CoreLogger createLogger(String name) {
+        return new CoreLogger(name, sharedOutputs, config.defaultLevel());
     }
 
 }
