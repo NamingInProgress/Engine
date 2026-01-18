@@ -2,12 +2,17 @@ package com.vke.core.rendering.vulkan;
 
 import com.vke.utils.Colors;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Pointer;
 import org.lwjgl.vulkan.EXTDebugUtils;
+import org.lwjgl.vulkan.VK14;
+import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -29,6 +34,7 @@ public class Utils {
             ByteBuffer bb = stack.UTF8(s);
             buf.put(i++, bb);
         }
+        buf.flip();
         return buf;
     }
 
@@ -84,4 +90,32 @@ public class Utils {
         };
     }
 
+    public static <T> Collection<T> collectIter(Iterator<T> iter, int sizeHint) {
+        ArrayList<T> list;
+        if (sizeHint >= 0) {
+            list = new ArrayList<>(sizeHint);
+        } else {
+            list = new ArrayList<>();
+        }
+        iter.forEachRemaining(list::add);
+        return list;
+    }
+
+    public static Iterator<String> getGlfwExtensionNames(MemoryStack stack) {
+        PointerBuffer glfwExtensions = GLFWVulkan.glfwGetRequiredInstanceExtensions();
+        if (glfwExtensions == null) {
+            glfwExtensions = stack.callocPointer(0);
+        }
+        return Utils.unwrapStrings(glfwExtensions, glfwExtensions.capacity());
+    }
+
+    public static String getGpuName(MemoryStack stack, VkPhysicalDevice device) {
+        VkPhysicalDeviceProperties p = VkPhysicalDeviceProperties.calloc(stack);
+        VK14.vkGetPhysicalDeviceProperties(device, p);
+        return p.deviceNameString();
+    }
+
+    public static boolean bitsContains(int provided, int wanted) {
+        return (provided & wanted) == wanted;
+    }
 }
