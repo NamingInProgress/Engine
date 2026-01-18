@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         EngineCreateInfo createInfo = new EngineCreateInfo();
-        //createInfo.releaseMode = false;
+        createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         VKEngine engine = new VKEngine(createInfo);

@@ -9,7 +9,6 @@ import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -17,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VulkanSetup {
+
     private static final String HERE = "Vulkan Init";
-    public static final VkDebugUtilsMessengerCallbackEXTI debugMessengerCallback = (severity, type, pCallbackData, pUserData) -> {
+
+    private static final VkDebugUtilsMessengerCallbackEXTI debugMessengerCallback = (severity, type, pCallbackData, pUserData) -> {
         VkDebugUtilsMessengerCallbackDataEXT data = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
         LoggerFactory.get("VK-Debug").log(LogLevel.fromVkMessageSeverity(severity), "%s: %s".formatted(Utils.getDebugMessageType(type), data.pMessageString()));
         data.close();
@@ -34,7 +35,7 @@ public class VulkanSetup {
     }
 
     public void initVulkan(VKEngine engine) {
-        if (!engineCreateInfo.releaseMode) engineCreateInfo.vkExtensions.add("VK_EXT_debug_utils");
+        if (!engineCreateInfo.releaseMode) engineCreateInfo.vkExtensions.add(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkApplicationInfo appInfo = VkApplicationInfo.calloc(stack)
@@ -45,7 +46,7 @@ public class VulkanSetup {
                     .engineVersion(engineCreateInfo.engineVersion.getVkFormatVersion())
                     .apiVersion(engineCreateInfo.vkAPIVersion.getVkFormatVersion());
 
-            ArrayList<ByteBuffer> extensions = enumerateExtensions(engine, stack);
+            ArrayList<ByteBuffer> extensions = enumerateExtensions(engine);
 
             PointerBuffer validationLayer = null;
             if (!engineCreateInfo.releaseMode) {
@@ -54,12 +55,15 @@ public class VulkanSetup {
                 validationLayer.flip();
             }
 
+            PointerBuffer testBuffer = stack.mallocPointer(1);
+            testBuffer.put(stack.UTF8(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME));
+            testBuffer.flip();
             VkInstanceCreateInfo createInfo = VkInstanceCreateInfo.calloc(stack)
                     .sType(VK14.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
                     .ppEnabledLayerNames(validationLayer)
-                    .ppEnabledExtensionNames(Utils.wrap(stack, extensions));
-            System.out.println(createInfo.enabledLayerCount());
+                    .ppEnabledExtensionNames(testBuffer);
+            System.out.println(createInfo.enabledExtensionCount());
 
             PointerBuffer pInstance = stack.mallocPointer(1);
             if (VK14.vkCreateInstance(createInfo, null, pInstance) != VK14.VK_SUCCESS) {
@@ -67,7 +71,7 @@ public class VulkanSetup {
             }
             instance = new VkInstance(pInstance.get(0), createInfo);
 
-            setupDebugMessenger(instance, engine, stack);
+            setupDebugMessenger(instance, engine);
 
             LongBuffer pSurface = stack.mallocLong(1);
             GLFWVulkan.glfwCreateWindowSurface(instance, engine.getWindow().getHandle(), null, pSurface);
@@ -81,58 +85,63 @@ public class VulkanSetup {
         VK14.vkDestroyInstance(instance, null);
     }
 
-    private void setupDebugMessenger(VkInstance instance, VKEngine engine, MemoryStack stack) {
+    private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
         if (engineCreateInfo.releaseMode) return;
 
-        VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc(stack)
-                .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                                    EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                    EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                                    EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-                .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                        EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                        EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
-                .pfnUserCallback(debugMessengerCallback);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc()
+                    .sType$Default()
+                    .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+                    .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+                    .pfnUserCallback(debugMessengerCallback);
 
-        LongBuffer pMessenger = stack.mallocLong(1);
+            LongBuffer pMessenger = stack.mallocLong(1);
 
-        if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, debugMessengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
-            engine.throwException(new IllegalStateException("Debug Messenger couldn't be created!"), HERE);
+            if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, debugMessengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
+                engine.throwException(new IllegalStateException("Debug Messenger couldn't be created!"), HERE);
+            }
+            debugMessenger = pMessenger.get(0);
         }
-        debugMessenger = pMessenger.get(0);
     }
 
-    private VkPhysicalDevice pickGpu(MemoryStack stack, VKEngine engine, EngineCreateInfo createInfo) {
-        VkPhysicalDeviceVulkan14Features features14 = VkPhysicalDeviceVulkan14Features.calloc(stack);
-        VkPhysicalDeviceVulkan13Features features13 = VkPhysicalDeviceVulkan13Features.calloc(stack);
-        features13.dynamicRendering(true);
-        features13.synchronization2(true);
+    private VkPhysicalDevice pickGpu(VKEngine engine, EngineCreateInfo createInfo) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkPhysicalDeviceVulkan14Features features14 = VkPhysicalDeviceVulkan14Features.calloc(stack);
+            VkPhysicalDeviceVulkan13Features features13 = VkPhysicalDeviceVulkan13Features.calloc(stack);
+            features13.dynamicRendering(true);
+            features13.synchronization2(true);
 
-        VkPhysicalDeviceVulkan12Features features12 = VkPhysicalDeviceVulkan12Features.calloc(stack);
-        features12.bufferDeviceAddress(true);
-        features12.descriptorIndexing(true);
+            VkPhysicalDeviceVulkan12Features features12 = VkPhysicalDeviceVulkan12Features.calloc(stack);
+            features12.bufferDeviceAddress(true);
+            features12.descriptorIndexing(true);
 
-        IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
-        VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
+            IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
+            VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
 
-        PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
-        VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+            PointerBuffer pPhysicalDevices = stack.mallocPointer(pPhysicalDeviceCount.get(0));
+            VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
-        int deviceCount = pPhysicalDeviceCount.get(0);
+            int deviceCount = pPhysicalDeviceCount.get(0);
 
-        VkPhysicalDevice bestDevice = null;
-        int bestScore = 0;
-        for (int i = 0; i < deviceCount; i++) {
-            VkPhysicalDevice device = new VkPhysicalDevice(pPhysicalDevices.get(i), instance);
-            if (!meetsRequirements(device, engine, createInfo)) continue;
+            VkPhysicalDevice bestDevice = null;
+            int bestScore = 0;
+            for (int i = 0; i < deviceCount; i++) {
+                VkPhysicalDevice device = new VkPhysicalDevice(pPhysicalDevices.get(i), instance);
+                if (!meetsRequirements(device, engine, createInfo)) continue;
 
-            int score = scoreDevice(stack, device);
-            if (score > bestScore) {
-                bestScore = score;
-                bestDevice = device;
+                int score = scoreDevice(stack, device);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestDevice = device;
+                }
             }
+            return bestDevice;
         }
-        return bestDevice;
     }
 
     private boolean meetsRequirements(VkPhysicalDevice device, VKEngine engine, EngineCreateInfo createInfo) {
@@ -149,16 +158,18 @@ public class VulkanSetup {
         return 0;
     }
 
-    private ArrayList<ByteBuffer> enumerateExtensions(VKEngine engine, MemoryStack stack) {
-        ArrayList<ByteBuffer> extensions = new ArrayList<>();
+    private ArrayList<ByteBuffer> enumerateExtensions(VKEngine engine) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            ArrayList<ByteBuffer> extensions = new ArrayList<>();
 
-        String missingExtension = validateExtensions(stack, engineCreateInfo.vkExtensions, GLFWVulkan.glfwGetRequiredInstanceExtensions());
-        if (missingExtension != null) {
-            engine.throwException(new IllegalStateException("Missing extension %s".formatted(missingExtension)), HERE);
+            String missingExtension = validateExtensions(stack, engineCreateInfo.vkExtensions, GLFWVulkan.glfwGetRequiredInstanceExtensions());
+            if (missingExtension != null) {
+                engine.throwException(new IllegalStateException("Missing extension %s".formatted(missingExtension)), HERE);
+            }
+
+            engineCreateInfo.vkExtensions.forEach(extension -> extensions.add(stack.UTF8(extension)));
+            return extensions;
         }
-
-        engineCreateInfo.vkExtensions.forEach(extension -> extensions.add(stack.UTF8(extension)));
-        return extensions;
     }
 
     private String validateExtensions(MemoryStack stack, List<String> customExtensions, PointerBuffer glfwExtensions) {

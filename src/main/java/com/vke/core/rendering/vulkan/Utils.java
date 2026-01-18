@@ -13,11 +13,12 @@ import java.util.Iterator;
 
 public class Utils {
     public static PointerBuffer wrap(MemoryStack stack, Collection<ByteBuffer> c) {
-        PointerBuffer buf = stack.mallocPointer(c.size() * Long.BYTES);
+        PointerBuffer buf = stack.mallocPointer(c.size());
         int i = 0;
         for (ByteBuffer t : c) {
             buf.put(i++, t);
         }
+        buf.flip();
         return buf;
     }
 

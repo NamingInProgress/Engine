@@ -8,6 +8,8 @@ import org.lwjgl.system.MemoryUtil;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Window {
+    private static final String HERE = "Window Init";
+
     private final long window;
 
     public Window(VKEngine engine, WindowCreateInfo windowCreateInfo) throws IllegalStateException {
@@ -27,8 +29,7 @@ public class Window {
         window = glfwCreateWindow(windowCreateInfo.width, windowCreateInfo.height, windowCreateInfo.title, MemoryUtil.NULL, MemoryUtil.NULL);
 
         if (window == MemoryUtil.NULL) {
-            engine.getLogger().fatal("Failed to create a window!");
-            throw new IllegalStateException("Failed to create window handle!");
+            engine.throwException(new IllegalStateException("Failed to create window handle!"), HERE);
         }
 
         int[] pWidth = new int[1];
@@ -38,8 +39,7 @@ public class Window {
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         if (vidMode == null) {
-            engine.getLogger().fatal("Failed to get Video Mode!");
-            throw new IllegalStateException("Failed to get Video Mode for primary monitor!");
+            engine.throwException(new IllegalStateException("Failed to get Video Mode for primary monitor!"), HERE);
         }
 
         glfwSetWindowPos(
