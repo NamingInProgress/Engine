@@ -8,6 +8,8 @@ import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.memory.CStringArray;
+import com.vke.core.memory.HeapAllocator;
 import com.vke.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -50,9 +52,9 @@ public class VulkanSetup {
         ArrayList<String> usedExtensions = new ArrayList<>();
         ArrayList<String> usedLayers = new ArrayList<>();
 
-        PointerBuffer validationLayers = collectValidationLayers(engine, usedLayers);
-        PointerBuffer extensions = collectRequiredExtensions(engine, usedExtensions);
-
+        HeapAllocator alloc = new HeapAllocator();
+        PointerBuffer validationLayers = collectValidationLayers(alloc, engine, usedLayers);
+        PointerBuffer extensions = collectRequiredExtensions(alloc, engine, usedExtensions);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkApplicationInfo appInfo = VkApplicationInfo.calloc(stack)
                     .sType(VK14.VK_STRUCTURE_TYPE_APPLICATION_INFO)
@@ -95,6 +97,7 @@ public class VulkanSetup {
             deviceCreateInfo.engineCreateInfo = engineCreateInfo;
             LogicalDevice device = new LogicalDevice(engine, deviceCreateInfo);
         }
+        alloc.close();
     }
 
     public void cleanUp() {
@@ -210,7 +213,7 @@ public class VulkanSetup {
         return score;
     }
 
-    private PointerBuffer collectRequiredExtensions(VKEngine engine, List<String> usedExtensionsOut) {
+    private PointerBuffer collectRequiredExtensions(HeapAllocator alloc, VKEngine engine, List<String> usedExtensionsOut) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             ArrayList<String> stringExtensions = new ArrayList<>(vulkanCreateInfo.extensions);
             Utils.getGlfwExtensionNames(stack).forEachRemaining(stringExtensions::add);
@@ -239,7 +242,7 @@ public class VulkanSetup {
         }
     }
 
-    private PointerBuffer collectValidationLayers(VKEngine engine, List<String> usedLayerOut) {
+    private PointerBuffer collectValidationLayers(HeapAllocator alloc, VKEngine engine, List<String> usedLayerOut) {
         if (!engineCreateInfo.releaseMode) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 List<String> layers = Consts.LAYERS;
@@ -256,7 +259,7 @@ public class VulkanSetup {
                     engine.throwException(new RuntimeException("Missing validation layer %s!".formatted(missing)), HERE);
                 }
 
-                PointerBuffer validationLayers = MemoryUtil.memAllocPointer(layers.size());
+                CStringArray validationLayers = alloc.strings(layers.size());
                 for (String layer : layers) {
                     validationLayers.put(MemoryUtil.memUTF8(layer));
                     if (usedLayerOut != null) {
