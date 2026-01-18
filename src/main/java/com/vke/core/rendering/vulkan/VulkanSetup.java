@@ -12,6 +12,7 @@ import com.vke.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -34,6 +35,8 @@ public class VulkanSetup {
     private final VulkanCreateInfo vulkanCreateInfo;
     private VkInstance instance;
     private long surface, debugMessenger;
+
+    private PointerBuffer validationBuffer;
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
         this.engineCreateInfo = engineCreateInfo;
@@ -98,6 +101,12 @@ public class VulkanSetup {
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
+
+        for (int i = 0; i < validationBuffer.capacity(); i++) {
+            long validationLayerBuffer = validationBuffer.get(i);
+            MemoryUtil.nmemFree(validationLayerBuffer);
+        }
+        MemoryUtil.memFree(validationBuffer);
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
@@ -247,9 +256,9 @@ public class VulkanSetup {
                     engine.throwException(new RuntimeException("Missing validation layer %s!".formatted(missing)), HERE);
                 }
 
-                PointerBuffer validationLayers = stack.mallocPointer(layers.size());
+                PointerBuffer validationLayers = MemoryUtil.memAllocPointer(layers.size());
                 for (String layer : layers) {
-                    validationLayers.put(stack.UTF8(layer));
+                    validationLayers.put(MemoryUtil.memUTF8(layer));
                     if (usedLayerOut != null) {
                         usedLayerOut.add(layer);
                     }
