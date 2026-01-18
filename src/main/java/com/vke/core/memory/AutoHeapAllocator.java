@@ -1,8 +1,11 @@
 package com.vke.core.memory;
 
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Struct;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class AutoHeapAllocator implements AutoCloseable {
 
@@ -18,6 +21,17 @@ public class AutoHeapAllocator implements AutoCloseable {
         charP s = new charP(MemoryUtil.memUTF8(sqn));
         objects.add(s);
         return s;
+    }
+
+    public voidP alloc(int size) {
+        voidP v = new voidP(MemoryUtil.memAlloc(size));
+        objects.add(v);
+        return v;
+    }
+
+    public <T> T allocStruct(int size, Function<ByteBuffer, T> creator) {
+        voidP container = alloc(size);
+        return creator.apply(container.getHeapObject());
     }
 
     @Override

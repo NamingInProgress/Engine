@@ -1,18 +1,20 @@
 package com.vke.api.vulkan;
 
 import com.vke.core.EngineCreateInfo;
+import com.vke.core.rendering.vulkan.PhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 
 public class LogicalDeviceCreateInfo {
 
     public EngineCreateInfo engineCreateInfo;
+    public PhysicalDevice physicalDeviceWrapper;
     public VkPhysicalDevice physicalDevice;
-    public int[] queueIndices;
+    public long surfaceHandle;
 
-    public LogicalDeviceCreateInfo(EngineCreateInfo engineCreateInfo, VkPhysicalDevice physicalDevice, int[] queueIndices) {
+    public LogicalDeviceCreateInfo(EngineCreateInfo engineCreateInfo, PhysicalDevice physicalDevice) {
         this.engineCreateInfo = engineCreateInfo;
-        this.physicalDevice = physicalDevice;
-        this.queueIndices = queueIndices;
+        this.physicalDeviceWrapper = physicalDevice;
+        this.physicalDevice = physicalDevice.getDevice();
     }
 
     public LogicalDeviceCreateInfo() {}

@@ -1,6 +1,5 @@
 package com.vke.core.rendering.vulkan;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.vulkan.LogicalDeviceCreateInfo;
@@ -10,11 +9,9 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -29,7 +26,7 @@ public class VulkanSetup {
 
     private static final VkDebugUtilsMessengerCallbackEXTI debugMessengerCallback = (severity, type, pCallbackData, pUserData) -> {
         VkDebugUtilsMessengerCallbackDataEXT data = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
-        LoggerFactory.get("VK-Debug").log(LogLevel.fromVkMessageSeverity(severity), "%s: %s".formatted(Utils.getDebugMessageType(type), data.pMessageString()));
+        LoggerFactory.get("VK-Debug").log(LogLevel.fromVkMessageSeverity(severity), "%s: %s".formatted(VKUtils.getDebugMessageType(type), data.pMessageString()));
         return VK14.VK_FALSE;
     };
 
@@ -38,7 +35,7 @@ public class VulkanSetup {
     private VkInstance instance;
     private long surface, debugMessenger;
 
-    private PointerBuffer validationBuffer;
+    private AutoHeapAllocator alloc;
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
         this.engineCreateInfo = engineCreateInfo;
@@ -52,7 +49,8 @@ public class VulkanSetup {
         ArrayList<String> usedExtensions = new ArrayList<>();
         ArrayList<String> usedLayers = new ArrayList<>();
 
-        try (MemoryStack stack = MemoryStack.stackPush(); AutoHeapAllocator alloc = new AutoHeapAllocator()) {
+        alloc = new AutoHeapAllocator();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer validationLayers = collectValidationLayers(alloc, engine, usedLayers);
             PointerBuffer extensions = collectRequiredExtensions(alloc, engine, usedExtensions);
 
@@ -87,15 +85,18 @@ public class VulkanSetup {
             surface = pSurface.get(0);
 
             /**  Device Setup  **/
-            Pair<VkPhysicalDevice, IntArrayList> physicalDeviceWrapper = pickGpu(engine, engineCreateInfo, vulkanCreateInfo.gpuExtensions);
-            String name = Utils.getGpuName(stack, physicalDeviceWrapper.v1);
-            engine.getLogger().info("Using GPU: " + name);
+            PhysicalDevice physicalDevice = pickGpu(engine, engineCreateInfo, vulkanCreateInfo.gpuExtensions);
+            engine.getLogger().info("Using GPU: " + physicalDevice.getName());
 
             LogicalDeviceCreateInfo deviceCreateInfo = new LogicalDeviceCreateInfo();
-            deviceCreateInfo.physicalDevice = physicalDeviceWrapper.v1;
-            deviceCreateInfo.queueIndices = physicalDeviceWrapper.v2.toArray();
+            deviceCreateInfo.physicalDevice = physicalDevice.getDevice();
+            deviceCreateInfo.physicalDeviceWrapper = physicalDevice;
             deviceCreateInfo.engineCreateInfo = engineCreateInfo;
+            deviceCreateInfo.surfaceHandle = surface;
             LogicalDevice device = new LogicalDevice(engine, deviceCreateInfo);
+
+            /**  Swapchain Setup  **/
+
         }
     }
 
@@ -103,12 +104,7 @@ public class VulkanSetup {
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
-
-        for (int i = 0; i < validationBuffer.capacity(); i++) {
-            long validationLayerBuffer = validationBuffer.get(i);
-            MemoryUtil.nmemFree(validationLayerBuffer);
-        }
-        MemoryUtil.memFree(validationBuffer);
+        if (alloc != null) alloc.close();
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
@@ -135,7 +131,7 @@ public class VulkanSetup {
         }
     }
 
-    private Pair<VkPhysicalDevice, IntArrayList> pickGpu(VKEngine engine, EngineCreateInfo createInfo, List<String> extensions) {
+    private PhysicalDevice pickGpu(VKEngine engine, EngineCreateInfo createInfo, List<String> extensions) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
             VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
@@ -145,60 +141,52 @@ public class VulkanSetup {
 
             int deviceCount = pPhysicalDeviceCount.get(0);
 
-            VkPhysicalDevice bestDevice = null;
+            PhysicalDevice bestDevice = null;
             int bestScore = 0;
             for (int i = 0; i < deviceCount; i++) {
                 VkPhysicalDevice device = new VkPhysicalDevice(pPhysicalDevices.get(i), instance);
-                if (!meetsRequirements(device, engine, createInfo, extensions)) continue;
+                PhysicalDevice d = new PhysicalDevice(device);
 
-                int score = scoreDevice(stack, device);
+                if (!meetsRequirements(d, engine, createInfo, extensions)) continue;
+
+                int score = scoreDevice(d);
                 if (score > bestScore) {
                     bestScore = score;
-                    bestDevice = device;
+                    bestDevice = d;
                 }
             }
 
-            return new Pair<>(bestDevice, getRequiredQueueFamilyIndices(bestDevice, vulkanCreateInfo.requiredQueueFamilyBits));
+            return bestDevice;
         }
     }
 
-    private boolean meetsRequirements(VkPhysicalDevice device, VKEngine engine, EngineCreateInfo createInfo, List<String> extensions) {
-        try(MemoryStack stack = MemoryStack.stackPush()) {
-            VKCapabilitiesInstance c = device.getCapabilities();
+    private boolean meetsRequirements(PhysicalDevice device, VKEngine engine, EngineCreateInfo createInfo, List<String> extensions) {
+        VKCapabilitiesInstance c = device.getCapabilities();
 
-            if (!createInfo.releaseMode && !c.VK_EXT_debug_utils) {
-                return false;
-            }
-            if (c.apiVersion < 14) {
-                return false;
-            }
-
-            if (getRequiredQueueFamilyIndices(device, vulkanCreateInfo.requiredQueueFamilyBits) == null) {
-                return false;
-            }
-
-            IntBuffer pExtCount = stack.mallocInt(1);
-            VK14.vkEnumerateDeviceExtensionProperties(device, (ByteBuffer) null, pExtCount, null);
-
-            VkExtensionProperties.Buffer extBuffer = VkExtensionProperties.malloc(pExtCount.get(0), stack);
-            VK14.vkEnumerateDeviceExtensionProperties(device, (ByteBuffer) null, pExtCount, extBuffer);
-
-            String missingExt = validateRequestedExtensions(extBuffer, extensions);
-            if (missingExt != null) {
-                String deviceName = Utils.getGpuName(stack, device);
-                Logger logger = engine.getLogger();
-                logger.info("Couldn't select %s, because it doesn't support extension %s!", deviceName, missingExt);
-                return false;
-            }
-
-            return true;
+        if (!createInfo.releaseMode && !c.VK_EXT_debug_utils) {
+            return false;
         }
+        if (c.apiVersion < 14) {
+            return false;
+        }
+
+        if (!validateRequiredQueueFamilies(device, vulkanCreateInfo.requiredQueueFamilyBits)) {
+            return false;
+        }
+
+        String missingExt = validateRequestedExtensions(device.getExtensionsBuffer(), extensions);
+        if (missingExt != null) {
+            Logger logger = engine.getLogger();
+            logger.info("Couldn't select %s, because it doesn't support extension %s!", device.getName(), missingExt);
+            return false;
+        }
+
+        return true;
     }
 
-    private int scoreDevice(MemoryStack stack, VkPhysicalDevice device) {
+    private int scoreDevice(PhysicalDevice device) {
         int score = 0;
-        VkPhysicalDeviceProperties properties = VkPhysicalDeviceProperties.calloc(stack);
-        VK14.vkGetPhysicalDeviceProperties(device, properties);
+        VkPhysicalDeviceProperties properties = device.getProperties();
 
         if (properties.deviceType() == VK14.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             score += 1000;
@@ -215,7 +203,7 @@ public class VulkanSetup {
     private PointerBuffer collectRequiredExtensions(AutoHeapAllocator alloc, VKEngine engine, List<String> usedExtensionsOut) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             ArrayList<String> stringExtensions = new ArrayList<>(vulkanCreateInfo.extensions);
-            Utils.getGlfwExtensionNames(stack).forEachRemaining(stringExtensions::add);
+            VKUtils.getGlfwExtensionNames(stack).forEachRemaining(stringExtensions::add);
 
             IntBuffer count = stack.mallocInt(1);
             VK14.vkEnumerateInstanceExtensionProperties((ByteBuffer) null, count, null);
@@ -289,29 +277,16 @@ public class VulkanSetup {
         return null;
     }
 
-    private IntArrayList getRequiredQueueFamilyIndices(VkPhysicalDevice device, int requireQueueFlagBits) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntArrayList queueIndices = new IntArrayList();
+    private boolean validateRequiredQueueFamilies(PhysicalDevice device, int requireQueueFlagBits) {
+        VkQueueFamilyProperties.Buffer queueFamilies = device.getQueueFamilyBuffer();
 
-            IntBuffer count = stack.mallocInt(1);
-            VK14.vkGetPhysicalDeviceQueueFamilyProperties(device, count, null);
+        int a = 0;
 
-            VkQueueFamilyProperties.Buffer props = VkQueueFamilyProperties.malloc(count.get(0), stack);
-            VK14.vkGetPhysicalDeviceQueueFamilyProperties(device, count, props);
-
-            int a = 0;
-
-            for (int i = 0; i < count.get(0); i++) {
-                var queueFamily = props.get(i);
-                a |= queueFamily.queueFlags();
-
-                if ((queueFamily.queueFlags() & requireQueueFlagBits) != 0) queueIndices.add(i);
-            }
-
-            if ((a & requireQueueFlagBits) == requireQueueFlagBits) return queueIndices;
+        for (VkQueueFamilyProperties props : queueFamilies) {
+            a |= props.queueFlags();
         }
 
-        return null;
+        return (a & requireQueueFlagBits) == requireQueueFlagBits;
     }
 
     private String validateRequestedLayers(VkLayerProperties.Buffer props, List<String> layers) {

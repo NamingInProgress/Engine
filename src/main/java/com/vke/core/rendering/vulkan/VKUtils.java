@@ -5,18 +5,14 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Pointer;
-import org.lwjgl.vulkan.EXTDebugUtils;
-import org.lwjgl.vulkan.VK14;
-import org.lwjgl.vulkan.VkPhysicalDevice;
-import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class Utils {
+public class VKUtils {
     public static PointerBuffer wrap(MemoryStack stack, Collection<ByteBuffer> c) {
         PointerBuffer buf = stack.mallocPointer(c.size());
         int i = 0;
@@ -106,7 +102,7 @@ public class Utils {
         if (glfwExtensions == null) {
             glfwExtensions = stack.callocPointer(0);
         }
-        return Utils.unwrapStrings(glfwExtensions, glfwExtensions.capacity());
+        return VKUtils.unwrapStrings(glfwExtensions, glfwExtensions.capacity());
     }
 
     public static String getGpuName(MemoryStack stack, VkPhysicalDevice device) {
@@ -117,5 +113,12 @@ public class Utils {
 
     public static boolean bitsContains(int provided, int wanted) {
         return (provided & wanted) == wanted;
+    }
+    
+    public static VkExtent2D clampExtent(MemoryStack stack, int width, int height, VkExtent2D min, VkExtent2D max) {
+        VkExtent2D extent = VkExtent2D.calloc(stack);
+        extent.width(Math.clamp(width, min.width(), max.width()));
+        extent.height(Math.clamp(height, min.height(), max.height()));
+        return extent;
     }
 }
