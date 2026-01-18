@@ -27,7 +27,6 @@ public class VulkanSetup {
     private static final VkDebugUtilsMessengerCallbackEXTI debugMessengerCallback = (severity, type, pCallbackData, pUserData) -> {
         VkDebugUtilsMessengerCallbackDataEXT data = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
         LoggerFactory.get("VK-Debug").log(LogLevel.fromVkMessageSeverity(severity), "%s: %s".formatted(Utils.getDebugMessageType(type), data.pMessageString()));
-        data.close();
         return VK14.VK_FALSE;
     };
 

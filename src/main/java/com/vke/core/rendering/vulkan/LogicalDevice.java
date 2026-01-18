@@ -39,8 +39,7 @@ public class LogicalDevice {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer extBuf = Utils.wrapStrings(stack, extensions);
 
-            VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc(1, stack);
-            //FloatBuffer prio = stack.floats(0.5f);
+            VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc(queueFamilies.length, stack);
             for (int i = 0; i < queueFamilies.length; i++) {
                 int familyIndex = queueFamilies[i];
                 FloatBuffer priorities = stack.floats(0.5f);
