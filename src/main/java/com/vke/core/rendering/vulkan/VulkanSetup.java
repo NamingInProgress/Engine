@@ -8,8 +8,8 @@ import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.memory.CStringArray;
-import com.vke.core.memory.HeapAllocator;
+import com.vke.core.memory.charPP;
+import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -52,10 +52,10 @@ public class VulkanSetup {
         ArrayList<String> usedExtensions = new ArrayList<>();
         ArrayList<String> usedLayers = new ArrayList<>();
 
-        HeapAllocator alloc = new HeapAllocator();
-        PointerBuffer validationLayers = collectValidationLayers(alloc, engine, usedLayers);
-        PointerBuffer extensions = collectRequiredExtensions(alloc, engine, usedExtensions);
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        try (MemoryStack stack = MemoryStack.stackPush(); AutoHeapAllocator alloc = new AutoHeapAllocator()) {
+            PointerBuffer validationLayers = collectValidationLayers(alloc, engine, usedLayers);
+            PointerBuffer extensions = collectRequiredExtensions(alloc, engine, usedExtensions);
+
             VkApplicationInfo appInfo = VkApplicationInfo.calloc(stack)
                     .sType(VK14.VK_STRUCTURE_TYPE_APPLICATION_INFO)
                     .pApplicationName(stack.UTF8(engineCreateInfo.applicationName))
@@ -97,7 +97,6 @@ public class VulkanSetup {
             deviceCreateInfo.engineCreateInfo = engineCreateInfo;
             LogicalDevice device = new LogicalDevice(engine, deviceCreateInfo);
         }
-        alloc.close();
     }
 
     public void cleanUp() {
@@ -213,7 +212,7 @@ public class VulkanSetup {
         return score;
     }
 
-    private PointerBuffer collectRequiredExtensions(HeapAllocator alloc, VKEngine engine, List<String> usedExtensionsOut) {
+    private PointerBuffer collectRequiredExtensions(AutoHeapAllocator alloc, VKEngine engine, List<String> usedExtensionsOut) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             ArrayList<String> stringExtensions = new ArrayList<>(vulkanCreateInfo.extensions);
             Utils.getGlfwExtensionNames(stack).forEachRemaining(stringExtensions::add);
@@ -229,20 +228,21 @@ public class VulkanSetup {
                 engine.throwException(new IllegalStateException("Missing extension %s".formatted(missingExtension)), HERE);
             }
 
-            PointerBuffer extensionBuffer = stack.mallocPointer(stringExtensions.size());
+            charPP extensionBuffer = alloc.charPP(stringExtensions.size());
             stringExtensions.forEach(ext -> {
-                extensionBuffer.put(stack.UTF8(ext));
+                extensionBuffer.utf8(ext);
                 if (usedExtensionsOut != null) {
                     usedExtensionsOut.add(ext);
                 }
             });
-            extensionBuffer.flip();
+            PointerBuffer pb = extensionBuffer.getHeapObject();
+            pb.flip();
 
-            return extensionBuffer;
+            return pb;
         }
     }
 
-    private PointerBuffer collectValidationLayers(HeapAllocator alloc, VKEngine engine, List<String> usedLayerOut) {
+    private PointerBuffer collectValidationLayers(AutoHeapAllocator alloc, VKEngine engine, List<String> usedLayerOut) {
         if (!engineCreateInfo.releaseMode) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 List<String> layers = Consts.LAYERS;
@@ -259,16 +259,17 @@ public class VulkanSetup {
                     engine.throwException(new RuntimeException("Missing validation layer %s!".formatted(missing)), HERE);
                 }
 
-                CStringArray validationLayers = alloc.strings(layers.size());
+                charPP validationLayers = alloc.charPP(layers.size());
                 for (String layer : layers) {
-                    validationLayers.put(MemoryUtil.memUTF8(layer));
+                    validationLayers.utf8(layer);
                     if (usedLayerOut != null) {
                         usedLayerOut.add(layer);
                     }
                 }
-                validationLayers.flip();
+                PointerBuffer pb = validationLayers.getHeapObject();
+                pb.flip();
 
-                return validationLayers;
+                return pb;
             }
         }
 
