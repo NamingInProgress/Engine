@@ -5,7 +5,6 @@ import org.lwjgl.vulkan.VkQueue;
 import java.util.Objects;
 
 public class VulkanQueue {
-
     private final VkQueue queue;
     private final int familyIndex;
     private final VkQueueType queueType;
@@ -18,10 +17,8 @@ public class VulkanQueue {
     }
 
     public static enum VkQueueType {
-
         GRAPHICS,
-        COMPUTE
-
+        COMPUTE,
+        PRESENT
     }
-
 }

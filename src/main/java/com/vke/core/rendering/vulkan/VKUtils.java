@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan;
 
+import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Colors;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -8,6 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -121,4 +123,18 @@ public class VKUtils {
         extent.height(Math.clamp(height, min.height(), max.height()));
         return extent;
     }
+
+    public static VkExtent2D clampExtent(AutoHeapAllocator alloc, int width, int height, VkExtent2D min, VkExtent2D max) {
+        VkExtent2D extent = alloc.allocStruct(VkExtent2D.SIZEOF, VkExtent2D::new);
+        extent.width(Math.clamp(width, min.width(), max.width()));
+        extent.height(Math.clamp(height, min.height(), max.height()));
+        return extent;
+    }
+
+    public static boolean isPresentQueue(MemoryStack stack, PhysicalDevice physicalDevice, int index, long surfaceHandle) {
+        IntBuffer output = stack.mallocInt(1);
+        KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.getDevice(), index, surfaceHandle, output);
+        return output.get(0) == 1;
+    }
+
 }

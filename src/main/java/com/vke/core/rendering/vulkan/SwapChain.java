@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan;
 import com.vke.api.vulkan.SwapChainCreateInfo;
 import com.vke.api.vulkan.VkPresentMode;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.memory.intP;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
@@ -14,16 +15,20 @@ import java.nio.IntBuffer;
 public class SwapChain implements Disposable {
 
     private SwapChainCreateInfo info;
-    private KHRSwapchain swapchain;
+    private KHRSwapchain swapChain;
+    private VkSurfaceFormatKHR.Buffer formats;
+    private IntBuffer modes;
+    private VkSurfaceCapabilitiesKHR capabilities;
+    private VkExtent2D extent;
 
-    private AutoHeapAllocator alloc;
+    private final AutoHeapAllocator alloc;
 
     public SwapChain(SwapChainCreateInfo createInfo) {
         this.info = createInfo;
         this.alloc = new AutoHeapAllocator();
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            VkSurfaceCapabilitiesKHR pCap = VkSurfaceCapabilitiesKHR.calloc(stack);
+            VkSurfaceCapabilitiesKHR pCap = alloc.allocStruct(VkSurfaceCapabilitiesKHR.SIZEOF, VkSurfaceCapabilitiesKHR::new);
             VkPhysicalDevice pd = createInfo.physicalDevice.getDevice();
 
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pd, createInfo.surface, pCap);
@@ -31,15 +36,49 @@ public class SwapChain implements Disposable {
             IntBuffer pFormatCount = stack.mallocInt(1);
             KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(pd, createInfo.surface, pFormatCount, null);
             int formatCount = pFormatCount.get(0);
-            VkSurfaceFormatKHR.Buffer pFormat = VkSurfaceFormatKHR.calloc(formatCount, stack);
+            VkSurfaceFormatKHR.Buffer pFormat = alloc.allocBuffer(VkSurfaceFormatKHR.SIZEOF, formatCount, VkSurfaceFormatKHR.Buffer::new);
             KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(pd, createInfo.surface, pFormatCount, pFormat);
 
             IntBuffer pPresentCount = stack.mallocInt(1);
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(pd, createInfo.surface, pPresentCount, null);
             int presentCount = pPresentCount.get(0);
-            IntBuffer pModes = stack.mallocInt(presentCount);
+            intP pModesHeap = alloc.allocInt(presentCount);
+            IntBuffer pModes = pModesHeap.getHeapObject();
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(pd, createInfo.surface, pPresentCount, pModes);
+
+            this.capabilities = pCap;
+            this.formats = pFormat;
+            this.modes = pModes;
         }
+    }
+
+    public VkSwapchainCreateInfoKHR getSwapChainCreateInfo(MemoryStack stack, VkSurfaceFormatKHR.Buffer pFormat, IntBuffer pModes, VkSurfaceCapabilitiesKHR pCapabilities) {
+        VkSurfaceFormatKHR format = chooseFormat(pFormat);
+        int presentMode = choosePresentMode(pModes);
+        VkExtent2D extent2D = chooseExtent(pCapabilities);
+        int minImageCount = Math.max(3, pCapabilities.minImageCount());
+        minImageCount = ( pCapabilities.maxImageCount() > 0 && minImageCount > pCapabilities.maxImageCount() ) ? pCapabilities.maxImageCount() : minImageCount;
+
+        int imageCount = (pCapabilities.maxImageCount() > 0 && pCapabilities.minImageCount() + 1 > pCapabilities.maxImageCount()) ?
+                pCapabilities.minImageCount() : pCapabilities.minImageCount() + 1;
+
+        VkSwapchainCreateInfoKHR swapChainCreateInfo = VkSwapchainCreateInfoKHR.calloc(stack)
+                .sType$Default()
+                .surface(info.surface)
+                .minImageCount(minImageCount)
+                .imageFormat(format.format())
+                .imageColorSpace(format.colorSpace())
+                .imageExtent(extent2D)
+                .imageArrayLayers(info.layers)
+                .imageUsage(VK14.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                .preTransform(pCapabilities.currentTransform())
+                .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+                .presentMode(presentMode)
+                .clipped(true);
+
+        if ()
+
+        return swapChainCreateInfo;
     }
 
     public SwapChain recreate(boolean vsync, int width, int height) {
@@ -72,7 +111,13 @@ public class SwapChain implements Disposable {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
             GLFW.glfwGetFramebufferSize(info.windowHandle, pWidth, pHeight);
-
+            return VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
         }
     }
+
+    @Override
+    public void free() {
+        alloc.close();
+    }
+
 }

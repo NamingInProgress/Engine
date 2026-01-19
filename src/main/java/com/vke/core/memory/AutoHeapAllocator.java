@@ -29,8 +29,19 @@ public class AutoHeapAllocator implements AutoCloseable {
         return v;
     }
 
+    public intP allocInt(int size) {
+        intP v = new intP(MemoryUtil.memAllocInt(size));
+        objects.add(v);
+        return v;
+    }
+
     public <T> T allocStruct(int size, Function<ByteBuffer, T> creator) {
         voidP container = alloc(size);
+        return creator.apply(container.getHeapObject());
+    }
+
+    public <T> T allocBuffer(int size, int n, Function<ByteBuffer, T> creator) {
+        voidP container = alloc(size * n);
         return creator.apply(container.getHeapObject());
     }
 
@@ -44,5 +55,4 @@ public class AutoHeapAllocator implements AutoCloseable {
             }
         });
     }
-
 }
