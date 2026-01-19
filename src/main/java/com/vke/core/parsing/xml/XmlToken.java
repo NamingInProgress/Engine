@@ -35,27 +35,27 @@ public class XmlToken implements Token<XmlToken.Type> {
         return type;
     }
 
-    public String asString() throws Tokenizer.TokenException {
+    public String asString() throws Tokenizer.TokenizeException {
         try {
             return (String) value;
         } catch (ClassCastException e) {
-            throw new Tokenizer.TokenException(line, pos, "Tried to get string from " + type);
+            throw new Tokenizer.TokenizeException(line, pos, "Tried to get string from " + type);
         }
     }
 
-    public int asInt() throws Tokenizer.TokenException {
+    public int asInt() throws Tokenizer.TokenizeException {
         try {
             return (int) value;
         } catch (ClassCastException e) {
-            throw new Tokenizer.TokenException(line, pos, "Tried to get int from " + type);
+            throw new Tokenizer.TokenizeException(line, pos, "Tried to get int from " + type);
         }
     }
 
-    public float asFloat() throws Tokenizer.TokenException {
+    public float asFloat() throws Tokenizer.TokenizeException {
         try {
             return (float) value;
         } catch (ClassCastException e) {
-            throw new Tokenizer.TokenException(line, pos, "Tried to get float from " + type);
+            throw new Tokenizer.TokenizeException(line, pos, "Tried to get float from " + type);
         }
     }
 

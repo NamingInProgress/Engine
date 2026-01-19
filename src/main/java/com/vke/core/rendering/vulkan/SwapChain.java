@@ -148,7 +148,7 @@ public class SwapChain implements Disposable {
     }
 
     public int choosePresentMode(IntBuffer pModes) {
-        int[] modes = pModes.array();
+        int[] modes = Utils.acquireIntArrayFromBuffer(pModes);
         if (!info.preferVsync) {
             if (Utils.intsContain(modes, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
                 return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
@@ -159,7 +159,8 @@ public class SwapChain implements Disposable {
 
     private int pickPresentMode(boolean wantsVsync) {
         if (!info.preferVsync) {
-            if (Utils.intsContain(modes.array(), VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
+            int[] modesArr = Utils.acquireIntArrayFromBuffer(modes);
+            if (Utils.intsContain(modesArr, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
                 return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
             }
         }

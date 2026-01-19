@@ -11,8 +11,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> implements Tokenizer<TK, TT> {
+    public static final int ESCAPE_NONE = 0;
+    public static final int ESCAPE_STRINGS = 1;
+    public static final int ESCAPE_IDENTIFIERS = 2;
+
     private final Queue<TK> putback;
-    private CharCursor code;
+    private CharCursor cursor;
 
     private final CharSeqMatcher lineCommentMatcher;
     private final CharSeqMatcher blockCommentMatcherStart;
@@ -22,7 +26,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
 
     public BaseTokenizer(SourceCode code) {
         this.putback = new LinkedList<>();
-        this.code = new CharCursor(code);
+        this.cursor = new CharCursor(code);
 
         lineCommentMatcher = new CharSeqMatcher(supportsLineComments() ? lineCommentStart() : null);
         blockCommentMatcherStart = new CharSeqMatcher(supportsBlockComments() ? blockCommentStart() : null);
@@ -41,20 +45,32 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
     protected abstract CharSequence stringEnd();
     protected abstract TK createStringToken(String string);
     protected abstract boolean supportsNumbers();
-    protected abstract TK createIntToken(int string);
-    protected abstract TK createFloatToken(float string);
+    protected abstract TK createIntToken(int i);
+    protected abstract TK createFloatToken(float f);
     protected abstract TK matchSimpleToken(CharCursor c);
+    protected abstract TK createIdentifierToken(String ident);
+    protected abstract boolean validForIdentifier(char c);
+    protected abstract int supportedEscapePoints();
+    protected abstract char escapeChar();
+
+    private boolean supportsStringEscape() {
+        return (supportedEscapePoints() & ESCAPE_STRINGS) == ESCAPE_STRINGS;
+    }
+
+    private boolean supportsIdentEscape() {
+        return (supportedEscapePoints() & ESCAPE_IDENTIFIERS) == ESCAPE_IDENTIFIERS;
+    }
 
     private char next() {
-        return code.next();
+        return cursor.next();
     }
 
     private char peek() {
-        return code.peek();
+        return cursor.peek();
     }
 
     @Override
-    public TK nextToken() {
+    public TK nextToken() throws TokenizeException {
         if (!putback.isEmpty()) {
             return putback.poll();
         }
@@ -64,9 +80,9 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
         if (handleSkips(next)) {
             next = next();
         }
-        code.putBack(next);
+        cursor.putBack(next);
 
-        TK mightBeToken = matchSimpleToken(code);
+        TK mightBeToken = matchSimpleToken(cursor);
         if (mightBeToken != null) {
             return mightBeToken;
         }
@@ -75,7 +91,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
 
         //check numbers if supported and collect
         if (supportsNumbers()) {
-            if (mightBeNumber(next)) {
+            if (isNumber(next)) {
                 StringBuilder numberBuilder = new StringBuilder();
                 boolean isFloat = false;
                 do {
@@ -86,21 +102,51 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
                     next = next();
                 } while (isNumberPart(next));
                 String numberString = numberBuilder.toString();
-                //TODO: add check for number syntax error
-                if (isFloat) {
-                    float f = Float.parseFloat(numberString);
-                    return createFloatToken(f);
-                } else {
-                    int i = Integer.parseInt(numberString);
-                    return createIntToken(i);
+
+                try {
+                    if (isFloat) {
+                        float f = Float.parseFloat(numberString);
+                        return createFloatToken(f);
+                    } else {
+                        int i = Integer.parseInt(numberString);
+                        return createIntToken(i);
+                    }
+                } catch (NumberFormatException e) {
+                    throw TokenizeException.numberFormatException(currentLine(), cursor.pos(), numberString);
                 }
             }
         }
 
-        return null;
+        //check if strings are supported and collect
+        if (supportsStrings()) {
+            if (matches(next, stringMatcherStart, 0)) {
+                //lol this one actually builds strings for once
+                StringBuilder stringBuilder = new StringBuilder();
+                do {
+                    stringBuilder.append(next);
+                    next = next();
+                } while (!matches(next, stringMatcherEnd, ESCAPE_STRINGS));
+                return createStringToken(stringBuilder.toString());
+            }
+        }
+
+        StringBuilder identBuilder = new StringBuilder();
+        do {
+            identBuilder.append(next);
+            next = next();
+            if (supportsIdentEscape()) {
+                if (next == escapeChar()) {
+                    char escaped = next();
+                    identBuilder.append(escaped);
+                    next = next();
+                }
+            }
+        } while (validForIdentifier(next));
+
+        return createIdentifierToken(identBuilder.toString());
     }
 
-    private boolean mightBeNumber(char c) {
+    private boolean isNumber(char c) {
         //4
         //-2
         return Character.isDigit(c) || c == '-';
@@ -129,7 +175,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
     }
 
     private boolean handleLineComment(char next) {
-        if (matches(next, lineCommentMatcher)) {
+        if (matches(next, lineCommentMatcher, 0)) {
             consumeUntilNewline();
             return true;
         }
@@ -137,9 +183,9 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
     }
 
     private boolean handleBlockComment(char next) {
-        if (matches(next, blockCommentMatcherStart)) {
+        if (matches(next, blockCommentMatcherStart, 0)) {
             char innerNext = next();
-            while (!matches(innerNext, blockCommentMatcherEnd)) {
+            while (!matches(innerNext, blockCommentMatcherEnd, 0)) {
                 innerNext = next();
             }
 
@@ -148,30 +194,42 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
         return false;
     }
 
-    private boolean matches(char next, CharSeqMatcher matcher) {
+    private boolean matches(char next, CharSeqMatcher matcher, int escapePoint) {
         char c = next;
         CharArrayDeque tmp = new CharArrayDeque();
         while (matcher.tryMatch(c)) {
             tmp.addLast(c);
             c = next();
+            if (
+                    (escapePoint == ESCAPE_STRINGS && supportsStringEscape()) ||
+                    (escapePoint == ESCAPE_IDENTIFIERS && supportsIdentEscape())) {
+
+                while (c == escapeChar()) {
+                    char toEscape = next();
+                    tmp.addLast(toEscape);
+                    c = next();
+                }
+            }
         }
         if (matcher.foundMatch()) {
             matcher.reset();
+            cursor.putBack(c);
             return true;
         }
-        tmp.forEach((CharProcedure) code::putBack);
+        tmp.forEach((CharProcedure) cursor::putBack);
+        cursor.putBack(c);
         matcher.reset();
         return false;
     }
 
     private void consumeUntilNewline() {
-        char next = code.next();
+        char next = cursor.next();
         while (next != '\n' && next != '\r') {
-            next = code.next();
+            next = cursor.next();
         }
-        char lf = code.peek();
+        char lf = cursor.peek();
         if (lf == '\n') {
-            code.next();
+            cursor.next();
         }
     }
 
@@ -182,7 +240,12 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
 
     @Override
     public int currentLine() {
-        return code.line();
+        return cursor.line();
+    }
+
+    @Override
+    public int currentPos() {
+        return cursor.pos();
     }
 
     private static class CharSeqMatcher {
@@ -212,7 +275,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
         }
     }
 
-    protected static class CharCursor {
+    public static class CharCursor {
         private final CharArrayDeque putback;
         private final SourceCode code;
         private int line = 1, column = 1;
@@ -229,7 +292,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
             return code.next();
         }
 
-        char next() {
+        public char next() {
             char c = next0();
             if (c == '\n') {
                 line++;
@@ -240,17 +303,17 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
             return c;
         }
 
-        char peek() {
+        public char peek() {
             if (!putback.isEmpty()) {
                 return putback.getFirst();
             }
             return code.peek();
         }
 
-        int line() { return line; }
-        int column() { return column; }
+        public int line() { return line; }
+        public int pos() { return column; }
 
-        void putBack(char c) {
+        public void putBack(char c) {
             putback.addLast(c);
         }
     }
