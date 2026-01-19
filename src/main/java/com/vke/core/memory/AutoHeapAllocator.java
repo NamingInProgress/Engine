@@ -1,9 +1,10 @@
 package com.vke.core.memory;
 
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Struct;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.function.Function;
 
@@ -31,6 +32,32 @@ public class AutoHeapAllocator implements AutoCloseable {
 
     public intP allocInt(int size) {
         intP v = new intP(MemoryUtil.memAllocInt(size));
+        objects.add(v);
+        return v;
+    }
+
+    public intP ints(int... ints) {
+        intP v = new intP(MemoryUtil.memAllocInt(ints.length));
+        IntBuffer heap = v.getHeapObject();
+        for (int i : ints) {
+            heap.put(i);
+        }
+        objects.add(v);
+        return v;
+    }
+
+    public longP allocLong(int size) {
+        longP v = new longP(MemoryUtil.memAllocLong(size));
+        objects.add(v);
+        return v;
+    }
+
+    public longP longs(long... longs) {
+        longP v = new longP(MemoryUtil.memAllocLong(longs.length));
+        LongBuffer heap = v.getHeapObject();
+        for (long i : longs) {
+            heap.put(i);
+        }
         objects.add(v);
         return v;
     }

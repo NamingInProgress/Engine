@@ -16,6 +16,15 @@ public class VulkanQueue {
         this.queueType = queueType;
     }
 
+    public VkQueueType getType() { return this.queueType; }
+    public int index() { return this.familyIndex; }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof VulkanQueue )) return false;
+        return familyIndex == ((VulkanQueue) other).familyIndex;
+    }
+
     public static enum VkQueueType {
         GRAPHICS,
         COMPUTE,

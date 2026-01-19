@@ -11,6 +11,7 @@ public class EngineCreateInfo {
     public String applicationName;
     public Version applicationVersion;
     public boolean releaseMode;
+    public boolean vsync;
 
     public final String engine = "VkEngine";
     public final Version engineVersion = Version.V1_0_0;

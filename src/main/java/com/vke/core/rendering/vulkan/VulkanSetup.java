@@ -3,12 +3,14 @@ package com.vke.core.rendering.vulkan;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.vulkan.LogicalDeviceCreateInfo;
+import com.vke.api.vulkan.SwapChainCreateInfo;
 import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -20,7 +22,7 @@ import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VulkanSetup {
+public class VulkanSetup implements Disposable {
 
     private static final String HERE = "Vulkan Init";
 
@@ -33,6 +35,9 @@ public class VulkanSetup {
     private final EngineCreateInfo engineCreateInfo;
     private final VulkanCreateInfo vulkanCreateInfo;
     private VkInstance instance;
+    private PhysicalDevice physicalDevice;
+    private LogicalDevice logicalDevice;
+    private SwapChain swapChain;
     private long surface, debugMessenger;
 
     private AutoHeapAllocator alloc;
@@ -85,7 +90,7 @@ public class VulkanSetup {
             surface = pSurface.get(0);
 
             /**  Device Setup  **/
-            PhysicalDevice physicalDevice = pickGpu(engine, engineCreateInfo, vulkanCreateInfo.gpuExtensions);
+            physicalDevice = pickGpu(engine, engineCreateInfo, vulkanCreateInfo.gpuExtensions);
             engine.getLogger().info("Using GPU: " + physicalDevice.getName());
 
             LogicalDeviceCreateInfo deviceCreateInfo = new LogicalDeviceCreateInfo();
@@ -93,14 +98,27 @@ public class VulkanSetup {
             deviceCreateInfo.physicalDeviceWrapper = physicalDevice;
             deviceCreateInfo.engineCreateInfo = engineCreateInfo;
             deviceCreateInfo.surfaceHandle = surface;
-            LogicalDevice device = new LogicalDevice(engine, deviceCreateInfo);
+            logicalDevice = new LogicalDevice(engine, deviceCreateInfo);
 
             /**  Swapchain Setup  **/
-
+            SwapChainCreateInfo swapChainCreateInfo = new SwapChainCreateInfo();
+            swapChainCreateInfo.preferVsync = engineCreateInfo.vsync;
+            swapChainCreateInfo.logicalDevice = logicalDevice;
+            swapChainCreateInfo.physicalDevice = physicalDevice;
+            swapChainCreateInfo.surface = surface;
+            swapChainCreateInfo.windowHandle = engine.getWindow().getHandle();
+            //check if create info is filled completely
+            //todo: update these nunbers in the future:
+            //  1st num: amount of fields in create info
+            //  2nd num: amount of fields set
+            if (5 == 5) {
+                swapChain = new SwapChain(engine, swapChainCreateInfo);
+            }
         }
     }
 
-    public void cleanUp() {
+    @Override
+    public void free() {
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);

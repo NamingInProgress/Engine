@@ -33,14 +33,14 @@ public class PhysicalDevice implements Disposable {
             IntBuffer pExtCount = stack.mallocInt(1);
             VK14.vkEnumerateDeviceExtensionProperties(vk, (ByteBuffer) null, pExtCount, null);
 
-            extensionBuffer = alloc.allocStruct(VkExtensionProperties.SIZEOF, VkExtensionProperties.Buffer::new);
+            extensionBuffer = alloc.allocBuffer(VkExtensionProperties.SIZEOF, pExtCount.get(0), VkExtensionProperties.Buffer::new);
             VK14.vkEnumerateDeviceExtensionProperties(vk, (ByteBuffer) null, pExtCount, extensionBuffer);
 
 
             IntBuffer count = stack.mallocInt(1);
             VK14.vkGetPhysicalDeviceQueueFamilyProperties(vk, count, null);
 
-            queueFamilyBuffer = alloc.allocStruct(VkQueueFamilyProperties.SIZEOF, VkQueueFamilyProperties.Buffer::new);
+            queueFamilyBuffer = alloc.allocBuffer(VkQueueFamilyProperties.SIZEOF, count.get(0), VkQueueFamilyProperties.Buffer::new);
             VK14.vkGetPhysicalDeviceQueueFamilyProperties(vk, count, queueFamilyBuffer);
         }
     }
