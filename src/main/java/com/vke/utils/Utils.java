@@ -9,4 +9,13 @@ public class Utils {
         }
         return false;
     }
+
+    public static <T> boolean TsContain(T[] arr, T query) {
+        for (T t : arr) {
+            if (t.equals(query)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
