@@ -13,7 +13,7 @@ public class FileOutput implements LoggerOutput {
     static final LogFormatter defaultFormatter = (event) -> {
         Colors text = new Colors();
 
-        text.write("[%s]".formatted(event.timestamp));
+        text.write("[%s]".formatted(event.getTimestampFormatted()));
         text.write("[%s]".formatted(event.thread.getName()));
         text.write("[%s]".formatted(event.loggerName));
         text.write("[%s]: ".formatted(event.level));

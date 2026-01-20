@@ -3,8 +3,13 @@ package com.vke.api.logger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public final class LogEvent {
+
+    private static final DateTimeFormatter formatter =
+            DateTimeFormatter.ofPattern("'D'yyyy/MM/dd 'T'HH:mm:ss:SSS");
 
     public final Instant timestamp;
     public final LogLevel level;
@@ -29,6 +34,10 @@ public final class LogEvent {
         pw.flush();
 
         return sw.toString();
+    }
+
+    public String getTimestampFormatted() {
+        return formatter.format(timestamp.atZone(ZoneId.systemDefault()));
     }
 
 }

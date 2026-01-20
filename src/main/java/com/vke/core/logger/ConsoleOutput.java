@@ -12,7 +12,7 @@ public class ConsoleOutput implements LoggerOutput {
     static final LogFormatter defaultFormatter = (event) -> {
         Colors text = new Colors();
 
-        text.write("[").green(event.timestamp).reset("]");
+        text.write("[").green(event.getTimestampFormatted()).reset("]");
         text.write("[").blue(event.thread.getName()).reset("]");
         text.write("[").cyan(event.loggerName).reset("]");
         text.write("[").write(event.level.getColor()).write(event.level).reset("]: ");
