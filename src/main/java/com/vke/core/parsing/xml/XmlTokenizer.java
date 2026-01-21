@@ -72,18 +72,16 @@ public class XmlTokenizer extends BaseTokenizer<XmlToken, XmlToken.Type> {
     @Override
     protected XmlToken matchSimpleToken(BaseTokenizer.CharCursor c) {
         char next = c.next();
-        switch (next) {
+        return switch (next) {
             case '<' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.LBrack);
             case '>' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.RBrack);
             case '=' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.Equals);
             case '/' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.Slash);
             default -> {
                 c.putBack(next);
-                return null;
+                yield null;
             }
-        }
-        //how do i need that
-        return null;
+        };
     }
 
     @Override
