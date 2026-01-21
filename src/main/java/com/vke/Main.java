@@ -1,21 +1,33 @@
 package com.vke;
 
-import com.vke.utils.serialize.ByteLoader;
-import com.vke.utils.serialize.ByteSaver;
-import com.vke.utils.serialize.Serializer;
-
-import java.util.List;
+import com.vke.api.game.Game;
+import com.vke.core.EngineCreateInfo;
+import com.vke.core.VKEngine;
+import com.vke.api.window.WindowCreateInfo;
+import com.vke.core.logger.*;
+import com.vke.core.window.Window;
 
 public class Main {
+
+    public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
+
     public static void main(String[] args) {
-        List<Integer> ints = List.of(1, 2, 3, 4);
+        EngineCreateInfo createInfo = new EngineCreateInfo();
+        createInfo.releaseMode = false;
+        createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
-        ByteSaver saver = new ByteSaver();
-        Serializer.saveObject(ints, saver);
-        byte[] bytes = saver.asArray();
+        VKEngine engine = new VKEngine(createInfo);
+        engine.start(new Game() {
+            @Override
+            public void onInit(VKEngine engine) {
 
-        ByteLoader loader = new ByteLoader(bytes);
-        List<Integer> newInts = Serializer.loadObject(List.class, loader);
-        System.out.println(newInts);
+            }
+
+            @Override
+            public void onDraw(Window window) {
+
+            }
+        });
     }
+
 }
