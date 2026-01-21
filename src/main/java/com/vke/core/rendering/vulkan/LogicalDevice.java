@@ -84,7 +84,7 @@ public class LogicalDevice implements Disposable {
 
         VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc((int) Arrays.stream(queueIndices.keys).filter(c -> c != VkQueueType.PRESENT && c != null).count(), stack);
         int bufferIndex = 0;
-        //System.out.println(queuesToAdd);
+
         for (var entry : queueIndices) {
             if (entry.key == VkQueueType.PRESENT) {
                 continue;

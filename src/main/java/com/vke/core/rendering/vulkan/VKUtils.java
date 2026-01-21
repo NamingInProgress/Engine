@@ -32,7 +32,7 @@ public class VKUtils {
             ByteBuffer bb = stack.UTF8(s);
             buf.put(i++, bb);
         }
-        buf.flip();
+
         return buf;
     }
 
