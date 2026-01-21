@@ -35,18 +35,17 @@ public class XmlTokenizer extends BaseTokenizer<XmlToken, XmlToken.Type> {
 
     @Override
     protected boolean supportsStrings() {
-        //we will be using identifiers!
-        return false;
+        return true;
     }
 
     @Override
     protected CharSequence stringStart() {
-        return null;
+        return "\"";
     }
 
     @Override
     protected CharSequence stringEnd() {
-        return null;
+        return "\"";
     }
 
     @Override
@@ -78,6 +77,7 @@ public class XmlTokenizer extends BaseTokenizer<XmlToken, XmlToken.Type> {
             case '=' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.Equals);
             case '/' -> new XmlToken(c.line(), c.pos(), XmlToken.Type.Slash);
             default -> {
+                System.out.println("putback: " + next);
                 c.putBack(next);
                 yield null;
             }
@@ -102,5 +102,10 @@ public class XmlTokenizer extends BaseTokenizer<XmlToken, XmlToken.Type> {
     @Override
     protected char escapeChar() {
         return '\\';
+    }
+
+    @Override
+    protected XmlToken createEOFToken() {
+        return new XmlToken(currentLine(), currentPos(), XmlToken.Type.EOF);
     }
 }

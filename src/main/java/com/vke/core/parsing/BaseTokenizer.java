@@ -52,6 +52,7 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
     protected abstract boolean validForIdentifier(char c);
     protected abstract int supportedEscapePoints();
     protected abstract char escapeChar();
+    protected abstract TK createEOFToken();
 
     private boolean supportsStringEscape() {
         return (supportedEscapePoints() & ESCAPE_STRINGS) == ESCAPE_STRINGS;
@@ -65,14 +66,14 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
         return cursor.next();
     }
 
-    private char peek() {
-        return cursor.peek();
-    }
-
     @Override
     public TK nextToken() throws TokenizeException {
         if (!putback.isEmpty()) {
             return putback.poll();
+        }
+
+        if (!cursor.hasNext()) {
+            return createEOFToken();
         }
 
         char next = next();
@@ -227,9 +228,9 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
         while (next != '\n' && next != '\r') {
             next = cursor.next();
         }
-        char lf = cursor.peek();
-        if (lf == '\n') {
-            cursor.next();
+        char lf = cursor.next();
+        if (lf != '\n') {
+            cursor.putBack(lf);
         }
     }
 
@@ -303,11 +304,8 @@ public abstract class BaseTokenizer<TK extends Token<TT>, TT extends TokenType> 
             return c;
         }
 
-        public char peek() {
-            if (!putback.isEmpty()) {
-                return putback.getFirst();
-            }
-            return code.peek();
+        public boolean hasNext() {
+            return !putback.isEmpty() || code.hasNext();
         }
 
         public int line() { return line; }

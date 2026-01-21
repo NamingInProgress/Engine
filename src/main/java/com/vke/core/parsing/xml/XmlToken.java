@@ -59,6 +59,31 @@ public class XmlToken implements Token<XmlToken.Type> {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("XmlToken{");
+        sb.append("type=").append(type);
+        sb.append(", line=").append(line);
+        sb.append(", pos=").append(pos);
+
+        switch (type) {
+            case Identifier:
+            case StrLit:
+                sb.append(", value=\"").append(value).append("\"");
+                break;
+            case IntLit:
+            case FloatLit:
+                sb.append(", value=").append(value);
+                break;
+            default:
+                break;
+        }
+
+        sb.append("}");
+        return sb.toString();
+    }
+
     public enum Type implements TokenType {
         LBrack,
         RBrack,

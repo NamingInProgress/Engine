@@ -184,4 +184,8 @@ public class SwapChain implements Disposable {
         alloc.close();
         KHRSwapchain.vkDestroySwapchainKHR(info.logicalDevice.getDevice(), swapChainHandle, null);
     }
+
+    public long handle() {
+        return this.swapChainHandle;
+    }
 }

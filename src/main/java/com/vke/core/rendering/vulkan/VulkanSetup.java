@@ -67,11 +67,28 @@ public class VulkanSetup implements Disposable {
                     .engineVersion(engineCreateInfo.engineVersion.getVkFormatVersion())
                     .apiVersion(vulkanCreateInfo.apiVersion.getVkFormatVersion());
 
+            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = alloc.allocStruct(VkDebugUtilsMessengerCreateInfoEXT.SIZEOF, VkDebugUtilsMessengerCreateInfoEXT::new)
+                    .sType$Default()
+                    .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+                    .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+                    .pfnUserCallback(debugMessengerCallback);
+
             VkInstanceCreateInfo createInfo = VkInstanceCreateInfo.calloc(stack)
                     .sType(VK14.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
-                    .ppEnabledLayerNames(validationLayers)
                     .ppEnabledExtensionNames(extensions);
+
+            if (!engineCreateInfo.releaseMode) {
+                createInfo.pNext(debugMessengerCreateInfo);
+            }
+            if (validationLayers != null) {
+                createInfo.ppEnabledLayerNames(validationLayers);
+            }
 
             /**  Instance Creation  **/
             PointerBuffer pInstance = stack.mallocPointer(1);
@@ -82,7 +99,7 @@ public class VulkanSetup implements Disposable {
 
             instance = new VkInstance(pInstance.get(0), createInfo);
 
-            setupDebugMessenger(instance, engine);
+            setupDebugMessenger(debugMessengerCreateInfo, instance, engine);
 
             /**  Surface Creation  **/
             LongBuffer pSurface = stack.mallocLong(1);
@@ -119,30 +136,22 @@ public class VulkanSetup implements Disposable {
 
     @Override
     public void free() {
+        if (debugMessenger != VK14.VK_NULL_HANDLE) {
+            EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
+        }
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
     }
 
-    private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
+    private void setupDebugMessenger(VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo, VkInstance instance, VKEngine engine) {
         if (engineCreateInfo.releaseMode) return;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc()
-                    .sType$Default()
-                    .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-                    .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
-                    .pfnUserCallback(debugMessengerCallback);
-
             LongBuffer pMessenger = stack.mallocLong(1);
 
-            if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, debugMessengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
+            if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, messengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Debug Messenger couldn't be created!"), HERE);
             }
             debugMessenger = pMessenger.get(0);
