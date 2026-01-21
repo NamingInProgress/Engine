@@ -1,6 +1,6 @@
-package com.vke.utils.serialize;
+package com.vke.api.serializer;
 
-import com.vke.utils.serialize.exec.LoadException;
+import com.vke.utils.exception.LoadException;
 
 public interface Loader {
     byte loadByte() throws LoadException;

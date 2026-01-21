@@ -1,10 +1,10 @@
-package com.vke.utils.serialize.impl.defaults;
+package com.vke.core.serializer.impl.defaults;
 
-import com.vke.utils.serialize.Loader;
-import com.vke.utils.serialize.Saver;
-import com.vke.utils.serialize.Serializer;
-import com.vke.utils.serialize.exec.LoadException;
-import com.vke.utils.serialize.exec.SaveException;
+import com.vke.api.serializer.Loader;
+import com.vke.api.serializer.Saver;
+import com.vke.api.serializer.Serializer;
+import com.vke.utils.exception.LoadException;
+import com.vke.utils.exception.SaveException;
 
 public class ForCharacter implements Serializer<Character> {
 

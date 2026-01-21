@@ -9,10 +9,12 @@ import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.ArrayList;
 
 public class SwapChain implements Disposable {
 
@@ -22,10 +24,11 @@ public class SwapChain implements Disposable {
     private long swapChainHandle;
     private VkSurfaceFormatKHR.Buffer formats;
     private IntBuffer modes;
-    private LongBuffer images;
     private VkSurfaceCapabilitiesKHR capabilities;
     private VkExtent2D extent;
     private VKEngine engine;
+    private ArrayList<ImageView> imageViews = new ArrayList<>();
+    private ArrayList<Image> images = new ArrayList<>();
 
     private final AutoHeapAllocator alloc;
 
@@ -108,6 +111,9 @@ public class SwapChain implements Disposable {
     }
 
     public void recreate(boolean vsync, int width, int height) {
+        this.imageViews.clear();
+        this.images.clear();
+
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkExtent2D extent = VkExtent2D.malloc(stack);
             extent.width(width);
@@ -119,6 +125,8 @@ public class SwapChain implements Disposable {
                     .oldSwapchain(this.swapChainHandle);
 
             createSwapChain(stack, info.logicalDevice, swapChainCreateInfo);
+
+            initImages(stack, info.logicalDevice);
         }
     }
 
@@ -131,12 +139,31 @@ public class SwapChain implements Disposable {
 
         this.swapChainHandle = pSwapChain.get(0);
 
-        IntBuffer count = stack.ints(0);
+        this.initImages(stack, device);
+    }
+
+    private void initImages(MemoryStack stack, LogicalDevice device) {
+        this.imageViews.clear();
+        this.images.clear();
+
+        IntBuffer count = stack.mallocInt(1);
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapChainHandle, count, null);
 
         LongBuffer images = alloc.allocLong(count.get(0)).getHeapObject();
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapChainHandle, count, images);
-        this.images = images;
+
+        for (int i = 0; i < count.get(0); i++) {
+            this.images.add(new Image(images.get(i)));
+        }
+
+        VkImageViewCreateInfo baseInfo = VkImageViewCreateInfo.calloc(stack);
+        for (int i = 0; i < count.get(0); i++) {
+            Image image = this.images.get(i);
+            VkImageViewCreateInfo info = ImageView.copyCreateInfo(baseInfo);
+            info.image(image.getHandle());
+            ImageView view = new ImageView(info);
+            this.imageViews.add(view);
+        }
     }
 
     public VkSurfaceFormatKHR chooseFormat(VkSurfaceFormatKHR.Buffer formats) {

@@ -2,6 +2,8 @@ package com.vke.core;
 
 import com.vke.api.game.Game;
 import com.vke.api.logger.Logger;
+import com.vke.api.registry.VKERegistrate;
+import com.vke.api.registry.VKERegistries;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanSetup;
@@ -13,6 +15,8 @@ public class VKEngine {
     private final Logger soutLogger;
 
     private final Window window;
+
+    public static final VKERegistrate VKE_REGISTRATE = VKERegistries.get("vke");
 
     public VKEngine(EngineCreateInfo createInfo) {
         logger = LoggerFactory.get(VKEngine.class.getName());

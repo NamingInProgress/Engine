@@ -1,12 +1,13 @@
-package com.vke.utils.serialize;
+package com.vke.core.serializer.impl.load;
 
-import com.vke.utils.serialize.exec.LoadException;
+import com.vke.api.serializer.Loader;
+import com.vke.utils.exception.LoadException;
 
-public class ByteLoader implements Loader {
+public class BinaryLoader implements Loader {
     private final byte[] data;
     private int pos = 0;
 
-    public ByteLoader(byte[] data) {
+    public BinaryLoader(byte[] data) {
         this.data = data;
     }
 

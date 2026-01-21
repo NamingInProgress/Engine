@@ -10,4 +10,5 @@ public class SwapChainCreateInfo {
     public boolean preferVsync;
     public long windowHandle;
     public int imageLayers = 1;
+    public int imageViewType = 2;
 }

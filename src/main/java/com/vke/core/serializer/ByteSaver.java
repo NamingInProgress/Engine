@@ -1,4 +1,6 @@
-package com.vke.utils.serialize;
+package com.vke.core.serializer;
+
+import com.vke.api.serializer.Saver;
 
 import java.io.ByteArrayOutputStream;
 

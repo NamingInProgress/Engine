@@ -1,4 +1,4 @@
-package com.vke.utils.serialize.exec;
+package com.vke.utils.exception;
 
 public class SerializeException extends RuntimeException {
     public SerializeException(String message) {

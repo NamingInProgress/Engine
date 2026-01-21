@@ -1,6 +1,6 @@
-package com.vke.utils.serialize.impl.defaults;
+package com.vke.core.serializer.impl.defaults;
 
-import com.vke.utils.serialize.Serializer;
+import com.vke.api.serializer.Serializer;
 
 import java.util.Collection;
 

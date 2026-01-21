@@ -1,6 +1,6 @@
-package com.vke.utils.serialize;
+package com.vke.api.serializer;
 
-import com.vke.utils.serialize.exec.SaveException;
+import com.vke.utils.exception.SaveException;
 
 public interface Saver {
     void saveByte(byte v) throws SaveException;

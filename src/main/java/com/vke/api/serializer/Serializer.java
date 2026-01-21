@@ -1,8 +1,11 @@
-package com.vke.utils.serialize;
+package com.vke.api.serializer;
 
-import com.vke.utils.serialize.exec.LoadException;
-import com.vke.utils.serialize.exec.SaveException;
-import com.vke.utils.serialize.impl.defaults.DefaultSerializers;
+import com.vke.api.registry.VKERegistries;
+import com.vke.utils.exception.LoadException;
+import com.vke.utils.exception.SaveException;
+import com.vke.core.serializer.impl.defaults.DefaultSerializers;
+
+import static com.vke.core.VKEngine.VKE_REGISTRATE;
 
 public interface Serializer<T> {
     Class<?> getObjectClass();
@@ -11,17 +14,17 @@ public interface Serializer<T> {
     T load(Loader loader) throws LoadException;
 
     static <U> void registerSerializerFor(Class<U> clazz, Serializer<?> serializer) {
-        Serializers.SERIALIZERS.put(clazz, serializer);
+        VKE_REGISTRATE.serializer(clazz, serializer);
     }
 
     static <U> Serializer<U> findSerializer(Class<U> clazz) {
-        Serializer<?> s = Serializers.SERIALIZERS.get(clazz);
+        Serializer<?> s = VKERegistries.SERIALIZERS.get(clazz);
         if (s != null) {
             return (Serializer<U>) s;
         }
         //no direct serializer found, check if an interface serializer exists.
         //example: ArrayList might not have a serializer but Collection does
-        for (Serializer<?> candidate : Serializers.SERIALIZERS.values()) {
+        for (Serializer<?> candidate : VKERegistries.SERIALIZERS.values()) {
             Class<?> candClass = candidate.getObjectClass();
             if (candClass.isAssignableFrom(clazz)) {
                 return (Serializer<U>) candidate;

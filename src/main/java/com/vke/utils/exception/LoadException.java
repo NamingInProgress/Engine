@@ -1,4 +1,4 @@
-package com.vke.utils.serialize.exec;
+package com.vke.utils.exception;
 
 public class LoadException extends RuntimeException {
     public LoadException(String message) {

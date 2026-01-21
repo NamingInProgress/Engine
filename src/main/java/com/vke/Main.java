@@ -38,7 +38,7 @@ public class Main {
 
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         //createInfo.vulkanCreateInfo.apiVersion = new Version(1, 3, 0);
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
