@@ -1,9 +1,15 @@
 package com.vke;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntCharHashMap;
+import com.carrotsearch.hppc.ShortObjectMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.vke.api.game.Game;
 import com.vke.api.game.Version;
 import com.vke.api.parsing.SourceCode;
 import com.vke.api.parsing.Tokenizer;
+import com.vke.api.serializer.Serializer;
+import com.vke.api.vkz.*;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
@@ -11,7 +17,17 @@ import com.vke.core.logger.*;
 import com.vke.core.parsing.source.StringSourceCode;
 import com.vke.core.parsing.xml.XmlToken;
 import com.vke.core.parsing.xml.XmlTokenizer;
+import com.vke.core.vkz.VkzObjLoader;
+import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Main {
 
@@ -34,13 +50,54 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 //
-//        System.exit(0);
 
+        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
+        VkzFileHandle document = archive.file("documents/test.txt");
+        InputStream docStream = document.getInputStream();
+
+        VkzDirectoryHandle docs = archive.directory("documents");
+        for (Iterator<VkzFileHandle> it = docs.iterateFiles(); it.hasNext(); ) {
+            VkzFileHandle shaderFile = it.next();
+            VkzEditor editor = shaderFile.edit();
+            editor.clear();
+            editor.write("Hello world");
+            editor.commit();
+        }
+
+
+        String hello = "Hello world";
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        VkzObjSaver saver = new VkzObjSaver(bos);
+        Serializer.saveObject(hello, saver);
+
+        try {
+            saver.flush();
+            saver.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        byte[] bytes = bos.toByteArray();
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        VkzObjLoader loader = new VkzObjLoader(bis, saver.getSavedBytes(), saver.getExtraBits());
+        String hello2 = Serializer.loadObject(String.class, loader);
+        System.out.println(hello2);
+
+
+        String magic = "VKZ0";
+        byte[] b = magic.getBytes(StandardCharsets.US_ASCII);
+        ByteBuffer buffer = ByteBuffer.wrap(b);
+        int magicInt = buffer.getInt();
+        System.out.println(Integer.toHexString(magicInt));
+
+        System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         //createInfo.vulkanCreateInfo.apiVersion = new Version(1, 3, 0);
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
+
+
 
         VKEngine engine = new VKEngine(createInfo);
         engine.start(new Game() {

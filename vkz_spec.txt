@@ -1,0 +1,29 @@
+All bits are read from LSB to MSB!
+All bytes are read from MSB to LSB!
+
+MAGIC uint32 = 0x564b5a30 = "VKZ0" in ascii
+BYTECOUNT    uint64                          The amount of full bytes this archive contains
+BITCOUNT     3 bits                          The amount of extra bits this archive contains
+ROOT         #DIRLAYER                       The root layer of this archive
+FILE_COUNT   uint16                          The total amount of files in all layers
+FILE_LENGTHS uint32[FILE_COUNT]              The length of each file in the order they appear
+FILE_CHUNKS  #FILE_CHUNK[FILE_COUNT]         All the file chunks after each other
+
+
+--- --- DIRLAYER
+NAME_LEN       uint8                     The name string length
+NAME           uint8[NAME_LEN]           The name as UTF-8 String
+ENTRY_COUNT    uint16                    The amount of files in this layer
+ENTRIES        #DIRENTRY[ENTRY_COUNT]    The DIRENTRY array
+SUBLAYER_COUNT uint16                    The amount of layers in this layer
+SUBLAYERS      #DIRLAYER[SUBLAYER_COUNT] The child DIRLAYER array
+
+
+--- --- DIRENTRY
+CHUNK_OFFSET uint16          The offset into FILE_CHUNKS
+
+
+--- --- FILE_CHUNK
+NAME_LEN     uint8                  The name length of this file
+NAME         uint8[NAME_LEN]        The name string of this file in UTF-8
+DATA         uint8[FILE_LENGTHS[i]] The data
