@@ -1,14 +1,14 @@
 package com.vke.core.rendering.vulkan.device;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.vke.core.utils.StructureChain2;
 import com.vke.api.vulkan.LogicalDeviceCreateInfo;
 import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.StructChain;
-import com.vke.core.rendering.vulkan.StructureChain3;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanQueue;
+import com.vke.core.utils.StructureChain3;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -99,25 +99,20 @@ public class LogicalDevice implements Disposable {
                     .pQueuePriorities(priorities);
         }
 
-        VkPhysicalDeviceVulkan13Features a = null;
-        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT b = null;
+        VkPhysicalDeviceFeatures2 deviceFeatures2 = VkPhysicalDeviceFeatures2.calloc(stack).sType$Default();
+        VkPhysicalDeviceVulkan13Features deviceFeaturesVK13 = VkPhysicalDeviceVulkan13Features.calloc(stack).sType$Default();
+        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT deviceFeaturesEXTDynamicState = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT.calloc(stack).sType$Default();
 
-        StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain
-                = new StructureChain3<>(
-                VkPhysicalDeviceFeatures2::pNext,
-                VkPhysicalDeviceVulkan13Features::pNext
-        );
-        chain.add1();
-        VkPhysicalDeviceFeatures2 features2 = chain.build();
+        deviceFeaturesVK13.dynamicRendering(true);
+        deviceFeaturesEXTDynamicState.extendedDynamicState(true);
 
-
-
-        StructChain<VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain = new StructChain<>(a, b, VkPhysicalDeviceVulkan13Features::pNext);
+        StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain =
+                new StructureChain3<>(deviceFeatures2, deviceFeaturesVK13, deviceFeaturesEXTDynamicState, deviceFeatures2::pNext, deviceFeaturesVK13::pNext);
 
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()
+                .pNext(chain.get())
                 .ppEnabledExtensionNames(extBuf)
-                .pEnabledFeatures(features)
                 .pQueueCreateInfos(buf);
 
         PointerBuffer pLogicalDevice = stack.mallocPointer(1);
