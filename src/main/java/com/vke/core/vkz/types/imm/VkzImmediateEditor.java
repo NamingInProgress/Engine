@@ -7,9 +7,11 @@ import java.util.Arrays;
 public class VkzImmediateEditor implements VkzEditor {
     private boolean clearFlag;
     private byte[] data;
+    private final VkzImmediateFileChunk chunk;
 
-    public VkzImmediateEditor() {
+    public VkzImmediateEditor(VkzImmediateFileChunk chunk) {
         this.data = new byte[0];
+        this.chunk = chunk;
     }
 
     @Override
@@ -31,10 +33,16 @@ public class VkzImmediateEditor implements VkzEditor {
 
     @Override
     public void commit() {
-        //todo: notify this archive that a file has been changed
+        //done: notify this archive that a file has been changed
         // also: maybe check if there is a current iteration
         // actually use the task scheduler to schedule a FileEdited task or smth and the archive waits for all
         // reading operations on either global file iter or on this directory to finish
         // then update the file lengths array.
+        EditedPacket packet = new EditedPacket(clearFlag, data);
+        if (chunk.isLocked()) chunk.waitFor();
+        chunk.runEdit(packet);
+    }
+
+    public record EditedPacket(boolean clearFlag, byte[] data) {
     }
 }

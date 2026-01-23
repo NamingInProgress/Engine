@@ -51,17 +51,18 @@ public class Main {
 //        }
 //
 
-//        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
-//        VkzFileHandle document = archive.file("documents/test.txt");
-//        InputStream docStream = document.getInputStream();
-//
-//        VkzDirectoryHandle docs = archive.directory("documents");
-//        for (VkzFileHandle doc : docs.iterateFiles()) {
-//            VkzEditor editor = doc.edit();
-//            editor.clear();
-//            editor.write("Hello world");
-//            editor.commit();
-//        }
+        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
+        VkzFileHandle document = archive.file("documents/test.txt");
+        InputStream docStream = document.getInputStream();
+
+        VkzDirectoryHandle docs = archive.directory("documents");
+        for (Iterator<VkzFileHandle> it = docs.iterateFiles(); it.hasNext(); ) {
+            VkzFileHandle doc = it.next();
+            VkzEditor editor = doc.edit();
+            editor.clear();
+            editor.write("Hello world");
+            editor.commit();
+        }
 //
 //
 //        String hello = "Hello world";
@@ -89,7 +90,7 @@ public class Main {
 //        int magicInt = buffer.getInt();
 //        System.out.println(Integer.toHexString(magicInt));
 //
-//        System.exit(0);
+        System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;

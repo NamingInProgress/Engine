@@ -2,8 +2,10 @@ package com.vke.api.vkz;
 
 import com.vke.api.utils.NotifyingIterable;
 
+import java.util.Iterator;
+
 public interface VkzDirectoryHandle {
-    NotifyingIterable<VkzFileHandle> iterateFiles();
+    Iterator<VkzFileHandle> iterateFiles();
 
     VkzFileHandle file(CharSequence name);
 

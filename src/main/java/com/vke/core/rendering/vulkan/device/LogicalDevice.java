@@ -99,25 +99,25 @@ public class LogicalDevice implements Disposable {
                     .pQueuePriorities(priorities);
         }
 
-        VkPhysicalDeviceVulkan13Features a = null;
-        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT b = null;
-
-        StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain
-                = new StructureChain3<>(
-                VkPhysicalDeviceFeatures2::pNext,
-                VkPhysicalDeviceVulkan13Features::pNext
-        );
-        chain.add1();
-        VkPhysicalDeviceFeatures2 features2 = chain.build();
-
-
-
-        StructChain<VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain = new StructChain<>(a, b, VkPhysicalDeviceVulkan13Features::pNext);
+        //VkPhysicalDeviceVulkan13Features a = null;
+        //VkPhysicalDeviceExtendedDynamicStateFeaturesEXT b = null;
+//
+        //StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain
+        //        = new StructureChain3<>(
+        //        VkPhysicalDeviceFeatures2::pNext,
+        //        VkPhysicalDeviceVulkan13Features::pNext
+        //);
+        //chain.add1();
+        //VkPhysicalDeviceFeatures2 features2 = chain.build();
+//
+//
+//
+        //StructChain<VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain = new StructChain<>(a, b, VkPhysicalDeviceVulkan13Features::pNext);
 
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()
                 .ppEnabledExtensionNames(extBuf)
-                .pEnabledFeatures(features)
+                //.pEnabledFeatures(features)
                 .pQueueCreateInfos(buf);
 
         PointerBuffer pLogicalDevice = stack.mallocPointer(1);
