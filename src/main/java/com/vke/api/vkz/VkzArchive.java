@@ -7,6 +7,7 @@ import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 public interface VkzArchive {
     static VkzArchive open(InputStream stream, OpenStrategy strategy) throws VkzOpenException {
@@ -36,8 +37,5 @@ public interface VkzArchive {
 
     VkzDirectoryHandle root();
 
-    NotifyingIterable<VkzFileHandle> iterateFiles();
-
-    void lock(int lockId);
-    void unlock(int lockId);
+    Iterator<VkzFileHandle> iterateFiles();
 }
