@@ -5,11 +5,11 @@ import com.vke.api.vulkan.VkPresentMode;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
+import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
@@ -29,6 +29,8 @@ public class SwapChain implements Disposable {
     private VKEngine engine;
     private ArrayList<ImageView> imageViews = new ArrayList<>();
     private ArrayList<Image> images = new ArrayList<>();
+
+    private int usedColorFormat;
 
     private final AutoHeapAllocator alloc;
 
@@ -67,6 +69,7 @@ public class SwapChain implements Disposable {
 
     public VkSwapchainCreateInfoKHR getSwapChainCreateInfo(MemoryStack stack, LogicalDevice device, VkSurfaceFormatKHR.Buffer pFormat, IntBuffer pModes, VkSurfaceCapabilitiesKHR pCapabilities) {
         VkSurfaceFormatKHR format = chooseFormat(pFormat);
+        usedColorFormat = format.format();
         int presentMode = choosePresentMode(pModes);
         VkExtent2D extent2D = chooseExtent(pCapabilities);
         int minImageCount = Math.max(3, pCapabilities.minImageCount());
@@ -204,6 +207,10 @@ public class SwapChain implements Disposable {
             GLFW.glfwGetFramebufferSize(info.windowHandle, pWidth, pHeight);
             return VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
         }
+    }
+
+    public int getColorFormat() {
+        return usedColorFormat;
     }
 
     @Override

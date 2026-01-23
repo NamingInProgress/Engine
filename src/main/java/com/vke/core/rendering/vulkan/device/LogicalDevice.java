@@ -1,11 +1,14 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.device;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
 import com.vke.api.vulkan.LogicalDeviceCreateInfo;
 import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.StructChain;
+import com.vke.core.rendering.vulkan.StructureChain3;
+import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -96,9 +99,25 @@ public class LogicalDevice implements Disposable {
                     .pQueuePriorities(priorities);
         }
 
+        VkPhysicalDeviceVulkan13Features a = null;
+        VkPhysicalDeviceExtendedDynamicStateFeaturesEXT b = null;
+
+        StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain
+                = new StructureChain3<>(
+                VkPhysicalDeviceFeatures2::pNext,
+                VkPhysicalDeviceVulkan13Features::pNext
+        );
+        chain.add1();
+        VkPhysicalDeviceFeatures2 features2 = chain.build();
+
+
+
+        StructChain<VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain = new StructChain<>(a, b, VkPhysicalDeviceVulkan13Features::pNext);
+
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()
                 .ppEnabledExtensionNames(extBuf)
+                .pEnabledFeatures(features)
                 .pQueueCreateInfos(buf);
 
         PointerBuffer pLogicalDevice = stack.mallocPointer(1);

@@ -1,7 +1,7 @@
 package com.vke.api.vulkan;
 
-import com.vke.core.rendering.vulkan.LogicalDevice;
-import com.vke.core.rendering.vulkan.PhysicalDevice;
+import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 
 public class SwapChainCreateInfo {
     public PhysicalDevice physicalDevice;

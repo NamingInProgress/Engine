@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan;
 
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.utils.Colors;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;

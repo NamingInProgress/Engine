@@ -6,6 +6,7 @@ import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.window.Window;
 import org.lwjgl.glfw.GLFW;
@@ -16,9 +17,12 @@ public class VKEngine {
 
     private final Window window;
 
+    private final ShaderCompiler shaderCompiler;
+
     public static final VKERegistrate VKE_REGISTRATE = VKERegistries.get("vke");
 
     public VKEngine(EngineCreateInfo createInfo) {
+        this.shaderCompiler = new ShaderCompiler();
         logger = LoggerFactory.get(VKEngine.class.getName());
         soutLogger = LoggerFactory.get(SOUT.TAG);
         SOUT.redirect(soutLogger);
@@ -49,12 +53,12 @@ public class VKEngine {
     private void free() {
         window.close();
     }
-
     public Window getWindow() {
         return this.window;
     }
-
     public Logger getLogger() {
         return logger;
     }
+    public ShaderCompiler getShaderCompiler() { return this.shaderCompiler; }
+
 }

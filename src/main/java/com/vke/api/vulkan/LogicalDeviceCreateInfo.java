@@ -1,7 +1,7 @@
 package com.vke.api.vulkan;
 
 import com.vke.core.EngineCreateInfo;
-import com.vke.core.rendering.vulkan.PhysicalDevice;
+import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 
 public class LogicalDeviceCreateInfo {

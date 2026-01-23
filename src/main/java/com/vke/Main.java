@@ -51,49 +51,48 @@ public class Main {
 //        }
 //
 
-        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
-        VkzFileHandle document = archive.file("documents/test.txt");
-        InputStream docStream = document.getInputStream();
-
-        VkzDirectoryHandle docs = archive.directory("documents");
-        for (VkzFileHandle doc : docs.iterateFiles()) {
-            VkzEditor editor = doc.edit();
-            editor.clear();
-            editor.write("Hello world");
-            editor.commit();
-        }
-
-
-        String hello = "Hello world";
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        VkzObjSaver saver = new VkzObjSaver(bos);
-        Serializer.saveObject(hello, saver);
-
-        try {
-            saver.flush();
-            saver.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        byte[] bytes = bos.toByteArray();
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        VkzObjLoader loader = new VkzObjLoader(bis, saver.getSavedBytes(), saver.getExtraBits());
-        String hello2 = Serializer.loadObject(String.class, loader);
-        System.out.println(hello2);
-
-
-        String magic = "VKZ0";
-        byte[] b = magic.getBytes(StandardCharsets.US_ASCII);
-        ByteBuffer buffer = ByteBuffer.wrap(b);
-        int magicInt = buffer.getInt();
-        System.out.println(Integer.toHexString(magicInt));
-
-        System.exit(0);
+//        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
+//        VkzFileHandle document = archive.file("documents/test.txt");
+//        InputStream docStream = document.getInputStream();
+//
+//        VkzDirectoryHandle docs = archive.directory("documents");
+//        for (VkzFileHandle doc : docs.iterateFiles()) {
+//            VkzEditor editor = doc.edit();
+//            editor.clear();
+//            editor.write("Hello world");
+//            editor.commit();
+//        }
+//
+//
+//        String hello = "Hello world";
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        VkzObjSaver saver = new VkzObjSaver(bos);
+//        Serializer.saveObject(hello, saver);
+//
+//        try {
+//            saver.flush();
+//            saver.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        byte[] bytes = bos.toByteArray();
+//        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+//        VkzObjLoader loader = new VkzObjLoader(bis, saver.getSavedBytes(), saver.getExtraBits());
+//        String hello2 = Serializer.loadObject(String.class, loader);
+//        System.out.println(hello2);
+//
+//
+//        String magic = "VKZ0";
+//        byte[] b = magic.getBytes(StandardCharsets.US_ASCII);
+//        ByteBuffer buffer = ByteBuffer.wrap(b);
+//        int magicInt = buffer.getInt();
+//        System.out.println(Integer.toHexString(magicInt));
+//
+//        System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
-        //createInfo.vulkanCreateInfo.apiVersion = new Version(1, 3, 0);
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
 

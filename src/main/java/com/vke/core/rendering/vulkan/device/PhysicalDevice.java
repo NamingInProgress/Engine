@@ -1,15 +1,13 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.device;
 
 import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.memory.voidP;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

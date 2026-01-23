@@ -42,6 +42,7 @@ public class AutoHeapAllocator implements AutoCloseable {
         for (int i : ints) {
             heap.put(i);
         }
+        heap.flip();
         objects.add(v);
         return v;
     }
@@ -58,6 +59,18 @@ public class AutoHeapAllocator implements AutoCloseable {
         for (long i : longs) {
             heap.put(i);
         }
+        heap.flip();
+        objects.add(v);
+        return v;
+    }
+
+    public voidP bytes(byte... bytes) {
+        voidP v = new voidP(MemoryUtil.memAlloc(bytes.length));
+        ByteBuffer heap = v.getHeapObject();
+        for (byte b : bytes) {
+            heap.put(b);
+        }
+        heap.flip();
         objects.add(v);
         return v;
     }

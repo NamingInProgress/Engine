@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.vulkan.LogicalDeviceCreateInfo;
+import com.vke.api.vulkan.PipelineCreateInfo;
 import com.vke.api.vulkan.SwapChainCreateInfo;
 import com.vke.api.vulkan.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -10,10 +11,18 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
+import com.vke.core.rendering.vulkan.shader.ShaderProgram;
 import com.vke.utils.Disposable;
+import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -67,25 +76,11 @@ public class VulkanSetup implements Disposable {
                     .engineVersion(engineCreateInfo.engineVersion.getVkFormatVersion())
                     .apiVersion(vulkanCreateInfo.apiVersion.getVkFormatVersion());
 
-            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = alloc.allocStruct(VkDebugUtilsMessengerCreateInfoEXT.SIZEOF, VkDebugUtilsMessengerCreateInfoEXT::new)
-                    .sType$Default()
-                    .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
-                    .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
-                    .pfnUserCallback(debugMessengerCallback);
-
             VkInstanceCreateInfo createInfo = VkInstanceCreateInfo.calloc(stack)
                     .sType(VK14.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
                     .ppEnabledExtensionNames(extensions);
 
-            if (!engineCreateInfo.releaseMode) {
-                createInfo.pNext(debugMessengerCreateInfo);
-            }
             if (validationLayers != null) {
                 createInfo.ppEnabledLayerNames(validationLayers);
             }
@@ -99,7 +94,7 @@ public class VulkanSetup implements Disposable {
 
             instance = new VkInstance(pInstance.get(0), createInfo);
 
-            setupDebugMessenger(debugMessengerCreateInfo, instance, engine);
+            setupDebugMessenger(instance, engine);
 
             /**  Surface Creation  **/
             LongBuffer pSurface = stack.mallocLong(1);
@@ -131,6 +126,27 @@ public class VulkanSetup implements Disposable {
             if (5 == 5) {
                 swapChain = new SwapChain(engine, swapChainCreateInfo);
             }
+
+            byte[] vertexSource = new Identifier("vke", "shaders/shader.vsh").asInputStream().readAllBytes();
+            byte[] fragSource = new Identifier("vke", "shaders/shader.fsh").asInputStream().readAllBytes();
+
+            //TOY example test
+            ShaderCompiler compiler = engine.getShaderCompiler();
+            Shader vertexShader = new Shader(engine, logicalDevice, compiler.compileGlslToSpirV(vertexSource, Shaderc.shaderc_vertex_shader, "shader.vsh"), Shader.Type.VERTEX);
+            Shader fragmentShader = new Shader(engine, logicalDevice, compiler.compileGlslToSpirV(fragSource, Shaderc.shaderc_fragment_shader, "shader.fsh"), Shader.Type.FRAGMENT);
+
+            ShaderProgram program = new ShaderProgram(vertexShader, fragmentShader);
+
+            PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
+            pipelineCreateInfo.device = logicalDevice;
+            pipelineCreateInfo.engine = engine;
+            pipelineCreateInfo.shader = program;
+            pipelineCreateInfo.swapChain = swapChain;
+            pipelineCreateInfo.shaderModuleCreateInfos = program.getShaderCreateInfos();
+
+            GraphicsPipeline pipeline = new GraphicsPipeline(pipelineCreateInfo);
+        } catch (Exception e) {
+            engine.throwException(e, HERE);
         }
     }
 
@@ -145,13 +161,24 @@ public class VulkanSetup implements Disposable {
         if (alloc != null) alloc.close();
     }
 
-    private void setupDebugMessenger(VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo, VkInstance instance, VKEngine engine) {
+    private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
         if (engineCreateInfo.releaseMode) return;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc(stack)
+                    .sType$Default()
+                    .messageSeverity(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+                    .messageType(EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                            EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+                    .pfnUserCallback(debugMessengerCallback);
+
             LongBuffer pMessenger = stack.mallocLong(1);
 
-            if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, messengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
+            if (EXTDebugUtils.vkCreateDebugUtilsMessengerEXT(instance, debugMessengerCreateInfo, null, pMessenger) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Debug Messenger couldn't be created!"), HERE);
             }
             debugMessenger = pMessenger.get(0);
