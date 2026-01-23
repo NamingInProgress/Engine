@@ -112,8 +112,10 @@ public class GraphicsPipeline implements Disposable {
             LongBuffer pPipeline = stack.mallocLong(1);
 
             if (VK14.vkCreateGraphicsPipelines(device.getDevice(), VK14.VK_NULL_HANDLE, pipelineInfos, null, pPipeline) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Couldnt create graohics pipeline"), HERE);
+                engine.throwException(new IllegalStateException("Couldn't create graphics pipeline"), HERE);
             }
+
+            this.handle = pPipeline.get(0);
         }
     }
 
