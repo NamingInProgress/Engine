@@ -1,10 +1,12 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.swapchain;
 
 import com.vke.api.vulkan.SwapChainCreateInfo;
 import com.vke.api.vulkan.VkPresentMode;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
+import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
@@ -33,6 +35,8 @@ public class SwapChain implements Disposable {
     private int usedColorFormat;
 
     private final AutoHeapAllocator alloc;
+
+    private int currentImageIndex = 0;
 
     public SwapChain(VKEngine engine, SwapChainCreateInfo createInfo) {
         this.engine = engine;
@@ -93,8 +97,8 @@ public class SwapChain implements Disposable {
                 .oldSwapchain(VK14.VK_NULL_HANDLE)
                 .clipped(true);
 
-        VulkanQueue graphicsQueue = device.getQueue(VulkanQueue.VkQueueType.GRAPHICS);
-        VulkanQueue presentQueue = device.getQueue(VulkanQueue.VkQueueType.PRESENT);
+        VulkanQueue graphicsQueue = device.getQueue(VulkanQueue.Type.GRAPHICS);
+        VulkanQueue presentQueue = device.getQueue(VulkanQueue.Type.PRESENT);
 
         if (!graphicsQueue.equals(presentQueue)) {
             IntBuffer queueIndices = alloc.ints(graphicsQueue.index(), presentQueue.index()).getHeapObject();
@@ -159,12 +163,23 @@ public class SwapChain implements Disposable {
             this.images.add(new Image(images.get(i)));
         }
 
-        VkImageViewCreateInfo baseInfo = VkImageViewCreateInfo.calloc(stack);
+        VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
+                .aspectMask(VK14.VK_IMAGE_ASPECT_COLOR_BIT)
+                .baseMipLevel(0)
+                .levelCount(1)
+                .baseArrayLayer(0)
+                .layerCount(1);
+
+        VkImageViewCreateInfo baseInfo = VkImageViewCreateInfo.calloc(stack)
+                .viewType(VK14.VK_IMAGE_VIEW_TYPE_2D)
+                .format(usedColorFormat)
+                .subresourceRange(subresourceRange)
+                .sType$Default();
         for (int i = 0; i < count.get(0); i++) {
             Image image = this.images.get(i);
             VkImageViewCreateInfo info = ImageView.copyCreateInfo(baseInfo);
             info.image(image.getHandle());
-            ImageView view = new ImageView(info);
+            ImageView view = new ImageView(image, engine, device, info);
             this.imageViews.add(view);
         }
     }
@@ -209,8 +224,25 @@ public class SwapChain implements Disposable {
         }
     }
 
+    public void nextImage(MemoryStack stack) {
+        VkAcquireNextImageInfoKHR acquireInfo = VkAcquireNextImageInfoKHR.calloc(stack);
+        acquireInfo
+                .deviceMask(1)
+                .swapchain(this.handle())
+                .sType$Default();
+        IntBuffer pNextImageIndex = stack.mallocInt(1);
+        KHRSwapchain.vkAcquireNextImage2KHR(info.logicalDevice.getDevice(), acquireInfo, pNextImageIndex);
+        currentImageIndex = pNextImageIndex.get(0);
+    }
+
     public int getColorFormat() {
         return usedColorFormat;
+    }
+    public ArrayList<Image> getImages() { return this.images; }
+    public ArrayList<ImageView> getImageViews() { return this.imageViews; }
+    public int currentImageIndex() { return this.currentImageIndex; }
+    public VkExtent2D getExtent() {
+        return extent;
     }
 
     @Override

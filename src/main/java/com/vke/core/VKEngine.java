@@ -6,6 +6,7 @@ import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.window.Window;
@@ -17,26 +18,25 @@ public class VKEngine {
 
     private final Window window;
 
-    private final ShaderCompiler shaderCompiler;
+    private final VulkanRenderer renderer;
 
     public static final VKERegistrate VKE_REGISTRATE = VKERegistries.get("vke");
 
     public VKEngine(EngineCreateInfo createInfo) {
-        this.shaderCompiler = new ShaderCompiler();
         logger = LoggerFactory.get(VKEngine.class.getName());
         soutLogger = LoggerFactory.get(SOUT.TAG);
         SOUT.redirect(soutLogger);
-
         this.window = new Window(this, createInfo.windowCreateInfo);
 
-        VulkanSetup vkSetup = new VulkanSetup(createInfo);
-        vkSetup.initVulkan(this);
+        this.renderer = new VulkanRenderer(this, createInfo);
     }
 
     public void start(Game game) {
         game.onInit(this);
 
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
+            renderer.draw();
+
             game.onDraw(window);
 
             GLFW.glfwPollEvents();
@@ -59,6 +59,5 @@ public class VKEngine {
     public Logger getLogger() {
         return logger;
     }
-    public ShaderCompiler getShaderCompiler() { return this.shaderCompiler; }
 
 }

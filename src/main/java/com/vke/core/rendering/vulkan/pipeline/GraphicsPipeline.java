@@ -3,8 +3,9 @@ package com.vke.core.rendering.vulkan.pipeline;
 import com.vke.api.vulkan.PipelineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.SwapChain;
+import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
+import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -74,7 +75,8 @@ public class GraphicsPipeline implements Disposable {
                     .attachmentCount(1)
                     .logicOpEnable(false)
                     .logicOp(VK14.VK_LOGIC_OP_COPY)
-                    .pAttachments(attachments);
+                    .pAttachments(attachments)
+                    .attachmentCount(1);
 
             PipelineLayout pipelineLayout = new PipelineLayout(engine, device);
 
@@ -82,15 +84,26 @@ public class GraphicsPipeline implements Disposable {
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
                     .sType$Default()
                     .pColorAttachmentFormats(format)
-                    .colorAttachmentCount(1);
+                    .colorAttachmentCount(1)
+                    .depthAttachmentFormat(VK14.VK_FORMAT_UNDEFINED)
+                    .stencilAttachmentFormat(VK14.VK_FORMAT_UNDEFINED);
 
             VkPipelineShaderStageCreateInfo[] stagesArr = createInfo.shaderModuleCreateInfos;
 
             VkPipelineShaderStageCreateInfo.Buffer stages = VkPipelineShaderStageCreateInfo.calloc(stagesArr.length, stack);
-            for (VkPipelineShaderStageCreateInfo stage : stagesArr) {
-                stages.put(stage);
+            for (int i = 0; i < stagesArr.length; i++) {
+                VkPipelineShaderStageCreateInfo stage = stagesArr[i];
+
+                stages.get(i).sType$Default()
+                        .stage(stage.stage())
+                        .module(stage.module())
+                        .pName(Utils.ensureCStr(stage.pName()));
             }
-            stages.flip();
+
+            VkPipelineViewportStateCreateInfo viewportState = VkPipelineViewportStateCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .viewportCount(1)
+                    .scissorCount(1);
 
             VkGraphicsPipelineCreateInfo info = VkGraphicsPipelineCreateInfo.calloc(stack)
                     .sType$Default()
@@ -103,7 +116,9 @@ public class GraphicsPipeline implements Disposable {
                     .pRasterizationState(rasterizationStateCreateInfo)
                     .pMultisampleState(multisampleStateCreateInfo)
                     .pColorBlendState(colorBlending)
-                    .layout(pipelineLayout.getHandle());
+                    .layout(pipelineLayout.getHandle())
+                    .pViewportState(viewportState)
+                    .renderPass(VK14.VK_NULL_HANDLE);
 
             VkGraphicsPipelineCreateInfo.Buffer pipelineInfos = VkGraphicsPipelineCreateInfo.calloc(1, stack);
             pipelineInfos.put(info);
@@ -117,6 +132,10 @@ public class GraphicsPipeline implements Disposable {
 
             this.handle = pPipeline.get(0);
         }
+    }
+
+    public long getHandle() {
+        return this.handle;
     }
 
     @Override

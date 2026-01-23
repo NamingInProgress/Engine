@@ -7,16 +7,16 @@ import java.util.Objects;
 public class VulkanQueue {
     private final VkQueue queue;
     private final int familyIndex;
-    private final VkQueueType queueType;
+    private final Type queueType;
 
-    public VulkanQueue(VkQueue queue, int familyIndex, VkQueueType queueType) {
+    public VulkanQueue(VkQueue queue, int familyIndex, Type queueType) {
         Objects.requireNonNull(queueType, "Queue type must not be null!");
         this.queue = queue;
         this.familyIndex = familyIndex;
         this.queueType = queueType;
     }
 
-    public VkQueueType getType() { return this.queueType; }
+    public Type getType() { return this.queueType; }
     public int index() { return this.familyIndex; }
 
     @Override
@@ -25,7 +25,7 @@ public class VulkanQueue {
         return familyIndex == ((VulkanQueue) other).familyIndex;
     }
 
-    public static enum VkQueueType {
+    public static enum Type {
         GRAPHICS,
         COMPUTE,
         PRESENT

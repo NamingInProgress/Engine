@@ -1,8 +1,11 @@
 package com.vke.core.rendering.vulkan;
 
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Colors;
+import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -11,6 +14,7 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -138,4 +142,11 @@ public class VKUtils {
         return output.get(0) == 1;
     }
 
+    public static String readUTF8(ByteBuffer b) {
+        byte[] bytes = Utils.acquireByteArrayFromBuffer(b);
+        if ((bytes[bytes.length - 1] & 0xFF) == '\0') {
+            return new String(bytes, 0, bytes.length - 1, StandardCharsets.UTF_8);
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
 }

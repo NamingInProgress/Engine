@@ -11,12 +11,15 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.rendering.vulkan.shader.ShaderProgram;
+import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
@@ -43,13 +46,18 @@ public class VulkanSetup implements Disposable {
 
     private final EngineCreateInfo engineCreateInfo;
     private final VulkanCreateInfo vulkanCreateInfo;
+
+    private AutoHeapAllocator alloc;
+
+
     private VkInstance instance;
     private PhysicalDevice physicalDevice;
     private LogicalDevice logicalDevice;
     private SwapChain swapChain;
     private long surface, debugMessenger;
+    private CommandPool commandPool;
+    private CommandBuffers commandBuffers;
 
-    private AutoHeapAllocator alloc;
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
         this.engineCreateInfo = engineCreateInfo;
@@ -127,24 +135,8 @@ public class VulkanSetup implements Disposable {
                 swapChain = new SwapChain(engine, swapChainCreateInfo);
             }
 
-            byte[] vertexSource = new Identifier("vke", "shaders/shader.vsh").asInputStream().readAllBytes();
-            byte[] fragSource = new Identifier("vke", "shaders/shader.fsh").asInputStream().readAllBytes();
-
-            //TOY example test
-            ShaderCompiler compiler = engine.getShaderCompiler();
-            Shader vertexShader = new Shader(engine, logicalDevice, compiler.compileGlslToSpirV(vertexSource, Shaderc.shaderc_vertex_shader, "shader.vsh"), Shader.Type.VERTEX);
-            Shader fragmentShader = new Shader(engine, logicalDevice, compiler.compileGlslToSpirV(fragSource, Shaderc.shaderc_fragment_shader, "shader.fsh"), Shader.Type.FRAGMENT);
-
-            ShaderProgram program = new ShaderProgram(vertexShader, fragmentShader);
-
-            PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
-            pipelineCreateInfo.device = logicalDevice;
-            pipelineCreateInfo.engine = engine;
-            pipelineCreateInfo.shader = program;
-            pipelineCreateInfo.swapChain = swapChain;
-            pipelineCreateInfo.shaderModuleCreateInfos = program.getShaderCreateInfos();
-
-            GraphicsPipeline pipeline = new GraphicsPipeline(pipelineCreateInfo);
+            commandPool = new CommandPool(engine, logicalDevice, VulkanQueue.Type.GRAPHICS);
+            commandBuffers = new CommandBuffers(engine, commandPool, logicalDevice, 1);
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
@@ -354,6 +346,34 @@ public class VulkanSetup implements Disposable {
         }
 
         return null;
+    }
+
+    public VkInstance getInstance() {
+        return instance;
+    }
+
+    public LogicalDevice getLogicalDevice() {
+        return logicalDevice;
+    }
+
+    public SwapChain getSwapChain() {
+        return swapChain;
+    }
+
+    public long getSurface() {
+        return surface;
+    }
+
+    public long getDebugMessenger() {
+        return debugMessenger;
+    }
+
+    public CommandPool getCommandPool() {
+        return commandPool;
+    }
+
+    public CommandBuffers getCommandBuffers() {
+        return commandBuffers;
     }
 
 }

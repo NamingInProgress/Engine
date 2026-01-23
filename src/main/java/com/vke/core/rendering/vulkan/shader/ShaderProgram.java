@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.shader;
 
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class ShaderProgram implements Disposable {
                     .sType$Default()
                     .stage(shader.getType().getVkStageInt())
                     .module(shader.getHandle())
-                    .pName(alloc.utf8("main").getHeapObject());
+                    .pName(MemoryUtil.memUTF8("main", true));
         }
 
         return infos;

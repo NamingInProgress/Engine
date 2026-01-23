@@ -3,7 +3,7 @@ package com.vke.api.vulkan;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.shader.ShaderProgram;
-import com.vke.core.rendering.vulkan.SwapChain;
+import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
 public class PipelineCreateInfo {

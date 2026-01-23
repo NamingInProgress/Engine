@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.swapchain;
 
 public class Image {
     private final long handle;
