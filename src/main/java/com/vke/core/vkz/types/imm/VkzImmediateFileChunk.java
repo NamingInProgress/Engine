@@ -3,6 +3,7 @@ package com.vke.core.vkz.types.imm;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
+import com.vke.api.vkz.VkzEditor;
 import com.vke.api.vkz.VkzFileHandle;
 import com.vke.core.vkz.types.VkzName;
 import com.vke.utils.exception.LoadException;
@@ -34,6 +35,11 @@ public class VkzImmediateFileChunk implements VkzFileHandle {
     @Override
     public int getSize() {
         return length;
+    }
+
+    @Override
+    public VkzEditor edit() {
+        return null;
     }
 
     void save(Saver saver) throws SaveException {
