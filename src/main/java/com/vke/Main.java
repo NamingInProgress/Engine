@@ -56,9 +56,8 @@ public class Main {
         InputStream docStream = document.getInputStream();
 
         VkzDirectoryHandle docs = archive.directory("documents");
-        for (Iterator<VkzFileHandle> it = docs.iterateFiles(); it.hasNext(); ) {
-            VkzFileHandle shaderFile = it.next();
-            VkzEditor editor = shaderFile.edit();
+        for (VkzFileHandle doc : docs.iterateFiles()) {
+            VkzEditor editor = doc.edit();
             editor.clear();
             editor.write("Hello world");
             editor.commit();

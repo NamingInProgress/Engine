@@ -1,8 +1,10 @@
 package com.vke.core.vkz.types.imm;
 
+import com.carrotsearch.hppc.IntHashSet;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
+import com.vke.api.utils.NotifyingIterable;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzDirectoryHandle;
 import com.vke.api.vkz.VkzFileHandle;
@@ -13,8 +15,6 @@ import com.vke.core.vkz.types.VkzDirLayer;
 import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
 
-import java.util.Iterator;
-
 public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, VkzArchive {
     public static VkzImmediateArchive SERIALIZER = new VkzImmediateArchive();
 
@@ -24,6 +24,8 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     private VkzDirLayer root;
     private VkzArray<Integer> fileLengths;
     private VkzImmediateFileChunk[] fileChunks;
+
+    private final IntHashSet locked = new IntHashSet();
 
 
     @Override
@@ -58,6 +60,7 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         if (root == null) {
             throw new LoadException("Unable to load filesystem!");
         }
+        root.setArchive(this);
         VkzArray<Integer> fileLengths = new VkzArray<>(Integer.class, new Integer[0]);
         fileLengths.load(loader);
         VkzImmediateFileChunk[] fileChunks = new VkzImmediateFileChunk[fileLengths.length()];
@@ -119,11 +122,21 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
+    public NotifyingIterable<VkzFileHandle> iterateFiles() {
         return new VkzFileIter(fileChunks);
     }
 
-    private static class VkzFileIter implements Iterator<VkzFileHandle> {
+    @Override
+    public void lock(int lockId) {
+        locked.add(lockId);
+    }
+
+    @Override
+    public void unlock(int lockId) {
+        locked.remove(lockId);
+    }
+
+    private static class VkzFileIter implements NotifyingIterable<VkzFileHandle> {
         private int index;
         private final VkzImmediateFileChunk[] source;
 
@@ -139,6 +152,11 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         @Override
         public VkzFileHandle next() {
             return source[index++];
+        }
+
+        @Override
+        public void notifyEnd() {
+
         }
     }
 }

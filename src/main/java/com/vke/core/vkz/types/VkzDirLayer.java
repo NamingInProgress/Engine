@@ -3,6 +3,8 @@ package com.vke.core.vkz.types;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
+import com.vke.api.utils.NotifyingIterable;
+import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzDirectoryHandle;
 import com.vke.api.vkz.VkzFileHandle;
 import com.vke.core.vkz.types.imm.VkzImmediateFileChunk;
@@ -10,20 +12,31 @@ import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
 
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VkzDirLayer implements Serializer<VkzDirLayer>, VkzDirectoryHandle {
     static VkzDirLayer SERIALIZER = new VkzDirLayer();
 
+    private static final AtomicInteger LOCKID_GEN = new AtomicInteger();
+    private int lockId = LOCKID_GEN.getAndDecrement();
     private VkzName layerName;
     private VkzArray<VkzEntry> entries;
     private VkzArray<VkzDirLayer> layers;
 
     private VkzFileHandle[] arrayRef;
+    private VkzArchive archive;
 
     public void setFilesSource(VkzFileHandle[] arrayRef) {
         this.arrayRef = arrayRef;
         for (VkzDirLayer subLayer : layers.elements()) {
             subLayer.setFilesSource(arrayRef);
+        }
+    }
+
+    public void setArchive(VkzArchive archive) {
+        this.archive = archive;
+        for (VkzDirLayer sub : layers.elements()) {
+            sub.setArchive(archive);
         }
     }
 
@@ -55,10 +68,10 @@ public class VkzDirLayer implements Serializer<VkzDirLayer>, VkzDirectoryHandle 
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
+    public NotifyingIterable<VkzFileHandle> iterateFiles() {
         if (arrayRef == null) return null;
 
-        return new VkzDirFilesIter(arrayRef, entries.elements());
+        return new VkzDirFilesIter();
     }
 
     @Override
@@ -85,25 +98,31 @@ public class VkzDirLayer implements Serializer<VkzDirLayer>, VkzDirectoryHandle 
         return null;
     }
 
-    private static class VkzDirFilesIter implements Iterator<VkzFileHandle> {
-        private final VkzFileHandle[] allFilesRef;
-        private final VkzEntry[] entries;
+    private class VkzDirFilesIter implements NotifyingIterable<VkzFileHandle> {
         private int index;
 
-        public VkzDirFilesIter(VkzFileHandle[] allFilesRef, VkzEntry[] entries) {
-            this.allFilesRef = allFilesRef;
-            this.entries = entries;
+        private VkzDirFilesIter() {
         }
 
         @Override
         public boolean hasNext() {
-            return index < entries.length;
+            return index < entries.length();
         }
 
         @Override
         public VkzFileHandle next() {
-            VkzEntry entry = entries[index++];
-            return allFilesRef[entry.getChunkOffset()];
+            if (archive != null) {
+                archive.lock(lockId);
+            }
+            VkzEntry entry = entries.elements()[index++];
+            return arrayRef[entry.getChunkOffset()];
+        }
+
+        @Override
+        public void notifyEnd() {
+            if (archive != null) {
+                archive.unlock(lockId);
+            }
         }
     }
 }
