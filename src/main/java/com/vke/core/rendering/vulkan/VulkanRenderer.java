@@ -11,28 +11,33 @@ import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.rendering.vulkan.shader.ShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
+import com.vke.core.rendering.vulkan.sync.Fence;
+import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.shaderc.Shaderc;
-import org.lwjgl.vulkan.VK14;
-import org.lwjgl.vulkan.VkExtent2D;
-import org.lwjgl.vulkan.VkRect2D;
-import org.lwjgl.vulkan.VkViewport;
+import org.lwjgl.vulkan.*;
 
 import java.awt.*;
 
 public class VulkanRenderer implements Disposable {
+    private static final int FENCE_TIMEOUT = 1000000000;
+
+    private final VKEngine engine;
     private final VulkanSetup setup;
     private GraphicsPipeline pipeline;
     private SwapChain swapChain;
     private final ShaderCompiler shaderCompiler;
     private int frame;
     private final int frameCount;
+    private final int framesInFlight;
 
-    public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
+    public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo, int framesInFlight) {
+        this.engine = engine;
         this.setup = new VulkanSetup(createInfo);
+        this.framesInFlight = framesInFlight;
         setup.initVulkan(engine);
         this.shaderCompiler = new ShaderCompiler();
         this.swapChain = setup.getSwapChain();
@@ -64,10 +69,18 @@ public class VulkanRenderer implements Disposable {
     }
 
     public void draw() {
+        VK14.vkDeviceWaitIdle(setup.getLogicalDevice().getDevice());
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            swapChain.nextImage(stack);
-            Frame f = setup.getFrames()[frame % frameCount];
+
+            Frame f = setup.getFrames()[frame % framesInFlight];
+            Fence fence = f.getRenderFence();
+            //wait for last frame to finish
+            fence.waitAndReset(stack, engine, setup.getLogicalDevice(), FENCE_TIMEOUT);
+
+            int imageIdx = swapChain.nextImage(stack, f.getSwapChainSemaphore(), null);
             CommandBuffers cmd = f.getBuffers();
+            cmd.reset();
+
             cmd.startRecording(stack, swapChain);
 
             //rendering code
@@ -89,8 +102,94 @@ public class VulkanRenderer implements Disposable {
             VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
 
             cmd.endRecording(swapChain);
+
+            //submit queue
+            //VkCommandBufferSubmitInfo cmdSubmitInfo = CommandBuffers.getDefaultSubmitInfo(cmd);
+//
+            //VkSemaphoreSubmitInfo waitInfo = Semaphore.getDefaultSubmitInfo(stack, f.getSwapChainSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT);
+            //VkSemaphoreSubmitInfo signalInfo = Semaphore.getDefaultSubmitInfo(stack, f.getRenderSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT);
+
+            VkSubmitInfo2 submitInfo = createSubmitInfo2(stack, cmd, f.getSwapChainSemaphore(), f.getRenderSemaphore());
+            VkSubmitInfo2.Buffer submitBuf = VkSubmitInfo2.calloc(1, stack);
+            submitBuf.put(0, submitInfo);
+
+            VkQueue graphicsQueue = setup.getLogicalDevice().getQueue(VulkanQueue.Type.GRAPHICS).vk();
+            if (VK14.vkQueueSubmit2(graphicsQueue, submitBuf, fence.getHandle()) != VK14.VK_SUCCESS) {
+                engine.getLogger().warn("Failed to submit queue at frame " + frameCount);
+            }
+
+            //present queue
+            VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc(stack);
+            presentInfo.sType$Default();
+            presentInfo.pImageIndices(stack.ints(imageIdx));
+            presentInfo.pSwapchains(stack.longs(swapChain.handle()));
+            presentInfo.pWaitSemaphores(stack.longs(f.getRenderSemaphore().getHandle()));
+            presentInfo.swapchainCount(1);
+
+            if (KHRSwapchain.vkQueuePresentKHR(graphicsQueue, presentInfo) != VK14.VK_SUCCESS) {
+                engine.getLogger().warn("Failed to present queue at frame " + frameCount);
+            }
+
         }
+        //if (frame == 4) System.exit(0);
         frame++;
+    }
+
+//    private VkSubmitInfo2 createSubmitInfo2(MemoryStack stack, VkCommandBufferSubmitInfo cmdInfo, VkSemaphoreSubmitInfo wait, VkSemaphoreSubmitInfo signal) {
+//        VkCommandBufferSubmitInfo.Buffer cmdBuf = VkCommandBufferSubmitInfo.calloc(1, stack);
+//        cmdBuf.get(0).set(cmdInfo);
+//
+//        VkSemaphoreSubmitInfo.Buffer waitBuf = VkSemaphoreSubmitInfo.calloc(1, stack);
+//        waitBuf.get(0).set(wait);
+//
+//        VkSemaphoreSubmitInfo.Buffer signalBuf = VkSemaphoreSubmitInfo.calloc(1, stack);
+//        signalBuf.get(0).set(signal);
+//
+//        VkSubmitInfo2 info = VkSubmitInfo2.calloc(stack);
+//        info.sType$Default();
+//        info.pCommandBufferInfos(cmdBuf);
+//        info.pWaitSemaphoreInfos(waitBuf);
+//        info.pSignalSemaphoreInfos(signalBuf);
+//
+//        return info;
+//    }
+
+    private VkSubmitInfo2 createSubmitInfo2(
+            MemoryStack stack,
+            CommandBuffers cmd,
+            Semaphore waitSemaphore,
+            Semaphore signalSemaphore
+    ) {
+        VkCommandBufferSubmitInfo.Buffer cmdBuf =
+                VkCommandBufferSubmitInfo.calloc(1, stack);
+        cmdBuf.get(0)
+                .sType$Default()
+                .commandBuffer(cmd.getBuffer())
+                .pNext(0);
+
+        VkSemaphoreSubmitInfo.Buffer waitBuf =
+                VkSemaphoreSubmitInfo.calloc(1, stack);
+        waitBuf.get(0)
+                .sType$Default()
+                .semaphore(waitSemaphore.getHandle())
+                .stageMask(VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)
+                .deviceIndex(0)
+                .pNext(0);
+
+        VkSemaphoreSubmitInfo.Buffer signalBuf =
+                VkSemaphoreSubmitInfo.calloc(1, stack);
+        signalBuf.get(0)
+                .sType$Default()
+                .semaphore(signalSemaphore.getHandle())
+                .stageMask(VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT)
+                .deviceIndex(0)
+                .pNext(0);
+
+        return VkSubmitInfo2.calloc(stack)
+                .sType$Default()
+                .pCommandBufferInfos(cmdBuf)
+                .pWaitSemaphoreInfos(waitBuf)
+                .pSignalSemaphoreInfos(signalBuf);
     }
 
     @Override

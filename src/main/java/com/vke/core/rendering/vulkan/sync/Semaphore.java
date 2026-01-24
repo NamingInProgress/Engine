@@ -3,31 +3,46 @@ package com.vke.core.rendering.vulkan.sync;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
+import org.lwjgl.vulkan.VkSemaphoreSubmitInfo;
 
 import java.nio.LongBuffer;
 
-public class Semaphore {
+public class Semaphore implements Disposable {
 
     private final long handle;
+    private final LogicalDevice device;
 
-    private Semaphore(long handle) {
+    private Semaphore(LogicalDevice device, long handle) {
         this.handle = handle;
+        this.device = device;
     }
 
     public long getHandle() { return this.handle; }
 
+
+    /** BUILDER **/
     private static final AutoHeapAllocator alloc = new AutoHeapAllocator();
     private static VkSemaphoreCreateInfo info;
 
     public static VkSemaphoreCreateInfo getDefaultCreateInfo() {
         if (info == null) {
             info = alloc.allocStruct(VkSemaphoreCreateInfo.SIZEOF, VkSemaphoreCreateInfo::new);
+            info.flags(0);
             info.sType$Default();
         }
         return info;
+    }
+
+    public static VkSemaphoreSubmitInfo getDefaultSubmitInfo(MemoryStack stack, Semaphore semaphore, int VkPipelineStageFlags2) {
+        VkSemaphoreSubmitInfo submitInfo = VkSemaphoreSubmitInfo.calloc(stack);
+        submitInfo.sType$Default();
+        submitInfo.stageMask(VkPipelineStageFlags2);
+        submitInfo.semaphore(semaphore.getHandle());
+        return submitInfo;
     }
 
     public static Semaphore createSemaphore(VKEngine engine, LogicalDevice device, VkSemaphoreCreateInfo createInfo) {
@@ -37,7 +52,7 @@ public class Semaphore {
                 engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new Semaphore(pSemaphore.get(0));
+            return new Semaphore(device, pSemaphore.get(0));
         }
     }
 
@@ -48,7 +63,7 @@ public class Semaphore {
                 engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new Semaphore(pSemaphore.get(0));
+            return new Semaphore(device, pSemaphore.get(0));
         }
     }
 
@@ -56,4 +71,8 @@ public class Semaphore {
         alloc.close();
     }
 
+    @Override
+    public void free() {
+        VK14.vkDestroySemaphore(device.getDevice(), handle, null);
+    }
 }

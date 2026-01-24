@@ -39,6 +39,7 @@ public class CommandPool implements Disposable {
 
     @Override
     public void free() {
+        buffers.free();
         VK14.vkDestroyCommandPool(device.getDevice(), handle, null);
     }
 }

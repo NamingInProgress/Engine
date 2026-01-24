@@ -101,6 +101,10 @@ public class CommandBuffers implements Disposable {
         VK14.vkEndCommandBuffer(vk);
     }
 
+    public void reset() {
+        VK14.vkResetCommandBuffer(vk, 0);
+    }
+
     public void bindPipeline(GraphicsPipeline pipeline, int type) {
         VK14.vkCmdBindPipeline(this.getBuffer(), type, pipeline.getHandle());
     }
@@ -118,4 +122,22 @@ public class CommandBuffers implements Disposable {
         VK14.vkFreeCommandBuffers(device.getDevice(), poolHandle, vk);
         alloc.close();
     }
+
+    private static final AutoHeapAllocator infoAlloc = new AutoHeapAllocator();
+    private static VkCommandBufferSubmitInfo submitInfo;
+
+    public static VkCommandBufferSubmitInfo getDefaultSubmitInfo(CommandBuffers buffers) {
+        //if (submitInfo == null) {
+            submitInfo = infoAlloc.allocStruct(VkCommandBufferSubmitInfo.SIZEOF, VkCommandBufferSubmitInfo::new);
+            submitInfo.sType$Default();
+            submitInfo.deviceMask(0);
+        //}
+        submitInfo.commandBuffer(buffers.getBuffer());
+        return submitInfo;
+    }
+
+    public static void freeSubmitInfo() {
+        submitInfo.close();
+    }
+
 }

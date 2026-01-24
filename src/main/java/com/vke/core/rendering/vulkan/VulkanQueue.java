@@ -18,6 +18,7 @@ public class VulkanQueue {
 
     public Type getType() { return this.queueType; }
     public int index() { return this.familyIndex; }
+    public VkQueue vk() { return queue; }
 
     @Override
     public boolean equals(Object other) {

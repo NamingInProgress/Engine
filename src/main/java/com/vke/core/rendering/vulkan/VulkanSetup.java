@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class VulkanSetup implements Disposable {
@@ -139,7 +140,7 @@ public class VulkanSetup implements Disposable {
             frames = new Frame[swapChain.getImageCount()];
 
             for (int i = 0; i < swapChain.getImageCount(); i++) {
-                frames[i] = new Frame(engine, logicalDevice, 2, 1);
+                frames[i] = new Frame(engine, logicalDevice);
             }
         } catch (Exception e) {
             engine.throwException(e, HERE);
@@ -148,6 +149,7 @@ public class VulkanSetup implements Disposable {
 
     @Override
     public void free() {
+        Arrays.stream(frames).forEach(Frame::free);
         if (debugMessenger != VK14.VK_NULL_HANDLE) {
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         }
@@ -157,6 +159,7 @@ public class VulkanSetup implements Disposable {
         if (alloc != null) alloc.close();
         Semaphore.freeCreateInfo();
         Fence.freeCreateInfo();
+        CommandBuffers.freeSubmitInfo();
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {

@@ -28,7 +28,7 @@ public class VKEngine {
         SOUT.redirect(soutLogger);
         this.window = new Window(this, createInfo.windowCreateInfo);
 
-        this.renderer = new VulkanRenderer(this, createInfo);
+        this.renderer = new VulkanRenderer(this, createInfo, 2);
     }
 
     public void start(Game game) {

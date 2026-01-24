@@ -8,6 +8,8 @@ import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.sync.Fence;
+import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
@@ -76,6 +78,7 @@ public class SwapChain implements Disposable {
         usedColorFormat = format.format();
         int presentMode = choosePresentMode(pModes);
         VkExtent2D extent2D = chooseExtent(pCapabilities);
+        this.extent = extent2D;
         int minImageCount = Math.max(3, pCapabilities.minImageCount());
         minImageCount = ( pCapabilities.maxImageCount() > 0 && minImageCount > pCapabilities.maxImageCount() ) ? pCapabilities.maxImageCount() : minImageCount;
 
@@ -221,15 +224,18 @@ public class SwapChain implements Disposable {
         }
     }
 
-    public void nextImage(MemoryStack stack) {
+    public int nextImage(MemoryStack stack, Semaphore semaphore, Fence fence) {
         VkAcquireNextImageInfoKHR acquireInfo = VkAcquireNextImageInfoKHR.calloc(stack);
         acquireInfo
                 .deviceMask(1)
                 .swapchain(this.handle())
+                .fence(fence != null ? fence.getHandle() : VK14.VK_NULL_HANDLE)
+                .semaphore(semaphore.getHandle())
                 .sType$Default();
         IntBuffer pNextImageIndex = stack.mallocInt(1);
         KHRSwapchain.vkAcquireNextImage2KHR(info.logicalDevice.getDevice(), acquireInfo, pNextImageIndex);
         currentImageIndex = pNextImageIndex.get(0);
+        return currentImageIndex;
     }
 
     public int getColorFormat() {
