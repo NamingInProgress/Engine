@@ -48,6 +48,8 @@ public class CommandBuffers implements Disposable {
     public VkCommandBuffer getBuffer() { return this.vk; }
 
     public void startRecording(MemoryStack stack, SwapChain swapChain) {
+        VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
+                        .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
         VK14.vkBeginCommandBuffer(this.vk, beginInfo);
 
         ImageView currentImage = swapChain.getImageViews().get(swapChain.currentImageIndex());

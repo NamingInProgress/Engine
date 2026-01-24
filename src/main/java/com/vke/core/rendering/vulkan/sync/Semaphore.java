@@ -29,11 +29,11 @@ public class Semaphore implements Disposable {
     private static VkSemaphoreCreateInfo info;
 
     public static VkSemaphoreCreateInfo getDefaultCreateInfo() {
-        if (info == null) {
+        //if (info == null) {
             info = alloc.allocStruct(VkSemaphoreCreateInfo.SIZEOF, VkSemaphoreCreateInfo::new);
             info.flags(0);
             info.sType$Default();
-        }
+        //}
         return info;
     }
 
@@ -58,8 +58,12 @@ public class Semaphore implements Disposable {
 
     public static Semaphore createSemaphore(VKEngine engine, LogicalDevice device) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            var i = VkSemaphoreCreateInfo.calloc(stack);
+            i.flags(0);
+            i.sType$Default();
+
             LongBuffer pSemaphore = stack.mallocLong(1);
-            if (VK14.vkCreateSemaphore(device.getDevice(), getDefaultCreateInfo(), null, pSemaphore) != VK14.VK_SUCCESS) {
+            if (VK14.vkCreateSemaphore(device.getDevice(), i, null, pSemaphore) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
