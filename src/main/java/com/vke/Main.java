@@ -93,16 +93,16 @@ public class Main {
 //        int magicInt = buffer.getInt();
 //        System.out.println(Integer.toHexString(magicInt));
 //
-        try {
-            Path c = FileUtils.getConfigFolder("VKEngine");
-            Path p = FileUtils.getCacheFolder("VKEngine");
-            System.out.println("Config: " + c);
-            System.out.println("Cache: " + p);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            Path c = FileUtils.getConfigFolder("VKEngine");
+//            Path p = FileUtils.getCacheFolder("VKEngine");
+//            System.out.println("Config: " + c);
+//            System.out.println("Cache: " + p);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
-        System.exit(0);
+        //System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;

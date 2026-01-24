@@ -79,9 +79,6 @@ public class SwapChain implements Disposable {
         int minImageCount = Math.max(3, pCapabilities.minImageCount());
         minImageCount = ( pCapabilities.maxImageCount() > 0 && minImageCount > pCapabilities.maxImageCount() ) ? pCapabilities.maxImageCount() : minImageCount;
 
-        int imageCount = (pCapabilities.maxImageCount() > 0 && pCapabilities.minImageCount() + 1 > pCapabilities.maxImageCount()) ?
-                pCapabilities.minImageCount() : pCapabilities.minImageCount() + 1;
-
         VkSwapchainCreateInfoKHR swapChainCreateInfo = VkSwapchainCreateInfoKHR.calloc(stack)
                 .sType$Default()
                 .surface(info.surface)
@@ -244,11 +241,13 @@ public class SwapChain implements Disposable {
     public VkExtent2D getExtent() {
         return extent;
     }
+    public int getImageCount() { return this.images.size(); }
 
     @Override
     public void free() {
         alloc.close();
         KHRSwapchain.vkDestroySwapchainKHR(info.logicalDevice.getDevice(), swapChainHandle, null);
+        this.imageViews.forEach(ImageView::free);
     }
 
     public long handle() {

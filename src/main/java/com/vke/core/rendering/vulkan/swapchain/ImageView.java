@@ -3,19 +3,22 @@ package com.vke.core.rendering.vulkan.swapchain;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
 
-public class ImageView {
+public class ImageView implements Disposable {
     private Image parent;
     private long handle;
     private int layout;
+    private LogicalDevice device;
 
     public ImageView(Image parent, VKEngine engine, LogicalDevice device, VkImageViewCreateInfo info) {
         this.parent = parent;
+        this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pImageView = stack.mallocLong(1);
             if (VK14.vkCreateImageView(device.getDevice(), info, null, pImageView) != VK14.VK_SUCCESS) {
@@ -72,5 +75,10 @@ public class ImageView {
 
     public long getHandle() {
         return handle;
+    }
+
+    @Override
+    public void free() {
+        VK14.vkDestroyImageView(this.device.getDevice(), this.handle, null);
     }
 }

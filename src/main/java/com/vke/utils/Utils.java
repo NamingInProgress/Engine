@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Utils {
     public static boolean intsContain(int[] arr, int query) {
@@ -74,6 +77,10 @@ public class Utils {
         if (os.contains("mac")) return OSType.MAC;
         // Default to linux
         return OSType.LINUX;
+    }
+
+    public static <T> Stream<T> fromSpliterator(Spliterator<T> s) {
+        return StreamSupport.stream(s, false);
     }
 
 }

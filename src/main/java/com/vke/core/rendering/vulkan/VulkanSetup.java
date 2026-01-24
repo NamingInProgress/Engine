@@ -20,6 +20,8 @@ import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.rendering.vulkan.shader.ShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
+import com.vke.core.rendering.vulkan.sync.Fence;
+import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
@@ -55,8 +57,7 @@ public class VulkanSetup implements Disposable {
     private LogicalDevice logicalDevice;
     private SwapChain swapChain;
     private long surface, debugMessenger;
-    private CommandPool commandPool;
-    private CommandBuffers commandBuffers;
+    private Frame[] frames;
 
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
@@ -135,8 +136,11 @@ public class VulkanSetup implements Disposable {
                 swapChain = new SwapChain(engine, swapChainCreateInfo);
             }
 
-            commandPool = new CommandPool(engine, logicalDevice, VulkanQueue.Type.GRAPHICS);
-            commandBuffers = new CommandBuffers(engine, commandPool, logicalDevice, 1);
+            frames = new Frame[swapChain.getImageCount()];
+
+            for (int i = 0; i < swapChain.getImageCount(); i++) {
+                frames[i] = new Frame(engine, logicalDevice, 2, 1);
+            }
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
@@ -151,6 +155,8 @@ public class VulkanSetup implements Disposable {
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
+        Semaphore.freeCreateInfo();
+        Fence.freeCreateInfo();
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
@@ -368,12 +374,6 @@ public class VulkanSetup implements Disposable {
         return debugMessenger;
     }
 
-    public CommandPool getCommandPool() {
-        return commandPool;
-    }
-
-    public CommandBuffers getCommandBuffers() {
-        return commandBuffers;
-    }
+    public Frame[] getFrames() { return this.frames; }
 
 }

@@ -28,12 +28,15 @@ public class VulkanRenderer implements Disposable {
     private GraphicsPipeline pipeline;
     private SwapChain swapChain;
     private final ShaderCompiler shaderCompiler;
+    private int frame;
+    private final int frameCount;
 
     public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
         this.setup = new VulkanSetup(createInfo);
         setup.initVulkan(engine);
         this.shaderCompiler = new ShaderCompiler();
         this.swapChain = setup.getSwapChain();
+        this.frameCount = swapChain.getImageCount();
 
         try {
             byte[] vertexSource = Utils.readAllBytesAndClose(new Identifier("vke", "shaders/shader.vsh").asInputStream());
@@ -63,7 +66,8 @@ public class VulkanRenderer implements Disposable {
     public void draw() {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             swapChain.nextImage(stack);
-            CommandBuffers cmd = setup.getCommandBuffers();
+            Frame f = setup.getFrames()[frame % frameCount];
+            CommandBuffers cmd = f.getBuffers();
             cmd.startRecording(stack, swapChain);
 
             //rendering code
@@ -86,6 +90,7 @@ public class VulkanRenderer implements Disposable {
 
             cmd.endRecording(swapChain);
         }
+        frame++;
     }
 
     @Override

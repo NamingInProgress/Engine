@@ -9,6 +9,7 @@ import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.utils.StructureChain3;
 import com.vke.utils.Disposable;
+import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -84,7 +85,8 @@ public class LogicalDevice implements Disposable {
             engine.throwException(new IllegalStateException("Unable to find suitable present queue!"), HERE);
         }
 
-        VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc((int) Arrays.stream(queueIndices.keys).filter(c -> c != Type.PRESENT && c != null).count(), stack);
+        VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc(
+                (int) Utils.fromSpliterator(queueIndices.spliterator()).filter(c -> c.key != Type.PRESENT).count(), stack);
         int bufferIndex = 0;
 
         for (var entry : queueIndices) {
@@ -98,18 +100,20 @@ public class LogicalDevice implements Disposable {
                     .pQueuePriorities(priorities);
         }
 
-        VkPhysicalDeviceFeatures2 deviceFeatures2 = VkPhysicalDeviceFeatures2.calloc(stack).sType$Default();
+        VkPhysicalDeviceVulkan12Features deviceFeaturesVK12 = VkPhysicalDeviceVulkan12Features.calloc(stack).sType$Default();
         VkPhysicalDeviceVulkan13Features deviceFeaturesVK13 = VkPhysicalDeviceVulkan13Features.calloc(stack).sType$Default();
         VkPhysicalDeviceExtendedDynamicStateFeaturesEXT deviceFeaturesEXTDynamicState = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT.calloc(stack).sType$Default();
 
+        deviceFeaturesVK12.bufferDeviceAddress(true);
+        deviceFeaturesVK12.descriptorIndexing(true);
         deviceFeaturesVK13.synchronization2(true);
         deviceFeaturesVK13.dynamicRendering(true);
         deviceFeaturesEXTDynamicState.extendedDynamicState(true);
 
 
 
-        StructureChain3<VkPhysicalDeviceFeatures2, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain =
-                new StructureChain3<>(deviceFeatures2, deviceFeaturesVK13, deviceFeaturesEXTDynamicState, deviceFeatures2::pNext, deviceFeaturesVK13::pNext);
+        StructureChain3<VkPhysicalDeviceVulkan12Features, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain =
+                new StructureChain3<>(deviceFeaturesVK12, deviceFeaturesVK13, deviceFeaturesEXTDynamicState, deviceFeaturesVK12::pNext, deviceFeaturesVK13::pNext);
 
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()
