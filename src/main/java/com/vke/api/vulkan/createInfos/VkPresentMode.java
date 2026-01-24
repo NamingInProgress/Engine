@@ -1,4 +1,4 @@
-package com.vke.api.vulkan;
+package com.vke.api.vulkan.createInfos;
 
 public class VkPresentMode {
     public static final int VK_PRESENT_MODE_IMMEDIATE_KHR = 0;

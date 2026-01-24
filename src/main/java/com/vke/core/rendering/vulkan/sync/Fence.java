@@ -30,15 +30,10 @@ public class Fence implements Disposable {
     public long getHandle() { return this.handle; }
 
     /** BUILDER **/
-    private static final AutoHeapAllocator alloc = new AutoHeapAllocator();
-    private static VkFenceCreateInfo info;
-
-    public static VkFenceCreateInfo getDefaultCreateInfo() {
-        //if (info == null) {
-            info = alloc.allocStruct(VkFenceCreateInfo.SIZEOF, VkFenceCreateInfo::new);
-            info.sType$Default();
-            info.flags(VK14.VK_FENCE_CREATE_SIGNALED_BIT);
-        //}
+    public static VkFenceCreateInfo getDefaultCreateInfo(MemoryStack stack) {
+        VkFenceCreateInfo info = VkFenceCreateInfo.calloc(stack);
+        info.sType$Default();
+        info.flags(VK14.VK_FENCE_CREATE_SIGNALED_BIT);
         return info;
     }
 
@@ -55,12 +50,8 @@ public class Fence implements Disposable {
 
     public static Fence createFence(VKEngine engine, LogicalDevice device) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            var i = VkFenceCreateInfo.calloc(stack);
-            i.sType$Default();
-            i.flags(VK14.VK_FENCE_CREATE_SIGNALED_BIT);
-
             LongBuffer pFence = stack.mallocLong(1);
-            if (VK14.vkCreateFence(device.getDevice(), i, null, pFence) != VK14.VK_SUCCESS) {
+            if (VK14.vkCreateFence(device.getDevice(), getDefaultCreateInfo(stack), null, pFence) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Failed to create fence!"), "FENCE_createFence");
             }
 
@@ -80,10 +71,6 @@ public class Fence implements Disposable {
         if (VK14.vkResetFences(device.getDevice(), fencesBuffer) != VK14.VK_SUCCESS) {
             engine.getLogger().warn("Couldn't reset fences!");
         }
-    }
-
-    public static void freeCreateInfo() {
-        alloc.close();
     }
 
     @Override

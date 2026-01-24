@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
-import com.vke.api.vulkan.SwapChainCreateInfo;
-import com.vke.api.vulkan.VkPresentMode;
+import com.vke.api.vulkan.createInfos.SwapChainCreateInfo;
+import com.vke.api.vulkan.createInfos.VkPresentMode;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
@@ -203,7 +203,7 @@ public class SwapChain implements Disposable {
     }
 
     private int pickPresentMode(boolean wantsVsync) {
-        if (!info.preferVsync) {
+        if (wantsVsync) {
             int[] modesArr = Utils.acquireIntArrayFromBuffer(modes);
             if (Utils.intsContain(modesArr, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
                 return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;

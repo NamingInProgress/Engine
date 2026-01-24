@@ -6,6 +6,11 @@ public class Identifier {
 
     private final String namespace, path;
 
+    public Identifier(String path) {
+        this.namespace = "vke";
+        this.path = path;
+    }
+
     public Identifier(String namespace, String path) {
         this.namespace = namespace;
         this.path = path;

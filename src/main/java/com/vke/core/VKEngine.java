@@ -12,6 +12,8 @@ import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.window.Window;
 import org.lwjgl.glfw.GLFW;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 public class VKEngine {
     private final Logger logger;
     private final Logger soutLogger;
@@ -28,7 +30,9 @@ public class VKEngine {
         SOUT.redirect(soutLogger);
         this.window = new Window(this, createInfo.windowCreateInfo);
 
-        this.renderer = new VulkanRenderer(this, createInfo, 2);
+        this.renderer = new VulkanRenderer(this, createInfo, createInfo.vulkanCreateInfo.framesInFlight);
+
+        GLFW.glfwShowWindow(this.window.getHandle());
     }
 
     public void start(Game game) {

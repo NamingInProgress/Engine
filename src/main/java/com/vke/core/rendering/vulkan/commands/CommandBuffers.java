@@ -18,7 +18,6 @@ public class CommandBuffers implements Disposable {
     private final VkCommandBuffer vk;
     private final LogicalDevice device;
     private AutoHeapAllocator alloc;
-    private VkCommandBufferBeginInfo beginInfo;
 
     public CommandBuffers(VKEngine engine, CommandPool pool, LogicalDevice device, int count) {
         this.device = device;
@@ -39,10 +38,6 @@ public class CommandBuffers implements Disposable {
 
             this.vk = new VkCommandBuffer(pCommandBuffer.get(0), device.getDevice());
         }
-
-        this.beginInfo = alloc.allocStruct(VkCommandBufferBeginInfo.SIZEOF, VkCommandBufferBeginInfo::new)
-                .sType$Default()
-                .flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
     }
 
     public VkCommandBuffer getBuffer() { return this.vk; }
@@ -125,21 +120,12 @@ public class CommandBuffers implements Disposable {
         alloc.close();
     }
 
-    private static final AutoHeapAllocator infoAlloc = new AutoHeapAllocator();
-    private static VkCommandBufferSubmitInfo submitInfo;
-
-    public static VkCommandBufferSubmitInfo getDefaultSubmitInfo(CommandBuffers buffers) {
-        //if (submitInfo == null) {
-            submitInfo = infoAlloc.allocStruct(VkCommandBufferSubmitInfo.SIZEOF, VkCommandBufferSubmitInfo::new);
-            submitInfo.sType$Default();
-            submitInfo.deviceMask(0);
-        //}
+    public static VkCommandBufferSubmitInfo getDefaultSubmitInfo(MemoryStack stack, CommandBuffers buffers) {
+        VkCommandBufferSubmitInfo submitInfo = VkCommandBufferSubmitInfo.calloc(stack);
+        submitInfo.sType$Default();
+        submitInfo.deviceMask(0);
         submitInfo.commandBuffer(buffers.getBuffer());
         return submitInfo;
-    }
-
-    public static void freeSubmitInfo() {
-        submitInfo.close();
     }
 
 }

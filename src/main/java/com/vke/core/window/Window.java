@@ -20,7 +20,7 @@ public class Window {
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
         glfwWindowHint(GLFW_RESIZABLE, windowCreateInfo.isResizable());
         glfwWindowHint(GLFW_SOFT_FULLSCREEN, windowCreateInfo.isFullscreen());

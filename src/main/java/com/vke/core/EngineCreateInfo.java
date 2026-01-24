@@ -1,7 +1,7 @@
 package com.vke.core;
 
 import com.vke.api.game.Version;
-import com.vke.api.vulkan.VulkanCreateInfo;
+import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.api.window.WindowCreateInfo;
 
 public class EngineCreateInfo {

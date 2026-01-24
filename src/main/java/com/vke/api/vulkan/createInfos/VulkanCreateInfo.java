@@ -1,4 +1,4 @@
-package com.vke.api.vulkan;
+package com.vke.api.vulkan.createInfos;
 
 import com.vke.api.game.Version;
 import com.vke.core.rendering.vulkan.Consts;
@@ -10,6 +10,7 @@ import java.util.List;
 
 public class VulkanCreateInfo {
 
+    public int framesInFlight = 2;
     public Version apiVersion = new Version(1, 4, 0);
     public List<String> extensions = new ArrayList<>();
     public List<String> gpuExtensions = new ArrayList<>(List.of(

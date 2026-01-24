@@ -2,32 +2,21 @@ package com.vke.core.rendering.vulkan;
 
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
-import com.vke.api.vulkan.LogicalDeviceCreateInfo;
-import com.vke.api.vulkan.PipelineCreateInfo;
-import com.vke.api.vulkan.SwapChainCreateInfo;
-import com.vke.api.vulkan.VulkanCreateInfo;
+import com.vke.api.vulkan.createInfos.LogicalDeviceCreateInfo;
+import com.vke.api.vulkan.createInfos.SwapChainCreateInfo;
+import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
-import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
-import com.vke.core.rendering.vulkan.shader.Shader;
-import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
-import com.vke.core.rendering.vulkan.shader.ShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
-import com.vke.core.rendering.vulkan.sync.Fence;
-import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -137,9 +126,9 @@ public class VulkanSetup implements Disposable {
                 swapChain = new SwapChain(engine, swapChainCreateInfo);
             }
 
-            frames = new Frame[swapChain.getImageCount()];
+            frames = new Frame[vulkanCreateInfo.framesInFlight];
 
-            for (int i = 0; i < swapChain.getImageCount(); i++) {
+            for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
                 frames[i] = new Frame(engine, logicalDevice);
             }
         } catch (Exception e) {
@@ -157,9 +146,6 @@ public class VulkanSetup implements Disposable {
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
-        Semaphore.freeCreateInfo();
-        Fence.freeCreateInfo();
-        CommandBuffers.freeSubmitInfo();
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {

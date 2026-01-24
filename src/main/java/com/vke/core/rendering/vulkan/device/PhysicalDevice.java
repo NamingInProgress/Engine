@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.device;
 
-import com.vke.api.vulkan.VulkanCreateInfo;
+import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

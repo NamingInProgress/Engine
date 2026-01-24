@@ -25,15 +25,10 @@ public class Semaphore implements Disposable {
 
 
     /** BUILDER **/
-    private static final AutoHeapAllocator alloc = new AutoHeapAllocator();
-    private static VkSemaphoreCreateInfo info;
-
-    public static VkSemaphoreCreateInfo getDefaultCreateInfo() {
-        //if (info == null) {
-            info = alloc.allocStruct(VkSemaphoreCreateInfo.SIZEOF, VkSemaphoreCreateInfo::new);
-            info.flags(0);
-            info.sType$Default();
-        //}
+    public static VkSemaphoreCreateInfo getDefaultCreateInfo(MemoryStack stack) {
+        VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo.calloc(stack);
+        info.flags(0);
+        info.sType$Default();
         return info;
     }
 
@@ -69,10 +64,6 @@ public class Semaphore implements Disposable {
 
             return new Semaphore(device, pSemaphore.get(0));
         }
-    }
-
-    public static void freeCreateInfo() {
-        alloc.close();
     }
 
     @Override

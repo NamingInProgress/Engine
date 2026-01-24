@@ -1,8 +1,8 @@
 package com.vke.core.rendering.vulkan.device;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
-import com.vke.api.vulkan.LogicalDeviceCreateInfo;
-import com.vke.api.vulkan.VulkanCreateInfo;
+import com.vke.api.vulkan.createInfos.LogicalDeviceCreateInfo;
+import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VKUtils;
