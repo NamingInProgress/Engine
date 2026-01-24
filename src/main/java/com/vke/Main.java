@@ -1,19 +1,36 @@
 package com.vke;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntCharHashMap;
+import com.carrotsearch.hppc.ShortObjectMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.vke.api.game.Game;
+import com.vke.api.game.Version;
+import com.vke.api.parsing.SourceCode;
+import com.vke.api.parsing.Tokenizer;
+import com.vke.api.serializer.Serializer;
 import com.vke.api.vkz.*;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
-import com.vke.core.vkz.types.Vkz;
+import com.vke.core.parsing.source.StringSourceCode;
+import com.vke.core.parsing.xml.XmlToken;
+import com.vke.core.parsing.xml.XmlTokenizer;
+import com.vke.core.vkz.VkzObjLoader;
+import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
-import com.vke.utils.Utils;
+import com.vke.utils.FileUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Main {
 
@@ -37,31 +54,18 @@ public class Main {
 //        }
 //
 
-        Vkz.registerVkzSerializers();
-
-        VkzArchive archive = VkzArchive.createNew();
-        VkzDirectoryHandle root = archive.root();
-        VkzDirectoryHandle root2 = root.createDirectory("dir");
-        VkzDirectoryHandle dir = root2.createDirectory("documents");
-        VkzDirectoryHandle dir2 = root2.createDirectory("documents2");
-        VkzFileHandle testTextFile = dir.createFile("test.txt");
-        VkzFileHandle testTextFile2 = dir2.createFile("test.txt");
-        VkzEditor editor = testTextFile.edit();
-        editor.write("Hello World!");
-        editor.commit();
-
-        VkzEditor editor2 = testTextFile2.edit();
-        editor2.write("Hello World!");
-        editor2.commit();
-
-        try {
-            //Files.createFile(Path.of("a.vkz"));
-            FileOutputStream out = new FileOutputStream("a.vkz");
-            archive.writeOut(out);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+//        VkzArchive archive = VkzArchive.open(Main.class.getResourceAsStream("/test.vkz"), OpenStrategy.OpenAllFiles);
+//        VkzFileHandle document = archive.file("documents/test.txt");
+//        InputStream docStream = document.getInputStream();
+//
+//        VkzDirectoryHandle docs = archive.directory("documents");
+//        for (Iterator<VkzFileHandle> it = docs.iterateFiles(); it.hasNext(); ) {
+//            VkzFileHandle doc = it.next();
+//            VkzEditor editor = doc.edit();
+//            editor.clear();
+//            editor.write("Hello world");
+//            editor.commit();
+//        }
 //
 //
 //        String hello = "Hello world";
@@ -89,6 +93,15 @@ public class Main {
 //        int magicInt = buffer.getInt();
 //        System.out.println(Integer.toHexString(magicInt));
 //
+        try {
+            Path c = FileUtils.getConfigFolder("VKEngine");
+            Path p = FileUtils.getCacheFolder("VKEngine");
+            System.out.println("Config: " + c);
+            System.out.println("Cache: " + p);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();

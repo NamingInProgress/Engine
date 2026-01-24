@@ -1,14 +1,12 @@
 package com.vke.utils;
 
+import com.vke.api.utils.OSType;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Spliterator;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class Utils {
     public static boolean intsContain(int[] arr, int query) {
@@ -70,7 +68,12 @@ public class Utils {
         }
     }
 
-    public static <T> Stream<T> fromSpliterator(Spliterator<T> s) {
-        return StreamSupport.stream(s, false);
+    public static OSType getOSType() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) return OSType.WIN;
+        if (os.contains("mac")) return OSType.MAC;
+        // Default to linux
+        return OSType.LINUX;
     }
+
 }
