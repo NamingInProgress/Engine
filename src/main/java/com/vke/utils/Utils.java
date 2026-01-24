@@ -1,5 +1,6 @@
 package com.vke.utils;
 
+import com.vke.api.utils.OSType;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -66,4 +67,13 @@ public class Utils {
             return stream.readAllBytes();
         }
     }
+
+    public static OSType getOSType() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) return OSType.WIN;
+        if (os.contains("mac")) return OSType.MAC;
+        // Default to linux
+        return OSType.LINUX;
+    }
+
 }

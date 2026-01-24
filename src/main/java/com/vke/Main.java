@@ -20,12 +20,15 @@ import com.vke.core.parsing.xml.XmlTokenizer;
 import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
+import com.vke.utils.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -90,7 +93,16 @@ public class Main {
 //        int magicInt = buffer.getInt();
 //        System.out.println(Integer.toHexString(magicInt));
 //
-        //System.exit(0);
+        try {
+            Path c = FileUtils.getConfigFolder("VKEngine");
+            Path p = FileUtils.getCacheFolder("VKEngine");
+            System.out.println("Config: " + c);
+            System.out.println("Cache: " + p);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
