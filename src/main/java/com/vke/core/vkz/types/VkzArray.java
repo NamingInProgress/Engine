@@ -17,6 +17,7 @@ public class VkzArray<T> {
     public VkzArray(Class<T> elementClass, T[] template) {
         this.elementClass = elementClass;
         this.template = template;
+        this.elements = Arrays.copyOf(template, 0);
     }
 
     public T[] elements() {
@@ -25,6 +26,16 @@ public class VkzArray<T> {
 
     public int length() {
         return elements != null ? elements.length : 0;
+    }
+
+    public void add(T value) {
+        int index = length();
+        if (elements == null) {
+            elements = Arrays.copyOf(template, 1);
+        } else {
+            elements = Arrays.copyOf(elements, index + 1);
+        }
+        elements[index] = value;
     }
 
     public void load(Loader loader) throws LoadException {

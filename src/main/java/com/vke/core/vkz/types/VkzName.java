@@ -9,9 +9,13 @@ import com.vke.utils.exception.SaveException;
 import java.nio.charset.StandardCharsets;
 
 public class VkzName implements Serializer<VkzName> {
-    static VkzName SERIALIZER = new VkzName();
+    static VkzName SERIALIZER = new VkzName("");
 
     private String name;
+
+    public VkzName(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
@@ -45,7 +49,7 @@ public class VkzName implements Serializer<VkzName> {
             utf8[i] = loader.loadByte();
         }
 
-        VkzName name = new VkzName();
+        VkzName name = new VkzName("");
         name.name = new String(utf8, StandardCharsets.UTF_8);
         return name;
     }

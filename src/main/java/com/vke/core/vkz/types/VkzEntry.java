@@ -7,9 +7,13 @@ import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
 
 public class VkzEntry implements Serializer<VkzEntry> {
-    static VkzEntry SERIALIZER = new VkzEntry();
+    static VkzEntry SERIALIZER = new VkzEntry(0);
 
     private int chunkOffset;
+
+    public VkzEntry(int chunkOffset) {
+        this.chunkOffset = chunkOffset;
+    }
 
     public int getChunkOffset() {
         return chunkOffset;
@@ -29,7 +33,7 @@ public class VkzEntry implements Serializer<VkzEntry> {
     public VkzEntry load(Loader loader) throws LoadException {
         int chunkOffset = loader.loadShort();
 
-        VkzEntry entry = new VkzEntry();
+        VkzEntry entry = new VkzEntry(0);
         entry.chunkOffset = chunkOffset;
         return entry;
     }

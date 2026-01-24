@@ -2,8 +2,6 @@ All bits are read from LSB to MSB!
 All bytes are read from MSB to LSB!
 
 MAGIC uint32 = 0x564b5a30 = "VKZ0" in ascii
-BYTECOUNT    uint64                          The amount of full bytes this archive contains
-BITCOUNT     3 bits                          The amount of extra bits this archive contains
 ROOT         #DIRLAYER                       The root layer of this archive
 FILE_COUNT   uint16                          The total amount of files in all layers
 FILE_LENGTHS uint32[FILE_COUNT]              The length of each file in the order they appear
