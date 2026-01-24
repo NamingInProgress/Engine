@@ -48,8 +48,9 @@ public interface Serializer<T> {
             saveCheckNull(value, saver);
             if (value == null) return;
             Serializer<U> s = (Serializer<U>) findSerializer(value.getClass());
+            if (s == null) throw new ClassCastException();
             s.save(value, saver);
-        } catch (NullPointerException | ClassCastException ignore) {
+        } catch (ClassCastException ignore) {
             throw new SaveException("No matching Serializer found for " + value.getClass().getName());
         }
     }
@@ -60,8 +61,9 @@ public interface Serializer<T> {
         if (loadCheckNull(loader)) return null;
         try {
             Serializer<U> s = (Serializer<U>) findSerializer(clazz);
+            if (s == null) throw new ClassCastException();
             return s.load(loader);
-        } catch (NullPointerException | ClassCastException ignore) {
+        } catch (ClassCastException ignore) {
             throw new LoadException("No matching Serializer found for " + clazz.getName());
         }
     }
@@ -74,13 +76,14 @@ public interface Serializer<T> {
             if (value == null) return;
             Class<?> clazz = value.getClass();
             Serializer<U> s = (Serializer<U>) findSerializer(clazz);
+            if (s == null) throw new ClassCastException();
             String name = clazz.getName();
 
             Serializer<String> str = findSerializer(String.class);
             str.save(name, saver);
 
             s.save(value, saver);
-        } catch (NullPointerException | ClassCastException ignore) {
+        } catch (ClassCastException ignore) {
             throw new SaveException("No matching Serializer found for " + value.getClass().getName());
         }
     }
@@ -99,8 +102,9 @@ public interface Serializer<T> {
             className = str.load(loader);
             Class<?> clazz = Class.forName(className, false, classLoader);
             Serializer<?> s = findSerializer(clazz);
+            if (s == null) throw new ClassCastException();
             return s.load(loader);
-        } catch (NullPointerException | ClassCastException ignore) {
+        } catch (ClassCastException ignore) {
             throw new LoadException("No loader found for class " + className);
         } catch (ClassNotFoundException e) {
             throw new LoadException("Illegal class name loaded for fat object!");

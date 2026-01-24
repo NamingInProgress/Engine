@@ -20,11 +20,24 @@ public class VkzImmediateFileChunk implements VkzFileHandle {
 
     private VkzName name;
     private byte[] data;
-    private final int length;
+    private int length;
+    private int offset;
 
-    public VkzImmediateFileChunk(int length) {
+    private final VkzImmediateArchive archive;
+
+    public VkzImmediateFileChunk(VkzImmediateArchive archive, int length, int offset) {
+        this.archive = archive;
         this.length = length;
         this.name = null;
+        this.offset = offset;
+    }
+
+    VkzImmediateFileChunk(VkzImmediateArchive archive, int length, String name, int offset) {
+        this.archive = archive;
+        this.length = length;
+        this.name = new VkzName(name);
+        this.data = new byte[0];
+        this.offset = offset;
     }
 
     @Override
@@ -82,11 +95,18 @@ public class VkzImmediateFileChunk implements VkzFileHandle {
             } else {
                 byte[] newData = packet.data();
                 int oldLen = data.length;
-                data = Arrays.copyOf(data, oldLen + newData.length);
+                int newLen = oldLen + newData.length;
+                data = Arrays.copyOf(data, newLen);
                 System.arraycopy(newData, 0, data, oldLen, newData.length);
             }
+            length = data.length;
+            archive.updateLength(offset, length);
         } finally {
             unlock();
         }
+    }
+
+    void setOffset(int offset) {
+        this.offset = offset;
     }
 }

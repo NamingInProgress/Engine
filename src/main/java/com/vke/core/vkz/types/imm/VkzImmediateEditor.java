@@ -16,9 +16,7 @@ public class VkzImmediateEditor implements VkzEditor {
 
     @Override
     public void clear() {
-        if (clearFlag) {
-            data = Arrays.copyOf(data, 0);
-        }
+        data = Arrays.copyOf(data, 0);
         clearFlag = true;
     }
 

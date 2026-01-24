@@ -7,11 +7,12 @@ import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 public interface VkzArchive {
     static VkzArchive open(InputStream stream, OpenStrategy strategy) throws VkzOpenException {
-        VkzObjLoader loader = new VkzObjLoader(stream, 5, 3);
+        VkzObjLoader loader = new VkzObjLoader(stream, Integer.MAX_VALUE, 0);
 
         VkzArchive archive;
         if (strategy == OpenStrategy.LazyFiles) {
@@ -31,6 +32,10 @@ public interface VkzArchive {
         return archive;
     }
 
+    static VkzArchive createNew() {
+        return VkzImmediateArchive.empty();
+    }
+
     VkzFileHandle file(CharSequence path);
 
     VkzDirectoryHandle directory(CharSequence path);
@@ -38,4 +43,6 @@ public interface VkzArchive {
     VkzDirectoryHandle root();
 
     Iterator<VkzFileHandle> iterateFiles();
+
+    void writeOut(OutputStream stream) throws IOException;
 }

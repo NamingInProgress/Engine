@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Utils {
     public static boolean intsContain(int[] arr, int query) {
@@ -65,5 +68,9 @@ public class Utils {
         try (stream) {
             return stream.readAllBytes();
         }
+    }
+
+    public static <T> Stream<T> fromSpliterator(Spliterator<T> s) {
+        return StreamSupport.stream(s, false);
     }
 }
