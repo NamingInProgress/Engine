@@ -5,8 +5,11 @@ import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
+import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.shaders.ShaderProgram;
+import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.utils.Identifier;
 import org.lwjgl.system.MemoryStack;
@@ -18,12 +21,37 @@ import java.util.ArrayList;
 @SuppressWarnings("unused")
 public class RenderPipeline {
 
-    private static PipelineVerbosity verbosity = PipelineVerbosity.WARN;
-    private static final Logger LOG = LoggerFactory.get("RenderPipeline");
+    private GraphicsPipeline graphicsPipeline;
 
     private RenderPipeline(RenderPipelineBuilder builder) {
 
     }
+
+    public void setupGraphicsPipeline(VKEngine engine, VulkanSetup vkSetup) {
+        if (graphicsPipeline != null) {
+            log(LogLevel.WARN, "Remaking graphics pipeline from RenderPipeline, is this a bug?");
+        }
+
+        PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
+        pipelineCreateInfo.device = vkSetup.getLogicalDevice();
+        pipelineCreateInfo.engine = engine;
+        pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
+
+        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo);
+    }
+
+    public GraphicsPipeline getGraphicsPipeline() {
+        if (graphicsPipeline == null) {
+            log(LogLevel.FATAL, "Tried to access internal graphics pipeline without calling RenderPipeline#setupGraphicsPipeline first!");
+            log(LogLevel.FATAL, "RenderPipeline.graphicsPipeline is null! Was the pipeline registered?");
+            throw new IllegalStateException("GraphicsPipeline is null! RenderPipeline#getGraphicsPipeline");
+        }
+        return graphicsPipeline;
+    }
+
+    /**  Logger  **/
+    private static PipelineVerbosity verbosity = PipelineVerbosity.WARN;
+    private static final Logger LOG = LoggerFactory.get("RenderPipeline");
 
     public static void setPipelineVerbosity(PipelineVerbosity verbosity) {
         RenderPipeline.verbosity = verbosity;

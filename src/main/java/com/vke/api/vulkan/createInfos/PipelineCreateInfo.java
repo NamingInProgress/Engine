@@ -9,7 +9,6 @@ import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 public class PipelineCreateInfo {
 
     public LogicalDevice device;
-    public ShaderProgram shader;
     public VKEngine engine;
     public SwapChain swapChain;
 
