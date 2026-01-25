@@ -86,11 +86,16 @@ public class GraphicsPipeline implements Disposable {
                     .pAttachments(attachments)
                     .logicOpEnable(false)
                     .logicOp(VK14.VK_LOGIC_OP_COPY);
+
             VkPipelineDepthStencilStateCreateInfo depthStencilInfo = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
                     .sType$Default()
-                    .depthTestEnable(true)
-                    .depthWriteEnable(true)
-                    .stencilTestEnable(true)
+                    .depthTestEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthTestEnable())
+                    .depthWriteEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthWriteEnable())
+                    .depthCompareOp(pipelineSettingsInfo.depthStencilAttachment().getDepthCompareOp().getVkHandle())
+                    .stencilTestEnable(pipelineSettingsInfo.depthStencilAttachment().isStencilTestEnable())
+                    .front(pipelineSettingsInfo.depthStencilAttachment().getFrontStencilOp().asVkObject(stack))
+                    .back(pipelineSettingsInfo.depthStencilAttachment().getBackStencilOp().asVkObject(stack))
+                    .depthBoundsTestEnable(false);
 
 
             PipelineLayout pipelineLayout = new PipelineLayout(engine, device);
@@ -99,8 +104,8 @@ public class GraphicsPipeline implements Disposable {
                     .sType$Default()
                     .pColorAttachmentFormats(attachmentFormats)
                     .colorAttachmentCount(colorAttachmentCounts)
-                    .depthAttachmentFormat(VK14.VK_FORMAT_UNDEFINED)
-                    .stencilAttachmentFormat(VK14.VK_FORMAT_UNDEFINED);
+                    .depthAttachmentFormat(pipelineSettingsInfo.depthFormat())
+                    .stencilAttachmentFormat(pipelineSettingsInfo.stencilFormat());
 
             VkPipelineShaderStageCreateInfo[] stagesArr = pipelineSettingsInfo.shader().getShaderCreateInfos();
 
@@ -130,6 +135,7 @@ public class GraphicsPipeline implements Disposable {
                     .pRasterizationState(rasterizationStateCreateInfo)
                     .pMultisampleState(multisampleStateCreateInfo)
                     .pColorBlendState(colorBlending)
+                    .pDepthStencilState(depthStencilInfo)
                     .layout(pipelineLayout.getHandle())
                     .pViewportState(viewportState)
                     .renderPass(VK14.VK_NULL_HANDLE);
@@ -157,7 +163,7 @@ public class GraphicsPipeline implements Disposable {
         VK14.vkDestroyPipeline(device.getDevice(), handle, null);
     }
 
-    public static record PipelineSettingsInfo(
+    public record PipelineSettingsInfo(
             // Dynamic States
             int[] dynamicStates,
 
@@ -177,8 +183,9 @@ public class GraphicsPipeline implements Disposable {
 
             // Attachments
             ArrayList<RenderPipeline.ColorAttachmentInfo> colorAttachments,
-            boolean depthAttachment,
-            boolean stencilAttachment,
+            RenderPipeline.DepthStencilAttachmentInfo depthStencilAttachment,
+            int depthFormat,
+            int stencilFormat,
             int[] blendConstants,
 
             // Shaders

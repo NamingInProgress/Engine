@@ -1,6 +1,7 @@
 package com.vke.api.registry;
 
 import com.vke.api.serializer.Serializer;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.utils.Identifier;
 
 public class VKERegistrate {
@@ -20,6 +21,10 @@ public class VKERegistrate {
 
     public Serializer<?> serializer(Class<?> clazz, Serializer<?> serializer) {
         return VKERegistries.SERIALIZERS.register(clazz, serializer);
+    }
+
+    public RenderPipeline.RenderPipelineBuilder pipeline(String path) {
+        return new RenderPipeline.RenderPipelineBuilder(id(path));
     }
 
     private Identifier id(String path) { return new Identifier(addonId, path); }

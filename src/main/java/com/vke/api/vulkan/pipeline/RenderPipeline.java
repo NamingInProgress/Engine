@@ -3,23 +3,26 @@ package com.vke.api.vulkan.pipeline;
 import com.carrotsearch.hppc.IntArrayList;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
+import com.vke.api.registry.VKERegistries;
+import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.utils.Identifier;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
+import org.lwjgl.vulkan.VkStencilOpState;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public class RenderPipeline {
 
     private static PipelineVerbosity verbosity = PipelineVerbosity.WARN;
     private static final Logger LOG = LoggerFactory.get("RenderPipeline");
 
     private RenderPipeline(RenderPipelineBuilder builder) {
-        // TODO: Add actually setting up the vk structs
-    }
 
-    public static RenderPipelineBuilder builder() {
-        return new RenderPipelineBuilder();
     }
 
     public static void setPipelineVerbosity(PipelineVerbosity verbosity) {
@@ -38,7 +41,7 @@ public class RenderPipeline {
         }
     }
 
-    public static final class RenderPipelineBuilder {
+    public static final class RenderPipelineBuilder extends VKERegistrar<Identifier, RenderPipeline> {
 
         // Dynamic State
         IntArrayList dynamicStates = IntArrayList.from(VK14.VK_DYNAMIC_STATE_VIEWPORT, VK14.VK_DYNAMIC_STATE_SCISSOR);
@@ -59,14 +62,24 @@ public class RenderPipeline {
 
         // Attachments
         ArrayList<ColorAttachmentInfo> colorAttachments = new ArrayList<>();
-        boolean depthAttachment = false;
+        DepthStencilAttachmentInfo depthStencilAttachment = null;
         boolean stencilAttachment = false;
         int[] blendConstants = new int[]{ 0, 0, 0, 0 };
 
         // Shader
         ShaderProgram shader;
 
-        public RenderPipeline build() {
+        public RenderPipelineBuilder(Identifier key) {
+            super(key);
+        }
+
+        @Override
+        protected void addToRegistry(Identifier key, RenderPipeline value) {
+            VKERegistries.PIPELINES.register(key, value);
+        }
+
+        @Override
+        protected RenderPipeline build() {
             return new RenderPipeline(this);
         }
 
@@ -136,8 +149,8 @@ public class RenderPipeline {
             return this;
         }
 
-        public RenderPipelineBuilder withDepthAttachment(boolean depthAttachment) {
-            this.depthAttachment = depthAttachment;
+        public RenderPipelineBuilder withDepthAttachment(DepthStencilAttachmentInfo info) {
+            this.depthStencilAttachment = info;
             return this;
         }
 
@@ -249,11 +262,104 @@ public class RenderPipeline {
 
     public static class DepthStencilAttachmentInfo {
 
+        boolean depthTestEnable = true;
+        boolean depthWriteEnable = true;
+        CompareOp depthCompareOp = CompareOp.LEQUAL;
+        boolean stencilTestEnable = false;
+        StencilOpState frontStencilOp = new StencilOpState();
+        StencilOpState backStencilOp = new StencilOpState();
 
+        public DepthStencilAttachmentInfo setDepthTestEnable(boolean depthTestEnable) {
+            this.depthTestEnable = depthTestEnable;
+            return this;
+        }
+
+        public DepthStencilAttachmentInfo setDepthWriteEnable(boolean depthWriteEnable) {
+            this.depthWriteEnable = depthWriteEnable;
+            return this;
+        }
+
+        public DepthStencilAttachmentInfo setDepthCompareOp(CompareOp depthCompareOp) {
+            this.depthCompareOp = depthCompareOp;
+            return this;
+        }
+
+        public DepthStencilAttachmentInfo setStencilTestEnable(boolean stencilTestEnable) {
+            this.stencilTestEnable = stencilTestEnable;
+            return this;
+        }
+
+        public DepthStencilAttachmentInfo setFrontStencilOp(StencilOpState frontStencilOp) {
+            this.frontStencilOp = frontStencilOp;
+            return this;
+        }
+
+        public DepthStencilAttachmentInfo setBackStencilOp(StencilOpState backStencilOp) {
+            this.backStencilOp = backStencilOp;
+            return this;
+        }
+
+        public boolean isDepthTestEnable() {
+            return depthTestEnable;
+        }
+
+        public boolean isDepthWriteEnable() {
+            return depthWriteEnable;
+        }
+
+        public CompareOp getDepthCompareOp() {
+            return depthCompareOp;
+        }
+
+        public boolean isStencilTestEnable() {
+            return stencilTestEnable;
+        }
+
+        public StencilOpState getFrontStencilOp() {
+            return frontStencilOp;
+        }
+
+        public StencilOpState getBackStencilOp() {
+            return backStencilOp;
+        }
+    }
+
+    public record StencilOpState(
+            StencilOp failOp,
+            StencilOp passOp,
+            StencilOp depthFailOp,
+            CompareOp compareOp,
+            int compareMask,
+            int writeMask,
+            int reference
+    ) {
+
+        public StencilOpState() {
+            this(
+                    StencilOp.KEEP,
+                    StencilOp.KEEP,
+                    StencilOp.KEEP,
+                    CompareOp.ALWAYS,
+                    0xFF,
+                    0xFF,
+                    0
+            );
+        }
+
+        public VkStencilOpState asVkObject(MemoryStack stack) {
+            return VkStencilOpState.calloc(stack)
+                    .failOp(this.failOp().getVkHandle())
+                    .passOp(this.passOp().getVkHandle())
+                    .depthFailOp(this.depthFailOp.getVkHandle())
+                    .compareOp(this.compareOp.getVkHandle())
+                    .compareMask(this.compareMask())
+                    .writeMask(this.writeMask())
+                    .reference(this.reference());
+        }
 
     }
 
-    public static enum PipelineVerbosity {
+    public enum PipelineVerbosity {
         ALL,
         WARN,
         ERROR
@@ -263,7 +369,7 @@ public class RenderPipeline {
         int getVkHandle();
     }
 
-    public static enum Topology implements VkEnum {
+    public enum Topology implements VkEnum {
 
         POINTS(VK14.VK_PRIMITIVE_TOPOLOGY_POINT_LIST),
         PATCHES(VK14.VK_PRIMITIVE_TOPOLOGY_PATCH_LIST),
@@ -293,7 +399,7 @@ public class RenderPipeline {
         }
     }
 
-    public static enum PolygonMode implements VkEnum {
+    public enum PolygonMode implements VkEnum {
 
         POINT(VK14.VK_POLYGON_MODE_POINT),
         LINE(VK14.VK_POLYGON_MODE_LINE),
@@ -311,7 +417,7 @@ public class RenderPipeline {
         }
     }
 
-    public static enum CullMode implements VkEnum {
+    public enum CullMode implements VkEnum {
 
         NONE(VK14.VK_CULL_MODE_NONE),
         FRONT(VK14.VK_CULL_MODE_FRONT_BIT),
@@ -330,7 +436,7 @@ public class RenderPipeline {
         }
     }
 
-    public static enum FrontFace implements VkEnum {
+    public enum FrontFace implements VkEnum {
 
         CLOCKWISE(VK14.VK_FRONT_FACE_CLOCKWISE),
         COUNTERCLOCKWISE(VK14.VK_FRONT_FACE_COUNTER_CLOCKWISE);
@@ -347,7 +453,7 @@ public class RenderPipeline {
         }
     }
 
-    public static enum BlendFactor implements VkEnum {
+    public enum BlendFactor implements VkEnum {
 
         ZERO(VK14.VK_BLEND_FACTOR_ZERO),
         ONE(VK14.VK_BLEND_FACTOR_ONE),
@@ -380,7 +486,7 @@ public class RenderPipeline {
         }
     }
 
-    public static enum BlendOperation implements VkEnum {
+    public enum BlendOperation implements VkEnum {
 
         ADD(VK14.VK_BLEND_OP_ADD),
         SUBTRACT(VK14.VK_BLEND_OP_SUBTRACT),
@@ -391,6 +497,52 @@ public class RenderPipeline {
         private final int vkHandle;
 
         BlendOperation(int vkHandle) {
+            this.vkHandle = vkHandle;
+        }
+
+        @Override
+        public int getVkHandle() {
+            return vkHandle;
+        }
+    }
+
+    public enum CompareOp implements VkEnum {
+
+        NEVER(VK14.VK_COMPARE_OP_NEVER),
+        LESS(VK14.VK_COMPARE_OP_LESS),
+        EQUAL(VK14.VK_COMPARE_OP_EQUAL),
+        LEQUAL(VK14.VK_COMPARE_OP_LESS_OR_EQUAL),
+        GREATER(VK14.VK_COMPARE_OP_GREATER),
+        NOT_EQUAL(VK14.VK_COMPARE_OP_NOT_EQUAL),
+        GEQUAL(VK14.VK_COMPARE_OP_GREATER_OR_EQUAL),
+        ALWAYS(VK14.VK_COMPARE_OP_ALWAYS);
+
+        private final int vkHandle;
+
+        CompareOp(int vkHandle) {
+            this.vkHandle = vkHandle;
+        }
+
+        @Override
+        public int getVkHandle() {
+            return vkHandle;
+        }
+    }
+
+    public enum StencilOp implements VkEnum {
+
+        KEEP(VK14.VK_STENCIL_OP_KEEP),
+        ZERO(VK14.VK_STENCIL_OP_ZERO),
+        REPLACE(VK14.VK_STENCIL_OP_REPLACE),
+        INCREMENT_AND_CLAMP(VK14.VK_STENCIL_OP_INCREMENT_AND_CLAMP),
+        DECREMENT_AND_CLAMP(VK14.VK_STENCIL_OP_DECREMENT_AND_CLAMP),
+        INVERT(VK14.VK_STENCIL_OP_INVERT),
+        INCREMENT_AND_WRAP(VK14.VK_STENCIL_OP_INCREMENT_AND_WRAP),
+        DECREMENT_AND_WRAP(VK14.VK_STENCIL_OP_DECREMENT_AND_WRAP);
+
+        private final int vkHandle;
+
+        StencilOp(int vkHandle) {
             this.vkHandle = vkHandle;
         }
 
