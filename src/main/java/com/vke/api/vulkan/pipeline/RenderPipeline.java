@@ -61,6 +61,7 @@ public class RenderPipeline {
         ArrayList<ColorAttachmentInfo> colorAttachments = new ArrayList<>();
         boolean depthAttachment = false;
         boolean stencilAttachment = false;
+        int[] blendConstants = new int[]{ 0, 0, 0, 0 };
 
         // Shader
         ShaderProgram shader;
@@ -144,6 +145,12 @@ public class RenderPipeline {
             this.stencilAttachment = stencilAttachment;
             return this;
         }
+
+        public RenderPipelineBuilder setBlendConstants(int[] blendConstants) {
+            if (blendConstants.length != 4) log(LogLevel.WARN, "Tried to set blend constants with an array of length less that 4");
+            this.blendConstants = blendConstants;
+            return this;
+        }
     }
 
     public static class ColorAttachmentInfo {
@@ -156,7 +163,7 @@ public class RenderPipeline {
         BlendFactor dstAlphaBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
         BlendOperation colorBlendOperation = BlendOperation.ADD;
         BlendOperation alphaBlendOperation = BlendOperation.ADD;
-        int[] blendConstants = new int[]{ 0, 0, 0, 0 };
+        int format = VK14.VK_FORMAT_B8G8R8A8_SRGB;
 
         public ColorAttachmentInfo setColorWriteMask(int colorWriteMask) {
             this.colorWriteMask = colorWriteMask;
@@ -198,11 +205,51 @@ public class RenderPipeline {
             return this;
         }
 
-        public ColorAttachmentInfo setBlendConstants(int[] blendConstants) {
-            if (blendConstants.length != 4) log(LogLevel.WARN, "Tried to set blend constants with an array of length less that 4");
-            this.blendConstants = blendConstants;
+        public ColorAttachmentInfo format(int format) {
+            this.format = format;
             return this;
         }
+
+        public int getColorWriteMask() {
+            return colorWriteMask;
+        }
+
+        public boolean isBlendEnable() {
+            return blendEnable;
+        }
+
+        public BlendFactor getSrcBlendFactor() {
+            return srcBlendFactor;
+        }
+
+        public BlendFactor getDstBlendFactor() {
+            return dstBlendFactor;
+        }
+
+        public BlendFactor getSrcAlphaBlendFactor() {
+            return srcAlphaBlendFactor;
+        }
+
+        public BlendFactor getDstAlphaBlendFactor() {
+            return dstAlphaBlendFactor;
+        }
+
+        public BlendOperation getColorBlendOperation() {
+            return colorBlendOperation;
+        }
+
+        public BlendOperation getAlphaBlendOperation() {
+            return alphaBlendOperation;
+        }
+
+        public int getFormat() {
+            return format;
+        }
+    }
+
+    public static class DepthStencilAttachmentInfo {
+
+
 
     }
 

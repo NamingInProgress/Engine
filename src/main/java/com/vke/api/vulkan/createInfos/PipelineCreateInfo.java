@@ -12,6 +12,5 @@ public class PipelineCreateInfo {
     public ShaderProgram shader;
     public VKEngine engine;
     public SwapChain swapChain;
-    public VkPipelineShaderStageCreateInfo[] shaderModuleCreateInfos;
 
 }

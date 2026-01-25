@@ -1,8 +1,10 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.shader.ShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
@@ -11,6 +13,7 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.ArrayList;
 
 public class GraphicsPipeline implements Disposable {
     private static String HERE = "GraphicsPipeline";
@@ -20,15 +23,14 @@ public class GraphicsPipeline implements Disposable {
     private VKEngine engine;
     private SwapChain swapChain;
 
-    public GraphicsPipeline(PipelineCreateInfo createInfo) {
+    public GraphicsPipeline(PipelineCreateInfo createInfo, PipelineSettingsInfo pipelineSettingsInfo) {
         this.device = createInfo.device;
         this.engine = createInfo.engine;
         this.swapChain = createInfo.swapChain;
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer dynamicStates = stack.ints(
-                    VK14.VK_DYNAMIC_STATE_VIEWPORT, VK14.VK_DYNAMIC_STATE_SCISSOR
-            );
+            int colorAttachmentCounts = pipelineSettingsInfo.colorAttachments().size();
+            IntBuffer dynamicStates = stack.ints(pipelineSettingsInfo.dynamicStates());
 
             VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo = VkPipelineDynamicStateCreateInfo.calloc(stack)
                     .sType$Default()
@@ -38,57 +40,69 @@ public class GraphicsPipeline implements Disposable {
                     .sType$Default();
             //TODO: actually describe inputs later when we use vbo
 
-            VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo = VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
-                    .sType$Default();
-            //TODO replace with smth from create info probably
-            inputAssemblyStateCreateInfo.topology(VK14.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-
             VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo = VkPipelineRasterizationStateCreateInfo.calloc(stack)
                     .sType$Default()
+                    .polygonMode(pipelineSettingsInfo.polygonMode())
+                    .cullMode(pipelineSettingsInfo.cullMode())
+                    .frontFace(pipelineSettingsInfo.frontFace())
+                    .lineWidth(pipelineSettingsInfo.lineWidth())
+                    .depthBiasEnable(pipelineSettingsInfo.depthBiasEnable())
+                    .depthBiasConstantFactor(pipelineSettingsInfo.depthBiasConstFactor())
+                    .depthBiasClamp(pipelineSettingsInfo.depthBiasClamp())
+                    .depthBiasSlopeFactor(pipelineSettingsInfo.depthBiasSlopeFactor())
                     .depthClampEnable(false)
-                    .rasterizerDiscardEnable(false)
-                    .polygonMode(VK14.VK_POLYGON_MODE_FILL)
-                    .cullMode(VK14.VK_CULL_MODE_BACK_BIT)
-                    .frontFace(VK14.VK_FRONT_FACE_CLOCKWISE)
-                    .depthBiasEnable(false)
-                    .depthBiasSlopeFactor(1.0f)
-                    .lineWidth(1.0f);
+                    .rasterizerDiscardEnable(false);
 
+            VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo = VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .topology(pipelineSettingsInfo.topology())
+                    .primitiveRestartEnable(pipelineSettingsInfo.primitiveRestartEnable());
+
+            // Set by default and not changeable for now
             VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo = VkPipelineMultisampleStateCreateInfo.calloc(stack)
                     .sType$Default()
                     .rasterizationSamples(VK14.VK_SAMPLE_COUNT_1_BIT)
                     .sampleShadingEnable(false);
 
-            VkPipelineColorBlendAttachmentState colorBlendAttachment = VkPipelineColorBlendAttachmentState.calloc(stack)
-                    .colorWriteMask(VK14.VK_COLOR_COMPONENT_R_BIT | VK14.VK_COLOR_COMPONENT_G_BIT | VK14.VK_COLOR_COMPONENT_B_BIT | VK14.VK_COLOR_COMPONENT_A_BIT)
-                    .blendEnable(true)
-                    .srcColorBlendFactor(VK14.VK_BLEND_FACTOR_SRC_ALPHA)
-                    .dstColorBlendFactor(VK14.VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA)
-                    .colorBlendOp(VK14.VK_BLEND_OP_ADD)
-                    .srcAlphaBlendFactor(VK14.VK_BLEND_FACTOR_ONE)
-                    .dstAlphaBlendFactor(VK14.VK_BLEND_FACTOR_ZERO);
-
-            VkPipelineColorBlendAttachmentState.Buffer attachments = VkPipelineColorBlendAttachmentState.calloc(1, stack);
-            attachments.put(colorBlendAttachment);
+            VkPipelineColorBlendAttachmentState.Buffer attachments = VkPipelineColorBlendAttachmentState.calloc(
+                colorAttachmentCounts, stack);
+            IntBuffer attachmentFormats = stack.mallocInt(colorAttachmentCounts);
+            for (RenderPipeline.ColorAttachmentInfo colorAttachmentInfo : pipelineSettingsInfo.colorAttachments()) {
+                VkPipelineColorBlendAttachmentState attachment = VkPipelineColorBlendAttachmentState.calloc(stack)
+                        .colorWriteMask(colorAttachmentInfo.getColorWriteMask())
+                        .blendEnable(colorAttachmentInfo.isBlendEnable())
+                        .srcColorBlendFactor(colorAttachmentInfo.getSrcBlendFactor().getVkHandle())
+                        .dstColorBlendFactor(colorAttachmentInfo.getDstBlendFactor().getVkHandle())
+                        .srcAlphaBlendFactor(colorAttachmentInfo.getSrcAlphaBlendFactor().getVkHandle())
+                        .dstAlphaBlendFactor(colorAttachmentInfo.getDstAlphaBlendFactor().getVkHandle())
+                        .colorBlendOp(colorAttachmentInfo.getColorBlendOperation().getVkHandle())
+                        .alphaBlendOp(colorAttachmentInfo.getAlphaBlendOperation().getVkHandle());
+                attachments.put(attachment);
+                attachmentFormats.put(colorAttachmentInfo.getFormat());
+            }
             VkPipelineColorBlendStateCreateInfo colorBlending = VkPipelineColorBlendStateCreateInfo.calloc(stack)
                     .sType$Default()
-                    .attachmentCount(1)
-                    .logicOpEnable(false)
-                    .logicOp(VK14.VK_LOGIC_OP_COPY)
+                    .attachmentCount(colorAttachmentCounts)
                     .pAttachments(attachments)
-                    .attachmentCount(1);
+                    .logicOpEnable(false)
+                    .logicOp(VK14.VK_LOGIC_OP_COPY);
+            VkPipelineDepthStencilStateCreateInfo depthStencilInfo = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .depthTestEnable(true)
+                    .depthWriteEnable(true)
+                    .stencilTestEnable(true)
+
 
             PipelineLayout pipelineLayout = new PipelineLayout(engine, device);
 
-            IntBuffer format = stack.ints(swapChain.getColorFormat());
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
                     .sType$Default()
-                    .pColorAttachmentFormats(format)
-                    .colorAttachmentCount(1)
+                    .pColorAttachmentFormats(attachmentFormats)
+                    .colorAttachmentCount(colorAttachmentCounts)
                     .depthAttachmentFormat(VK14.VK_FORMAT_UNDEFINED)
                     .stencilAttachmentFormat(VK14.VK_FORMAT_UNDEFINED);
 
-            VkPipelineShaderStageCreateInfo[] stagesArr = createInfo.shaderModuleCreateInfos;
+            VkPipelineShaderStageCreateInfo[] stagesArr = pipelineSettingsInfo.shader().getShaderCreateInfos();
 
             VkPipelineShaderStageCreateInfo.Buffer stages = VkPipelineShaderStageCreateInfo.calloc(stagesArr.length, stack);
             for (int i = 0; i < stagesArr.length; i++) {
@@ -142,4 +156,33 @@ public class GraphicsPipeline implements Disposable {
     public void free() {
         VK14.vkDestroyPipeline(device.getDevice(), handle, null);
     }
+
+    public static record PipelineSettingsInfo(
+            // Dynamic States
+            int[] dynamicStates,
+
+            // Input Assembly
+            boolean primitiveRestartEnable,
+            int topology,
+
+            // Raster Info
+            int polygonMode,
+            int cullMode,
+            int frontFace,
+            float lineWidth,
+            boolean depthBiasEnable,
+            float depthBiasConstFactor,
+            float depthBiasClamp,
+            float depthBiasSlopeFactor,
+
+            // Attachments
+            ArrayList<RenderPipeline.ColorAttachmentInfo> colorAttachments,
+            boolean depthAttachment,
+            boolean stencilAttachment,
+            int[] blendConstants,
+
+            // Shaders
+            ShaderProgram shader
+    ) {}
+
 }
