@@ -1,6 +1,9 @@
 package com.vke.api.vulkan.pipeline;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.vke.api.logger.LogLevel;
+import com.vke.api.logger.Logger;
+import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.logger.LoggerFactory;
 import org.lwjgl.vulkan.VK14;
 
@@ -8,12 +11,31 @@ import java.util.ArrayList;
 
 public class RenderPipeline {
 
-    private RenderPipeline() {
+    private static PipelineVerbosity verbosity = PipelineVerbosity.WARN;
+    private static final Logger LOG = LoggerFactory.get("RenderPipeline");
 
+    private RenderPipeline(RenderPipelineBuilder builder) {
+        // TODO: Add actually setting up the vk structs
     }
 
     public static RenderPipelineBuilder builder() {
         return new RenderPipelineBuilder();
+    }
+
+    public static void setPipelineVerbosity(PipelineVerbosity verbosity) {
+        RenderPipeline.verbosity = verbosity;
+    }
+
+    static void log(LogLevel level, String message) {
+        switch (verbosity) {
+            case ALL -> LOG.log(level, message);
+            case WARN -> {
+                if (level.ordinal() > LogLevel.INFO.ordinal()) LOG.log(level, message);
+            }
+            case ERROR -> {
+                if (level.ordinal() > LogLevel.WARN.ordinal()) LOG.log(level, message);
+            }
+        }
     }
 
     public static final class RenderPipelineBuilder {
@@ -40,6 +62,88 @@ public class RenderPipeline {
         boolean depthAttachment = false;
         boolean stencilAttachment = false;
 
+        // Shader
+        ShaderProgram shader;
+
+        public RenderPipeline build() {
+            return new RenderPipeline(this);
+        }
+
+        public RenderPipelineBuilder addDynamicState(int state) {
+            this.dynamicStates.add(state);
+            return this;
+        }
+
+        public RenderPipelineBuilder withColorAttachment(ColorAttachmentInfo info) {
+            this.colorAttachments.add(info);
+            if (this.colorAttachments.size() > 4) log(LogLevel.TRACE, "Color attachments amount passes minimal provided level of 4!");
+            return this;
+        }
+
+        public RenderPipelineBuilder withShader(ShaderProgram shader) {
+            this.shader = shader;
+            return this;
+        }
+
+        public RenderPipelineBuilder setPrimitiveRestartEnable(boolean primitiveRestartEnable) {
+            this.primitiveRestartEnable = primitiveRestartEnable;
+            return this;
+        }
+
+        public RenderPipelineBuilder setTopology(Topology topology) {
+            this.topology = topology;
+            return this;
+        }
+
+        public RenderPipelineBuilder setPolygonMode(PolygonMode polygonMode) {
+            this.polygonMode = polygonMode;
+            return this;
+        }
+
+        public RenderPipelineBuilder setCullMode(CullMode cullMode) {
+            this.cullMode = cullMode;
+            return this;
+        }
+
+        public RenderPipelineBuilder setLineWidth(float lineWidth) {
+            this.lineWidth = lineWidth;
+            return this;
+        }
+
+        public RenderPipelineBuilder setFrontFace(FrontFace frontFace) {
+            this.frontFace = frontFace;
+            return this;
+        }
+
+        public RenderPipelineBuilder setDepthBiasEnable(boolean depthBiasEnable) {
+            this.depthBiasEnable = depthBiasEnable;
+            return this;
+        }
+
+        public RenderPipelineBuilder setDepthBiasConstFactor(float depthBiasConstFactor) {
+            this.depthBiasConstFactor = depthBiasConstFactor;
+            return this;
+        }
+
+        public RenderPipelineBuilder setDepthBiasClamp(float depthBiasClamp) {
+            this.depthBiasClamp = depthBiasClamp;
+            return this;
+        }
+
+        public RenderPipelineBuilder setDepthBiasSlopeFactor(float depthBiasSlopeFactor) {
+            this.depthBiasSlopeFactor = depthBiasSlopeFactor;
+            return this;
+        }
+
+        public RenderPipelineBuilder withDepthAttachment(boolean depthAttachment) {
+            this.depthAttachment = depthAttachment;
+            return this;
+        }
+
+        public RenderPipelineBuilder withStencilAttachment(boolean stencilAttachment) {
+            this.stencilAttachment = stencilAttachment;
+            return this;
+        }
     }
 
     public static class ColorAttachmentInfo {
@@ -95,11 +199,17 @@ public class RenderPipeline {
         }
 
         public ColorAttachmentInfo setBlendConstants(int[] blendConstants) {
-            if (blendConstants.length != 4) LoggerFactory.get("Render Pipeline Builder").warn("Tried to set blend constants with an array of length less that 4");
+            if (blendConstants.length != 4) log(LogLevel.WARN, "Tried to set blend constants with an array of length less that 4");
             this.blendConstants = blendConstants;
             return this;
         }
 
+    }
+
+    public static enum PipelineVerbosity {
+        ALL,
+        WARN,
+        ERROR
     }
 
     private interface VkEnum {
