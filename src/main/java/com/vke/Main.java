@@ -104,7 +104,7 @@ public class Main {
 //        }
 
         //System.exit(0);
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");

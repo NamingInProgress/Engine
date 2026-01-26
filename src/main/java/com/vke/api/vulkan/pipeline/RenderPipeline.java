@@ -120,6 +120,7 @@ public class RenderPipeline implements Disposable {
     }
 
     public Set<DynamicState> dynamicStates() {
+        if (graphicsPipeline == null) log(LogLevel.WARN, "Accessed dynamic states while graphics pipeline was not built yet which can change the dynamic states enabled!");
         return Set.copyOf(builder.dynamicStates);
     }
 
