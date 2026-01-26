@@ -1,23 +1,15 @@
 package com.vke.core.rendering.vulkan;
 
-import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.registry.VKERegistries;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
-import com.vke.core.rendering.vulkan.shader.Shader;
-import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
-import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
-import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
 public class VulkanRenderer implements Disposable {
@@ -35,6 +27,7 @@ public class VulkanRenderer implements Disposable {
         this.setup = new VulkanSetup(createInfo);
         this.framesInFlight = framesInFlight;
         setup.initVulkan(engine);
+        VKERegistries.PIPELINES.makeVkPipelines(engine, setup);
         this.swapChain = setup.getSwapChain();
         this.frameCount = swapChain.getImageCount();
     }

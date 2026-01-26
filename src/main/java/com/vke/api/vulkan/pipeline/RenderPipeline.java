@@ -4,6 +4,7 @@ import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
+import com.vke.api.vulkan.VkEnum;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
@@ -478,10 +479,6 @@ public class RenderPipeline implements Disposable {
         ALL,
         WARN,
         ERROR
-    }
-
-    private interface VkEnum {
-        int getVkHandle();
     }
 
     public enum Topology implements VkEnum {

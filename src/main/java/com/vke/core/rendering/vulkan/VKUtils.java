@@ -167,4 +167,20 @@ public class VKUtils {
     public static boolean setDebugName(LogicalDevice device, Identifier name, long handle, int type) {
         return setDebugName(device, name.toString(), handle, type);
     }
+
+    public static int findMemoryType(PhysicalDevice physicalDevice, int typeFilter, int properties) {
+        VkPhysicalDeviceMemoryProperties memProperties =
+                VkPhysicalDeviceMemoryProperties.malloc();
+
+        VK14.vkGetPhysicalDeviceMemoryProperties(physicalDevice.getDevice(), memProperties);
+
+        for (int i = 0; i < memProperties.memoryTypeCount(); i++) {
+            if ((typeFilter & (1 << i)) != 0 &&
+                    (memProperties.memoryTypes(i).propertyFlags() & properties) == properties) {
+                return i;
+            }
+        }
+
+        return ~0;
+    }
 }

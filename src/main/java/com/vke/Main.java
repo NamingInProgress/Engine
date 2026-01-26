@@ -113,6 +113,8 @@ public class Main {
         RenderPipelines.init();
         VKEngine engine = new VKEngine(createInfo);
         engine.start(new Game() {
+            int frames;
+            long lastTime = System.currentTimeMillis();
             @Override
             public void onInit(VKEngine engine) {
 
@@ -120,7 +122,15 @@ public class Main {
 
             @Override
             public void onDraw(Window window) {
-
+                long now = System.currentTimeMillis();
+                long elapsed = now - lastTime;
+                if (elapsed > 1000) {
+                    System.out.println("fps: " + frames);
+                    frames = 0;
+                    lastTime = now;
+                } else {
+                    frames++;
+                }
             }
         });
     }

@@ -132,9 +132,6 @@ public class VulkanSetup implements Disposable {
             for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
                 frames[i] = new Frame(engine, logicalDevice);
             }
-
-            // TODO: Probably move this elsewhere
-            VKERegistries.PIPELINES.makeVkPipelines(engine, this);
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
