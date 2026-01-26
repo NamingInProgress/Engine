@@ -2,9 +2,11 @@ package com.vke.core.rendering.vulkan;
 
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Colors;
+import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -148,5 +150,21 @@ public class VKUtils {
             return new String(bytes, 0, bytes.length - 1, StandardCharsets.UTF_8);
         }
         return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public static boolean setDebugName(LogicalDevice device, String name, long handle, int type) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkDebugUtilsObjectNameInfoEXT info = VkDebugUtilsObjectNameInfoEXT.calloc(stack);
+            info.sType$Default();
+            info.objectType(type);
+            info.objectHandle(handle);
+            info.pObjectName(stack.UTF8(name));
+
+            return EXTDebugUtils.vkSetDebugUtilsObjectNameEXT(device.getDevice(), info) == VK14.VK_SUCCESS;
+        }
+    }
+
+    public static boolean setDebugName(LogicalDevice device, Identifier name, long handle, int type) {
+        return setDebugName(device, name.toString(), handle, type);
     }
 }

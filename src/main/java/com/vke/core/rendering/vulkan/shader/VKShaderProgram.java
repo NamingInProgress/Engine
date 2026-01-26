@@ -7,12 +7,12 @@ import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
 import java.util.HashSet;
 
-public class ShaderProgram implements Disposable {
+public class VKShaderProgram implements Disposable {
 
     private final Shader[] shaders;
     private final AutoHeapAllocator alloc;
 
-    public ShaderProgram(Shader... shaders) {
+    public VKShaderProgram(Shader... shaders) {
         this.alloc = new AutoHeapAllocator();
 
         HashSet<Shader.Type> types = new HashSet<>();

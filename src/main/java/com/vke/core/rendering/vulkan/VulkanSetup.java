@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan;
 
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
+import com.vke.api.registry.VKERegistries;
 import com.vke.api.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.api.vulkan.createInfos.SwapChainCreateInfo;
 import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
@@ -131,6 +132,9 @@ public class VulkanSetup implements Disposable {
             for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
                 frames[i] = new Frame(engine, logicalDevice);
             }
+
+            // TODO: Probably move this elsewhere
+            VKERegistries.PIPELINES.makeVkPipelines(engine, this);
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
@@ -139,6 +143,7 @@ public class VulkanSetup implements Disposable {
     @Override
     public void free() {
         Arrays.stream(frames).forEach(Frame::free);
+        VKERegistries.PIPELINES.freeVkPipelines();
         if (debugMessenger != VK14.VK_NULL_HANDLE) {
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         }

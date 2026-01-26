@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 import java.util.Spliterator;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -81,6 +83,14 @@ public class Utils {
 
     public static <T> Stream<T> fromSpliterator(Spliterator<T> s) {
         return StreamSupport.stream(s, false);
+    }
+
+    public static <T> int[] asIntArray(List<T> list, Function<T, Integer> func) {
+        int[] opt = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            opt[i] = func.apply(list.get(i));
+        }
+        return opt;
     }
 
 }

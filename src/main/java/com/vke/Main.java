@@ -17,6 +17,7 @@ import com.vke.core.logger.*;
 import com.vke.core.parsing.source.StringSourceCode;
 import com.vke.core.parsing.xml.XmlToken;
 import com.vke.core.parsing.xml.XmlTokenizer;
+import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
@@ -36,7 +37,7 @@ public class Main {
 
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 //        String testXml = "<hello val=\"1\">lmao<hello/>";
 //        SourceCode sourceCode = new StringSourceCode(testXml);
 //        XmlTokenizer tokenizer = new XmlTokenizer(sourceCode);
@@ -103,13 +104,13 @@ public class Main {
 //        }
 
         //System.exit(0);
-
+        Thread.sleep(5000);
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
 
-
+        RenderPipelines.init();
         VKEngine engine = new VKEngine(createInfo);
         engine.start(new Game() {
             @Override

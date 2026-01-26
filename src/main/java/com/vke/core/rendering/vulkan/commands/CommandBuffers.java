@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.commands;
 
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -102,7 +103,11 @@ public class CommandBuffers implements Disposable {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    public void bindPipeline(GraphicsPipeline pipeline, int type) {
+    public void bindRenderPipeline(RenderPipeline pipeline) {
+        this.bindPipeline(pipeline.getGraphicsPipeline(), VK14.VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
+    private void bindPipeline(GraphicsPipeline pipeline, int type) {
         VK14.vkCmdBindPipeline(this.getBuffer(), type, pipeline.getHandle());
     }
 

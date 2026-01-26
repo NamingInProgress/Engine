@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan.shader;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
@@ -39,9 +40,19 @@ public class Shader {
     }
 
     public enum Type {
-        VERTEX,
-        FRAGMENT,
-        COMPUTE;
+        VERTEX(Shaderc.shaderc_vertex_shader),
+        FRAGMENT(Shaderc.shaderc_fragment_shader),
+        COMPUTE(Shaderc.shaderc_compute_shader);
+
+        private final int shadercHandle;
+
+        Type(int shadercHandle) {
+            this.shadercHandle = shadercHandle;
+        }
+
+        public int getShadercHandle() {
+            return this.shadercHandle;
+        }
 
         public int getVkStageInt() {
             return switch (this) {

@@ -6,9 +6,10 @@ import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
-import com.vke.core.rendering.vulkan.shader.ShaderProgram;
+import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.rendering.vulkan.sync.Semaphore;
@@ -24,9 +25,7 @@ public class VulkanRenderer implements Disposable {
 
     private final VKEngine engine;
     private final VulkanSetup setup;
-    private GraphicsPipeline pipeline;
     private final SwapChain swapChain;
-    private final ShaderCompiler shaderCompiler;
     private int frame;
     private final int frameCount;
     private final int framesInFlight;
@@ -36,33 +35,8 @@ public class VulkanRenderer implements Disposable {
         this.setup = new VulkanSetup(createInfo);
         this.framesInFlight = framesInFlight;
         setup.initVulkan(engine);
-        this.shaderCompiler = new ShaderCompiler();
         this.swapChain = setup.getSwapChain();
         this.frameCount = swapChain.getImageCount();
-
-        try {
-            byte[] vertexSource = Utils.readAllBytesAndClose(new Identifier("vke", "shaders/shader.vsh").asInputStream());
-            byte[] fragSource = Utils.readAllBytesAndClose(new Identifier("vke", "shaders/shader.fsh").asInputStream());
-
-            LogicalDevice logicalDevice = setup.getLogicalDevice();
-            SwapChain swapChain = setup.getSwapChain();
-            //TOY example test
-            Shader vertexShader = new Shader(engine, logicalDevice, shaderCompiler.compileGlslToSpirV(vertexSource, Shaderc.shaderc_vertex_shader, "shader.vsh"), Shader.Type.VERTEX);
-            Shader fragmentShader = new Shader(engine, logicalDevice, shaderCompiler.compileGlslToSpirV(fragSource, Shaderc.shaderc_fragment_shader, "shader.fsh"), Shader.Type.FRAGMENT);
-
-            ShaderProgram program = new ShaderProgram(vertexShader, fragmentShader);
-
-            PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
-            pipelineCreateInfo.device = logicalDevice;
-            pipelineCreateInfo.engine = engine;
-            pipelineCreateInfo.shader = program;
-            pipelineCreateInfo.swapChain = swapChain;
-            pipelineCreateInfo.shaderModuleCreateInfos = program.getShaderCreateInfos();
-
-            pipeline = new GraphicsPipeline(pipelineCreateInfo);
-        } catch (Exception e) {
-            engine.throwException(e, "Vulkan Renderer");
-        }
     }
 
     public void draw() {
@@ -91,7 +65,7 @@ public class VulkanRenderer implements Disposable {
                                     .extent(swapChain.getExtent())
                             );
 
-            cmd.bindPipeline(pipeline, VK14.VK_PIPELINE_BIND_POINT_GRAPHICS);
+            cmd.bindRenderPipeline(RenderPipelines.MAIN);
             cmd.setViewport(0, viewportBuffer);
             cmd.setScissor(0, scissorBuffer);
 
