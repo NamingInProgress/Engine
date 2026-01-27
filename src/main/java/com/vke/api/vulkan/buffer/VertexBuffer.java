@@ -1,33 +1,24 @@
 package com.vke.api.vulkan.buffer;
 
-import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public abstract class VertexBuffer implements Disposable {
-    private static final double GROWTH_FAC = 1.61803398874989490252573887119069695472717285156250;
-
+public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
 
-    public int vertexCount;
-    protected int vertexCapacity;
-
     public VertexBuffer(int baseVertexCount) {
-        int allocSize = baseVertexCount * getByteStride();
-        data = MemoryUtil.memCalloc(allocSize);
-        vertexCount = 0;
-        vertexCapacity = baseVertexCount;
+        super(baseVertexCount);
     }
 
-    protected void ensureSpaceForVertices(int n) {
-        int newCount = vertexCount + n;
-        if (newCount > vertexCapacity) {
-            while (newCount > vertexCapacity) {
-                vertexCapacity = (int) (((double) vertexCapacity) * GROWTH_FAC);
-            }
-            data = MemoryUtil.memRealloc(data, vertexCapacity * getByteStride());
-        }
+    @Override
+    protected void alloc(int size) {
+        data = MemoryUtil.memAlloc(size);
+    }
+
+    @Override
+    protected void realloc(int newSize) {
+        data = MemoryUtil.memRealloc(data, newSize);
     }
 
     public ByteBuffer getData() {
@@ -55,5 +46,10 @@ public abstract class VertexBuffer implements Disposable {
     @Override
     public void free() {
         MemoryUtil.memFree(data);
+    }
+
+    @Override
+    public long getAddress() {
+        return MemoryUtil.memAddress(data);
     }
 }

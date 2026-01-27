@@ -8,11 +8,8 @@ import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
-import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.window.Window;
 import org.lwjgl.glfw.GLFW;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class VKEngine {
     private final Logger logger;
@@ -23,7 +20,7 @@ public class VKEngine {
     private final VulkanRenderer renderer;
     private final ShaderCompiler compiler;
 
-    public static final VKERegistrate VKE_REGISTRATE = VKERegistries.get("vke");
+    public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
 
     private final EngineCreateInfo createInfo;
 
@@ -70,6 +67,8 @@ public class VKEngine {
         return logger;
     }
     public ShaderCompiler getCompiler() { return this.compiler; }
+    public VulkanRenderer getRenderer() { return renderer; }
+
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }
 
 }

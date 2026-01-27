@@ -11,6 +11,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.charPP;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
@@ -18,6 +20,8 @@ import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.vma.Vma;
+import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -49,7 +53,10 @@ public class VulkanSetup implements Disposable {
     private SwapChain swapChain;
     private long surface, debugMessenger;
     private Frame[] frames;
+    private long allocator;
 
+    private CommandPool immediatePool;
+    private CommandBuffers immediateBuffers;
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
         this.engineCreateInfo = engineCreateInfo;
@@ -132,6 +139,19 @@ public class VulkanSetup implements Disposable {
             for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
                 frames[i] = new Frame(engine, logicalDevice);
             }
+
+            VmaAllocatorCreateInfo vmaInfo = VmaAllocatorCreateInfo.calloc(stack)
+                    .flags(Vma.VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT)
+                    .physicalDevice(physicalDevice.getDevice())
+                    .device(logicalDevice.getDevice())
+                    .instance(instance);
+
+            PointerBuffer pVmaAlloc = stack.mallocPointer(1);
+            Vma.vmaCreateAllocator(vmaInfo, pVmaAlloc);
+            allocator = pVmaAlloc.get(0);
+
+            this.immediatePool = new CommandPool(engine, logicalDevice, VulkanQueue.Type.GRAPHICS);
+            this.immediateBuffers = new CommandBuffers(engine, this.immediatePool, logicalDevice, 1);
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
@@ -148,6 +168,7 @@ public class VulkanSetup implements Disposable {
         EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
+        Vma.vmaDestroyAllocator(allocator);
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
@@ -367,4 +388,13 @@ public class VulkanSetup implements Disposable {
 
     public Frame[] getFrames() { return this.frames; }
 
+    public long getVmaAllocator() { return this.allocator; }
+
+    public CommandPool getImmediatePool() {
+        return immediatePool;
+    }
+
+    public CommandBuffers getImmediateBuffers() {
+        return immediateBuffers;
+    }
 }

@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan;
 
 import com.vke.api.registry.VKERegistries;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
@@ -11,6 +12,8 @@ import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+
+import java.util.function.BiConsumer;
 
 public class VulkanRenderer implements Disposable {
     private static final int FENCE_TIMEOUT = 1000000000;
@@ -59,6 +62,7 @@ public class VulkanRenderer implements Disposable {
                             );
 
             cmd.bindRenderPipeline(RenderPipelines.MAIN);
+            cmd.setPushConstants(RenderPipelines.MAIN, stack);
             cmd.setViewport(0, viewportBuffer);
             cmd.setScissor(0, scissorBuffer);
 
@@ -115,6 +119,12 @@ public class VulkanRenderer implements Disposable {
         info.pSignalSemaphoreInfos(signalBuf);
 
         return info;
+    }
+
+    public void immediateSubmit(BiConsumer<MemoryStack, CommandBuffers> consumer) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            consumer.accept(stack, setup.getImmediateBuffers());
+        }
     }
 
     @Override

@@ -7,19 +7,26 @@ import com.vke.utils.Identifier;
 
 public class RenderPipelines {
 
-    public static final RenderPipeline MAIN = VKEngine.VKE_REGISTRATE.pipeline("main")
+    public static final RenderPipeline MAIN = VKEngine.REGISTRATE.pipeline("main")
             .topology(RenderPipeline.Topology.TRIANGLES)
             .withShader(new ShaderProgram(new Identifier("shaders/shader.vsh"), new Identifier("shaders/shader.fsh")))
             .cullMode(RenderPipeline.CullMode.NONE)
             .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
             .register();
 
-    public static final RenderPipeline DEPTH_TEST = VKEngine.VKE_REGISTRATE.pipeline("depth_test")
+    public static final RenderPipeline DEPTH_TEST = VKEngine.REGISTRATE.pipeline("depth_test")
             .topology(RenderPipeline.Topology.TRIANGLES)
             .withShader(new ShaderProgram(new Identifier("shaders/shader.vsh"), new Identifier("shaders/shader.fsh")))
             .cullMode(RenderPipeline.CullMode.NONE)
             .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
             .withDepthAttachment(new RenderPipeline.DepthStencilAttachmentInfo())
+            .register();
+
+    public static final RenderPipeline IDK = VKEngine.REGISTRATE.pipeline("idk")
+            .topology(RenderPipeline.Topology.TRIANGLES)
+            .withShader(new ShaderProgram(new Identifier("shaders/idk.vsh", "shaders/idk.fsh")))
+            .cullMode(RenderPipeline.CullMode.NONE)
+            .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
             .register();
 
     public static void init() {}

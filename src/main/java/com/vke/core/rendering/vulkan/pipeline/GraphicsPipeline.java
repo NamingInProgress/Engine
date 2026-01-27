@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VKUtils;
@@ -23,6 +24,7 @@ public class GraphicsPipeline implements Disposable {
     private LogicalDevice device;
     private VKEngine engine;
     private SwapChain swapChain;
+    private PipelineLayout layout;
 
     public GraphicsPipeline(PipelineCreateInfo createInfo, PipelineSettingsInfo pipelineSettingsInfo) {
         this.device = createInfo.device;
@@ -106,7 +108,8 @@ public class GraphicsPipeline implements Disposable {
             }
 
 
-            PipelineLayout pipelineLayout = new PipelineLayout(engine, device);
+            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pc());
+            this.layout = pipelineLayout;
 
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
                     .sType$Default()
@@ -167,9 +170,8 @@ public class GraphicsPipeline implements Disposable {
         }
     }
 
-    public long getHandle() {
-        return this.handle;
-    }
+    public long getHandle() { return this.handle; }
+    public PipelineLayout getPipelineLayout() { return this.layout; }
 
     @Override
     public void free() {
@@ -202,7 +204,8 @@ public class GraphicsPipeline implements Disposable {
             float[] blendConstants,
 
             // Shaders
-            VKShaderProgram shader
+            VKShaderProgram shader,
+            PushConstantsDefinition[] pc
     ) {}
 
 }

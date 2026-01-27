@@ -14,16 +14,15 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
         this.template = template;
 
         for (T v : vertices) {
-            vertexCount++;
+            elementCount++;
             putVertex(v);
         }
     }
 
     private void putVertex(T v) {
-        ensureSpaceForVertices(1);
+        ensureSpace(1);
         v.putSelf(data);
     }
-
 
     @Override
     public int getByteStride() {

@@ -105,7 +105,8 @@ public class RenderPipeline implements Disposable {
                         builder.blendConstants,
 
                         // Shaders
-                        shader
+                        shader,
+                        builder.pushConstants.toArray(PushConstantsDefinition[]::new)
                 );
 
         graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
@@ -178,6 +179,7 @@ public class RenderPipeline implements Disposable {
 
         // Shader
         ShaderProgram shader;
+        ArrayList<PushConstantsDefinition> pushConstants = new ArrayList<>();
 
         public RenderPipelineBuilder(Identifier key) {
             super(key);
@@ -278,6 +280,11 @@ public class RenderPipeline implements Disposable {
         public RenderPipelineBuilder setBlendConstants(float[] blendConstants) {
             if (blendConstants.length != 4) log(LogLevel.WARN, "Tried to set blend constants with an array of length less that 4");
             this.blendConstants = blendConstants;
+            return this;
+        }
+
+        public RenderPipelineBuilder addPushConstants(PushConstantsDefinition pc) {
+            this.pushConstants.add(pc);
             return this;
         }
     }

@@ -12,19 +12,19 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     public void clear() {
-        vertexCount = 0;
+        elementCount = 0;
         data.clear();
     }
 
     public void putVertex(T vertex) {
-        ensureSpaceForVertices(1);
-        vertexCount++;
+        ensureSpace(1);
+        elementCount++;
         vertex.putSelf(data);
     }
 
     public void putVertices(T... vertices) {
-        ensureSpaceForVertices(vertices.length);
-        vertexCount += vertices.length;
+        ensureSpace(vertices.length);
+        elementCount += vertices.length;
         for (T vertex : vertices) {
             vertex.putSelf(data);
         }
