@@ -55,11 +55,11 @@ public class VulkanRenderer implements Disposable {
             PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
             pipelineCreateInfo.device = logicalDevice;
             pipelineCreateInfo.engine = engine;
-            pipelineCreateInfo.shader = program;
+            //pipelineCreateInfo.shader = program;
             pipelineCreateInfo.swapChain = swapChain;
-            pipelineCreateInfo.shaderModuleCreateInfos = program.getShaderCreateInfos();
+            //pipelineCreateInfo.shaderModuleCreateInfos = program.getShaderCreateInfos();
 
-            pipeline = new GraphicsPipeline(pipelineCreateInfo);
+            pipeline = new GraphicsPipeline(pipelineCreateInfo,null);
         } catch (Exception e) {
             engine.throwException(e, "Vulkan Renderer");
         }

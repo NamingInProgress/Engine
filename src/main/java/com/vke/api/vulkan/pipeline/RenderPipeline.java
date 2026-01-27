@@ -37,7 +37,7 @@ public class RenderPipeline {
         pipelineCreateInfo.engine = engine;
         pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
 
-        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo);
+        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, null);
     }
 
     public GraphicsPipeline getGraphicsPipeline() {

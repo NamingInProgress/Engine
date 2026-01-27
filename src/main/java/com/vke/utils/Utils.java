@@ -83,4 +83,37 @@ public class Utils {
         return StreamSupport.stream(s, false);
     }
 
+
+    /// checks if `min <= v <= max`
+    public static boolean inRange(int v, int min, int max) {
+        return min <= v && v <= max;
+    }
+
+    public static boolean inIntBitsRange(int v) {
+        return inRange(v, 1, Integer.BYTES * 8);
+    }
+
+    public static int unsignByte(byte b) {
+        return b & 0xFF;
+    }
+
+    public static int nextEvenNumber(int num) {
+        if (num % 2 == 0) {
+            num++;
+        }
+        return num;
+    }
+
+    public static byte[] intToByteArray(int[] a) {
+        byte[] out = new byte[a.length];
+        for (int i = 0; i < a.length; i++) {
+            out[i] = (byte) a[i];
+        }
+        return out;
+    }
+
+    public static <T> boolean verifyArrayIndex(int index, T[] array) {
+        return index >= 0 && index < array.length;
+    }
+
 }

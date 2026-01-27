@@ -5,6 +5,7 @@ import com.vke.api.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.file.gzip.deflate.BitUtils;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.utils.StructureChain3;
@@ -55,14 +56,14 @@ public class LogicalDevice implements Disposable {
         for (int i = 0; i < physicalDevice.getQueueFamilyBuffer().capacity(); i++) {
             VkQueueFamilyProperties props = physicalDevice.getQueueFamilyBuffer().get(i);
             int flags = props.queueFlags();
-            if (VKUtils.bitsContains(flags, VK14.VK_QUEUE_GRAPHICS_BIT)) {
+            if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_GRAPHICS_BIT)) {
                 queueIndices.put(Type.GRAPHICS, i);
 
                 if (VKUtils.isPresentQueue(stack, physicalDevice, i, logicalDeviceCreateInfo.surfaceHandle)) {
                     queueIndices.put(com.vke.core.rendering.vulkan.VulkanQueue.Type.PRESENT, i);
                 }
             }
-            if (VKUtils.bitsContains(flags, VK14.VK_QUEUE_COMPUTE_BIT)) {
+            if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_COMPUTE_BIT)) {
                 queueIndices.put(Type.COMPUTE, i);
             }
 
