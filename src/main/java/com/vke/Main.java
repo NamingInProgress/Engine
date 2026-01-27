@@ -1,18 +1,12 @@
 package com.vke;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntCharHashMap;
-import com.carrotsearch.hppc.ShortObjectMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.api.game.Game;
-import com.vke.api.game.Version;
-import com.vke.api.parsing.SourceCode;
-import com.vke.api.parsing.Tokenizer;
-import com.vke.api.serializer.Serializer;
-import com.vke.api.vkz.*;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
+import com.vke.core.file.gzip.GzipDecompressor;
+import com.vke.core.file.gzip.io.bit.ShittyBitInputStream;
 import com.vke.core.logger.*;
 import com.vke.core.parsing.source.StringSourceCode;
 import com.vke.core.parsing.xml.XmlToken;
@@ -21,17 +15,12 @@ import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
-import com.vke.utils.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.zip.GZIPOutputStream;
 
 public class Main {
 
