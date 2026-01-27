@@ -1,9 +1,12 @@
 package com.vke.core.rendering.vulkan.commands;
 
+import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.rendering.vulkan.pipeline.PipelineLayout;
 import com.vke.core.rendering.vulkan.swapchain.ImageView;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
@@ -102,8 +105,23 @@ public class CommandBuffers implements Disposable {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    public void bindPipeline(GraphicsPipeline pipeline, int type) {
+    public void bindRenderPipeline(RenderPipeline pipeline) {
+        this.bindPipeline(pipeline.getGraphicsPipeline(), VK14.VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
+    private void bindPipeline(GraphicsPipeline pipeline, int type) {
         VK14.vkCmdBindPipeline(this.getBuffer(), type, pipeline.getHandle());
+    }
+
+    public void setPushConstants(RenderPipeline pipeline, MemoryStack stack) {
+        PipelineLayout layout = pipeline.getGraphicsPipeline().getPipelineLayout();
+        for (PushConstantsDefinition pc : layout.getPushConstants()) {
+            VK14.vkCmdPushConstants(this.getBuffer(),
+                    layout.getHandle(),
+                    pc.getAplicableStages().getVkHandle(),
+                    pc.getOffset(),
+                    pc.getBytes(stack));
+        }
     }
 
     public void setViewport(int firstViewport, VkViewport.Buffer buffer) {

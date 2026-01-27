@@ -150,6 +150,10 @@
             <version>26.0.2-1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-vma</artifactId>
+        </dependency>
     </dependencies>
 
         <!--

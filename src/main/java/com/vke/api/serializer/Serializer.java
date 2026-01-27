@@ -5,7 +5,7 @@ import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
 import com.vke.core.serializer.impl.defaults.DefaultSerializers;
 
-import static com.vke.core.VKEngine.VKE_REGISTRATE;
+import static com.vke.core.VKEngine.REGISTRATE;
 
 public interface Serializer<T> {
     Class<?> getObjectClass();
@@ -14,7 +14,7 @@ public interface Serializer<T> {
     T load(Loader loader) throws LoadException;
 
     static <U> void registerSerializerFor(Class<U> clazz, Serializer<?> serializer) {
-        VKE_REGISTRATE.serializer(clazz, serializer);
+        REGISTRATE.serializer(clazz, serializer);
     }
 
     static <U> Serializer<U> findSerializer(Class<U> clazz) {

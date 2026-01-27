@@ -14,6 +14,10 @@ public class ShaderCompiler implements Disposable {
         compiler = Shaderc.shaderc_compiler_initialize();
     }
 
+    public ByteBuffer compileGlslToSpirV(byte[] shader, Shader.Type kind, @Nullable String fileName) throws Exception {
+        return this.compileGlslToSpirV(shader, kind.getShadercHandle(), fileName);
+    }
+
     public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @Nullable String fileName) throws Exception {
         AutoHeapAllocator alloc = new AutoHeapAllocator();
         ByteBuffer source = alloc.bytes(shader).getHeapObject();

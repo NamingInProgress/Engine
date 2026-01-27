@@ -60,7 +60,7 @@ public class LogicalDevice implements Disposable {
                 queueIndices.put(Type.GRAPHICS, i);
 
                 if (VKUtils.isPresentQueue(stack, physicalDevice, i, logicalDeviceCreateInfo.surfaceHandle)) {
-                    queueIndices.put(com.vke.core.rendering.vulkan.VulkanQueue.Type.PRESENT, i);
+                    queueIndices.put(Type.PRESENT, i);
                 }
             }
             if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_COMPUTE_BIT)) {
@@ -160,5 +160,9 @@ public class LogicalDevice implements Disposable {
     @Override
     public void free() {
         VK14.vkDestroyDevice(device, null);
+    }
+
+    public PhysicalDevice getPhysicalDevice() {
+        return this.logicalDeviceCreateInfo.physicalDeviceWrapper;
     }
 }

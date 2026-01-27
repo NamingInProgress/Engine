@@ -1,30 +1,39 @@
 package com.vke.api.vulkan.pipeline;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
+import com.vke.api.vulkan.VkEnum;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
+import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
+import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkStencilOpState;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused")
-public class RenderPipeline {
+public class RenderPipeline implements Disposable {
+
+    private final RenderPipelineBuilder builder;
 
     private GraphicsPipeline graphicsPipeline;
 
     private RenderPipeline(RenderPipelineBuilder builder) {
-
+        this.builder = builder;
     }
 
     public void setupGraphicsPipeline(VKEngine engine, VulkanSetup vkSetup) {
@@ -36,8 +45,71 @@ public class RenderPipeline {
         pipelineCreateInfo.device = vkSetup.getLogicalDevice();
         pipelineCreateInfo.engine = engine;
         pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
+        pipelineCreateInfo.name = builder.getId();
 
-        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, null);
+        int depthFormat = VK14.VK_FORMAT_UNDEFINED;
+        int stencilFormat = VK14.VK_FORMAT_UNDEFINED;
+
+        if (builder.depthStencilAttachment != null) {
+            if (builder.autoRegisterDynamicStates)
+                builder.dynamicStates.add(DynamicState.DEPTH_WRITE);
+            if (builder.stencilAttachment) {
+                if (builder.autoRegisterDynamicStates) {
+                    builder.dynamicStates.addAll(List.of(DynamicState.STENCIL_COMPARE_MASK,
+                            DynamicState.STENCIL_WRITE_MASK,
+                            DynamicState.STENCIL_REFERENCE));
+                }
+                depthFormat = VK14.VK_FORMAT_D32_SFLOAT_S8_UINT;
+                stencilFormat = depthFormat;
+            } else {
+                depthFormat = VK14.VK_FORMAT_D32_SFLOAT;
+            }
+        } else {
+            if (builder.stencilAttachment) {
+                engine.throwException(new IllegalStateException("Tried to make a pipeline with a stencil attachment but no depth attachment!"), "Render Pipeline");
+            }
+        }
+
+        Shader[] shaders = new Shader[0];
+        try {
+            shaders = builder.shader.getShaderArray(engine, vkSetup.getLogicalDevice(), engine.getCompiler());
+        } catch (Exception e) {
+            engine.throwException(e, "Render Pipeline -> Shader Creation");
+        }
+        VKShaderProgram shader = new VKShaderProgram(shaders);
+
+        GraphicsPipeline.PipelineSettingsInfo pipelineSettingsInfo =
+                new GraphicsPipeline.PipelineSettingsInfo(
+                        // Dynamic State
+                        Utils.asIntArray(builder.dynamicStates, DynamicState::getVkHandle),
+
+                        // Input Assembly
+                        builder.primitiveRestartEnable,
+                        builder.topology.getVkHandle(),
+
+                        // Raster Info
+                        builder.polygonMode.getVkHandle(),
+                        builder.cullMode.getVkHandle(),
+                        builder.windingOrder.getVkHandle(),
+                        builder.lineWidth,
+                        builder.depthBiasEnable,
+                        builder.depthBiasConstFactor,
+                        builder.depthBiasClamp,
+                        builder.depthBiasSlopeFactor,
+
+                        // Attachments
+                        builder.colorAttachments,
+                        builder.depthStencilAttachment,
+                        depthFormat,
+                        stencilFormat,
+                        builder.blendConstants,
+
+                        // Shaders
+                        shader,
+                        builder.pushConstants.toArray(PushConstantsDefinition[]::new)
+                );
+
+        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
     }
 
     public GraphicsPipeline getGraphicsPipeline() {
@@ -47,6 +119,16 @@ public class RenderPipeline {
             throw new IllegalStateException("GraphicsPipeline is null! RenderPipeline#getGraphicsPipeline");
         }
         return graphicsPipeline;
+    }
+
+    public Set<DynamicState> dynamicStates() {
+        if (graphicsPipeline == null) log(LogLevel.WARN, "Accessed dynamic states while graphics pipeline was not built yet which can change the dynamic states enabled!");
+        return Set.copyOf(builder.dynamicStates);
+    }
+
+    @Override
+    public void free() {
+        graphicsPipeline.free();
     }
 
     /**  Logger  **/
@@ -72,7 +154,7 @@ public class RenderPipeline {
     public static final class RenderPipelineBuilder extends VKERegistrar<Identifier, RenderPipeline> {
 
         // Dynamic State
-        IntArrayList dynamicStates = IntArrayList.from(VK14.VK_DYNAMIC_STATE_VIEWPORT, VK14.VK_DYNAMIC_STATE_SCISSOR);
+        ArrayList<DynamicState> dynamicStates = new ArrayList<>(List.of(DynamicState.VIEWPORT, DynamicState.SCISSOR));
 
         // Input Assembly
         boolean primitiveRestartEnable = false;
@@ -80,8 +162,8 @@ public class RenderPipeline {
 
         // Raster Info
         PolygonMode polygonMode = PolygonMode.FILL;
-        CullMode cullMode = CullMode.FRONT;
-        FrontFace frontFace = FrontFace.COUNTERCLOCKWISE;
+        CullMode cullMode = CullMode.BACK;
+        WindingOrder windingOrder = WindingOrder.COUNTERCLOCKWISE;
         float lineWidth = 1.0f;
         boolean depthBiasEnable = false;
         float depthBiasConstFactor = 0.0f;
@@ -92,10 +174,12 @@ public class RenderPipeline {
         ArrayList<ColorAttachmentInfo> colorAttachments = new ArrayList<>();
         DepthStencilAttachmentInfo depthStencilAttachment = null;
         boolean stencilAttachment = false;
-        int[] blendConstants = new int[]{ 0, 0, 0, 0 };
+        float[] blendConstants = new float[]{ 0, 0, 0, 0 };
+        boolean autoRegisterDynamicStates = false;
 
         // Shader
         ShaderProgram shader;
+        ArrayList<PushConstantsDefinition> pushConstants = new ArrayList<>();
 
         public RenderPipelineBuilder(Identifier key) {
             super(key);
@@ -111,14 +195,20 @@ public class RenderPipeline {
             return new RenderPipeline(this);
         }
 
-        public RenderPipelineBuilder addDynamicState(int state) {
+        protected Identifier getId() { return this.key; }
+
+        public RenderPipelineBuilder addDynamicState(DynamicState state) {
             this.dynamicStates.add(state);
+            return this;
+        }
+
+        public RenderPipelineBuilder setRegisterDynamicStates(boolean a) {
+            this.autoRegisterDynamicStates = a;
             return this;
         }
 
         public RenderPipelineBuilder withColorAttachment(ColorAttachmentInfo info) {
             this.colorAttachments.add(info);
-            if (this.colorAttachments.size() > 4) log(LogLevel.TRACE, "Color attachments amount passes minimal provided level of 4!");
             return this;
         }
 
@@ -132,7 +222,7 @@ public class RenderPipeline {
             return this;
         }
 
-        public RenderPipelineBuilder setTopology(Topology topology) {
+        public RenderPipelineBuilder topology(Topology topology) {
             this.topology = topology;
             return this;
         }
@@ -142,7 +232,7 @@ public class RenderPipeline {
             return this;
         }
 
-        public RenderPipelineBuilder setCullMode(CullMode cullMode) {
+        public RenderPipelineBuilder cullMode(CullMode cullMode) {
             this.cullMode = cullMode;
             return this;
         }
@@ -152,8 +242,8 @@ public class RenderPipeline {
             return this;
         }
 
-        public RenderPipelineBuilder setFrontFace(FrontFace frontFace) {
-            this.frontFace = frontFace;
+        public RenderPipelineBuilder windingOrder(WindingOrder windingOrder) {
+            this.windingOrder = windingOrder;
             return this;
         }
 
@@ -187,9 +277,14 @@ public class RenderPipeline {
             return this;
         }
 
-        public RenderPipelineBuilder setBlendConstants(int[] blendConstants) {
+        public RenderPipelineBuilder setBlendConstants(float[] blendConstants) {
             if (blendConstants.length != 4) log(LogLevel.WARN, "Tried to set blend constants with an array of length less that 4");
             this.blendConstants = blendConstants;
+            return this;
+        }
+
+        public RenderPipelineBuilder addPushConstants(PushConstantsDefinition pc) {
+            this.pushConstants.add(pc);
             return this;
         }
     }
@@ -393,10 +488,6 @@ public class RenderPipeline {
         ERROR
     }
 
-    private interface VkEnum {
-        int getVkHandle();
-    }
-
     public enum Topology implements VkEnum {
 
         POINTS(VK14.VK_PRIMITIVE_TOPOLOGY_POINT_LIST),
@@ -464,14 +555,14 @@ public class RenderPipeline {
         }
     }
 
-    public enum FrontFace implements VkEnum {
+    public enum WindingOrder implements VkEnum {
 
         CLOCKWISE(VK14.VK_FRONT_FACE_CLOCKWISE),
         COUNTERCLOCKWISE(VK14.VK_FRONT_FACE_COUNTER_CLOCKWISE);
 
         private final int vkHandle;
 
-        FrontFace(int vkHandle) {
+        WindingOrder(int vkHandle) {
             this.vkHandle = vkHandle;
         }
 
@@ -571,6 +662,33 @@ public class RenderPipeline {
         private final int vkHandle;
 
         StencilOp(int vkHandle) {
+            this.vkHandle = vkHandle;
+        }
+
+        @Override
+        public int getVkHandle() {
+            return vkHandle;
+        }
+    }
+
+    public enum DynamicState implements VkEnum {
+
+        VIEWPORT(VK14.VK_DYNAMIC_STATE_VIEWPORT),
+        SCISSOR(VK14.VK_DYNAMIC_STATE_SCISSOR),
+        LINE_WIDTH(VK14.VK_DYNAMIC_STATE_LINE_WIDTH),
+        DEPTH_BIAS(VK14.VK_DYNAMIC_STATE_DEPTH_BIAS),
+        BLEND_CONSTANTS(VK14.VK_DYNAMIC_STATE_BLEND_CONSTANTS),
+        @Deprecated
+        DEPTH_BOUNDS(VK14.VK_DYNAMIC_STATE_DEPTH_BOUNDS),
+        STENCIL_COMPARE_MASK(VK14.VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK),
+        STENCIL_WRITE_MASK(VK14.VK_DYNAMIC_STATE_STENCIL_WRITE_MASK),
+        STENCIL_REFERENCE(VK14.VK_DYNAMIC_STATE_STENCIL_REFERENCE),
+
+        DEPTH_WRITE(VK14.VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE);
+
+        private final int vkHandle;
+
+        DynamicState(int vkHandle) {
             this.vkHandle = vkHandle;
         }
 

@@ -1,10 +1,12 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.shader.ShaderProgram;
+import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
@@ -22,6 +24,7 @@ public class GraphicsPipeline implements Disposable {
     private LogicalDevice device;
     private VKEngine engine;
     private SwapChain swapChain;
+    private PipelineLayout layout;
 
     public GraphicsPipeline(PipelineCreateInfo createInfo, PipelineSettingsInfo pipelineSettingsInfo) {
         this.device = createInfo.device;
@@ -80,6 +83,10 @@ public class GraphicsPipeline implements Disposable {
                 attachments.put(attachment);
                 attachmentFormats.put(colorAttachmentInfo.getFormat());
             }
+
+            attachments.flip();
+            attachmentFormats.flip();
+
             VkPipelineColorBlendStateCreateInfo colorBlending = VkPipelineColorBlendStateCreateInfo.calloc(stack)
                     .sType$Default()
                     .attachmentCount(colorAttachmentCounts)
@@ -87,18 +94,22 @@ public class GraphicsPipeline implements Disposable {
                     .logicOpEnable(false)
                     .logicOp(VK14.VK_LOGIC_OP_COPY);
 
-            VkPipelineDepthStencilStateCreateInfo depthStencilInfo = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
-                    .sType$Default()
-                    .depthTestEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthTestEnable())
-                    .depthWriteEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthWriteEnable())
-                    .depthCompareOp(pipelineSettingsInfo.depthStencilAttachment().getDepthCompareOp().getVkHandle())
-                    .stencilTestEnable(pipelineSettingsInfo.depthStencilAttachment().isStencilTestEnable())
-                    .front(pipelineSettingsInfo.depthStencilAttachment().getFrontStencilOp().asVkObject(stack))
-                    .back(pipelineSettingsInfo.depthStencilAttachment().getBackStencilOp().asVkObject(stack))
-                    .depthBoundsTestEnable(false);
+            VkPipelineDepthStencilStateCreateInfo depthStencilInfo = null;
+            if (pipelineSettingsInfo.depthStencilAttachment() != null) {
+                 depthStencilInfo = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
+                        .sType$Default()
+                        .depthTestEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthTestEnable())
+                        .depthWriteEnable(pipelineSettingsInfo.depthStencilAttachment().isDepthWriteEnable())
+                        .depthCompareOp(pipelineSettingsInfo.depthStencilAttachment().getDepthCompareOp().getVkHandle())
+                        .stencilTestEnable(pipelineSettingsInfo.depthStencilAttachment().isStencilTestEnable())
+                        .front(pipelineSettingsInfo.depthStencilAttachment().getFrontStencilOp().asVkObject(stack))
+                        .back(pipelineSettingsInfo.depthStencilAttachment().getBackStencilOp().asVkObject(stack))
+                        .depthBoundsTestEnable(false);
+            }
 
 
-            PipelineLayout pipelineLayout = new PipelineLayout(engine, device);
+            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pc());
+            this.layout = pipelineLayout;
 
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
                     .sType$Default()
@@ -151,12 +162,16 @@ public class GraphicsPipeline implements Disposable {
             }
 
             this.handle = pPipeline.get(0);
+            if (engine.isDebugMode()) {
+                if (!VKUtils.setDebugName(device, createInfo.name, this.handle, VK14.VK_OBJECT_TYPE_PIPELINE)) {
+                    engine.throwException(new IllegalStateException("Couldn't set debug name"), HERE);
+                }
+            }
         }
     }
 
-    public long getHandle() {
-        return this.handle;
-    }
+    public long getHandle() { return this.handle; }
+    public PipelineLayout getPipelineLayout() { return this.layout; }
 
     @Override
     public void free() {
@@ -186,10 +201,11 @@ public class GraphicsPipeline implements Disposable {
             RenderPipeline.DepthStencilAttachmentInfo depthStencilAttachment,
             int depthFormat,
             int stencilFormat,
-            int[] blendConstants,
+            float[] blendConstants,
 
             // Shaders
-            ShaderProgram shader
+            VKShaderProgram shader,
+            PushConstantsDefinition[] pc
     ) {}
 
 }
