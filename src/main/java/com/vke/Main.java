@@ -102,7 +102,7 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 
-        //System.exit(0);
+        System.exit(0);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
