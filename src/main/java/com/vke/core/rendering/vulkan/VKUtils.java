@@ -4,7 +4,6 @@ import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
-import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Colors;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
@@ -120,10 +119,6 @@ public class VKUtils {
         return p.deviceNameString();
     }
 
-    public static boolean bitsContains(int provided, int wanted) {
-        return (provided & wanted) == wanted;
-    }
-    
     public static VkExtent2D clampExtent(MemoryStack stack, int width, int height, VkExtent2D min, VkExtent2D max) {
         VkExtent2D extent = VkExtent2D.calloc(stack);
         extent.width(Math.clamp(width, min.width(), max.width()));
