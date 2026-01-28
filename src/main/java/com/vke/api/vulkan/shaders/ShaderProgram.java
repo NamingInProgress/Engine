@@ -22,11 +22,12 @@ public class ShaderProgram {
     private Shader[] shaders;
 
     public ShaderProgram(Identifier vertexShaderPath) {
-        this(vertexShaderPath, null);
+        this(vertexShaderPath, Identifier.empty());
     }
 
     public ShaderProgram(Identifier vertexShaderPath, Identifier fragmentShaderPath) {
         this(Map.of(Type.VERTEX, vertexShaderPath, Type.FRAGMENT, fragmentShaderPath));
+        if (types.get(Type.FRAGMENT) == Identifier.empty()) types.remove(Type.FRAGMENT);
     }
 
     public ShaderProgram(Pair<Type, Identifier>[] shaders) {

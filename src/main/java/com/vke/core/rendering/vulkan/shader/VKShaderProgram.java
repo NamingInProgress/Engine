@@ -32,7 +32,7 @@ public class VKShaderProgram implements Disposable {
             Shader shader = shaders[i];
             infos[i] = alloc.allocStruct(VkPipelineShaderStageCreateInfo.SIZEOF, VkPipelineShaderStageCreateInfo::new)
                     .sType$Default()
-                    .stage(shader.getType().getVkStageInt())
+                    .stage(shader.getType().getVkHandle())
                     .module(shader.getHandle())
                     .pName(MemoryUtil.memUTF8("main", true));
         }

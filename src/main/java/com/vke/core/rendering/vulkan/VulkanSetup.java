@@ -22,6 +22,7 @@ import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
+import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -140,7 +141,11 @@ public class VulkanSetup implements Disposable {
                 frames[i] = new Frame(engine, logicalDevice);
             }
 
+            VmaVulkanFunctions vmaFuncs = VmaVulkanFunctions.calloc(stack)
+                    .set(instance, logicalDevice.getDevice());
+
             VmaAllocatorCreateInfo vmaInfo = VmaAllocatorCreateInfo.calloc(stack)
+                    .pVulkanFunctions(vmaFuncs)
                     .flags(Vma.VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT)
                     .physicalDevice(physicalDevice.getDevice())
                     .device(logicalDevice.getDevice())

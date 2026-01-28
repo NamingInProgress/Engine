@@ -22,12 +22,12 @@ public class RenderPipelines {
             .withDepthAttachment(new RenderPipeline.DepthStencilAttachmentInfo())
             .register();
 
-    public static final RenderPipeline IDK = VKEngine.REGISTRATE.pipeline("idk")
-            .topology(RenderPipeline.Topology.TRIANGLES)
-            .withShader(new ShaderProgram(new Identifier("shaders/idk.vsh", "shaders/idk.fsh")))
-            .cullMode(RenderPipeline.CullMode.NONE)
-            .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
-            .register();
+    //public static final RenderPipeline IDK = VKEngine.REGISTRATE.pipeline("idk")
+    //        .topology(RenderPipeline.Topology.TRIANGLES)
+    //        .withShader(new ShaderProgram(new Identifier("shaders/idk.vsh", "shaders/idk.fsh")))
+    //        .cullMode(RenderPipeline.CullMode.NONE)
+    //        .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
+    //        .register();
 
     public static void init() {}
 

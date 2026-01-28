@@ -1,5 +1,6 @@
 package com.vke.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
@@ -17,14 +18,22 @@ public class Identifier {
         this.path = path;
     }
 
+    public static Identifier empty() {
+        return new Identifier("", "");
+    }
+
     public String getNamespace() { return this.namespace; }
     public String getPath() { return this.path; }
 
-    public InputStream asInputStream() { return Identifier.class.getClassLoader().getResourceAsStream("%s/%s".formatted(namespace, path)); }
+    public InputStream asInputStream() throws IOException {
+        var s = Identifier.class.getClassLoader().getResourceAsStream("%s/%s".formatted(namespace, path));
+        if (s == null) throw new IOException("Failed to find file at %s/%s".formatted(namespace, path));
+        return s;
+    }
 
     @Override
     public String toString() {
-        return path + ":" + namespace;
+        return namespace + ":" + path;
     }
 
     @Override
