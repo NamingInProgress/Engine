@@ -1,9 +1,9 @@
 package com.vke.test;
 
-import com.vke.core.file.gzip.deflate.BitUtils;
-import com.vke.core.file.gzip.io.bit.GoodBitInputStream;
-import com.vke.core.file.gzip.io.bit.BitOrdering;
-import com.vke.core.file.gzip.io.bit.ShittyBitInputStream;
+import com.vke.core.file.deflate.BitUtils;
+import com.vke.core.file.io.bit.GoodBitInputStream;
+import com.vke.core.file.io.bit.BitOrdering;
+import com.vke.core.file.io.bit.ShittyBitInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

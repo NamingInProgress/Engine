@@ -94,4 +94,8 @@ public interface Saver {
             saveInt(bitMap);
         }
     }
+
+    default void saveRaw(byte[] rawData) throws SaveException {
+        for (byte b : rawData) saveByte(b);
+    }
 }

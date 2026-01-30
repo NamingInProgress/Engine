@@ -1,7 +1,6 @@
 package com.vke.api.vkz;
 
 import com.vke.api.serializer.Serializer;
-import com.vke.api.utils.NotifyingIterable;
 import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 
@@ -11,13 +10,13 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 public interface VkzArchive {
-    static VkzArchive open(InputStream stream, OpenStrategy strategy) throws VkzOpenException {
+    static VkzArchive open(InputStream stream, ArchiveType strategy) throws VkzOpenException {
         VkzObjLoader loader = new VkzObjLoader(stream, Integer.MAX_VALUE, 0);
 
         VkzArchive archive;
-        if (strategy == OpenStrategy.LazyFiles) {
+        if (strategy == ArchiveType.LazyFiles) {
             throw new VkzOpenException("Currently no support for LazyFiles sadly :(");
-        } else if (strategy == OpenStrategy.OpenAllFiles) {
+        } else if (strategy == ArchiveType.InflateAll) {
             archive =  Serializer.loadObject(VkzImmediateArchive.class, loader);
         } else {
             throw new VkzOpenException("Strategy " + strategy + " is illegal!");
@@ -44,5 +43,9 @@ public interface VkzArchive {
 
     Iterator<VkzFileHandle> iterateFiles();
 
-    void writeOut(OutputStream stream) throws IOException;
+    default void writeOut(OutputStream stream) throws IOException {
+        writeOut(stream, ProgressReport.Listener.silent());
+    }
+
+    void writeOut(OutputStream stream, ProgressReport.Listener progressListener) throws IOException;
 }

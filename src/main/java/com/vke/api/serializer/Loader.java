@@ -133,4 +133,12 @@ public interface Loader {
             return loadInt();
         }
     }
+
+    default byte[] loadRaw(int size) throws LoadException {
+        byte[] data = new byte[size];
+        for (int i = 0; i < size; i++) {
+            data[i] = loadByte();
+        }
+        return data;
+    }
 }
