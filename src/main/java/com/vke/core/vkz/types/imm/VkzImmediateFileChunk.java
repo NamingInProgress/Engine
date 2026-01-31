@@ -76,15 +76,12 @@ public class VkzImmediateFileChunk implements VkzFileHandle {
 
     void save(Saver saver) throws SaveException {
         Serializer.saveObject(name, saver);
-        for (byte b : data) saver.saveByte(b);
+        saver.saveRaw(data);
     }
 
     void load(Loader loader) throws LoadException {
         name = Serializer.loadObject(VkzName.class, loader);
-        data = new byte[length];
-        for (int i = 0; i < length; i++) {
-            data[i] = loader.loadByte();
-        }
+        data = loader.loadRaw(length);
     }
 
     void runEdit(VkzImmediateEditor.EditedPacket packet) {

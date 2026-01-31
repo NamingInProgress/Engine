@@ -3,6 +3,7 @@ package com.vke.core.vkz.types.imm;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
+import com.vke.api.vkz.ProgressReport;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzDirectoryHandle;
 import com.vke.api.vkz.VkzFileHandle;
@@ -27,6 +28,8 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     private VkzArray<Integer> fileLengths;
     private VkzImmediateFileChunk[] fileChunks;
 
+    private ProgressReport.Listener progressListener;
+
 
     public static VkzImmediateArchive empty() {
         VkzImmediateArchive archive = new VkzImmediateArchive();
@@ -48,7 +51,13 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         saver.saveInt(value.magic);
         Serializer.saveObject(value.root, saver);
         value.fileLengths.save(saver);
+        int totalFiles = value.fileChunks.length;
+        int i = 1;
         for (VkzImmediateFileChunk fileChunk : value.fileChunks) {
+            if (progressListener != null) {
+                progressListener.onNewProgress(new ProgressReport(fileChunk.getName(), totalFiles, i, fileChunk.getSize()));
+            }
+            i++;
             fileChunk.save(saver);
         }
     }
@@ -129,7 +138,9 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     }
 
     @Override
-    public void writeOut(OutputStream stream) throws IOException {
+    public void writeOut(OutputStream stream, ProgressReport.Listener progressListener) throws IOException {
+        this.progressListener = progressListener;
+
         VkzObjSaver saver = new VkzObjSaver(stream);
         Serializer.saveObject(this, saver);
         saver.flush();

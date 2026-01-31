@@ -5,7 +5,7 @@ import com.vke.api.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.file.gzip.deflate.BitUtils;
+import com.vke.core.file.deflate.BitUtils;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.utils.StructureChain3;

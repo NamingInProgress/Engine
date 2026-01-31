@@ -53,6 +53,19 @@ public class VkzObjSaver implements Saver, Flushable, Closeable {
         savedBits %= 8;
     }
 
+    @Override
+    public void saveRaw(byte[] rawData) throws SaveException {
+        if (bitIndex == 0) {
+            try {
+                output.write(rawData);
+            } catch (IOException e) {
+                throw new SaveException(e);
+            }
+        } else {
+            Saver.super.saveRaw(rawData);
+        }
+    }
+
     public long getSavedBytes() {
         return savedBytes;
     }

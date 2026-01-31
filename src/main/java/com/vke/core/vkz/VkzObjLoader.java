@@ -76,6 +76,23 @@ public class VkzObjLoader implements Loader {
         }
     }
 
+    @Override
+    public byte[] loadRaw(int size) throws LoadException {
+        if (bitIndex == 0) {
+            try {
+                byte[] data = input.readNBytes(size);
+                if (data.length != size) {
+                    throw new LoadException("Tried to load " + size + " bytes, but only " + data.length + " were being read by the stream!");
+                }
+                return data;
+            } catch (IOException e) {
+                throw new LoadException(e);
+            }
+        }
+
+        return Loader.super.loadRaw(size);
+    }
+
     public void setFullBytes(long fullBytes) {
         this.fullBytes = fullBytes;
     }

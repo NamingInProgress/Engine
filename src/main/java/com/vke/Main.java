@@ -1,26 +1,12 @@
 package com.vke;
 
-import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.api.game.Game;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
-import com.vke.core.file.gzip.GzipDecompressor;
-import com.vke.core.file.gzip.io.bit.ShittyBitInputStream;
 import com.vke.core.logger.*;
-import com.vke.core.parsing.source.StringSourceCode;
-import com.vke.core.parsing.xml.XmlToken;
-import com.vke.core.parsing.xml.XmlTokenizer;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
-import com.vke.core.vkz.VkzObjLoader;
-import com.vke.core.vkz.VkzObjSaver;
 import com.vke.core.window.Window;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.GZIPOutputStream;
 
 public class Main {
 

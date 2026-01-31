@@ -1,11 +1,12 @@
 package com.vke.core.file.gzip;
 
-import com.vke.core.file.gzip.deflate.BitUtils;
-import com.vke.core.file.gzip.deflate.InflatingDevice;
-import com.vke.core.file.gzip.deflate.exc.InflatingException;
-import com.vke.core.file.gzip.io.bit.BitInputStream;
-import com.vke.core.file.gzip.io.bit.BitOrdering;
-import com.vke.core.file.gzip.io.bit.BitStreamUtils;
+import com.vke.core.file.deflate.BitUtils;
+import com.vke.core.file.deflate.InflatingDevice;
+import com.vke.core.file.deflate.check.Crc32;
+import com.vke.core.file.deflate.exc.InflatingException;
+import com.vke.core.file.io.bit.BitInputStream;
+import com.vke.core.file.io.bit.BitOrdering;
+import com.vke.core.file.io.bit.BitStreamUtils;
 
 import java.io.IOException;
 
@@ -24,12 +25,12 @@ public class GzipDecompressor {
     private int lastModified;
     private int os;
 
-    private long crc32;
-    private long isize;
+    private Crc32 crc32;
 
     public GzipDecompressor(BitInputStream stream) {
         this.stream = stream;
-        this.inflatingDevice = new InflatingDevice(stream);
+        this.crc32 = new Crc32();
+        this.inflatingDevice = new InflatingDevice(crc32, stream);
     }
 
     public void parseHeader() throws IOException {
@@ -76,9 +77,15 @@ public class GzipDecompressor {
 
     public void parseFooter() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
-        crc32 = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
-        isize = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
-        //i know that i would have to validate the data but cmon i cant be asked bruh
+        long crc32 = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
+        long isize = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
+
+        int deflateCrc32 = this.crc32.get();
+        long computedCrc32 = deflateCrc32 & 0xffffffffL;
+
+        if (computedCrc32 != crc32) {
+            throw new IOException(String.format("CRC32 mismatch: expected=%08x actual=%08x", crc32, computedCrc32));
+        }
     }
 
 
