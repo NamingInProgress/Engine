@@ -42,7 +42,7 @@ public class VkzArray<T> {
         int length = loader.loadShort();
         T[] actualArray = Arrays.copyOf(template, length);
         for (int i = 0; i < length; i++) {
-            actualArray[i] = Serializer.loadObject(elementClass, loader);
+            actualArray[i] = Serializer.loadObject(elementClass, loader, false);
         }
         this.elements = actualArray;
     }
@@ -51,7 +51,7 @@ public class VkzArray<T> {
         short length = (short) elements.length;
         saver.saveShort(length);
         for (int i = 0; i < length; i++) {
-            Serializer.saveObject(elements[i], saver);
+            Serializer.saveObject(elements[i], saver, true);
         }
     }
 }
