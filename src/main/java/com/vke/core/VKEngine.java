@@ -4,10 +4,13 @@ import com.vke.api.game.Game;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
+import com.vke.api.services.Service;
+import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
+import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import org.lwjgl.glfw.GLFW;
 
@@ -25,6 +28,8 @@ public class VKEngine {
     private final EngineCreateInfo createInfo;
 
     public VKEngine(EngineCreateInfo createInfo) {
+        Services.init();
+
         this.createInfo = createInfo;
         logger = LoggerFactory.get(VKEngine.class.getName());
         soutLogger = LoggerFactory.get(SOUT.TAG);
@@ -32,9 +37,14 @@ public class VKEngine {
         this.window = new Window(this, createInfo.windowCreateInfo);
         this.compiler = new ShaderCompiler();
 
-        this.renderer = new VulkanRenderer(this, createInfo, createInfo.vulkanCreateInfo.framesInFlight);
+        this.renderer = new VulkanRenderer(this, createInfo);
 
         GLFW.glfwShowWindow(this.window.getHandle());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Service> T service(String key) {
+        return (T) VKERegistries.SERVICES.get(key);
     }
 
     public void start(Game game) {

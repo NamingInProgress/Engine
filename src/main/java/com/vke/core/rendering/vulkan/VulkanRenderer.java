@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan;
 
 import com.vke.api.registry.VKERegistries;
+import com.vke.api.services.Service;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
@@ -15,7 +16,7 @@ import org.lwjgl.vulkan.*;
 
 import java.util.function.BiConsumer;
 
-public class VulkanRenderer implements Disposable {
+public class VulkanRenderer implements Disposable, Service {
     private static final int FENCE_TIMEOUT = 1000000000;
 
     private final VKEngine engine;
@@ -25,10 +26,10 @@ public class VulkanRenderer implements Disposable {
     private final int frameCount;
     private final int framesInFlight;
 
-    public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo, int framesInFlight) {
+    public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
         this.engine = engine;
         this.setup = new VulkanSetup(createInfo);
-        this.framesInFlight = framesInFlight;
+        this.framesInFlight = createInfo.vulkanCreateInfo.framesInFlight;
         setup.initVulkan(engine);
         VKERegistries.PIPELINES.makeVkPipelines(engine, setup);
         this.swapChain = setup.getSwapChain();
