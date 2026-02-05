@@ -3,6 +3,7 @@ package com.vke.core.rendering.buffer;
 import com.vke.api.vulkan.buffer.CpuBuffer;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 public class IndexBuffer extends CpuBuffer {
@@ -23,6 +24,8 @@ public class IndexBuffer extends CpuBuffer {
     public void put(int... indices) {
         ensureSpace(indices.length);
         data.put(indices);
+        elementCount += indices.length;
+        data.flip();
     }
 
     @Override

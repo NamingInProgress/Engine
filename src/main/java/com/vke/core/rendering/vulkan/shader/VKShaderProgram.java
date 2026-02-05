@@ -42,6 +42,9 @@ public class VKShaderProgram implements Disposable {
 
     @Override
     public void free() {
+        for (Shader s : shaders) {
+            s.free();
+        }
         alloc.close();
     }
 

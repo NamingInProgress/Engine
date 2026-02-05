@@ -4,6 +4,7 @@ import com.vke.api.vulkan.VkBitEnum;
 import com.vke.api.vulkan.VkEnum;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.VK14;
@@ -12,12 +13,14 @@ import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
-public class Shader {
+public class Shader implements Disposable {
 
     private final Type type;
     private final long handle;
+    private final LogicalDevice device;
 
     public Shader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, Type type) {
+        this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkShaderModuleCreateInfo shaderCreateInfo = VkShaderModuleCreateInfo.calloc(stack)
                     .sType$Default()
@@ -85,4 +88,8 @@ public class Shader {
         }
     }
 
+    @Override
+    public void free() {
+        VK14.vkDestroyShaderModule(device.getDevice(), handle, null);
+    }
 }

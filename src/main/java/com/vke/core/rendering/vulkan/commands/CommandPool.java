@@ -16,9 +16,9 @@ public class CommandPool implements Disposable {
     private final long handle;
     private LogicalDevice device;
 
-    private CommandBuffers buffers;
-
     public CommandPool(VKEngine engine, LogicalDevice device, VulkanQueue.Type type) {
+        this.device = device;
+
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandPoolCreateInfo poolCreateInfo = VkCommandPoolCreateInfo.calloc(stack)
                     .sType$Default()
@@ -39,7 +39,6 @@ public class CommandPool implements Disposable {
 
     @Override
     public void free() {
-        buffers.free();
         VK14.vkDestroyCommandPool(device.getDevice(), handle, null);
     }
 }

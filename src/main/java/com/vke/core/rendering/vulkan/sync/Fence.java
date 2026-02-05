@@ -29,6 +29,14 @@ public class Fence implements Disposable {
 
     public long getHandle() { return this.handle; }
 
+    public void waitForFence(MemoryStack stack, VKEngine engine, LogicalDevice device, int time) {
+        waitForFences(stack, engine, device, new Fence[]{this}, true, time);
+    }
+
+    public void reset(MemoryStack stack, VKEngine engine, LogicalDevice device) {
+        resetFences(stack, engine, device, new Fence[]{this});
+    }
+
     /** BUILDER **/
     public static VkFenceCreateInfo getDefaultCreateInfo(MemoryStack stack) {
         VkFenceCreateInfo info = VkFenceCreateInfo.calloc(stack);

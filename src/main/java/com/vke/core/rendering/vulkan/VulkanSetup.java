@@ -56,8 +56,7 @@ public class VulkanSetup implements Disposable {
     private Frame[] frames;
     private long allocator;
 
-    private CommandPool immediatePool;
-    private CommandBuffers immediateBuffers;
+    private ImmediateFrame immediateFrame;
 
     public VulkanSetup(EngineCreateInfo engineCreateInfo) {
         this.engineCreateInfo = engineCreateInfo;
@@ -155,8 +154,7 @@ public class VulkanSetup implements Disposable {
             Vma.vmaCreateAllocator(vmaInfo, pVmaAlloc);
             allocator = pVmaAlloc.get(0);
 
-            this.immediatePool = new CommandPool(engine, logicalDevice, VulkanQueue.Type.GRAPHICS);
-            this.immediateBuffers = new CommandBuffers(engine, this.immediatePool, logicalDevice, 1);
+            this.immediateFrame = new ImmediateFrame(engine, logicalDevice);
         } catch (Exception e) {
             engine.throwException(e, HERE);
         }
@@ -166,11 +164,13 @@ public class VulkanSetup implements Disposable {
     public void free() {
         Arrays.stream(frames).forEach(Frame::free);
         VKERegistries.PIPELINES.freeVkPipelines();
+        swapChain.free();
+        KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
+        this.immediateFrame.free();
+        logicalDevice.free();
         if (debugMessenger != VK14.VK_NULL_HANDLE) {
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         }
-        KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
-        EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
         Vma.vmaDestroyAllocator(allocator);
@@ -395,11 +395,5 @@ public class VulkanSetup implements Disposable {
 
     public long getVmaAllocator() { return this.allocator; }
 
-    public CommandPool getImmediatePool() {
-        return immediatePool;
-    }
-
-    public CommandBuffers getImmediateBuffers() {
-        return immediateBuffers;
-    }
+    public ImmediateFrame getImmediateFrame() { return this.immediateFrame; }
 }

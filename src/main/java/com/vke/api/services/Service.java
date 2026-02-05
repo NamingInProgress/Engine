@@ -1,4 +1,31 @@
 package com.vke.api.services;
 
-public interface Service {
+import java.util.List;
+import com.vke.utils.Disposable;
+
+public abstract class Service implements Disposable {
+    protected String id;
+    private List<String> depCache;
+
+    protected Service(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Service s)) return false;
+        return s.id.equals(id);
+    }
+
+    protected abstract List<String> dependencies();
+
+    public List<String> getDependencies() {
+        if (depCache == null) depCache = dependencies();
+        return depCache;
+    }
 }

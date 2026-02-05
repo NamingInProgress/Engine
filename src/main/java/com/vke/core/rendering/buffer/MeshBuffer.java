@@ -2,6 +2,8 @@ package com.vke.core.rendering.buffer;
 
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.buffer.AllocatedBuffer;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
@@ -19,9 +21,10 @@ public class MeshBuffer<T extends Vertex> {
 
     private MeshBuffer() {}
 
-    public static <T extends Vertex> MeshBuffer<T> uploadOnce(VKEngine engine, VulkanSetup setup, T[] vertices, int[] indices) {
+    public static <T extends Vertex> MeshBuffer<T> uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
+        VulkanSetup setup = renderer.getSetup();
         if (vertices.length == 0) {
-            engine.throwException(new IllegalStateException("Bro really tried to upload nothing"), "MeshBuffer");
+            engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }
         try(MemoryStack stack = MemoryStack.stackPush()) {
             MeshBuffer<T> self = new MeshBuffer<>();
@@ -39,10 +42,13 @@ public class MeshBuffer<T extends Vertex> {
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
             self.vertices = new AllocatedBuffer(engine, setup, vbo, vertexBufUsage, vertexMemUsage);
+            if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "Verts", self.vertices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
+                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
+            }
 
             VkBufferDeviceAddressInfo deviceAddressInfo = VkBufferDeviceAddressInfo.calloc(stack)
                     .sType$Default()
-                    .buffer(self.vertices.getMappedBuffer().getBuffer());
+                    .buffer(self.vertices.getGpuBuffer().getBuffer());
 
             VkDevice device = setup.getLogicalDevice().getDevice();
 
@@ -60,11 +66,26 @@ public class MeshBuffer<T extends Vertex> {
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
             self.indices = new AllocatedBuffer(engine, setup, ibo, indexBufUsage, indexMemUsage);
+            if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "IDX", self.indices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
+                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
+            }
 
             self.vertices.uploadViaStaging(engine, setup);
             self.indices.uploadViaStaging(engine, setup);
 
             return self;
         }
+    }
+
+    public AllocatedBuffer getVerticesBuf() {
+        return vertices;
+    }
+
+    public AllocatedBuffer getIndicesBuf() {
+        return indices;
+    }
+
+    public long verticesDeviceAddress() {
+        return verticesDeviceAddress;
     }
 }

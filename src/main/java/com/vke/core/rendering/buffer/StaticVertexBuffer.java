@@ -9,7 +9,7 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T template;
 
     public StaticVertexBuffer(T template, List<T> vertices) {
-        super(vertices.size());
+        super(vertices.size(), template.getByteStride());
 
         this.template = template;
 
@@ -17,6 +17,7 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
             elementCount++;
             putVertex(v);
         }
+        data.flip();
     }
 
     private void putVertex(T v) {

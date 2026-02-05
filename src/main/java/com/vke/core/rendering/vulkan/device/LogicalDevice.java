@@ -66,7 +66,9 @@ public class LogicalDevice implements Disposable {
             if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_COMPUTE_BIT)) {
                 queueIndices.put(Type.COMPUTE, i);
             }
-
+            if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_TRANSFER_BIT)) {
+                queueIndices.put(Type.TRANSFER, i);
+            }
         }
 
         if (!queueIndices.containsKey(Type.PRESENT)) {

@@ -16,6 +16,7 @@ import org.lwjgl.vulkan.*;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class GraphicsPipeline implements Disposable {
     private static String HERE = "GraphicsPipeline";
@@ -108,7 +109,7 @@ public class GraphicsPipeline implements Disposable {
             }
 
 
-            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pc());
+            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pushConstants());
             this.layout = pipelineLayout;
 
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
@@ -175,6 +176,7 @@ public class GraphicsPipeline implements Disposable {
 
     @Override
     public void free() {
+        layout.free();
         VK14.vkDestroyPipeline(device.getDevice(), handle, null);
     }
 
@@ -205,7 +207,7 @@ public class GraphicsPipeline implements Disposable {
 
             // Shaders
             VKShaderProgram shader,
-            PushConstantsDefinition[] pc
+            LinkedHashMap<String, PushConstantsDefinition> pushConstants
     ) {}
 
 }

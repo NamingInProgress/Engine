@@ -54,6 +54,7 @@ public class Frame implements Disposable {
         swapChainSemaphore.free();
         renderSemaphore.free();
         renderFence.free();
+        buffers.free();
         pool.free();
     }
 

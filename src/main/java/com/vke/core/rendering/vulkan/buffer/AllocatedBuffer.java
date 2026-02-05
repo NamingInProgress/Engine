@@ -6,13 +6,15 @@ import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.core.services.Services;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
-public class AllocatedBuffer {
+public class AllocatedBuffer implements Disposable {
     private final GpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
 
@@ -39,7 +41,7 @@ public class AllocatedBuffer {
         long cpuAddress = cpuBuffer.getAddress();
         MemoryUtil.memCopy(cpuAddress, gpuAddress, size);
 
-        VulkanRenderer renderer = engine.getRenderer();
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
         renderer.immediateSubmit((MemoryStack stack, CommandBuffers vkeCmd) -> {
             VkCommandBuffer cmd = vkeCmd.getBuffer();
 
@@ -55,11 +57,18 @@ public class AllocatedBuffer {
         staging.free();
     }
 
-    public GpuBuffer getMappedBuffer() {
+    public GpuBuffer getGpuBuffer() {
         return gpuBuffer;
     }
 
-    public CpuBuffer getBuffer() {
+    public CpuBuffer getCpuBuffer() {
         return cpuBuffer;
     }
+
+    @Override
+    public void free() {
+        cpuBuffer.free();
+        gpuBuffer.free();
+    }
+
 }

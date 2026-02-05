@@ -1,16 +1,20 @@
 package com.vke.core.rendering.vulkan.shader;
 
+import com.vke.api.services.Service;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.utils.Disposable;
+import com.vke.core.services.Services;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.util.shaderc.Shaderc;
 
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
-public class ShaderCompiler implements Disposable {
+public class ShaderCompiler extends Service {
     private long compiler;
 
     public ShaderCompiler() {
+        super(Services.SHADER_COMPILER);
         compiler = Shaderc.shaderc_compiler_initialize();
     }
 
@@ -49,4 +53,10 @@ public class ShaderCompiler implements Disposable {
     public void free() {
         Shaderc.shaderc_compiler_release(compiler);
     }
+
+    @Override
+    public List<String> dependencies() {
+        return Collections.emptyList();
+    }
+
 }

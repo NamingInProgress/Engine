@@ -13,6 +13,7 @@ import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
+import com.vke.core.services.Services;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
@@ -20,10 +21,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkStencilOpState;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class RenderPipeline implements Disposable {
@@ -31,6 +29,8 @@ public class RenderPipeline implements Disposable {
     private final RenderPipelineBuilder builder;
 
     private GraphicsPipeline graphicsPipeline;
+
+    private VKShaderProgram shader;
 
     private RenderPipeline(RenderPipelineBuilder builder) {
         this.builder = builder;
@@ -72,11 +72,11 @@ public class RenderPipeline implements Disposable {
 
         Shader[] shaders = new Shader[0];
         try {
-            shaders = builder.shader.getShaderArray(engine, vkSetup.getLogicalDevice(), engine.getCompiler());
+            shaders = builder.shader.getShaderArray(engine, vkSetup.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
         } catch (Exception e) {
             engine.throwException(e, "Render Pipeline -> Shader Creation");
         }
-        VKShaderProgram shader = new VKShaderProgram(shaders);
+        shader = new VKShaderProgram(shaders);
 
         GraphicsPipeline.PipelineSettingsInfo pipelineSettingsInfo =
                 new GraphicsPipeline.PipelineSettingsInfo(
@@ -106,7 +106,7 @@ public class RenderPipeline implements Disposable {
 
                         // Shaders
                         shader,
-                        builder.pushConstants.toArray(PushConstantsDefinition[]::new)
+                        builder.pushConstants
                 );
 
         graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
@@ -126,9 +126,15 @@ public class RenderPipeline implements Disposable {
         return Set.copyOf(builder.dynamicStates);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends PushConstantsDefinition> T getPushConstant(String key) {
+        return (T) getGraphicsPipeline().getPipelineLayout().getPushConst(key);
+    }
+
     @Override
     public void free() {
-        graphicsPipeline.free();
+        if (shader != null) shader.free();
+        if (graphicsPipeline != null) graphicsPipeline.free();
     }
 
     /**  Logger  **/
@@ -179,7 +185,7 @@ public class RenderPipeline implements Disposable {
 
         // Shader
         ShaderProgram shader;
-        ArrayList<PushConstantsDefinition> pushConstants = new ArrayList<>();
+        LinkedHashMap<String, PushConstantsDefinition> pushConstants = new LinkedHashMap();
 
         public RenderPipelineBuilder(Identifier key) {
             super(key);
@@ -283,8 +289,8 @@ public class RenderPipeline implements Disposable {
             return this;
         }
 
-        public RenderPipelineBuilder addPushConstants(PushConstantsDefinition pc) {
-            this.pushConstants.add(pc);
+        public RenderPipelineBuilder addPushConstants(String key, PushConstantsDefinition pc) {
+            this.pushConstants.put(key, pc);
             return this;
         }
     }

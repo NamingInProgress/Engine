@@ -12,10 +12,21 @@ public abstract class CpuBuffer implements Disposable {
         this(baseCap, true);
     }
 
+    public CpuBuffer(int baseCap, int stride) {
+        this(baseCap, true, stride);
+    }
+
     public CpuBuffer(int baseCap, boolean allocateNow) {
         capacity = baseCap;
         if (allocateNow) {
             alloc(baseCap * getByteStride());
+        }
+    }
+
+    public CpuBuffer(int baseCap, boolean allocateNow, int stride) {
+        capacity = baseCap;
+        if (allocateNow) {
+            alloc(baseCap * stride);
         }
     }
 

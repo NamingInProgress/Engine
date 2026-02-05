@@ -9,10 +9,13 @@ import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
-import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
+import com.vke.utils.Disposable;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class VKEngine {
     private final Logger logger;
@@ -20,14 +23,15 @@ public class VKEngine {
 
     private final Window window;
 
-    private final VulkanRenderer renderer;
-    private final ShaderCompiler compiler;
-
     public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
+    private final ServiceCreateContext scc;
 
     private final EngineCreateInfo createInfo;
 
+    private final Set<Service> loadedServices = new HashSet<>();
+
     public VKEngine(EngineCreateInfo createInfo) {
+        scc = new ServiceCreateContext(this, createInfo);
         Services.init();
 
         this.createInfo = createInfo;
@@ -35,25 +39,31 @@ public class VKEngine {
         soutLogger = LoggerFactory.get(SOUT.TAG);
         SOUT.redirect(soutLogger);
         this.window = new Window(this, createInfo.windowCreateInfo);
-        this.compiler = new ShaderCompiler();
-
-        this.renderer = new VulkanRenderer(this, createInfo);
 
         GLFW.glfwShowWindow(this.window.getHandle());
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Service> T service(String key) {
-        return (T) VKERegistries.SERVICES.get(key);
+        Service s = VKERegistries.SERVICES.get(key, scc);
+        if (s == null) {
+            logger.error("Tried to access service \"%s\", but it wasn't registered!", key);
+            return null;
+        }
+        loadedServices.add(s);
+        s.getDependencies().forEach(this::service);
+
+        return (T) s;
     }
 
     public void start(Game game) {
         game.onInit(this);
 
+        VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            renderer.draw();
-
-            game.onDraw(window);
+            VulkanRenderer.FrameData bfd = renderer.setupFrame();
+            game.onDraw(window, bfd);
+            renderer.endFrame(bfd);
 
             GLFW.glfwPollEvents();
         }
@@ -68,7 +78,7 @@ public class VKEngine {
 
     private void free() {
         window.close();
-        this.compiler.free();
+        loadedServices.forEach(Disposable::free);
     }
     public Window getWindow() {
         return this.window;
@@ -76,8 +86,6 @@ public class VKEngine {
     public Logger getLogger() {
         return logger;
     }
-    public ShaderCompiler getCompiler() { return this.compiler; }
-    public VulkanRenderer getRenderer() { return renderer; }
 
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }
 

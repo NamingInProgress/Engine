@@ -85,6 +85,12 @@ public class CommandBuffers implements Disposable {
         VK14.vkCmdBeginRendering(vk, info);
     }
 
+    public void startRecordingImmediate(MemoryStack stack) {
+        VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
+                .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        VK14.vkBeginCommandBuffer(this.vk, beginInfo);
+    }
+
     public void endRecording(SwapChain swapChain) {
         VK14.vkCmdEndRendering(vk);
 
@@ -98,6 +104,10 @@ public class CommandBuffers implements Disposable {
                 VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT
         );
 
+        VK14.vkEndCommandBuffer(vk);
+    }
+
+    public void endRecordingImmediate() {
         VK14.vkEndCommandBuffer(vk);
     }
 
@@ -115,13 +125,13 @@ public class CommandBuffers implements Disposable {
 
     public void setPushConstants(RenderPipeline pipeline, MemoryStack stack) {
         PipelineLayout layout = pipeline.getGraphicsPipeline().getPipelineLayout();
-        for (PushConstantsDefinition pc : layout.getPushConstants()) {
+        layout.getPushConstants().forEach((k, v) -> {
             VK14.vkCmdPushConstants(this.getBuffer(),
                     layout.getHandle(),
-                    pc.getAplicableStages().getVkHandle(),
-                    pc.getOffset(),
-                    pc.getBytes(stack));
-        }
+                    v.getAplicableStages().getVkHandle(),
+                    v.getOffset(),
+                    v.getBytes(stack));
+        });
     }
 
     public void setViewport(int firstViewport, VkViewport.Buffer buffer) {
