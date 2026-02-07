@@ -26,7 +26,7 @@ public class Viewport {
         this.maxDepth = maxDepth;
     }
 
-    public void use(VulkanRenderer.FrameData data) {
+    public Viewport use(VulkanRenderer.FrameData data) {
         MemoryStack stack = data.getStack();
         SwapChain swapChain = data.swapChain();
         CommandBuffers cmd = data.cmd();
@@ -36,9 +36,20 @@ public class Viewport {
 
         VkViewport.Buffer viewportBuffer = VkViewport.calloc(1, stack);
         viewportBuffer.get(0)
-                .set(x, y, width, height, minDepth, maxDepth);
+                .set(x, height, width, -height, minDepth, maxDepth);
 
 
         cmd.setViewport(0, viewportBuffer);
+        this.w = width;
+        this.h = height;
+        return this;
+    }
+
+    public int width() {
+        return w;
+    }
+
+    public int height() {
+        return h;
     }
 }

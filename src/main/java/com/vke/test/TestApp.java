@@ -1,6 +1,7 @@
 package com.vke.test;
 
-import com.vke.api.game.Game;
+import com.vke.api.app.App;
+import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.MeshBuffer;
@@ -11,29 +12,36 @@ import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
+import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.util.Random;
 
-public class TestApp extends Game {
-    private MeshBuffer<VertexFormat> mesh;
+public class TestApp extends App {
+    private MeshBuffer mesh;
 
     @Override
     public void onInit(VKEngine engine) {
         VertexFormat[] vertices = new VertexFormat[]{
-                new VertexFormat(-1, -1, 0, 0, 1, 1, 1),
-                new VertexFormat(0, 1, 0, 1, 0, 1, 1),
-                new VertexFormat(1, -1, 0, 1, 1, 0, 1)
+                //new VertexFormat(-1,  1, 0, 1, 0, 0, 1), // top-left (red)
+                //new VertexFormat( 1,  1, 0, 0, 1, 0, 1), // top-right (green)
+                //new VertexFormat(-1, -1, 0, 0, 0, 1, 1), // bottom-left (blue)
+                //new VertexFormat( 1, -1, 0, 1, 1, 0, 1)  // bottom-right (yellow)
+
+                new VertexFormat(0, 0, 0.1f, 1, 0, 0, 1),
+                new VertexFormat(255, 0, 0.1f, 0, 1, 0, 1),
+                new VertexFormat(255, 255, 0.1f, 0, 0, 1, 1),
+                new VertexFormat(0, 255, 0.1f, 1, 1, 0, 1)
 
                 /*
-                  1
-                 / \
-                0 - 2
+                  1    1 - 2
+                 / \   |   |
+                0 - 2  0 - 3
                  */
         };
-        mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2});
+        mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
     }
 
     @Override
@@ -43,17 +51,26 @@ public class TestApp extends Game {
         cmd.bindRenderPipeline(RenderPipelines.IDK);
 
         new Scissor().use(fd);
-        new Viewport().use(fd);
+        Viewport wp = new Viewport().use(fd);
+
+        Matrix4f mat = new Matrix4f();
+        mat.setOrtho(0, wp.width(), 0, wp.height(), -10, 100);
 
         TestPushConstant pc = RenderPipelines.IDK.getPushConstant("vertexBufferPtr");
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
+        pc.setMat(mat);
 
         cmd.setPushConstants(RenderPipelines.IDK, stack);
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
-        VK14.vkCmdDrawIndexed(cmd.getBuffer(), 3, 1, 0, 0, 0);
+        VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
         //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
+    }
+
+    @Override
+    public void free() {
+        mesh.free();
     }
 
     private static class VertexFormat implements Vertex {
@@ -72,19 +89,14 @@ public class TestApp extends Game {
 
         @Override
         public int getByteStride() {
-            return Float.BYTES * 7;
+            return Float.BYTES * 8;
         }
 
         @Override
         public void putSelf(ByteBuffer buf) {
-            buf.putFloat(x);
-            buf.putFloat(y);
-            buf.putFloat(z);
-
-            buf.putFloat(r);
-            buf.putFloat(g);
-            buf.putFloat(b);
-            buf.putFloat(a);
+            AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
+            abb.float3(x, y, z);
+            abb.float4(r, g, b, a);
         }
     }
 }

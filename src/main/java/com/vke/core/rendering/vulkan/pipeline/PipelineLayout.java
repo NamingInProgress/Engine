@@ -35,7 +35,7 @@ public class PipelineLayout implements Disposable {
 
                 pushConstantsBuffer.get(i)
                         .offset(v.getOffset())
-                        .size(v.getSize())
+                        .size(v.getSize(PushConstantsDefinition.ALIGN))
                         .stageFlags(v.getAplicableStages().getVkHandle());
             });
 

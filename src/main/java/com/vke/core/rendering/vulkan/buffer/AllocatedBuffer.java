@@ -52,9 +52,7 @@ public class AllocatedBuffer implements Disposable {
                     .dstOffset(0);
 
             VK14.vkCmdCopyBuffer(cmd, staging.getBuffer(), gpuBuffer.getBuffer(), pRegions);
-        });
-
-        staging.free();
+        }, staging::free);
     }
 
     public GpuBuffer getGpuBuffer() {

@@ -126,4 +126,10 @@ public class Utils {
         return opt;
     }
 
+    public static void printBuffer(ByteBuffer buf) {
+        for (int i = 0; i < buf.limit(); i++) {
+            System.out.println("Element at " + i + " is " + buf.get(i));
+        }
+    }
+
 }

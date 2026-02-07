@@ -1,10 +1,11 @@
-package com.vke.api.game;
+package com.vke.api.app;
 
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.window.Window;
+import com.vke.utils.Disposable;
 
-public abstract class Game {
+public abstract class App implements Disposable {
     public abstract void onInit(VKEngine engine);
     public abstract void onDraw(Window window, VulkanRenderer.FrameData fd);
 }

@@ -7,6 +7,7 @@ import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.buffer.AllocatedBuffer;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferDeviceAddressInfo;
@@ -14,20 +15,20 @@ import org.lwjgl.vulkan.VkDevice;
 
 import java.util.Arrays;
 
-public class MeshBuffer<T extends Vertex> {
+public class MeshBuffer implements Disposable {
     private AllocatedBuffer vertices;
     private AllocatedBuffer indices;
     private long verticesDeviceAddress;
 
     private MeshBuffer() {}
 
-    public static <T extends Vertex> MeshBuffer<T> uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
+    public static <T extends Vertex> MeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
         VulkanSetup setup = renderer.getSetup();
         if (vertices.length == 0) {
             engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            MeshBuffer<T> self = new MeshBuffer<>();
+            MeshBuffer self = new MeshBuffer();
 
             T template = vertices[0];
 
@@ -87,5 +88,15 @@ public class MeshBuffer<T extends Vertex> {
 
     public long verticesDeviceAddress() {
         return verticesDeviceAddress;
+    }
+
+    public int getIndexCount() {
+        return indices.getCpuBuffer().elementCount;
+    }
+
+    @Override
+    public void free() {
+        this.vertices.free();
+        this.indices.free();
     }
 }

@@ -162,6 +162,7 @@ public class VulkanSetup implements Disposable {
 
     @Override
     public void free() {
+        Vma.vmaDestroyAllocator(allocator);
         Arrays.stream(frames).forEach(Frame::free);
         VKERegistries.PIPELINES.freeVkPipelines();
         swapChain.free();
@@ -173,7 +174,6 @@ public class VulkanSetup implements Disposable {
         }
         VK14.vkDestroyInstance(instance, null);
         if (alloc != null) alloc.close();
-        Vma.vmaDestroyAllocator(allocator);
     }
 
     private void setupDebugMessenger(VkInstance instance, VKEngine engine) {
@@ -265,6 +265,7 @@ public class VulkanSetup implements Disposable {
         score += limits.maxImageDimension2D();
         score += limits.maxColorAttachments() * 10;
         score += limits.maxBoundDescriptorSets() * 10;
+        score += limits.maxPushConstantsSize() * 5;
 
         return score;
     }

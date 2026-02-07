@@ -66,6 +66,7 @@ public class GpuBuffer implements Disposable {
 
     @Override
     public void free() {
+        //Vma.vmaFreeMemory(allocator, allocation);
         Vma.vmaDestroyBuffer(allocator, buffer, allocation);
         info.free();
     }

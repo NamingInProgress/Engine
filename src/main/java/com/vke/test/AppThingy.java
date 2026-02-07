@@ -1,6 +1,6 @@
 package com.vke.test;
 
-import com.vke.api.game.Game;
+import com.vke.api.app.App;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
@@ -11,7 +11,7 @@ import com.vke.core.window.Window;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
-public class AppThingy extends Game {
+public class AppThingy extends App {
     @Override
     public void onInit(VKEngine engine) {
 
@@ -28,5 +28,10 @@ public class AppThingy extends Game {
         new Viewport().use(fd);
 
         VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
+    }
+
+    @Override
+    public void free() {
+
     }
 }

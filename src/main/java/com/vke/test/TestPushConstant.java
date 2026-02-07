@@ -1,21 +1,24 @@
 package com.vke.test;
 
+import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.rendering.vulkan.shader.Shader;
-import org.lwjgl.system.MemoryStack;
+import org.joml.Matrix4f;
 
 import java.nio.ByteBuffer;
 
 public class TestPushConstant extends PushConstantsDefinition {
     private long verticesPtr;
+    private Matrix4f mat;
 
     public void setVerticesPtr(long ptr) {
         this.verticesPtr = ptr;
     }
+    public void setMat(Matrix4f mat) { this.mat = mat; }
 
     @Override
-    public int getSize() {
-        return 8;
+    public int size() {
+        return alignCorrectly(t_ptr() + t_mat4());
     }
 
     @Override
@@ -29,7 +32,10 @@ public class TestPushConstant extends PushConstantsDefinition {
     }
 
     @Override
-    public ByteBuffer getBytes(MemoryStack stack) {
-        return stack.calloc(getSize()).putLong(verticesPtr).flip();
+    public ByteBuffer getBytes(AlignedByteBuffer buf) {
+        buf.long1(verticesPtr);
+        buf.float4x4(mat);
+
+        return buf.getBuffer().flip();
     }
 }

@@ -85,6 +85,10 @@ public class VulkanRenderer extends Service {
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, CommandBuffers> consumer) {
+        this.immediateSubmit(consumer, () -> {});
+    }
+
+    public void immediateSubmit(BiConsumer<MemoryStack, CommandBuffers> consumer, Runnable finisher) {
         ImmediateFrame f = setup.getImmediateFrame();
         CommandBuffers icmd = f.getBuffers();
 
@@ -103,6 +107,7 @@ public class VulkanRenderer extends Service {
 
             //wait for fence
             fence.waitForFence(stack, engine, setup.getLogicalDevice(), FENCE_TIMEOUT);
+            finisher.run();
         }
     }
 
@@ -110,9 +115,11 @@ public class VulkanRenderer extends Service {
 
     @Override
     public void free() {
-        VK14.vkDeviceWaitIdle(setup.getLogicalDevice().getDevice());
-
         setup.free();
+    }
+
+    public void waitIdle() {
+        VK14.vkDeviceWaitIdle(setup.getLogicalDevice().getDevice());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.commands;
 
+import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
@@ -126,11 +127,13 @@ public class CommandBuffers implements Disposable {
     public void setPushConstants(RenderPipeline pipeline, MemoryStack stack) {
         PipelineLayout layout = pipeline.getGraphicsPipeline().getPipelineLayout();
         layout.getPushConstants().forEach((k, v) -> {
+            int size = v.getSize(PushConstantsDefinition.ALIGN);
+            AlignedByteBuffer buf = new AlignedByteBuffer(stack.calloc(size), PushConstantsDefinition.ALIGN);
             VK14.vkCmdPushConstants(this.getBuffer(),
                     layout.getHandle(),
                     v.getAplicableStages().getVkHandle(),
                     v.getOffset(),
-                    v.getBytes(stack));
+                    v.getBytes(buf));
         });
     }
 

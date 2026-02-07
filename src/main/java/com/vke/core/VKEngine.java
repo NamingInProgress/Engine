@@ -1,6 +1,6 @@
 package com.vke.core;
 
-import com.vke.api.game.Game;
+import com.vke.api.app.App;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
@@ -13,6 +13,7 @@ import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.vulkan.VK14;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,8 @@ public class VKEngine {
     private final Logger soutLogger;
 
     private final Window window;
+
+    private App app;
 
     public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
     private final ServiceCreateContext scc;
@@ -56,18 +59,21 @@ public class VKEngine {
         return (T) s;
     }
 
-    public void start(Game game) {
-        game.onInit(this);
+    public void start(App app) {
+        this.app = app;
+        app.onInit(this);
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
             VulkanRenderer.FrameData bfd = renderer.setupFrame();
-            game.onDraw(window, bfd);
+            app.onDraw(window, bfd);
             renderer.endFrame(bfd);
 
             GLFW.glfwPollEvents();
         }
 
+        // TODO: Fix me
+        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).waitIdle();
         free();
     }
 
@@ -77,6 +83,7 @@ public class VKEngine {
     }
 
     private void free() {
+        app.free();
         window.close();
         loadedServices.forEach(Disposable::free);
     }

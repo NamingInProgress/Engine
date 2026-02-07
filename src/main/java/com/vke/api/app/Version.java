@@ -1,4 +1,4 @@
-package com.vke.api.game;
+package com.vke.api.app;
 
 import org.lwjgl.vulkan.VK14;
 

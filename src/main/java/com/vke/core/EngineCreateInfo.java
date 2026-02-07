@@ -1,6 +1,6 @@
 package com.vke.core;
 
-import com.vke.api.game.Version;
+import com.vke.api.app.Version;
 import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.api.window.WindowCreateInfo;
 
