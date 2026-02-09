@@ -1,7 +1,10 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.device;
 
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.rendering.vulkan.frame.Frame;
+import com.vke.core.rendering.vulkan.frame.ImmediateFrame;
 import com.vke.core.rendering.vulkan.sync.Semaphore;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

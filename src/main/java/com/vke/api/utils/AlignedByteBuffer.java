@@ -2,6 +2,7 @@ package com.vke.api.utils;
 
 import org.joml.*;
 
+import java.lang.Math;
 import java.nio.ByteBuffer;
 
 public class AlignedByteBuffer {
@@ -18,11 +19,13 @@ public class AlignedByteBuffer {
     }
 
     private void align(int sizeUsed) {
-        int toFill = sizeUsed % minAlign;
+        int toFill = (minAlign - (sizeUsed % minAlign)) % minAlign;
         if (toFill > 0) {
+            toFill = Math.min(toFill, buf.remaining());
             buf.put(new byte[toFill]);
         }
     }
+
 
     // -------------------- Scalars --------------------
     public void float1(float v) {

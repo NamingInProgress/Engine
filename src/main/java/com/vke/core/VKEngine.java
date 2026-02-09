@@ -13,7 +13,6 @@ import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.vulkan.VK14;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,9 +32,12 @@ public class VKEngine {
 
     private final Set<Service> loadedServices = new HashSet<>();
 
+    private boolean vsync;
+
     public VKEngine(EngineCreateInfo createInfo) {
         scc = new ServiceCreateContext(this, createInfo);
         Services.init();
+        vsync = createInfo.vsync;
 
         this.createInfo = createInfo;
         logger = LoggerFactory.get(VKEngine.class.getName());
@@ -65,11 +67,23 @@ public class VKEngine {
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            VulkanRenderer.FrameData bfd = renderer.setupFrame();
-            app.onDraw(window, bfd);
-            renderer.endFrame(bfd);
+            boolean recreate = false;
+            if (!window.isMinimized()) {
+                VulkanRenderer.FrameData bfd = renderer.setupFrame();
+                if (bfd == null || renderer.resizeRequested) {
+                    recreate = true;
+                } else {
+                    app.onDraw(window, bfd);
+                    renderer.endFrame(bfd);
+                    recreate |= renderer.resizeRequested;
+                }
+            }
 
             GLFW.glfwPollEvents();
+
+            if (recreate) {
+                renderer.recreate(vsync);
+            }
         }
 
         // TODO: Fix me

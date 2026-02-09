@@ -4,8 +4,10 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.test.TestApp;
+import org.lwjgl.vulkan.VK14;
 
 public class Main {
 
@@ -79,6 +81,7 @@ public class Main {
 
         //System.exit(0);
         //Thread.sleep(5000);
+
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");

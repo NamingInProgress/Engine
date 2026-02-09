@@ -6,7 +6,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.VulkanQueue;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.rendering.vulkan.sync.Semaphore;
@@ -34,6 +34,7 @@ public class SwapChain implements Disposable {
     private ArrayList<ImageView> imageViews = new ArrayList<>();
     private ArrayList<Image> images = new ArrayList<>();
 
+    private boolean dontFreeAlloc;
     private int usedColorFormat;
 
     private final AutoHeapAllocator alloc;
@@ -117,23 +118,22 @@ public class SwapChain implements Disposable {
         return swapChainCreateInfo;
     }
 
-    public void recreate(boolean vsync, int width, int height) {
-        this.imageViews.clear();
-        this.images.clear();
-
+    public void recreate(boolean vsync) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            VkExtent2D extent = VkExtent2D.malloc(stack);
-            extent.width(width);
-            extent.height(height);
+            dontFreeAlloc = true;
+            free();
+            dontFreeAlloc = false;
 
-            VkSwapchainCreateInfoKHR swapChainCreateInfo = VkSwapchainCreateInfoKHR.calloc(stack)
-                    .imageExtent(extent)
-                    .presentMode(pickPresentMode(vsync))
-                    .oldSwapchain(this.swapChainHandle);
+            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.physicalDevice.getDevice(), info.surface, capabilities);
+
+            images.clear();
+            imageViews.clear();
+
+            int mode = pickPresentMode(vsync);
+            VkSwapchainCreateInfoKHR swapChainCreateInfo = getSwapChainCreateInfo(stack, info.logicalDevice, formats, modes, capabilities);
+            swapChainCreateInfo.presentMode(mode);
 
             createSwapChain(stack, info.logicalDevice, swapChainCreateInfo);
-
-            initImages(stack, info.logicalDevice);
         }
     }
 
@@ -233,7 +233,10 @@ public class SwapChain implements Disposable {
                 .semaphore(semaphore.getHandle())
                 .sType$Default();
         IntBuffer pNextImageIndex = stack.mallocInt(1);
-        KHRSwapchain.vkAcquireNextImage2KHR(info.logicalDevice.getDevice(), acquireInfo, pNextImageIndex);
+        int VK_RESULT = KHRSwapchain.vkAcquireNextImage2KHR(info.logicalDevice.getDevice(), acquireInfo, pNextImageIndex);
+        if (VK_RESULT != VK14.VK_SUCCESS) {
+            return ~VK_RESULT;
+        }
         currentImageIndex = pNextImageIndex.get(0);
         return currentImageIndex;
     }
@@ -251,7 +254,9 @@ public class SwapChain implements Disposable {
 
     @Override
     public void free() {
-        alloc.close();
+        if (!dontFreeAlloc) {
+            alloc.close();
+        }
         KHRSwapchain.vkDestroySwapchainKHR(info.logicalDevice.getDevice(), swapChainHandle, null);
         this.imageViews.forEach(ImageView::free);
     }

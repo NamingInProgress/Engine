@@ -1,10 +1,13 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
+import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.cursors.ObjectIntCursor;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.rendering.vulkan.descriptor.*;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
@@ -17,6 +20,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class GraphicsPipeline implements Disposable {
     private static String HERE = "GraphicsPipeline";
@@ -26,11 +30,44 @@ public class GraphicsPipeline implements Disposable {
     private VKEngine engine;
     private SwapChain swapChain;
     private PipelineLayout layout;
+    private List<DescriptorSetLayout> descriptorSetLayouts = new ArrayList<>();
+    private List<DescriptorSet> descriptorSets;
+
+    private DescriptorAllocator descAlloc;
 
     public GraphicsPipeline(PipelineCreateInfo createInfo, PipelineSettingsInfo pipelineSettingsInfo) {
         this.device = createInfo.device;
         this.engine = createInfo.engine;
         this.swapChain = createInfo.swapChain;
+
+        pipelineSettingsInfo.layouts.forEach(layout -> {
+            descriptorSetLayouts.add(layout.build(engine, device));
+        });
+
+        List<DescriptorPool.Ratio> ratios = new ArrayList<>();
+        ObjectIntHashMap<DescriptorType> allCounts = new ObjectIntHashMap<>();
+        for (DescriptorSetLayout layout : descriptorSetLayouts) {
+            for (ObjectIntCursor<DescriptorType> cur : layout.typeCounts()) {
+                allCounts.addTo(cur.key, cur.value);
+            }
+        }
+        for (ObjectIntCursor<DescriptorType> cur : allCounts) {
+            ratios.add(new DescriptorPool.Ratio(cur.value, cur.key));
+        }
+
+        if (!descriptorSetLayouts.isEmpty()) {
+            DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
+            poolCreateInfo.maxSets = descriptorSetLayouts.size();
+            poolCreateInfo.engine = engine;
+            poolCreateInfo.logicalDevice = device;
+            poolCreateInfo.ratios = ratios;
+            descAlloc = new DescriptorAllocator(poolCreateInfo);
+
+            descriptorSets = descriptorSetLayouts
+                    .stream()
+                    .map(descAlloc::allocate)
+                    .toList();
+        }
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
             int colorAttachmentCounts = pipelineSettingsInfo.colorAttachments().size();
@@ -177,6 +214,8 @@ public class GraphicsPipeline implements Disposable {
     @Override
     public void free() {
         layout.free();
+        descriptorSetLayouts.forEach(DescriptorSetLayout::free);
+        if (descAlloc != null) descAlloc.free();
         VK14.vkDestroyPipeline(device.getDevice(), handle, null);
     }
 
@@ -207,7 +246,8 @@ public class GraphicsPipeline implements Disposable {
 
             // Shaders
             VKShaderProgram shader,
-            LinkedHashMap<String, PushConstantsDefinition> pushConstants
+            LinkedHashMap<String, PushConstantsDefinition> pushConstants,
+            List<DescriptorSetLayout.Builder> layouts
     ) {}
 
 }
