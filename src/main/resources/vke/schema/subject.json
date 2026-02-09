@@ -1,0 +1,24 @@
+{
+  "sets": [
+    {
+      "layouts": [
+        {
+          "type": "UBO",
+          "name": "globals",
+          "struct": [
+            { "name": "viewProj", "type": "mat4", "auto": true, "padded": { "name": "pad0", "type": "float1" } },
+            { "name": "time", "type": "float" }
+          ]
+        },
+        {
+          "type": "combined_image_sampler",
+          "name": "tex0",
+          "hahaha": "lol",
+          "struct": [
+            { "name": "tex0", "type": "sampler2D" }
+          ]
+        }
+      ]
+    }
+  ]
+}

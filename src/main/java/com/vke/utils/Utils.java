@@ -136,6 +136,21 @@ public class Utils {
         }
     }
 
+    public static char[] readCharsFromInputStream(InputStream stream) throws IOException {
+        Reader reader = new InputStreamReader(stream);
+        StringBuilder sb = new StringBuilder();
+        char[] buffer = new char[4096];
+        int n;
+
+        try {
+            while ((n = reader.read(buffer)) != -1) {
+                sb.append(buffer, 0, n);
+            }
+        } finally {
+            reader.close();
+        }
+
+        return sb.toString().toCharArray();
 
     public static <T> boolean arrayContains(T[] arr, T query) {
         for (T t : arr) {

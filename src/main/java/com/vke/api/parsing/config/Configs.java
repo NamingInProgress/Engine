@@ -70,4 +70,11 @@ public class Configs {
         }
         return list;
     }
+
+    public static boolean hasField(ConfigNode object, String key) {
+        if (object instanceof ConfigObjectNode objectNode) {
+            return objectNode.getNode(key) != null;
+        }
+        return false;
+    }
 }

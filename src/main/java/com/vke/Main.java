@@ -1,25 +1,24 @@
 package com.vke;
 
+import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.node.AttributedConfigNode;
+import com.vke.api.parsing.config.node.ConfigArrayNode;
+import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
-import com.vke.core.parsing.config.json.JsonParser;
-import com.vke.core.parsing.config.xml.XmlParser;
-import com.vke.core.rendering.vulkan.descriptor.wrapper.JsonDescriptorData;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.test.TestApp;
-import com.vke.utils.Identifier;
-import com.vke.utils.Utils;
-
-import java.io.IOException;
 
 public class Main {
 
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
-    public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException {
+    public static void main(String[] args) throws InterruptedException {
 //        String testXml = "<hello val=\"1\">lmao<hello/>";
 //        SourceCode sourceCode = new StringSourceCode(testXml);
 //        XmlTokenizer tokenizer = new XmlTokenizer(sourceCode);
@@ -85,19 +84,22 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 
-        //System.exit(0);
-        //Thread.sleep(5000);
+        String json = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\subject.json"));
+        String schemaJson = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\test.schema.json"));
 
-        ConfigParser parser = new JsonParser();
-        //ConfigParser parser = new XmlParser();
-        parser.setSource(Utils.readCharsFromInputStream(new Identifier("shaders/test.layout.json").asInputStream()));
-        JsonDescriptorData data = JsonDescriptorData.fromJson(parser.parse());
+        JsonParser parser = new JsonParser();
+        parser.setSource(schemaJson.toCharArray());
+        ConfigSchema schema = ConfigSchema.readVke(parser.parse());
 
-        System.out.println(data);
+        parser.setSource(json.toCharArray());
+        ConfigDocument doc = parser.parse();
+        doc.validate(schema);
+
+
 
         System.exit(0);
-
-
+        //System.exit(0);
+        //Thread.sleep(5000);
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
