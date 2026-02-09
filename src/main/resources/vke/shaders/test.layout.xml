@@ -1,0 +1,24 @@
+<root>
+    <sets>
+        <set index="0">
+            <layouts>
+                <layout type="UBO" name="globals">
+                    <struct>
+                        <field name="viewProj" type="mat4" auto="true">
+                            <padded>
+                                <pad name="pad0" type="float1"/>
+                            </padded>
+                        </field>
+                        <field name="time" type="float"/>
+                    </struct>
+                </layout>
+
+                <layout type="combined_image_sampler" name="tex0">
+                    <struct>
+                        <field name="tex0" type="sampler2D"/>
+                    </struct>
+                </layout>
+            </layouts>
+        </set>
+    </sets>
+</root>

@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
 import com.vke.api.vulkan.VkEnum;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import org.lwjgl.vulkan.VK14;
 
 public enum DescriptorType implements VkEnum {
@@ -19,4 +20,14 @@ public enum DescriptorType implements VkEnum {
     public int getVkHandle() {
         return vk;
     }
+
+    public static DescriptorType fromWrapper(DescriptorData.Binding.Type type) {
+        return switch (type) {
+            case COMBINED_IMAGE_SAMPLER -> CombinedImageSampler;
+            case STORAGE_IMAGE -> StorageImage;
+            case UNIFORM_BUFFER -> UniformBuffer;
+            case STORAGE_BUFFER -> StorageBuffer;
+        };
+    }
+
 }

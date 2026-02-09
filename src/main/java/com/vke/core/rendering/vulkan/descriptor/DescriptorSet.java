@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 public class DescriptorSet {
 
     private long handle;
+    private int index;
 
     private final LogicalDevice device;
 

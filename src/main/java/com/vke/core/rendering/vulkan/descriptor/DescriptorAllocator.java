@@ -41,7 +41,5 @@ public class DescriptorAllocator implements Disposable {
     }
 
     @Override
-    public void free() {
-        pool.free();
-    }
+    public void free() { pool.free(); }
 }

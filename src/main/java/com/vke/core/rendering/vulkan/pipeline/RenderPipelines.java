@@ -42,8 +42,9 @@ public class RenderPipelines {
                     .dstAlphaBlendFactor(RenderPipeline.BlendFactor.ZERO)
                     .alphaBlendOp(RenderPipeline.BlendOperation.ADD))
             .addPushConstants("vertexBufferPtr", new TestPushConstant())
-            .addDescriptorSetLayout(new DescriptorSetLayout.Builder()
-                    .addBinding(0, DescriptorType.UniformBuffer, new Shader.Stages(Shader.Type.VERTEX)))
+            .withDescriptorLayout(new Identifier("shaders/test.layout.json"))
+            //.addDescriptorSetLayout(new DescriptorSetLayout.Builder()
+            //        .addBinding(0, DescriptorType.UniformBuffer, new Shader.Stages(Shader.Type.VERTEX)))
             .register();
 
     public static void init() {}

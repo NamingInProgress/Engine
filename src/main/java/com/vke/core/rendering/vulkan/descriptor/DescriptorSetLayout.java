@@ -19,11 +19,10 @@ import java.util.List;
 public class DescriptorSetLayout implements Disposable {
     private final LogicalDevice device;
     private final long handle;
-    private final ObjectIntHashMap<DescriptorType> typeCounts;
+
     private final IntObjectHashMap<DescriptorType> layout = new IntObjectHashMap<>();
 
-    public DescriptorSetLayout(VKEngine engine, DescriptorSetLayoutCreateInfo ci, ObjectIntHashMap<DescriptorType> typeCounts) {
-        this.typeCounts = typeCounts;
+    public DescriptorSetLayout(VKEngine engine, DescriptorSetLayoutCreateInfo ci) {
         this.device = ci.device;
 
         ci.bindings.forEach(binding -> {
@@ -56,11 +55,6 @@ public class DescriptorSetLayout implements Disposable {
         return handle;
     }
 
-    public ObjectIntHashMap<DescriptorType> typeCounts() {
-        return typeCounts;
-    }
-
-    public IntObjectHashMap<DescriptorType> layout() { return layout; }
 
     @Override
     public void free() {
@@ -69,11 +63,9 @@ public class DescriptorSetLayout implements Disposable {
 
     public static class Builder {
         private final List<VkDescriptorSetLayoutBinding> bindings;
-        private final ObjectIntHashMap<DescriptorType> typeCounts;
 
         public Builder() {
             bindings = new ArrayList<>();
-            typeCounts = new ObjectIntHashMap<>();
         }
 
         public Builder addBinding(int index, DescriptorType type, Shader.Stages shaderStageFlags) {
@@ -82,7 +74,6 @@ public class DescriptorSetLayout implements Disposable {
             b.descriptorType(type.getVkHandle());
             b.stageFlags(shaderStageFlags.getVkHandle());
             bindings.add(b);
-            typeCounts.addTo(type, 1);
             return this;
         }
 
@@ -90,7 +81,7 @@ public class DescriptorSetLayout implements Disposable {
             DescriptorSetLayoutCreateInfo ci = new DescriptorSetLayoutCreateInfo();
             ci.device = device;
             ci.bindings = bindings;
-            var layout = new DescriptorSetLayout(engine, ci, typeCounts);
+            var layout = new DescriptorSetLayout(engine, ci);
             bindings.forEach(Struct::free);
             return layout;
         }

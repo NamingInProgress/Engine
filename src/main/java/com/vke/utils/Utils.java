@@ -5,6 +5,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
@@ -148,5 +150,22 @@ public class Utils {
 
     public static <T> boolean sortedArrayContains(T[] arr, T query, Comparator<T> cmp) {
         return Arrays.binarySearch(arr, query, cmp) >= 0;
+    }
+
+    public static char[] readCharsFromInputStream(InputStream stream) throws IOException {
+        Reader reader = new InputStreamReader(stream);
+        StringBuilder sb = new StringBuilder();
+        char[] buffer = new char[4096];
+        int n;
+
+        try {
+            while ((n = reader.read(buffer)) != -1) {
+                sb.append(buffer, 0, n);
+            }
+        } finally {
+            reader.close();
+        }
+
+        return sb.toString().toCharArray();
     }
 }

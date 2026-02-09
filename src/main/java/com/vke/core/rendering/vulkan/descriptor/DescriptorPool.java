@@ -17,13 +17,13 @@ public class DescriptorPool implements Disposable {
         this.device = createInfo.logicalDevice;
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
-            VkDescriptorPoolSize.Buffer buf = VkDescriptorPoolSize.calloc(createInfo.ratios.size(), stack);
+            VkDescriptorPoolSize.Buffer buf = VkDescriptorPoolSize.calloc(createInfo.descriptorTypeCountInfo.size(), stack);
 
             int i = 0;
-            for (DescriptorPool.Ratio ratio : createInfo.ratios) {
+            for (DescriptorTypeCountInfo descriptorTypeCountInfo : createInfo.descriptorTypeCountInfo) {
                 buf.get(i++)
-                        .type(ratio.type().getVkHandle())
-                        .descriptorCount((int) ratio.ratio() * createInfo.maxSets);
+                        .type(descriptorTypeCountInfo.type().getVkHandle())
+                        .descriptorCount(descriptorTypeCountInfo.count());
             }
 
             VkDescriptorPoolCreateInfo ci = VkDescriptorPoolCreateInfo.calloc(stack);
@@ -47,6 +47,5 @@ public class DescriptorPool implements Disposable {
 
     public long getHandle() { return this.vkHandle; }
 
-    public record Ratio(float ratio, DescriptorType type) {
-    }
+    public record DescriptorTypeCountInfo(int count, DescriptorType type) {}
 }

@@ -1,11 +1,14 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.descriptor.*;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -21,6 +24,7 @@ import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GraphicsPipeline implements Disposable {
     private static String HERE = "GraphicsPipeline";
@@ -31,7 +35,8 @@ public class GraphicsPipeline implements Disposable {
     private SwapChain swapChain;
     private PipelineLayout layout;
     private List<DescriptorSetLayout> descriptorSetLayouts = new ArrayList<>();
-    private List<DescriptorSet> descriptorSets;
+
+    private DescriptorData descriptorData;
 
     private DescriptorAllocator descAlloc;
 
@@ -40,33 +45,34 @@ public class GraphicsPipeline implements Disposable {
         this.engine = createInfo.engine;
         this.swapChain = createInfo.swapChain;
 
-        pipelineSettingsInfo.layouts.forEach(layout -> {
-            descriptorSetLayouts.add(layout.build(engine, device));
-        });
+        List<DescriptorPool.DescriptorTypeCountInfo> descriptorTypeCountInfo = new ArrayList<>();
 
-        List<DescriptorPool.Ratio> ratios = new ArrayList<>();
-        ObjectIntHashMap<DescriptorType> allCounts = new ObjectIntHashMap<>();
-        for (DescriptorSetLayout layout : descriptorSetLayouts) {
-            for (ObjectIntCursor<DescriptorType> cur : layout.typeCounts()) {
-                allCounts.addTo(cur.key, cur.value);
+        for (ObjectIntCursor<DescriptorType> count : descriptorData.counts()) {
+            descriptorTypeCountInfo.add(new DescriptorPool.DescriptorTypeCountInfo(count.value, count.key));
+        }
+
+        descriptorData = pipelineSettingsInfo.descriptorData;
+
+        for (IntObjectCursor<DescriptorData.Set> set : descriptorData.getSets()) {
+            DescriptorSetLayout.Builder builder = new DescriptorSetLayout.Builder();
+
+            for (IntObjectCursor<DescriptorData.Binding> binding : set.value.getBindings()) {
+
             }
-        }
-        for (ObjectIntCursor<DescriptorType> cur : allCounts) {
-            ratios.add(new DescriptorPool.Ratio(cur.value, cur.key));
+
+            descriptorSetLayouts.add(builder.build(engine, device));
         }
 
-        if (!descriptorSetLayouts.isEmpty()) {
+        if (descriptorData.getSetsAmount() != 0) {
             DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
-            poolCreateInfo.maxSets = descriptorSetLayouts.size();
+            poolCreateInfo.maxSets = descriptorData.getSetsAmount();
             poolCreateInfo.engine = engine;
             poolCreateInfo.logicalDevice = device;
-            poolCreateInfo.ratios = ratios;
+            poolCreateInfo.descriptorTypeCountInfo = descriptorTypeCountInfo;
+
             descAlloc = new DescriptorAllocator(poolCreateInfo);
 
-            descriptorSets = descriptorSetLayouts
-                    .stream()
-                    .map(descAlloc::allocate)
-                    .toList();
+
         }
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
@@ -210,6 +216,11 @@ public class GraphicsPipeline implements Disposable {
 
     public long getHandle() { return this.handle; }
     public PipelineLayout getPipelineLayout() { return this.layout; }
+    public DescriptorData getDescriptorData() { return this.descriptorData; }
+
+    public void writeToDescriptor(String name, Consumer<BufferSlice> runnable) {
+
+    }
 
     @Override
     public void free() {
@@ -247,7 +258,7 @@ public class GraphicsPipeline implements Disposable {
             // Shaders
             VKShaderProgram shader,
             LinkedHashMap<String, PushConstantsDefinition> pushConstants,
-            List<DescriptorSetLayout.Builder> layouts
+            DescriptorData descriptorData
     ) {}
 
 }

@@ -3,6 +3,7 @@ package com.vke.test;
 import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.MeshBuffer;
 import com.vke.core.rendering.vulkan.Scissor;
@@ -69,6 +70,10 @@ public class TestApp extends App {
         TestPushConstant pc = RenderPipelines.IDK.getPushConstant("vertexBufferPtr");
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
         pc.setMat(mat);
+
+        RenderPipelines.IDK.setDescriptorEntryData("viewProj", (slice) -> {
+            slice.put(myData);
+        });
 
         cmd.setPushConstants(RenderPipelines.IDK, stack);
 

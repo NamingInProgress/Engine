@@ -39,10 +39,9 @@ public abstract class Descriptor {
         public void write(CpuBuffer buf) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack);
-                info.get(0)
-                        .
+                info.get(0);
 
-                this.descriptorSet.updateBuffer(stack, binding, info);
+                //this.descriptorSet.updateBuffer(stack, binding, info);
             }
         }
 

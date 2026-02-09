@@ -2,13 +2,16 @@ package com.vke.api.vulkan.pipeline;
 
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
+import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.VkEnum;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
@@ -22,7 +25,9 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkStencilOpState;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class RenderPipeline implements Disposable {
@@ -79,6 +84,14 @@ public class RenderPipeline implements Disposable {
         }
         shader = new VKShaderProgram(shaders);
 
+        String[] layoutFileName = builder.descriptorLayout.getPath().split("\\.");
+        DescriptorData descriptorData = null;
+        try {
+            descriptorData = DescriptorData.fromFileWithExtension(layoutFileName[layoutFileName.length - 1], builder.descriptorLayout);
+        } catch (IOException | ConfigParser.ConfigParseException e) {
+            engine.throwException(e, "Render Pipeline");
+        }
+
         GraphicsPipeline.PipelineSettingsInfo pipelineSettingsInfo =
                 new GraphicsPipeline.PipelineSettingsInfo(
                         // Dynamic State
@@ -108,7 +121,7 @@ public class RenderPipeline implements Disposable {
                         // Shaders
                         shader,
                         builder.pushConstants,
-                        builder.layoutBuilders
+                        descriptorData
                 );
 
         graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
@@ -131,6 +144,14 @@ public class RenderPipeline implements Disposable {
     @SuppressWarnings("unchecked")
     public <T extends PushConstantsDefinition> T getPushConstant(String key) {
         return (T) getGraphicsPipeline().getPipelineLayout().getPushConst(key);
+    }
+
+    public DescriptorData.Entry getDescriptorEntry(String key) {
+        return getGraphicsPipeline().getDescriptorData().getEntry(key);
+    }
+
+    public void setDescriptorEntryData(String key, Consumer<BufferSlice> runnable) {
+        getGraphicsPipeline().writeToDescriptor(key, runnable);
     }
 
     @Override
@@ -188,7 +209,7 @@ public class RenderPipeline implements Disposable {
         // Shader
         ShaderProgram shader;
         LinkedHashMap<String, PushConstantsDefinition> pushConstants = new LinkedHashMap();
-        List<DescriptorSetLayout.Builder> layoutBuilders = new ArrayList<>();
+        Identifier descriptorLayout;
 
         public RenderPipelineBuilder(Identifier key) {
             super(key);
@@ -297,8 +318,8 @@ public class RenderPipeline implements Disposable {
             return this;
         }
 
-        public RenderPipelineBuilder addDescriptorSetLayout(DescriptorSetLayout.Builder layout) {
-            this.layoutBuilders.add(layout);
+        public RenderPipelineBuilder withDescriptorLayout(Identifier layout) {
+            this.descriptorLayout = layout;
             return this;
         }
     }
