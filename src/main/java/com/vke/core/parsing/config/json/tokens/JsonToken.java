@@ -31,5 +31,6 @@ public class JsonToken {
         Comma,
         NumLit,
         StrLit,
+        BoolLit,
     }
 }

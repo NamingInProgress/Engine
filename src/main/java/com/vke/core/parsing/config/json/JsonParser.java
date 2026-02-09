@@ -4,10 +4,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.SourceCursor;
-import com.vke.core.parsing.config.json.nodes.JsonArrayNode;
-import com.vke.core.parsing.config.json.nodes.JsonNumberNode;
-import com.vke.core.parsing.config.json.nodes.JsonObjectNode;
-import com.vke.core.parsing.config.json.nodes.JsonValueNode;
+import com.vke.core.parsing.config.json.nodes.*;
 import com.vke.core.parsing.config.json.tokens.JsonToken;
 import com.vke.core.parsing.config.json.tokens.JsonTokenizer;
 
@@ -75,6 +72,9 @@ public class JsonParser implements ConfigParser {
             if (next.getType() == JsonToken.Type.StrLit) {
                 //value
                 return new JsonValueNode(next.value());
+            }
+            if (next.getType() == JsonToken.Type.BoolLit) {
+                return new JsonBooleanNode(next.value());
             }
             if (next.getType() == JsonToken.Type.NumLit) {
                 return new JsonNumberNode(next.value());

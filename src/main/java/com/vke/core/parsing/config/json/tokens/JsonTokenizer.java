@@ -50,25 +50,29 @@ public class JsonTokenizer {
                     }
                     yield new JsonToken(JsonToken.Type.StrLit, builder.toString());
                 } else {
-                    StringBuilder numBuilder = new StringBuilder();
-                    numBuilder.append(next);
+                    StringBuilder exprBuilder = new StringBuilder();
+                    exprBuilder.append(next);
                     while (true) {
                         char n = source.peekChar();
-                        if (numPart(n)) {
+                        if (exprPart(n)) {
                             source.nextChar();
-                            numBuilder.append(n);
+                            exprBuilder.append(n);
                         } else {
                             break;
                         }
                     }
-                    Float f = Float.parseFloat(numBuilder.toString());
+                    String exprStr = exprBuilder.toString();
+                    if ("true".equals(exprStr)) yield new JsonToken(JsonToken.Type.BoolLit, true);
+                    if ("false".equals(exprStr)) yield new JsonToken(JsonToken.Type.BoolLit, false);
+
+                    Float f = Float.parseFloat(exprStr);
                     yield new JsonToken(JsonToken.Type.NumLit, f);
                 }
             }
         };
     }
 
-    private boolean numPart(char c) {
-        return Character.isDigit(c) || "e.".indexOf(c) >= 0;
+    private boolean exprPart(char c) {
+        return Character.isLetterOrDigit(c) || "e.".indexOf(c) >= 0;
     }
 }

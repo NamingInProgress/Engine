@@ -8,6 +8,7 @@ public interface ConfigNode {
         Array,
         Number,
         Value,
+        Boolean,
         Meta,
     }
 }
