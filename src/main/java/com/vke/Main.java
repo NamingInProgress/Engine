@@ -7,18 +7,24 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
+import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.test.TestApp;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Main {
 
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
 //        String testXml = "<hello val=\"1\">lmao<hello/>";
 //        SourceCode sourceCode = new StringSourceCode(testXml);
 //        XmlTokenizer tokenizer = new XmlTokenizer(sourceCode);

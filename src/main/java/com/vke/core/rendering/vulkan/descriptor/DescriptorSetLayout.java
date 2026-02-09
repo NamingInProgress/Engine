@@ -2,6 +2,8 @@ package com.vke.core.rendering.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.shader.Shader;
@@ -19,11 +21,13 @@ import java.util.List;
 public class DescriptorSetLayout implements Disposable {
     private final LogicalDevice device;
     private final long handle;
+    private final IntObjectHashMap<DescriptorData.Binding> binding;
 
     private final IntObjectHashMap<DescriptorType> layout = new IntObjectHashMap<>();
 
-    public DescriptorSetLayout(VKEngine engine, DescriptorSetLayoutCreateInfo ci) {
+    public DescriptorSetLayout(VKEngine engine, DescriptorSetLayoutCreateInfo ci, IntObjectHashMap<DescriptorData.Binding> b) {
         this.device = ci.device;
+        this.binding = b;
 
         ci.bindings.forEach(binding -> {
             layout.put(binding.binding(), DescriptorType.UniformBuffer.fromVkHandle(binding.descriptorType()));
@@ -63,12 +67,13 @@ public class DescriptorSetLayout implements Disposable {
 
     public static class Builder {
         private final List<VkDescriptorSetLayoutBinding> bindings;
+        private IntObjectHashMap<DescriptorData.Binding> wrappers;
 
         public Builder() {
             bindings = new ArrayList<>();
         }
 
-        public Builder addBinding(int index, DescriptorType type, Shader.Stages shaderStageFlags) {
+        private Builder addBinding(int index, DescriptorType type, Shader.Stages shaderStageFlags) {
             VkDescriptorSetLayoutBinding b = VkDescriptorSetLayoutBinding.calloc();
             b.binding(index);
             b.descriptorType(type.getVkHandle());
@@ -77,11 +82,19 @@ public class DescriptorSetLayout implements Disposable {
             return this;
         }
 
+        public void fromWrapper(IntObjectHashMap<DescriptorData.Binding> bindings) {
+            wrappers = bindings;
+
+            for (IntObjectCursor<DescriptorData.Binding> binding : bindings) {
+                addBinding(binding.key, DescriptorType.fromWrapper(binding.value.getType()), binding.value.getStages())
+            }
+        }
+
         public DescriptorSetLayout build(VKEngine engine, LogicalDevice device) {
             DescriptorSetLayoutCreateInfo ci = new DescriptorSetLayoutCreateInfo();
             ci.device = device;
             ci.bindings = bindings;
-            var layout = new DescriptorSetLayout(engine, ci);
+            var layout = new DescriptorSetLayout(engine, ci, wrappers);
             bindings.forEach(Struct::free);
             return layout;
         }

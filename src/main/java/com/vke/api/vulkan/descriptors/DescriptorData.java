@@ -7,6 +7,7 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.descriptor.wrapper.JsonDescriptorData;
+import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
 import com.vke.utils.Utils;
@@ -105,6 +106,7 @@ public abstract class DescriptorData {
     public static abstract class Binding {
 
         protected Type type;
+        protected Shader.Stages stages = new Shader.Stages(Shader.Type.VERTEX);
         protected String name;
         protected Struct struct;
 
@@ -136,6 +138,7 @@ public abstract class DescriptorData {
         public Type getType() { return this.type; }
         public String getName() { return name; }
         public Struct getStruct() { return struct; }
+        public Shader.Stages getStages() { return this.stages; }
     }
 
     public static abstract class Struct {

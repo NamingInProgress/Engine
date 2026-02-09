@@ -56,9 +56,7 @@ public class GraphicsPipeline implements Disposable {
         for (IntObjectCursor<DescriptorData.Set> set : descriptorData.getSets()) {
             DescriptorSetLayout.Builder builder = new DescriptorSetLayout.Builder();
 
-            for (IntObjectCursor<DescriptorData.Binding> binding : set.value.getBindings()) {
-
-            }
+            builder.fromWrapper(set.value.getBindings());
 
             descriptorSetLayouts.add(builder.build(engine, device));
         }
