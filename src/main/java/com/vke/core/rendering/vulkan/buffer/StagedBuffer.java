@@ -14,11 +14,11 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
-public class AllocatedBuffer implements Disposable {
+public class StagedBuffer implements Disposable {
     private final GpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
 
-    public AllocatedBuffer(VKEngine engine, VulkanSetup setup, CpuBuffer buffer, GpuBuffer.BufferUsage usage, GpuBuffer.MemoryUsage memoryUsage) {
+    public StagedBuffer(VKEngine engine, VulkanSetup setup, CpuBuffer buffer, GpuBuffer.BufferUsage usage, GpuBuffer.MemoryUsage memoryUsage) {
         this.cpuBuffer = buffer;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
         gpuBuffer = new GpuBuffer(engine, setup, allocSize, usage, memoryUsage);

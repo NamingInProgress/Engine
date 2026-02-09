@@ -1,13 +1,13 @@
 {
-  "data": [
+  "sets": [
     {
       "set": 0,
-      "layout": [
+      "layouts": [
         {
           "type": "UBO",
           "name": "globals",
           "struct": [
-            { "viewProj": "mat4", "auto": true },
+            { "viewProj": "mat4", "auto": true, "padded": { "pad0": "float1" } },
             { "time": "float" }
           ]
         },
