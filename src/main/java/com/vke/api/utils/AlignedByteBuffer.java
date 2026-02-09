@@ -19,12 +19,13 @@ public class AlignedByteBuffer {
     }
 
     private void align(int sizeUsed) {
-        int toFill = minAlign - (sizeUsed % minAlign);
+        int toFill = (minAlign - (sizeUsed % minAlign)) % minAlign;
         if (toFill > 0) {
             toFill = Math.min(toFill, buf.remaining());
             buf.put(new byte[toFill]);
         }
     }
+
 
     // -------------------- Scalars --------------------
     public void float1(float v) {

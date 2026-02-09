@@ -10,6 +10,7 @@ import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanSetup;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
@@ -106,7 +107,8 @@ public class RenderPipeline implements Disposable {
 
                         // Shaders
                         shader,
-                        builder.pushConstants
+                        builder.pushConstants,
+                        builder.layoutBuilders
                 );
 
         graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
@@ -186,6 +188,7 @@ public class RenderPipeline implements Disposable {
         // Shader
         ShaderProgram shader;
         LinkedHashMap<String, PushConstantsDefinition> pushConstants = new LinkedHashMap();
+        List<DescriptorSetLayout.Builder> layoutBuilders = new ArrayList<>();
 
         public RenderPipelineBuilder(Identifier key) {
             super(key);
@@ -291,6 +294,11 @@ public class RenderPipeline implements Disposable {
 
         public RenderPipelineBuilder addPushConstants(String key, PushConstantsDefinition pc) {
             this.pushConstants.put(key, pc);
+            return this;
+        }
+
+        public RenderPipelineBuilder addDescriptorSetLayout(DescriptorSetLayout.Builder layout) {
+            this.layoutBuilders.add(layout);
             return this;
         }
     }

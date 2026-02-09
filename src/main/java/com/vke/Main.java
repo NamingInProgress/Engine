@@ -11,22 +11,14 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
-import com.vke.core.parsing.config.json.JsonParser;
-import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.test.TestApp;
-
-import java.io.FileReader;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 
 public class Main {
 
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws InterruptedException {
 //        String testXml = "<hello val=\"1\">lmao<hello/>";
 //        SourceCode sourceCode = new StringSourceCode(testXml);
 //        XmlTokenizer tokenizer = new XmlTokenizer(sourceCode);
@@ -106,9 +98,10 @@ public class Main {
 
 
         System.exit(0);
+        //System.exit(0);
         //Thread.sleep(5000);
         EngineCreateInfo createInfo = new EngineCreateInfo();
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         RenderPipelines.init();

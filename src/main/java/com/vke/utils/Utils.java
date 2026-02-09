@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Function;
@@ -149,5 +151,19 @@ public class Utils {
         }
 
         return sb.toString().toCharArray();
+
+    public static <T> boolean arrayContains(T[] arr, T query) {
+        for (T t : arr) {
+            if (t.equals(query)) return true;
+        }
+        return false;
+    }
+
+    public static <T extends Comparable<T>> boolean sortedArrayContains(T[] arr, T query) {
+        return Arrays.binarySearch(arr, query, T::compareTo) >= 0;
+    }
+
+    public static <T> boolean sortedArrayContains(T[] arr, T query, Comparator<T> cmp) {
+        return Arrays.binarySearch(arr, query, cmp) >= 0;
     }
 }

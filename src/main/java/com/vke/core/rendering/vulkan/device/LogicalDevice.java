@@ -7,7 +7,6 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.deflate.BitUtils;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.VulkanQueue;
 import com.vke.core.utils.StructureChain3;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
@@ -18,7 +17,7 @@ import org.lwjgl.vulkan.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 
-import static com.vke.core.rendering.vulkan.VulkanQueue.Type;
+import static com.vke.core.rendering.vulkan.device.VulkanQueue.Type;
 
 public class LogicalDevice implements Disposable {
 

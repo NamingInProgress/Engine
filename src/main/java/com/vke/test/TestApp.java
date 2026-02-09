@@ -13,11 +13,11 @@ import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 public class TestApp extends App {
     private MeshBuffer mesh;
@@ -25,20 +25,28 @@ public class TestApp extends App {
     @Override
     public void onInit(VKEngine engine) {
         VertexFormat[] vertices = new VertexFormat[]{
-                //new VertexFormat(-1,  1, 0, 1, 0, 0, 1), // top-left (red)
-                //new VertexFormat( 1,  1, 0, 0, 1, 0, 1), // top-right (green)
-                //new VertexFormat(-1, -1, 0, 0, 0, 1, 1), // bottom-left (blue)
-                //new VertexFormat( 1, -1, 0, 1, 1, 0, 1)  // bottom-right (yellow)
+                //new VertexFormat(-1,  1, 0, 1, 0, 0, 1),
+                //new VertexFormat( 1,  1, 0, 0, 1, 0, 1),
+                //new VertexFormat(-1, -1, 0, 0, 0, 1, 1),
+                //new VertexFormat( 1, -1, 0, 1, 1, 0, 1)
 
-                new VertexFormat(0, 0, 0.1f, 1, 0, 0, 1),
-                new VertexFormat(255, 0, 0.1f, 0, 1, 0, 1),
-                new VertexFormat(255, 255, 0.1f, 0, 0, 1, 1),
-                new VertexFormat(0, 255, 0.1f, 1, 1, 0, 1)
+                new VertexFormat(0, 0, -50, 1, 0, 0, 1f),
+                new VertexFormat(255, 0, -50, 0, 1, 0, 1f),
+                new VertexFormat(255, 255, -50, 0, 0, 1, 1f),
+                new VertexFormat(0, 255, -50, 1, 1, 0, 1f)
+
+                //new VertexFormat(-0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
+                //new VertexFormat(0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
+                //new VertexFormat(0, 0.5f, 0.5f, 1, 0, 0, 0.5f),
+
+                //new VertexFormat(-0.5f, 0.5f, 0.5f, 0, 0, 1, 0.5f),
+                //new VertexFormat(0.5f, 0.5f, 0.5f, 0, 0, 1, 0.5f),
+                //new VertexFormat(0f, -0.5f, 0.5f, 0, 0, 1, 0.5f)
 
                 /*
-                  1    1 - 2
-                 / \   |   |
-                0 - 2  0 - 3
+                  1    3 - 2
+                 / \   | / |
+                0 - 2  0 - 1
                  */
         };
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
@@ -52,9 +60,11 @@ public class TestApp extends App {
 
         new Scissor().use(fd);
         Viewport wp = new Viewport().use(fd);
+        //System.out.println("wp.width() = " + wp.width());
+        //System.out.println("wp.height() = " + wp.height());
 
         Matrix4f mat = new Matrix4f();
-        mat.setOrtho(0, wp.width(), 0, wp.height(), -10, 100);
+        mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
 
         TestPushConstant pc = RenderPipelines.IDK.getPushConstant("vertexBufferPtr");
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
@@ -65,6 +75,10 @@ public class TestApp extends App {
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
         VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
+        //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
+
+        //cmd.bindRenderPipeline(RenderPipelines.MAIN);
+        //cmd.setPushConstants(RenderPipelines.MAIN, stack);
         //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
     }
 

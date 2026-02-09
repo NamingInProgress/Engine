@@ -2,10 +2,9 @@ package com.vke.core.rendering.buffer;
 
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.buffer.AllocatedBuffer;
+import com.vke.core.rendering.vulkan.buffer.StagedBuffer;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -16,8 +15,8 @@ import org.lwjgl.vulkan.VkDevice;
 import java.util.Arrays;
 
 public class MeshBuffer implements Disposable {
-    private AllocatedBuffer vertices;
-    private AllocatedBuffer indices;
+    private StagedBuffer vertices;
+    private StagedBuffer indices;
     private long verticesDeviceAddress;
 
     private MeshBuffer() {}
@@ -42,7 +41,7 @@ public class MeshBuffer implements Disposable {
             GpuBuffer.MemoryUsage vertexMemUsage = new GpuBuffer.MemoryUsage(
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
-            self.vertices = new AllocatedBuffer(engine, setup, vbo, vertexBufUsage, vertexMemUsage);
+            self.vertices = new StagedBuffer(engine, setup, vbo, vertexBufUsage, vertexMemUsage);
             //if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "Verts", self.vertices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
             //    engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
             //}
@@ -66,7 +65,7 @@ public class MeshBuffer implements Disposable {
             GpuBuffer.MemoryUsage indexMemUsage = new GpuBuffer.MemoryUsage(
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
-            self.indices = new AllocatedBuffer(engine, setup, ibo, indexBufUsage, indexMemUsage);
+            self.indices = new StagedBuffer(engine, setup, ibo, indexBufUsage, indexMemUsage);
             //if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "IDX", self.indices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
             //    engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
             //}
@@ -78,11 +77,11 @@ public class MeshBuffer implements Disposable {
         }
     }
 
-    public AllocatedBuffer getVerticesBuf() {
+    public StagedBuffer getVerticesBuf() {
         return vertices;
     }
 
-    public AllocatedBuffer getIndicesBuf() {
+    public StagedBuffer getIndicesBuf() {
         return indices;
     }
 

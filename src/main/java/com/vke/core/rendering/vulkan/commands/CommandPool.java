@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.commands;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VulkanQueue;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

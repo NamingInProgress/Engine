@@ -1,0 +1,21 @@
+{
+  "sets": [
+    {
+      "set": 0,
+      "layouts": [
+        {
+          "type": "UBO",
+          "name": "globals",
+          "struct": [
+            { "viewProj": "mat4", "auto": true, "padded": { "pad0": "float1" } },
+            { "time": "float" }
+          ]
+        },
+        {
+          "type": "combined_image_sampler",
+          "name": "tex0"
+        }
+      ]
+    }
+  ]
+}

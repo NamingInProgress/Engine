@@ -1,7 +1,7 @@
 #version 450
 #extension GL_EXT_buffer_reference : require
 
-layout (location = 0) out vec3 outColor;
+layout (location = 0) out vec4 outColor;
 
 struct Vertex {
     vec3 position;
@@ -23,8 +23,5 @@ void main() {
     Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
 
     gl_Position = PushConstants.world * vec4(v.position, 1.0f);
-    outColor = v.color.rgb;
-
-    //gl_Position = vec4(1.0);
-    //outColor = vec3(1.0);
+    outColor = v.color;
 }

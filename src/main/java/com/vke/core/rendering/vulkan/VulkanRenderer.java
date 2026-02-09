@@ -5,6 +5,11 @@ import com.vke.api.services.Service;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorAllocator;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorPoolCreateInfo;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.core.rendering.vulkan.frame.Frame;
+import com.vke.core.rendering.vulkan.frame.ImmediateFrame;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.services.Services;
@@ -24,6 +29,8 @@ public class VulkanRenderer extends Service {
     private final int frameCount;
     private final int framesInFlight;
 
+    public boolean resizeRequested;
+
     public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
         super("vkr");
         this.engine = engine;
@@ -33,6 +40,12 @@ public class VulkanRenderer extends Service {
         VKERegistries.PIPELINES.makeVkPipelines(engine, setup);
         this.swapChain = setup.getSwapChain();
         this.frameCount = swapChain.getImageCount();
+
+        setupDescriptors();
+    }
+
+    private void setupDescriptors() {
+
     }
 
     public FrameData setupFrame() {
@@ -44,6 +57,14 @@ public class VulkanRenderer extends Service {
         fence.waitAndReset(stack, engine, setup.getLogicalDevice(), FENCE_TIMEOUT);
 
         int imageIdx = swapChain.nextImage(stack, f.getSwapChainSemaphore(), null);
+        if (imageIdx < 0) {
+            int errorCode = ~imageIdx;
+            if (errorCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
+                resizeRequested = true;
+                stack.close();
+                return null;
+            }
+        }
         CommandBuffers cmd = f.getBuffers();
         cmd.reset();
 
@@ -60,8 +81,6 @@ public class VulkanRenderer extends Service {
 
         cmd.endRecording(swapChain);
 
-        // submit hitoasnfoasd
-
         VulkanQueue graphicsQueueVKE = setup.getLogicalDevice().getQueue(VulkanQueue.Type.GRAPHICS);
         graphicsQueueVKE.submit(engine, stack, setup, f, frame);
 
@@ -75,13 +94,24 @@ public class VulkanRenderer extends Service {
         presentInfo.pWaitSemaphores(stack.longs(f.getRenderSemaphore().getHandle()));
         presentInfo.swapchainCount(1);
 
-        if (KHRSwapchain.vkQueuePresentKHR(graphicsQueue, presentInfo) != VK14.VK_SUCCESS) {
-            engine.getLogger().warn("Failed to present queue at frame " + frameCount);
+        int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(graphicsQueue, presentInfo);
+        if (VK_RESULT != VK14.VK_SUCCESS) {
+            if (VK_RESULT == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
+                resizeRequested = true;
+            } else {
+                engine.getLogger().warn("Failed to present queue at frame " + frameCount);
+            }
         }
 
         stack.close();
 
         frame++;
+    }
+
+    public void recreate(boolean vsync) {
+        waitIdle();
+        swapChain.recreate(vsync);
+        resizeRequested = false;
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, CommandBuffers> consumer) {

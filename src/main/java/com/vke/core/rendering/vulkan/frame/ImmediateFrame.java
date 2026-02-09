@@ -1,6 +1,7 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.rendering.vulkan.frame;
 
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
