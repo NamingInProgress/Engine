@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "set": 0,
+      "layout": [
+        {
+          "type": "UBO",
+          "name": "globals",
+          "struct": [
+            { "viewProj": "mat4", "auto": true },
+            { "time": "float" }
+          ]
+        },
+        {
+          "type": "combined_image_sampler",
+          "name": "tex0"
+        }
+      ]
+    }
+  ]
+}
