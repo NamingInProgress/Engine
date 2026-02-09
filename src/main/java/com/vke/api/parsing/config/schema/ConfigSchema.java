@@ -7,7 +7,7 @@ import com.vke.core.parsing.config.schema.VkeSchema;
 public interface ConfigSchema {
     SchemaValidationResult validate(ConfigNode root);
 
-    static ConfigSchema readVke(ConfigDocument schemaDocument) throws SchemaMismatchException {
-        return new VkeSchema(schemaDocument, false);
+    static ConfigSchema readVke(ConfigDocument schemaDocument) {
+        return new VkeSchema(schemaDocument);
     }
 }

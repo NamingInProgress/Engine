@@ -5,6 +5,7 @@ import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.pipeline.PipelineLayout;
@@ -14,6 +15,8 @@ import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+
+import java.nio.LongBuffer;
 
 public class CommandBuffers implements Disposable {
     private static final String HERE = "Command Buffers";
@@ -135,6 +138,15 @@ public class CommandBuffers implements Disposable {
                     v.getOffset(),
                     v.getBytes(buf));
         });
+    }
+
+    public void setDescriptorSets(RenderPipeline pipeline, MemoryStack stack) {
+        LongBuffer sets = stack.longs(pipeline.getGraphicsPipeline().getDescriptorSets().stream().mapToLong(DescriptorSet::getHandle).toArray());
+
+        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
+                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                pipeline.getGraphicsPipeline().getPipelineLayout().getHandle(),
+                0, sets, null);
     }
 
     public void setViewport(int firstViewport, VkViewport.Buffer buffer) {

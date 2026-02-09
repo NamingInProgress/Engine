@@ -42,7 +42,7 @@ public class RenderPipelines {
                     .dstAlphaBlendFactor(RenderPipeline.BlendFactor.ZERO)
                     .alphaBlendOp(RenderPipeline.BlendOperation.ADD))
             .addPushConstants("vertexBufferPtr", new TestPushConstant())
-            .withDescriptorLayout(new Identifier("shaders/test.layout.json"))
+            .withDescriptorLayout(new Identifier("shaders/idk.layout.json"))
             //.addDescriptorSetLayout(new DescriptorSetLayout.Builder()
             //        .addBinding(0, DescriptorType.UniformBuffer, new Shader.Stages(Shader.Type.VERTEX)))
             .register();

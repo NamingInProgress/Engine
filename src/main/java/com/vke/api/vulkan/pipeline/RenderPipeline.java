@@ -3,6 +3,7 @@ package com.vke.api.vulkan.pipeline;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.VkEnum;
@@ -13,7 +14,6 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
@@ -52,6 +52,7 @@ public class RenderPipeline implements Disposable {
         pipelineCreateInfo.engine = engine;
         pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
         pipelineCreateInfo.name = builder.getId();
+        pipelineCreateInfo.setup = vkSetup;
 
         int depthFormat = VK14.VK_FORMAT_UNDEFINED;
         int stencilFormat = VK14.VK_FORMAT_UNDEFINED;
@@ -84,12 +85,14 @@ public class RenderPipeline implements Disposable {
         }
         shader = new VKShaderProgram(shaders);
 
-        String[] layoutFileName = builder.descriptorLayout.getPath().split("\\.");
         DescriptorData descriptorData = null;
-        try {
-            descriptorData = DescriptorData.fromFileWithExtension(layoutFileName[layoutFileName.length - 1], builder.descriptorLayout);
-        } catch (IOException | ConfigParser.ConfigParseException e) {
-            engine.throwException(e, "Render Pipeline");
+        if (builder.descriptorLayout != null){
+            String[] layoutFileName = builder.descriptorLayout.getPath().split("\\.");
+            try {
+                descriptorData = DescriptorData.fromFileWithExtension(layoutFileName[layoutFileName.length - 1], builder.descriptorLayout);
+            } catch (IOException | ConfigParser.ConfigParseException | SchemaMismatchException e) {
+                engine.throwException(e, "Render Pipeline");
+            }
         }
 
         GraphicsPipeline.PipelineSettingsInfo pipelineSettingsInfo =
@@ -151,7 +154,7 @@ public class RenderPipeline implements Disposable {
     }
 
     public void setDescriptorEntryData(String key, Consumer<BufferSlice> runnable) {
-        getGraphicsPipeline().writeToDescriptor(key, runnable);
+        getGraphicsPipeline().writeToBufferDescriptor(key, runnable);
     }
 
     @Override
@@ -208,7 +211,7 @@ public class RenderPipeline implements Disposable {
 
         // Shader
         ShaderProgram shader;
-        LinkedHashMap<String, PushConstantsDefinition> pushConstants = new LinkedHashMap();
+        LinkedHashMap<String, PushConstantsDefinition> pushConstants = new LinkedHashMap<>();
         Identifier descriptorLayout;
 
         public RenderPipelineBuilder(Identifier key) {

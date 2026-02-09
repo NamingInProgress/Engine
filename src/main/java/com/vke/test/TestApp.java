@@ -71,9 +71,41 @@ public class TestApp extends App {
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
         pc.setMat(mat);
 
-        RenderPipelines.IDK.setDescriptorEntryData("viewProj", (slice) -> {
-            slice.put(myData);
+        Matrix4f translation = new Matrix4f();
+        translation.translation((float) (Math.abs(Math.sin(System.currentTimeMillis()) * 20f - 1f)), 0, 0);
+        RenderPipelines.IDK.setDescriptorEntryData("matrix", (slice) -> {
+            slice.write((buf) -> {
+                AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
+                abb.float4x4(translation);
+            });
         });
+
+        RenderPipelines.IDK.setDescriptorEntryData("time", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(System.currentTimeMillis() % 1000);
+            });
+        });
+
+        RenderPipelines.IDK.setDescriptorEntryData("timev2", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(System.currentTimeMillis() % 1000);
+            });
+        });
+
+
+
+        //Matrix4f m = new Matrix4f().translate(0.5f, 0, 0);
+//
+        //RenderPipelines.IDK.setDescriptorEntryData("mat", (slice) -> {
+        //    slice.write((buf) -> {
+        //        AlignedByteBuffer b = new AlignedByteBuffer(buf, 16);
+        //        b.float4x4(m);
+        //    });
+        //});
+
+
+
+        cmd.setDescriptorSets(RenderPipelines.IDK, stack);
 
         cmd.setPushConstants(RenderPipelines.IDK, stack);
 

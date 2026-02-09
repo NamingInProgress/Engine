@@ -1,6 +1,5 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
-import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
 import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
@@ -11,10 +10,13 @@ import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.descriptor.*;
+import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorBinding;
+import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
+import com.vke.utils.Pair;
 import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -35,6 +37,7 @@ public class GraphicsPipeline implements Disposable {
     private SwapChain swapChain;
     private PipelineLayout layout;
     private List<DescriptorSetLayout> descriptorSetLayouts = new ArrayList<>();
+    private List<DescriptorSet> descriptorSets = new ArrayList<>();
 
     private DescriptorData descriptorData;
 
@@ -45,32 +48,37 @@ public class GraphicsPipeline implements Disposable {
         this.engine = createInfo.engine;
         this.swapChain = createInfo.swapChain;
 
-        List<DescriptorPool.DescriptorTypeCountInfo> descriptorTypeCountInfo = new ArrayList<>();
-
-        for (ObjectIntCursor<DescriptorType> count : descriptorData.counts()) {
-            descriptorTypeCountInfo.add(new DescriptorPool.DescriptorTypeCountInfo(count.value, count.key));
-        }
-
         descriptorData = pipelineSettingsInfo.descriptorData;
 
-        for (IntObjectCursor<DescriptorData.Set> set : descriptorData.getSets()) {
-            DescriptorSetLayout.Builder builder = new DescriptorSetLayout.Builder();
+        if (descriptorData != null) {
+            List<DescriptorPool.DescriptorTypeCountInfo> descriptorTypeCountInfo = new ArrayList<>();
 
-            builder.fromWrapper(set.value.getBindings());
+            for (ObjectIntCursor<DescriptorType> count : descriptorData.counts()) {
+                descriptorTypeCountInfo.add(new DescriptorPool.DescriptorTypeCountInfo(count.value, count.key)); // might not work probab;ly will
+            }
 
-            descriptorSetLayouts.add(builder.build(engine, device));
-        }
+            for (IntObjectCursor<DescriptorData.Set> set : descriptorData.getSets()) {
+                DescriptorSetLayout.Builder builder = new DescriptorSetLayout.Builder();
 
-        if (descriptorData.getSetsAmount() != 0) {
-            DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
-            poolCreateInfo.maxSets = descriptorData.getSetsAmount();
-            poolCreateInfo.engine = engine;
-            poolCreateInfo.logicalDevice = device;
-            poolCreateInfo.descriptorTypeCountInfo = descriptorTypeCountInfo;
+                builder.fromWrapper(set.value.getBindings());
 
-            descAlloc = new DescriptorAllocator(poolCreateInfo);
+                descriptorSetLayouts.add(builder.build(engine, device));
+            }
 
+            if (descriptorData.getSetsAmount() != 0) {
+                DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
+                poolCreateInfo.maxSets = descriptorData.getSetsAmount();
+                poolCreateInfo.engine = engine;
+                poolCreateInfo.logicalDevice = device;
+                poolCreateInfo.descriptorTypeCountInfo = descriptorTypeCountInfo;
+                poolCreateInfo.setup = createInfo.setup;
 
+                descAlloc = new DescriptorAllocator(poolCreateInfo);
+
+                for (int i = 0; i < descriptorSetLayouts.size(); i++) {
+                    descriptorSets.add(i, descAlloc.allocate(descriptorSetLayouts.get(i)));
+                }
+            }
         }
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
@@ -150,7 +158,7 @@ public class GraphicsPipeline implements Disposable {
             }
 
 
-            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pushConstants());
+            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pushConstants(), descriptorSetLayouts);
             this.layout = pipelineLayout;
 
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
@@ -212,17 +220,29 @@ public class GraphicsPipeline implements Disposable {
         }
     }
 
+    public List<DescriptorSet> getDescriptorSets() {
+        return descriptorSets;
+    }
+
     public long getHandle() { return this.handle; }
     public PipelineLayout getPipelineLayout() { return this.layout; }
     public DescriptorData getDescriptorData() { return this.descriptorData; }
 
-    public void writeToDescriptor(String name, Consumer<BufferSlice> runnable) {
+    public void writeToBufferDescriptor(String name, Consumer<BufferSlice> runnable) {
+        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
 
+        DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
+        if (b instanceof DescriptorBinding.BufferBinding bb) {
+            bb.write(name, runnable);
+        } else {
+            engine.throwException(new IllegalStateException("Tried to modify buffer on descriptor binding which is not of buffer type"), HERE);
+        }
     }
 
     @Override
     public void free() {
         layout.free();
+        descriptorSets.forEach(DescriptorSet::free);
         descriptorSetLayouts.forEach(DescriptorSetLayout::free);
         if (descAlloc != null) descAlloc.free();
         VK14.vkDestroyPipeline(device.getDevice(), handle, null);

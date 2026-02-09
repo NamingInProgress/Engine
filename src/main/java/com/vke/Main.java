@@ -89,21 +89,6 @@ public class Main {
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-
-        String json = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\subject.json"));
-        String schemaJson = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\test.schema.json"));
-
-        JsonParser parser = new JsonParser();
-        parser.setSource(schemaJson.toCharArray());
-        ConfigSchema schema = ConfigSchema.readVke(parser.parse());
-
-        parser.setSource(json.toCharArray());
-        ConfigDocument doc = parser.parse();
-        doc.validate(schema);
-
-
-
-        System.exit(0);
         //System.exit(0);
         //Thread.sleep(5000);
         EngineCreateInfo createInfo = new EngineCreateInfo();

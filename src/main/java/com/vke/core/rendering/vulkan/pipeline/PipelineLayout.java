@@ -2,6 +2,8 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
+import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -11,6 +13,7 @@ import org.lwjgl.vulkan.VkPushConstantRange;
 
 import java.nio.LongBuffer;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PipelineLayout implements Disposable {
@@ -19,7 +22,7 @@ public class PipelineLayout implements Disposable {
     private final LinkedHashMap<String, PushConstantsDefinition> pushConstants;
     private final LogicalDevice device;
 
-    public PipelineLayout(VKEngine engine, LogicalDevice device, LinkedHashMap<String, PushConstantsDefinition> pushConstants) {
+    public PipelineLayout(VKEngine engine, LogicalDevice device, LinkedHashMap<String, PushConstantsDefinition> pushConstants, List<DescriptorSetLayout> descriptors) {
         this.pushConstants = pushConstants;
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -38,6 +41,10 @@ public class PipelineLayout implements Disposable {
                         .size(v.getSize(PushConstantsDefinition.ALIGN))
                         .stageFlags(v.getAplicableStages().getVkHandle());
             });
+
+            LongBuffer pDescriptors = stack.longs(descriptors.stream().mapToLong(DescriptorSetLayout::getHandle).toArray());
+            createInfo.pSetLayouts(pDescriptors);
+            createInfo.setLayoutCount(descriptors.size());
 
             createInfo.pPushConstantRanges(pushConstantsBuffer);
 

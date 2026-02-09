@@ -162,9 +162,9 @@ public class VulkanSetup implements Disposable {
 
     @Override
     public void free() {
+        VKERegistries.PIPELINES.freeVkPipelines();
         Vma.vmaDestroyAllocator(allocator);
         Arrays.stream(frames).forEach(Frame::free);
-        VKERegistries.PIPELINES.freeVkPipelines();
         swapChain.free();
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         this.immediateFrame.free();

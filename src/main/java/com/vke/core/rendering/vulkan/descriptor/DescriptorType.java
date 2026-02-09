@@ -21,6 +21,8 @@ public enum DescriptorType implements VkEnum {
         return vk;
     }
 
+    public boolean isBuffer() { return this == UniformBuffer || this == StorageBuffer; }
+
     public static DescriptorType fromWrapper(DescriptorData.Binding.Type type) {
         return switch (type) {
             case COMBINED_IMAGE_SAMPLER -> CombinedImageSampler;

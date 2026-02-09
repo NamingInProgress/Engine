@@ -2,8 +2,12 @@ package com.vke.api.vulkan.descriptors;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.ObjectLongHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.schema.ConfigSchema;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.descriptor.wrapper.JsonDescriptorData;
@@ -18,6 +22,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public abstract class DescriptorData {
+    private static ConfigSchema schema;
+
+    static {
+        try {
+            Identifier ident = new Identifier("schema/layouts.schema.json");
+            char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
+            ConfigParser parser = new JsonParser();
+            parser.setSource(source);
+            ConfigDocument schemaDoc = parser.parse();
+            schema = ConfigSchema.readVke(schemaDoc);
+        } catch (IOException | ConfigParser.ConfigParseException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     protected final IntObjectHashMap<Set> sets = new IntObjectHashMap<>();
     protected final HashMap<String, Pair<Integer, Integer>> entryPositions = new HashMap<>();
@@ -44,29 +63,30 @@ public abstract class DescriptorData {
     public IntObjectHashMap<Set> getSets() { return this.sets; }
 
     public Entry getEntry(String entryName) {
-        Pair<Integer, Integer> location = entryPositions.get(entryName);
-
-        if (location == null) {
-            entryPositions.put(entryName, findPosition(entryName));
-        }
-
-        return fromPositionAndName(entryPositions.get(entryName), entryName);
+        return fromPositionAndName(getPosition(entryName), entryName);
     }
 
     public Entry fromPositionAndName(Pair<Integer, Integer> pos, String name) {
         return getSet(pos.v1).getBinding(pos.v2).getEntry(name);
     }
 
-    public Pair<Integer, Integer> findPosition(String name) {
+    public Pair<Integer, Integer> getPosition(String name) {
+        Pair<Integer, Integer> location = entryPositions.get(name);
+
+        if (location != null) return location;
+
         for (IntObjectCursor<Set> set : sets) {
             Pair<Integer, Integer> possiblePos = set.value.getEntryPosition(set.key, name);
-            if (possiblePos != null) return possiblePos;
+            if (possiblePos != null) {
+                entryPositions.put(name, possiblePos);
+                return possiblePos;
+            }
         }
 
         throw new IllegalStateException("Failed to find entry for name: " + name);
     }
 
-    public static DescriptorData fromFileWithExtension(String extension, Identifier ident) throws IOException, ConfigParser.ConfigParseException {
+    public static DescriptorData fromFileWithExtension(String extension, Identifier ident) throws IOException, ConfigParser.ConfigParseException, SchemaMismatchException {
         ConfigParser parser = null;
 
         if (extension.equalsIgnoreCase("json")) {
@@ -76,7 +96,9 @@ public abstract class DescriptorData {
         parser.setSource(Utils.readCharsFromInputStream(ident.asInputStream()));
 
         if (extension.equalsIgnoreCase("json")) {
-            return JsonDescriptorData.fromJson(parser.parse());
+            ConfigDocument doc = parser.parse();
+            doc.validate(schema);
+            return JsonDescriptorData.fromJson(doc);
         }
 
         return null;
@@ -106,7 +128,7 @@ public abstract class DescriptorData {
     public static abstract class Binding {
 
         protected Type type;
-        protected Shader.Stages stages = new Shader.Stages(Shader.Type.VERTEX);
+        protected Shader.Stages stages = new Shader.Stages(Shader.Type.VERTEX, Shader.Type.FRAGMENT);
         protected String name;
         protected Struct struct;
 
@@ -144,6 +166,7 @@ public abstract class DescriptorData {
     public static abstract class Struct {
 
         protected final ArrayList<Entry> entries = new ArrayList<>();
+        protected final ObjectLongHashMap<Entry> precedings = new ObjectLongHashMap<>();
 
         public ArrayList<Entry> getEntries() {
             return this.entries;
@@ -151,6 +174,25 @@ public abstract class DescriptorData {
 
         public Entry byName(String name) {
             return entries.stream().filter(c -> c.name.equals(name)).findFirst().orElse(null);
+        }
+
+        public long preceding(String name) {
+            return preceding(byName(name));
+        }
+        
+        public long preceding(Entry e) {
+            if (precedings.containsKey(e)) return precedings.get(e);
+
+            int idx = entries.indexOf(e);
+            
+            long count = 0;
+            for (int i = 0; i < idx; i++) {
+                count += entries.get(i).getSize();
+            }
+
+            precedings.put(e, count);
+            
+            return count;
         }
 
         public int sizeof() { return entries.stream().mapToInt(Entry::getSize).sum(); }

@@ -1,6 +1,7 @@
 package com.vke.api.vulkan.createInfos;
 
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Identifier;
@@ -11,5 +12,6 @@ public class PipelineCreateInfo {
     public VKEngine engine;
     public SwapChain swapChain;
     public Identifier name;
+    public VulkanSetup setup;
 
 }

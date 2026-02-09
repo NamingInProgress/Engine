@@ -1,15 +1,20 @@
 package com.vke.core.rendering.vulkan.descriptor.ref;
 
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.buffer.MappedBuffer;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
-public abstract class DescriptorBinding {
+import java.util.function.Consumer;
+
+public abstract class DescriptorBinding implements Disposable {
 
     private final DescriptorType type;
     private final VKEngine engine;
@@ -25,27 +30,33 @@ public abstract class DescriptorBinding {
         return type;
     }
 
-    public static DescriptorBinding fromType(VKEngine engine, VulkanSetup setup, DescriptorType type) {
+    public static DescriptorBinding fromType(VKEngine engine, VulkanSetup setup, DescriptorData.Binding binding) {
+        DescriptorType type = DescriptorType.fromWrapper(binding.getType());
         return switch (type) {
-            case UniformBuffer -> new BufferBinding(engine, setup, type, )
-        }
+            case CombinedImageSampler -> null;
+            case StorageImage -> null;
+            case UniformBuffer -> new BufferBinding(engine, setup, type, binding.getStruct(), binding.getStruct().sizeof(), 1);
+            case StorageBuffer -> null;
+        };
     }
 
-    public abstract StructBuffer<?, ?> getBindingInfo(MemoryStack stack);
+    public abstract <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack);
     
     public static class BufferBinding extends DescriptorBinding {
 
         private final MappedBuffer[] buffers;
         private final boolean sameDataForAll;
         private final long size;
+        private final DescriptorData.Struct struct;
 
-        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, long size, int amount) {
-            this(engine, setup, type, size, amount, false);
+        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size, int amount) {
+            this(engine, setup, type, struct, size, amount, false);
         }
 
         // Assumes size is byte aligned size
-        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, long size, int amount, boolean sameDataForAll) {
+        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size, int amount, boolean sameDataForAll) {
             super(engine, setup, type);
+            this.struct = struct;
             
             GpuBuffer.BufferUsage usage = new GpuBuffer.BufferUsage(type == DescriptorType.StorageBuffer ? GpuBuffer.BufferUsage.Bits.SSBO : GpuBuffer.BufferUsage.Bits.UBO);
 
@@ -59,7 +70,13 @@ public abstract class DescriptorBinding {
             this.size = size;
         }
 
-        public VkDescriptorBufferInfo.Buffer getBindingInfo(MemoryStack stack) {
+        public void write(String name, Consumer<BufferSlice> consumer) {
+            DescriptorData.Entry entry = struct.byName(name);
+            long preceding = struct.preceding(entry);
+            consumer.accept(new BufferSlice(buffers[0], preceding, entry.getSize()));
+        }
+
+        public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {
             VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(buffers.length, stack);
 
             for (int i = 0; i < buffers.length; i++) {
@@ -69,7 +86,14 @@ public abstract class DescriptorBinding {
                         .range(size);
             }
 
-            return info;
+            return (T) info;
+        }
+
+        @Override
+        public void free() {
+            for (MappedBuffer buffer : buffers) {
+                buffer.free();
+            }
         }
         
     }

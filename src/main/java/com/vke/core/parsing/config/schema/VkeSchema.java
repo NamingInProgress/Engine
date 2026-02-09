@@ -21,32 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VkeSchema implements ConfigSchema {
-    private static final ConfigSchema schemaSchema;
-
-    static {
-        Identifier ident = new Identifier("vke", "schema/vke.schema.json");
-        try {
-            char[] data = Utils.readCharsFromInputStream(ident.asInputStream());
-            ConfigParser parser = new JsonParser();
-            parser.setSource(data);
-            if (true) schemaSchema = null;
-            else
-            schemaSchema = new VkeSchema(parser.parse(), false);
-        } catch (IOException | ConfigParser.ConfigParseException | SchemaMismatchException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private final SchemaObjectType root;
 
-    public VkeSchema(ConfigDocument schemaDoc) throws SchemaMismatchException {
-        this(schemaDoc, true);
-    }
-
-    public VkeSchema(ConfigDocument schemaDoc, boolean validateSchema) throws SchemaMismatchException {
-        if (validateSchema) {
-            schemaDoc.validate(schemaSchema);
-        }
+    public VkeSchema(ConfigDocument schemaDoc) {
         ConfigNode root = schemaDoc.getRoot();
         SchemaCtx schemaCtx = new SchemaCtx(root);
         ConfigArrayNode fieldsArray = Configs.getArray(root, "fields");

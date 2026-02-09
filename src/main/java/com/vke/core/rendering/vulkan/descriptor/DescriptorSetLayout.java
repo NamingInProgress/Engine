@@ -1,7 +1,6 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
@@ -59,6 +58,9 @@ public class DescriptorSetLayout implements Disposable {
         return handle;
     }
 
+    public IntObjectHashMap<DescriptorData.Binding> getBindings() {
+        return binding;
+    }
 
     @Override
     public void free() {
@@ -76,6 +78,7 @@ public class DescriptorSetLayout implements Disposable {
         private Builder addBinding(int index, DescriptorType type, Shader.Stages shaderStageFlags) {
             VkDescriptorSetLayoutBinding b = VkDescriptorSetLayoutBinding.calloc();
             b.binding(index);
+            b.descriptorCount(1); // TODO: vchange when adding arrays
             b.descriptorType(type.getVkHandle());
             b.stageFlags(shaderStageFlags.getVkHandle());
             bindings.add(b);
@@ -86,7 +89,7 @@ public class DescriptorSetLayout implements Disposable {
             wrappers = bindings;
 
             for (IntObjectCursor<DescriptorData.Binding> binding : bindings) {
-                addBinding(binding.key, DescriptorType.fromWrapper(binding.value.getType()), binding.value.getStages())
+                addBinding(binding.key, DescriptorType.fromWrapper(binding.value.getType()), binding.value.getStages());
             }
         }
 

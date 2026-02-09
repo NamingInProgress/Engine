@@ -1,6 +1,8 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VulkanSetup;
+import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -13,10 +15,12 @@ public class DescriptorAllocator implements Disposable {
     private DescriptorPool pool;
     private LogicalDevice device;
     private VKEngine engine;
+    private VulkanSetup setup;
 
     public DescriptorAllocator(DescriptorPoolCreateInfo descriptorPoolCreateInfo) {
         this.device = descriptorPoolCreateInfo.logicalDevice;
         this.engine = descriptorPoolCreateInfo.engine;
+        this.setup = descriptorPoolCreateInfo.setup;
         this.pool = new DescriptorPool(descriptorPoolCreateInfo);
     }
 
@@ -35,7 +39,9 @@ public class DescriptorAllocator implements Disposable {
             if (VK14.vkAllocateDescriptorSets(device.getDevice(), info, pDescriptorSet) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Failed to create descriptor set!"), "Descriptor Allocator");
             }
-            DescriptorSet set = new DescriptorSet(pDescriptorSet.get(0), device, layout);
+
+            DescriptorSet set = new DescriptorSet(pDescriptorSet.get(0), engine, setup, device, layout);
+
             return set;
         }
     }

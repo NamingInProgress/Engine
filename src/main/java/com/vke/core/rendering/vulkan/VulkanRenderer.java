@@ -5,8 +5,6 @@ import com.vke.api.services.Service;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.descriptor.DescriptorAllocator;
-import com.vke.core.rendering.vulkan.descriptor.DescriptorPoolCreateInfo;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.frame.Frame;
 import com.vke.core.rendering.vulkan.frame.ImmediateFrame;
