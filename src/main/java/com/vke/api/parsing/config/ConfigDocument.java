@@ -2,13 +2,28 @@ package com.vke.api.parsing.config;
 
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
-
-import java.nio.file.Path;
+import com.vke.api.parsing.config.schema.ConfigSchema;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.api.parsing.config.schema.SchemaValidationResult;
 
 public interface ConfigDocument {
     String getName();
 
     ConfigNode getRoot();
+
+    default void validate(ConfigSchema schema) throws SchemaMismatchException {
+        SchemaValidationResult result = schema.validate(getRoot());
+        if (!result.isValid()) {
+            StringBuilder error = new StringBuilder();
+            error.append("There were validation errors when validating input with schema:");
+            error.append(System.lineSeparator());
+            for (SchemaValidationResult.ValidationError e : result.getErrors()) {
+                error.append(e.getMessage());
+                error.append(System.lineSeparator());
+            }
+            throw new SchemaMismatchException(error.toString());
+        }
+    }
 
     default ConfigNode resolve(String... path) {
         ConfigNode current = getRoot();

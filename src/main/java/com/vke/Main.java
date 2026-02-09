@@ -6,6 +6,7 @@ import com.vke.api.parsing.config.node.AttributedConfigNode;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
@@ -91,24 +92,17 @@ public class Main {
 //            throw new RuntimeException(e);
 //        }
 
-        String json = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\java\\com\\vke\\core\\parsing\\config\\json\\test.json"));
-        String xml = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\java\\com\\vke\\core\\parsing\\config\\xml\\test.xml"));
+        String json = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\subject.json"));
+        String schemaJson = Files.readString(Path.of("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\main\\resources\\vke\\schema\\test.schema.json"));
 
-        System.out.println("===== JSON =====");
-        ConfigParser jsonParser = new JsonParser();
-        jsonParser.setSource(json.toCharArray());
-        ConfigDocument jsonDoc = jsonParser.parse();
-        System.out.println(jsonDoc.getRoot());
-        ConfigArrayNode arr = (ConfigArrayNode) jsonDoc.resolve("c", "arr");
-        System.out.println(arr);
+        JsonParser parser = new JsonParser();
+        parser.setSource(schemaJson.toCharArray());
+        ConfigSchema schema = ConfigSchema.readVke(parser.parse());
 
-        System.out.println("===== XML =====");
-        ConfigParser xmlParser = new XmlParser();
-        xmlParser.setSource(xml.toCharArray());
-        ConfigDocument xmlDoc = xmlParser.parse();
-        System.out.println(xmlDoc.getRoot());
-        ConfigArrayNode bTag = (ConfigArrayNode) xmlDoc.resolve("a", "b");
-        System.out.println(bTag);
+        parser.setSource(json.toCharArray());
+        ConfigDocument doc = parser.parse();
+        doc.validate(schema);
+
 
 
         System.exit(0);
