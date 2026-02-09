@@ -5,6 +5,7 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.AttributedConfigNode;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.api.window.WindowCreateInfo;
@@ -106,6 +107,8 @@ public class Main {
         xmlParser.setSource(xml.toCharArray());
         ConfigDocument xmlDoc = xmlParser.parse();
         System.out.println(xmlDoc.getRoot());
+        ConfigArrayNode bTag = (ConfigArrayNode) xmlDoc.resolve("a", "b");
+        System.out.println(bTag);
 
 
         System.exit(0);

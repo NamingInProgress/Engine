@@ -41,7 +41,14 @@ public class XmlTagNode implements NamedConfigObjectNode, ConfigArrayNode, Write
 
     @Override
     public ConfigNode getNode(String key) {
-        return children.get(key);
+        XmlPseudoArrayNode node = children.get(key);
+        if (node != null) {
+            ConfigNode[] vals = node.values();
+            if (vals.length >= 1) {
+                return vals[0];
+            }
+        }
+        return null;
     }
 
     @Override
