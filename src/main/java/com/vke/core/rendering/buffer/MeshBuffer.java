@@ -43,9 +43,9 @@ public class MeshBuffer implements Disposable {
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
             self.vertices = new AllocatedBuffer(engine, setup, vbo, vertexBufUsage, vertexMemUsage);
-            if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "Verts", self.vertices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
-                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
-            }
+            //if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "Verts", self.vertices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
+            //    engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
+            //}
 
             VkBufferDeviceAddressInfo deviceAddressInfo = VkBufferDeviceAddressInfo.calloc(stack)
                     .sType$Default()
@@ -67,9 +67,9 @@ public class MeshBuffer implements Disposable {
                     GpuBuffer.MemoryUsage.Bits.GPU_ONLY
             );
             self.indices = new AllocatedBuffer(engine, setup, ibo, indexBufUsage, indexMemUsage);
-            if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "IDX", self.indices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
-                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
-            }
+            //if (!VKUtils.setDebugName(renderer.getSetup().getLogicalDevice(), "IDX", self.indices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
+            //    engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
+            //}
 
             self.vertices.uploadViaStaging(engine, setup);
             self.indices.uploadViaStaging(engine, setup);
