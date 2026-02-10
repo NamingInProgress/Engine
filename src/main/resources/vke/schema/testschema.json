@@ -7,7 +7,7 @@
         {
           "name": "pNext",
           "type": "vkCreateInfo",
-          "requiredd": false
+          "required": false
         }
       ]
     }
