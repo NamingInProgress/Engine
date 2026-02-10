@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.commands;
 
 import com.vke.api.utils.AlignedByteBuffer;
+import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
@@ -9,7 +10,7 @@ import com.vke.core.rendering.vulkan.descriptor.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.pipeline.PipelineLayout;
-import com.vke.core.rendering.vulkan.swapchain.ImageView;
+import com.vke.core.rendering.vulkan.image.ImageView;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
@@ -57,7 +58,7 @@ public class CommandBuffers implements Disposable {
         ImageView currentImage = swapChain.getImageViews().get(swapChain.currentImageIndex());
         currentImage.transitionLayout(
                 this,
-                VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
                 0,
                 VK14.VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
                 VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -101,7 +102,7 @@ public class CommandBuffers implements Disposable {
         ImageView currentImage = swapChain.getImageViews().get(swapChain.currentImageIndex());
         currentImage.transitionLayout(
                 this,
-                KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                ImageLayout.PRESENT_SRC_KHR,
                 VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
                 0,
                 VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,

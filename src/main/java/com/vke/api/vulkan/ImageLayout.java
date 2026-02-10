@@ -1,5 +1,6 @@
 package com.vke.api.vulkan;
 
+import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK14;
 
 public enum ImageLayout implements VkEnum {
@@ -12,7 +13,9 @@ public enum ImageLayout implements VkEnum {
     SHADER_READONLY_OPTIMAL(VK14.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
     TRANSFER_SRC_OPTIMAL(VK14.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL),
     TRANSFER_DST_OPTIMAL(VK14.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
-    PREINITIALIZED(VK14.VK_IMAGE_LAYOUT_PREINITIALIZED);
+    PREINITIALIZED(VK14.VK_IMAGE_LAYOUT_PREINITIALIZED),
+
+    PRESENT_SRC_KHR(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
     private final int vkHandle;
 

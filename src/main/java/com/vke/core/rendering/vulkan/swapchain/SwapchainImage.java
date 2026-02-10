@@ -1,9 +1,9 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
-public class Image {
+public class SwapchainImage {
     private final long handle;
 
-    public Image(long handle) {
+    public SwapchainImage(long handle) {
         this.handle = handle;
     }
 

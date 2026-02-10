@@ -24,16 +24,16 @@ public class TestApp extends App {
 
     @Override
     public void onInit(VKEngine engine) {
-        VertexFormat[] vertices = new VertexFormat[]{
+        VertexFormatTexture[] vertices = new VertexFormatTexture[]{
                 //new VertexFormat(-1,  1, 0, 1, 0, 0, 1),
                 //new VertexFormat( 1,  1, 0, 0, 1, 0, 1),
                 //new VertexFormat(-1, -1, 0, 0, 0, 1, 1),
                 //new VertexFormat( 1, -1, 0, 1, 1, 0, 1)
 
-                new VertexFormat(0, 0, -50, 1, 0, 0, 1f),
-                new VertexFormat(255, 0, -50, 0, 1, 0, 1f),
-                new VertexFormat(255, 255, -50, 0, 0, 1, 1f),
-                new VertexFormat(0, 255, -50, 1, 1, 0, 1f)
+                new VertexFormatTexture(0, 0, -50, 1, 0, 0, 1f, 0, 0),
+                new VertexFormatTexture(255, 0, -50, 0, 1, 0, 1f, 1, 0),
+                new VertexFormatTexture(255, 255, -50, 0, 0, 1, 1f, 1, 1),
+                new VertexFormatTexture(0, 255, -50, 1, 1, 0, 1f, 0, 1)
 
                 //new VertexFormat(-0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
                 //new VertexFormat(0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
@@ -62,15 +62,6 @@ public class TestApp extends App {
 
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
         mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
-
-        TestPipelines.IDK.setUniform("customColor", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(1);
-                buf.putFloat(0);
-                buf.putFloat(0);
-                buf.putFloat(1);
-            });
-        });
 
         TestPipelines.STH.setUniform("fColor", (slice) -> {
             slice.write((buf) -> {
@@ -109,20 +100,7 @@ public class TestApp extends App {
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
         pc.setMat(mat);
 
-        Matrix4f translation = new Matrix4f();
-        translation.translation((float) (Math.abs(Math.sin(System.currentTimeMillis()) * 20f - 1f)), 0, 0);
-        TestPipelines.IDK.setUniform("matrix", (slice) -> {
-            slice.write((buf) -> {
-                AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
-                abb.float4x4(translation);
-            });
-        });
-
-        TestPipelines.IDK.setUniform("time", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(System.currentTimeMillis() % 1000);
-            });
-        });
+        // Set sampler (outside of render loop tho)
 
         cmd.setDescriptorSets(TestPipelines.IDK, stack);
 
@@ -164,6 +142,38 @@ public class TestApp extends App {
     public void free() {
         mesh.free();
         mesh2.free();
+    }
+
+    private static class VertexFormatTexture implements Vertex {
+        private final float x, y, z;
+        private final float r, g, b, a;
+        private final float u, v;
+
+        public VertexFormatTexture(float x, float y, float z, float r, float g, float b, float a, float u, float v) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+            this.u = u;
+            this.v = v;
+        }
+
+        @Override
+        public int getByteStride() {
+            return Float.BYTES * 12;
+        }
+
+        @Override
+        public void putSelf(ByteBuffer buf) {
+            AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
+            abb.float3(x, y, z);
+            abb.float4(r, g, b, a);
+            abb.float2(u, v);
+        }
+
     }
 
     private static class VertexFormat implements Vertex {

@@ -22,13 +22,13 @@ import java.io.IOException;
 public class TestApplication {
 
     public static void main(String[] args) throws InterruptedException, IOException, ConfigParser.ConfigParseException, SchemaMismatchException {
-        Identifier ident = Identifier.of("schema/layouts.schema.json");
-        char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
-        ConfigParser parser = new JsonParser();
-        parser.setSource(source);
-        ConfigDocument d = parser.parse();
-        ConfigSchema schema = ConfigSchema.readVke(d, ident.getPath());
-        System.out.println(schema);
+        //Identifier ident = Identifier.of("schema/layouts.schema.json");
+        //char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
+        //ConfigParser parser = new JsonParser();
+        //parser.setSource(source);
+        //ConfigDocument d = parser.parse();
+        //ConfigSchema schema = ConfigSchema.readVke(d, ident.getPath());
+        //System.out.println(schema);
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
@@ -37,7 +37,6 @@ public class TestApplication {
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
-        createInfo.vulkanCreateInfo.apiVersion = new Version(1, 0, 3);
 
         TestPipelines.init();
         VKEngine engine = new VKEngine(createInfo);

@@ -1,8 +1,10 @@
-package com.vke.core.rendering.vulkan.swapchain;
+package com.vke.core.rendering.vulkan.image;
 
+import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.swapchain.SwapchainImage;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -11,13 +13,13 @@ import org.lwjgl.vulkan.*;
 import java.nio.LongBuffer;
 
 public class ImageView implements Disposable {
-    private Image parent;
+    private long parent;
     private long handle;
-    private int layout;
+    private ImageLayout layout;
     private LogicalDevice device;
 
-    public ImageView(Image parent, VKEngine engine, LogicalDevice device, VkImageViewCreateInfo info) {
-        this.parent = parent;
+    public ImageView(SwapchainImage parent, VKEngine engine, LogicalDevice device, VkImageViewCreateInfo info) {
+        this.parent = parent.getHandle();
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pImageView = stack.mallocLong(1);
@@ -25,10 +27,29 @@ public class ImageView implements Disposable {
                 engine.throwException(new IllegalStateException("Failed to create image view"), "Image View");
             }
             handle = pImageView.get(0);
-            layout = VK14.VK_IMAGE_LAYOUT_UNDEFINED;
+            layout = ImageLayout.UNDEFINED;
         }
 
         MemoryUtil.nmemFree(info.address());
+    }
+
+    private ImageView(VulkanImage image, ImageLayout layout, LogicalDevice device, long handle) {
+        this.parent = image.getHandle();
+        this.layout = layout;
+        this.device = device;
+        this.handle = handle;
+    }
+
+    public static ImageView createFromImage(VulkanImage image, VKEngine engine, LogicalDevice device, VkImageViewCreateInfo info) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer pImageView = stack.mallocLong(1);
+            if (VK14.vkCreateImageView(device.getDevice(), info, null, pImageView) != VK14.VK_SUCCESS) {
+                engine.throwException(new IllegalStateException("Failed to create image view"), "Image View");
+            }
+            long handle = pImageView.get(0);
+            ImageLayout layout = ImageLayout.UNDEFINED;
+            return new ImageView(image, layout, device, handle);
+        }
     }
 
     public static VkImageViewCreateInfo copyCreateInfo(VkImageViewCreateInfo original) {
@@ -38,7 +59,7 @@ public class ImageView implements Disposable {
         return VkImageViewCreateInfo.create(newAddr);
     }
 
-    public void transitionLayout(CommandBuffers buffers, int newLayout, long srcAccessMask, long dstAccessMask, long srcStageMask, long dstStageMask) {
+    public void transitionLayout(CommandBuffers buffers, ImageLayout newLayout, long srcAccessMask, long dstAccessMask, long srcStageMask, long dstStageMask) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange range = VkImageSubresourceRange.calloc(stack)
                     .aspectMask(VK14.VK_IMAGE_ASPECT_COLOR_BIT)
@@ -55,11 +76,11 @@ public class ImageView implements Disposable {
                     .srcAccessMask(srcAccessMask)
                     .dstStageMask(dstStageMask)
                     .dstAccessMask(dstAccessMask)
-                    .oldLayout(layout)
-                    .newLayout(newLayout)
+                    .oldLayout(layout.getVkHandle())
+                    .newLayout(newLayout.getVkHandle())
                     .srcQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
                     .dstQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
-                    .image(parent.getHandle())
+                    .image(parent)
                     .subresourceRange(range);
 
             VkDependencyInfo dependencyInfo = VkDependencyInfo.calloc(stack)

@@ -8,6 +8,7 @@ import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.rendering.vulkan.image.ImageView;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.rendering.vulkan.sync.Semaphore;
 import com.vke.utils.Disposable;
@@ -32,7 +33,7 @@ public class SwapChain implements Disposable {
     private VkExtent2D extent;
     private VKEngine engine;
     private ArrayList<ImageView> imageViews = new ArrayList<>();
-    private ArrayList<Image> images = new ArrayList<>();
+    private ArrayList<SwapchainImage> images = new ArrayList<>();
 
     private boolean dontFreeAlloc;
     private int usedColorFormat;
@@ -160,7 +161,7 @@ public class SwapChain implements Disposable {
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapChainHandle, count, images);
 
         for (int i = 0; i < count.get(0); i++) {
-            this.images.add(new Image(images.get(i)));
+            this.images.add(new SwapchainImage(images.get(i)));
         }
 
         VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
@@ -176,7 +177,7 @@ public class SwapChain implements Disposable {
                 .subresourceRange(subresourceRange)
                 .sType$Default();
         for (int i = 0; i < count.get(0); i++) {
-            Image image = this.images.get(i);
+            SwapchainImage image = this.images.get(i);
             VkImageViewCreateInfo info = ImageView.copyCreateInfo(baseInfo);
             info.image(image.getHandle());
             ImageView view = new ImageView(image, engine, device, info);
@@ -244,7 +245,7 @@ public class SwapChain implements Disposable {
     public int getColorFormat() {
         return usedColorFormat;
     }
-    public ArrayList<Image> getImages() { return this.images; }
+    public ArrayList<SwapchainImage> getImages() { return this.images; }
     public ArrayList<ImageView> getImageViews() { return this.imageViews; }
     public int currentImageIndex() { return this.currentImageIndex; }
     public VkExtent2D getExtent() {

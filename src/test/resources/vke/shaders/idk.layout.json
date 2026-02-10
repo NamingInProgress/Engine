@@ -4,20 +4,10 @@
       "set": 0,
       "layouts": [
         {
-          "type": "UBO",
-          "name": "globals",
-          "stages": [ "vert", "frag" ],
+          "type": "cis",
+          "name": "tex",
           "struct": [
-            { "name": "matrix", "type": "mat4" },
-            { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
-          ]
-        },
-        {
-          "type": "SSBO",
-          "name": "data",
-          "stages": [ "frag" ],
-          "struct": [
-            { "name": "customColor", "type": "float4" }
+            { "name": "tex", "type": "sampler2D" }
           ]
         }
       ]
