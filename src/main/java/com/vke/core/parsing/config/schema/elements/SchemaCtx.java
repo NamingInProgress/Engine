@@ -14,7 +14,7 @@ public class SchemaCtx {
         typedefs = new HashMap<>();
         ConfigArrayNode arr = Configs.getArray(node, "typedefs");
         for (ConfigNode tdNode : arr.values()) {
-            SchemaTypedef typedef = new SchemaTypedef(tdNode);
+            SchemaTypedef typedef = new SchemaTypedef(tdNode, this);
             typedefs.put(typedef.getName(), typedef.getDefinition());
         }
     }

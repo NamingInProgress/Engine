@@ -16,6 +16,18 @@
         "UBO",
         "image_sampler"
       ]
+    },
+    {
+      "name": "test",
+      "type": "multi",
+      "allowed": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "layout_type"
+        }
+      ]
     }
   ],
   "fields": [
