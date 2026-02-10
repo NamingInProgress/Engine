@@ -6,9 +6,18 @@
         {
           "type": "UBO",
           "name": "globals",
+          "stages": [ "vert", "frag" ],
           "struct": [
             { "name": "matrix", "type": "mat4" },
             { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
+          ]
+        },
+        {
+          "type": "SSBO",
+          "name": "data",
+          "stages": [ "frag" ],
+          "struct": [
+            { "name": "customColor", "type": "float4" }
           ]
         }
       ]

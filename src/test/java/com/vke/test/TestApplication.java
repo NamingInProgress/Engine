@@ -17,7 +17,7 @@ public class TestApplication {
         if (renderdoc.get()) Thread.sleep(5000);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         TestPipelines.init();

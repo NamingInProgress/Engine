@@ -39,6 +39,14 @@
                   "required": true
                 },
                 {
+                  "name": "stages",
+                  "type": "array",
+                  "required": true,
+                  "items": {
+                    "type": "shader_stage"
+                  }
+                },
+                {
                   "name": "struct",
                   "type": "array",
                   "required": true,

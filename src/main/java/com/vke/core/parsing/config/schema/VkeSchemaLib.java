@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VkeSchemaLib {
-    //private final List<SchemaTypedef> typedefs;
+    private final List<SchemaTypedef> typedefs;
 
     public VkeSchemaLib(ConfigDocument schemaDoc) throws ConfigParser.ConfigParseException {
         this.typedefs = new ArrayList<>();

@@ -1,0 +1,19 @@
+{
+  "sets": [
+    {
+      "set": 0,
+      "layouts": [
+        {
+          "type": "UBO",
+          "name": "globals",
+          "stages": [ "frag" ],
+          "struct": [
+            { "name": "fColor", "type": "float4" },
+            { "name": "sColor", "type": "float4" },
+            { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

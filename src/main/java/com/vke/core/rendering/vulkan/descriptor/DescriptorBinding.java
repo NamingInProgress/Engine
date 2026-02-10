@@ -34,65 +34,60 @@ public abstract class DescriptorBinding implements Disposable {
         return switch (type) {
             case CombinedImageSampler -> null;
             case StorageImage -> null;
-            case UniformBuffer -> new BufferBinding(engine, setup, type, binding.getStruct(), binding.getStruct().sizeof(), 1);
-            case StorageBuffer -> null;
+            case UniformBuffer, StorageBuffer -> new BufferBinding(engine, setup, type, binding.getStruct(), binding.getStruct().sizeof());
         };
     }
 
     public abstract <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack);
-    
+
+    public static class ImageBinding extends DescriptorBinding {
+
+    }
+
     public static class BufferBinding extends DescriptorBinding {
 
-        private final MappedBuffer[] buffers;
-        private final boolean sameDataForAll;
+        private final MappedBuffer buffer;
         private final long size;
         private final DescriptorData.Struct struct;
 
-        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size, int amount) {
-            this(engine, setup, type, struct, size, amount, false);
-        }
-
         // Assumes size is byte aligned size
-        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size, int amount, boolean sameDataForAll) {
+        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size) {
             super(engine, setup, type);
             this.struct = struct;
             
             GpuBuffer.BufferUsage usage = new GpuBuffer.BufferUsage(type == DescriptorType.StorageBuffer ? GpuBuffer.BufferUsage.Bits.SSBO : GpuBuffer.BufferUsage.Bits.UBO);
 
-            buffers = new MappedBuffer[amount];
-
-            for (int i = 0; i < buffers.length; i++) {
-                buffers[i] = new MappedBuffer(engine, setup, size, usage);
-            }
-
-            this.sameDataForAll = sameDataForAll;
+            buffer = new MappedBuffer(engine, setup, size, usage);
             this.size = size;
         }
 
         public void write(String name, Consumer<BufferSlice> consumer) {
             DescriptorData.Entry entry = struct.byName(name);
             long preceding = struct.preceding(entry);
-            consumer.accept(new BufferSlice(buffers[0], preceding, entry.getSize()));
+            consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
         }
 
         public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {
-            VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(buffers.length, stack);
+            VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack);
 
-            for (int i = 0; i < buffers.length; i++) {
-                info.get(i)
-                        .buffer(buffers[i].getGpuBuffer().getBuffer())
-                        .offset(sameDataForAll ? 0 : i * size)
-                        .range(size);
-            }
+            info.get(0)
+                    .buffer(buffer.getGpuBuffer().getBuffer())
+                    .offset(0)
+                    .range(size);
+
+            //for (int i = 0; i < buffer.length; i++) {
+            //    info.get(i)
+            //            .buffer(buffer[i].getGpuBuffer().getBuffer())
+            //            .offset(sameDataForAll ? 0 : i * size)
+            //            .range(size);
+            //} //TODO: dynamic ranges
 
             return (T) info;
         }
 
         @Override
         public void free() {
-            for (MappedBuffer buffer : buffers) {
-                buffer.free();
-            }
+            buffer.free();
         }
         
     }

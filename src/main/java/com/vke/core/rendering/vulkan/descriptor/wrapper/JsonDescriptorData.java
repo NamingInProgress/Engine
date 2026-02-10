@@ -4,6 +4,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.*;
 import com.vke.api.vulkan.descriptors.DescriptorData;
+import com.vke.core.rendering.vulkan.shader.Shader;
 
 public class JsonDescriptorData extends DescriptorData {
 
@@ -49,6 +50,18 @@ public class JsonDescriptorData extends DescriptorData {
             self.name = binding.getString("name");
 
             self.struct = JsonStruct.fromJson(binding.getArray("struct"));
+
+            ConfigArrayNode stages = binding.getArray("stages");
+
+            String[] names = new String[stages.values().length];
+
+            ConfigNode[] values = stages.values();
+            for (int i = 0; i < values.length; i++) {
+                ConfigNode value = values[i];
+                names[i] = ((ConfigValueNode) value).getValue();
+            }
+
+            self.stages = Shader.Stages.fromString(names);
 
             if (self.type == null) {
                 throw new IllegalStateException("Failed to get binding type for type: " + t);

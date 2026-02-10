@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 
 public class TestApp extends App {
     private MeshBuffer mesh;
+    private MeshBuffer mesh2;
 
     @Override
     public void onInit(VKEngine engine) {
@@ -49,7 +50,46 @@ public class TestApp extends App {
                 0 - 2  0 - 1
                  */
         };
+
+        VertexFormat[] verts = new VertexFormat[]{
+                new VertexFormat(-0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
+                new VertexFormat(0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
+                new VertexFormat(0, 0.5f, 0.5f, 1, 0, 0, 0.5f),
+
+                new VertexFormat(-0.5f, 0.5f, 0.5f, 0, 0, 1, 0.5f),
+                new VertexFormat(0.5f, 0.5f, 0.5f, 0, 0, 1, 0.5f),
+                new VertexFormat(0f, -0.5f, 0.5f, 0, 0, 1, 0.5f)
+        };
+
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
+        mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
+
+        TestPipelines.IDK.setDescriptorEntryData("customColor", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(1);
+                buf.putFloat(0);
+                buf.putFloat(0);
+                buf.putFloat(1);
+            });
+        });
+
+        TestPipelines.STH.setDescriptorEntryData("fColor", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(1);
+                buf.putFloat(0);
+                buf.putFloat(0);
+                buf.putFloat(1);
+            });
+        });
+
+        TestPipelines.STH.setDescriptorEntryData("sColor", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(0);
+                buf.putFloat(0);
+                buf.putFloat(1);
+                buf.putFloat(1);
+            });
+        });
     }
 
     @Override
@@ -85,19 +125,6 @@ public class TestApp extends App {
             });
         });
 
-
-
-        //Matrix4f m = new Matrix4f().translate(0.5f, 0, 0);
-//
-        //RenderPipelines.IDK.setDescriptorEntryData("mat", (slice) -> {
-        //    slice.write((buf) -> {
-        //        AlignedByteBuffer b = new AlignedByteBuffer(buf, 16);
-        //        b.float4x4(m);
-        //    });
-        //});
-
-
-
         cmd.setDescriptorSets(TestPipelines.IDK, stack);
 
         cmd.setPushConstants(TestPipelines.IDK, stack);
@@ -105,6 +132,28 @@ public class TestApp extends App {
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
         VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
+
+
+        // 2nd draw:
+        cmd.bindRenderPipeline(TestPipelines.STH);
+
+        ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
+
+        TestPipelines.STH.setDescriptorEntryData("time", (slice) -> {
+            slice.write((buf) -> {
+                buf.putFloat(System.currentTimeMillis() % 1000);
+            });
+        });
+
+        cmd.setDescriptorSets(TestPipelines.STH, stack);
+
+        cmd.setPushConstants(TestPipelines.STH, stack);
+
+        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+
+        VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
+
+
         //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
 
         //cmd.bindRenderPipeline(RenderPipelines.MAIN);
@@ -115,6 +164,7 @@ public class TestApp extends App {
     @Override
     public void free() {
         mesh.free();
+        mesh2.free();
     }
 
     private static class VertexFormat implements Vertex {

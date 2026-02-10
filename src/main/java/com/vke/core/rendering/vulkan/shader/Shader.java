@@ -2,9 +2,11 @@ package com.vke.core.rendering.vulkan.shader;
 
 import com.vke.api.vulkan.VkBitEnum;
 import com.vke.api.vulkan.VkEnum;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
+import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.VK14;
@@ -12,6 +14,7 @@ import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
+import java.util.Arrays;
 
 public class Shader implements Disposable {
 
@@ -45,14 +48,17 @@ public class Shader implements Disposable {
     }
 
     public enum Type implements VkEnum{
-        VERTEX(Shaderc.shaderc_vertex_shader),
-        FRAGMENT(Shaderc.shaderc_fragment_shader),
-        COMPUTE(Shaderc.shaderc_compute_shader);
+        VERTEX(Shaderc.shaderc_vertex_shader, "vertex", "vert"),
+        FRAGMENT(Shaderc.shaderc_fragment_shader, "fragment", "frag"),
+        COMPUTE(Shaderc.shaderc_compute_shader, "compute", "comp");
 
         private final int shadercHandle;
 
-        Type(int shadercHandle) {
+        private final String[] names;
+
+        Type(int shadercHandle, String... names) {
             this.shadercHandle = shadercHandle;
+            this.names = names;
         }
 
         public int getShadercHandle() {
@@ -66,6 +72,13 @@ public class Shader implements Disposable {
                 case COMPUTE -> VK14.VK_SHADER_STAGE_COMPUTE_BIT;
             };
         }
+
+        public String[] getNames() { return this.names; }
+
+        public static Type fromString(String s) {
+            return Arrays.stream(Type.values()).filter(c -> Utils.arrayContains(c.getNames(), s)).findFirst().orElse(null);
+        }
+
     }
 
     public static class Stages implements VkBitEnum<Stages, Type> {
@@ -86,6 +99,17 @@ public class Shader implements Disposable {
         public int getVkHandle() {
             return this.mask;
         }
+
+        public static Stages fromString(String[] strings) {
+            Stages self = new Stages();
+
+            for (String stage : strings) {
+                self.or(Type.fromString(stage));
+            }
+
+            return self;
+        }
+
     }
 
     @Override

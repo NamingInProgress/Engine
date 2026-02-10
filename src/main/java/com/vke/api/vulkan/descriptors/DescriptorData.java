@@ -137,7 +137,7 @@ public abstract class DescriptorData {
     public static abstract class Binding {
 
         protected Type type;
-        protected Shader.Stages stages = new Shader.Stages(Shader.Type.VERTEX, Shader.Type.FRAGMENT);
+        protected Shader.Stages stages;
         protected String name;
         protected Struct struct;
 
