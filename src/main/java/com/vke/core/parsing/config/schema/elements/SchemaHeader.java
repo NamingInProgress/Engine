@@ -7,6 +7,7 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.config.schema.VkeSchemaLib;
 import com.vke.core.parsing.config.schema.elements.types.SchemaType;
+import com.vke.core.parsing.config.schema.elements.types.SchemaTypeReference;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 
@@ -47,8 +48,14 @@ public class SchemaHeader {
         ConfigArrayNode arr = Configs.getArray(node, "typedefs");
         if (arr != null) {
             for (ConfigNode tdNode : arr.values()) {
+                String name = Configs.getString(tdNode, "name");
+                typedefs.put(name, new SchemaTypeReference(null, null));
+            }
+
+            for (ConfigNode tdNode : arr.values()) {
                 SchemaTypedef typedef = new SchemaTypedef(tdNode, this);
-                typedefs.put(typedef.getName(), typedef.getDefinition());
+                SchemaTypeReference placeholder = (SchemaTypeReference) typedefs.get(typedef.getName());
+                placeholder.resolve(typedef.getDefinition());
             }
         }
     }

@@ -17,7 +17,9 @@ public class VkeSchemaLib {
         SchemaHeader header = new SchemaHeader(schemaDoc.getRoot());
         var allDefs = header.getTypedefs();
         allDefs.forEach((name, def) -> {
-            typedefs.add(new SchemaTypedef(name, def));
+            if (!def.isLocal()) {
+                typedefs.add(new SchemaTypedef(name, def));
+            }
         });
     }
 

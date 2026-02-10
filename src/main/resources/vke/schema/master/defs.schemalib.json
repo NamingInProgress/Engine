@@ -1,0 +1,132 @@
+{
+  "typedefs": [
+    {
+      "name": "field_def",
+      "type": "object",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "name": "enum",
+          "type": "array",
+          "required": false,
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "items",
+          "type": "object",
+          "required": false,
+          "fields": [
+            {
+              "name": "type",
+              "type": "type_def",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "required": false,
+          "items": {
+            "type": "field_def"
+          }
+        },
+        {
+          "name": "range",
+          "type": "object",
+          "required": false,
+          "fields": [
+            {
+              "name": "min",
+              "type": "number",
+              "required": false
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "required": false
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "type_def",
+      "type": "object",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "enum",
+          "type": "array",
+          "required": false,
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "items",
+          "type": "object",
+          "required": false,
+          "fields": [
+            {
+              "name": "type",
+              "type": "type_def",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "required": false,
+          "items": {
+            "type": "field_def"
+          }
+        },
+        {
+          "name": "range",
+          "type": "object",
+          "required": false,
+          "fields": [
+            {
+              "name": "min",
+              "type": "number",
+              "required": false
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "required": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

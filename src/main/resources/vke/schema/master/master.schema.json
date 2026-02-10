@@ -1,0 +1,32 @@
+{
+  "link": [
+    "schema/master/defs.schemalib.json"
+  ],
+
+  "fields": [
+    {
+      "name": "link",
+      "type": "array",
+      "required": false,
+      "items": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "typedefs",
+      "type": "array",
+      "required": false,
+      "items": {
+        "type": "type_def"
+      }
+    },
+    {
+      "name": "fields",
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "field_def"
+      }
+    }
+  ]
+}
