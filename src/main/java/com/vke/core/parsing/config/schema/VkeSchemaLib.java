@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VkeSchemaLib {
-    //private final List<SchemaTypedef> typedefs;
+    private final List<SchemaTypedef> typedefs;
 
     public VkeSchemaLib(ConfigDocument schemaDoc) throws ConfigParser.ConfigParseException {
         this.typedefs = new ArrayList<>();
@@ -17,7 +17,9 @@ public class VkeSchemaLib {
         SchemaHeader header = new SchemaHeader(schemaDoc.getRoot());
         var allDefs = header.getTypedefs();
         allDefs.forEach((name, def) -> {
-            typedefs.add(new SchemaTypedef(name, def));
+            if (!def.isLocal()) {
+                typedefs.add(new SchemaTypedef(name, def));
+            }
         });
     }
 

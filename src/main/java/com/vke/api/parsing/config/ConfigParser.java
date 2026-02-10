@@ -66,7 +66,7 @@ public interface ConfigParser {
         }
 
         public ConfigParseException(Exception e) {
-            super(e);
+            super(e.getClass().getName() + ": " + e.getMessage());
         }
     }
 }

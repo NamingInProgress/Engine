@@ -6,7 +6,7 @@ import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import java.util.ArrayDeque;
 
 public abstract class SchemaElement {
-    public SchemaElement(ConfigNode node, SchemaHeader ctx) {
+    public SchemaElement(ConfigNode node, SchemaHeader header) {
 
     }
 
