@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
+import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.BufferSlice;
@@ -9,7 +10,9 @@ import com.vke.core.rendering.vulkan.mem.GpuBuffer;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
+import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
+import org.lwjgl.vulkan.VkDescriptorImageInfo;
 
 import java.util.function.Consumer;
 
@@ -32,8 +35,8 @@ public abstract class DescriptorBinding implements Disposable {
     public static DescriptorBinding fromType(VKEngine engine, VulkanSetup setup, DescriptorData.Binding binding) {
         DescriptorType type = DescriptorType.fromWrapper(binding.getType());
         return switch (type) {
-            case CombinedImageSampler -> null;
-            case StorageImage -> null;
+            case CombinedImageSampler -> new SamplerBinding(engine, setup, type);
+            case StorageImage -> new ImageBinding(engine, setup, type);
             case UniformBuffer, StorageBuffer -> new BufferBinding(engine, setup, type, binding.getStruct(), binding.getStruct().sizeof());
         };
     }
@@ -42,6 +45,73 @@ public abstract class DescriptorBinding implements Disposable {
 
     public static class ImageBinding extends DescriptorBinding {
 
+        public long imageView;
+        public ImageLayout layout;
+
+        public ImageBinding(VKEngine engine, VulkanSetup setup, DescriptorType type) {
+            super(engine, setup, type);
+        }
+
+        public void setImageView(long handle) {
+            this.imageView = handle;
+        }
+
+        public void setImageLayout(ImageLayout layout) {
+            this.layout = layout;
+        }
+
+        @Override
+        public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {
+            VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack);
+
+            info.get(0)
+                    .sampler(VK14.VK_NULL_HANDLE)
+                    .imageView(this.imageView)
+                    .imageLayout(layout.getVkHandle());
+
+            return (T) info;
+        }
+
+        @Override
+        public void free() {}
+    }
+
+    public static class SamplerBinding extends DescriptorBinding {
+
+        public long sampler;
+        public long imageView;
+        public ImageLayout layout;
+
+        public SamplerBinding(VKEngine engine, VulkanSetup setup, DescriptorType type) {
+            super(engine, setup, type);
+        }
+
+        public void setSampler(long handle) {
+            this.sampler = handle;
+        }
+
+        public void setImageView(long handle) {
+            this.imageView = handle;
+        }
+
+        public void setImageLayout(ImageLayout layout) {
+            this.layout = layout;
+        }
+
+        @Override
+        public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {
+            VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack);
+
+            info.get(0)
+                    .sampler(this.sampler)
+                    .imageView(this.imageView)
+                    .imageLayout(layout.getVkHandle());
+
+            return (T) info;
+        }
+
+        @Override
+        public void free() {}
     }
 
     public static class BufferBinding extends DescriptorBinding {

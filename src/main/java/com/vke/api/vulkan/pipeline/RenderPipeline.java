@@ -6,6 +6,7 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
+import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.VkEnum;
 import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
@@ -153,8 +154,20 @@ public class RenderPipeline implements Disposable {
         return getGraphicsPipeline().getDescriptorData().getEntry(key);
     }
 
-    public void setDescriptorEntryData(String key, Consumer<BufferSlice> runnable) {
-        getGraphicsPipeline().writeToBufferDescriptor(key, runnable);
+    public void setUniform(String key, Consumer<BufferSlice> runnable) {
+        getGraphicsPipeline().setUniform(key, runnable);
+    }
+
+    public void setSampler(String key, long sampler, long imageView, ImageLayout layout) {
+        getGraphicsPipeline().setSampler(key, sampler, imageView, layout);
+    }
+
+    public void setImage(String key, long imageView) {
+        getGraphicsPipeline().setImage(key, imageView);
+    }
+
+    public void setImage(String key, long imageView, ImageLayout layout) {
+        getGraphicsPipeline().setImage(key, imageView, layout);
     }
 
     @Override

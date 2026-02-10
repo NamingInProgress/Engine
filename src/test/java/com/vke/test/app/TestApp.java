@@ -9,7 +9,6 @@ import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.test.TestPipelines;
@@ -64,7 +63,7 @@ public class TestApp extends App {
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
         mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
 
-        TestPipelines.IDK.setDescriptorEntryData("customColor", (slice) -> {
+        TestPipelines.IDK.setUniform("customColor", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(1);
                 buf.putFloat(0);
@@ -73,7 +72,7 @@ public class TestApp extends App {
             });
         });
 
-        TestPipelines.STH.setDescriptorEntryData("fColor", (slice) -> {
+        TestPipelines.STH.setUniform("fColor", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(1);
                 buf.putFloat(0);
@@ -82,7 +81,7 @@ public class TestApp extends App {
             });
         });
 
-        TestPipelines.STH.setDescriptorEntryData("sColor", (slice) -> {
+        TestPipelines.STH.setUniform("sColor", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(0);
                 buf.putFloat(0);
@@ -112,14 +111,14 @@ public class TestApp extends App {
 
         Matrix4f translation = new Matrix4f();
         translation.translation((float) (Math.abs(Math.sin(System.currentTimeMillis()) * 20f - 1f)), 0, 0);
-        TestPipelines.IDK.setDescriptorEntryData("matrix", (slice) -> {
+        TestPipelines.IDK.setUniform("matrix", (slice) -> {
             slice.write((buf) -> {
                 AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
                 abb.float4x4(translation);
             });
         });
 
-        TestPipelines.IDK.setDescriptorEntryData("time", (slice) -> {
+        TestPipelines.IDK.setUniform("time", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(System.currentTimeMillis() % 1000);
             });
@@ -139,7 +138,7 @@ public class TestApp extends App {
 
         ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
 
-        TestPipelines.STH.setDescriptorEntryData("time", (slice) -> {
+        TestPipelines.STH.setUniform("time", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(System.currentTimeMillis() % 1000);
             });

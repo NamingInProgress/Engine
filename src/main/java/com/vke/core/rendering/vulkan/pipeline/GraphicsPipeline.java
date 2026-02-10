@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
+import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
@@ -228,7 +229,7 @@ public class GraphicsPipeline implements Disposable {
     public PipelineLayout getPipelineLayout() { return this.layout; }
     public DescriptorData getDescriptorData() { return this.descriptorData; }
 
-    public void writeToBufferDescriptor(String name, Consumer<BufferSlice> runnable) {
+    public void setUniform(String name, Consumer<BufferSlice> runnable) {
         Pair<Integer, Integer> pos = descriptorData.getPosition(name);
 
         DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
@@ -236,6 +237,40 @@ public class GraphicsPipeline implements Disposable {
             bb.write(name, runnable);
         } else {
             engine.throwException(new IllegalStateException("Tried to modify buffer on descriptor binding which is not of buffer type"), HERE);
+        }
+    }
+
+    public void setSampler(String name, long sampler, long imageView, ImageLayout layout) {
+        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
+
+        DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
+        if (b instanceof DescriptorBinding.SamplerBinding sb) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                sb.setSampler(sampler);
+                sb.setImageView(imageView);
+                sb.setImageLayout(layout);
+
+
+                this.descriptorSets.get(pos.v1).updateImage(stack, pos.v2, b, b.getBindingInfo(stack));
+            }
+        }
+    }
+
+    public void setImage(String name, long imageView) {
+        this.setImage(name, imageView, ImageLayout.GENERAL);
+    }
+
+    public void setImage(String name, long imageView, ImageLayout layout) {
+        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
+
+        DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
+        if (b instanceof DescriptorBinding.ImageBinding ib) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                ib.setImageView(imageView);
+                ib.setImageLayout(layout);
+
+                this.descriptorSets.get(pos.v1).updateImage(stack, pos.v2, b, b.getBindingInfo(stack));
+            }
         }
     }
 

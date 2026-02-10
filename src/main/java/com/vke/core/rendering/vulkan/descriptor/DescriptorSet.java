@@ -42,8 +42,6 @@ public class DescriptorSet implements Disposable {
                 DescriptorBinding binding = cursor.value;
                 if (binding.getType().isBuffer()) {
                     updateBuffer(stack, cursor.key, binding, binding.getBindingInfo(stack));
-                } else {
-                    updateImage(stack, cursor.key, binding, binding.getBindingInfo(stack));
                 }
             }
         }

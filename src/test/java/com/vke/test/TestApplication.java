@@ -21,15 +21,15 @@ import java.io.IOException;
 public class TestApplication {
 
     public static void main(String[] args) throws InterruptedException, IOException, ConfigParser.ConfigParseException, SchemaMismatchException {
-        Identifier ident = Identifier.of("schema/testschema.json");
-        char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
-        ConfigParser parser = new JsonParser();
-        parser.setSource(source);
-        ConfigDocument d = parser.parse();
-        ConfigSchema schema = ConfigSchema.readVke(d);
-        System.out.println(schema);
-
-        System.exit(0);
+        //Identifier ident = Identifier.of("schema/testschema.json");
+        //char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
+        //ConfigParser parser = new JsonParser();
+        //parser.setSource(source);
+        //ConfigDocument d = parser.parse();
+        //ConfigSchema schema = ConfigSchema.readVke(d);
+        //System.out.println(schema);
+//
+        //System.exit(0);
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
