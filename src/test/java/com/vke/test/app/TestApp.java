@@ -85,12 +85,6 @@ public class TestApp extends App {
             });
         });
 
-        TestPipelines.IDK.setDescriptorEntryData("timev2", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(System.currentTimeMillis() % 1000);
-            });
-        });
-
 
 
         //Matrix4f m = new Matrix4f().translate(0.5f, 0, 0);

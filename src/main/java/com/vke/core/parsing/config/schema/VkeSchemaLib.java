@@ -6,7 +6,7 @@ import com.vke.core.parsing.config.schema.elements.SchemaTypedef;
 import java.util.List;
 
 public class VkeSchemaLib {
-    private final List<SchemaTypedef> typedefs;
+    //private final List<SchemaTypedef> typedefs;
 
     public VkeSchemaLib(ConfigDocument schemaDoc) {
 

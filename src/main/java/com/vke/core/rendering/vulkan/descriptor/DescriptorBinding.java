@@ -1,11 +1,10 @@
-package com.vke.core.rendering.vulkan.descriptor.ref;
+package com.vke.core.rendering.vulkan.descriptor;
 
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.buffer.MappedBuffer;
-import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

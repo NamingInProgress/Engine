@@ -18,13 +18,14 @@ layout(push_constant) uniform constants {
     mat4 world;
 } PushConstants;
 
-layout (set = 0, binding = 0) uniform test {
+layout (set = 0, binding = 0) uniform Globals {
     mat4 matrix;
-} testThingy;
+    float time;
+} globals;
 
 void main() {
     Vertex v = PushConstants.vertexBuffer.vertices[gl_VertexIndex];
 
-    gl_Position = PushConstants.world * testThingy.matrix * vec4(v.position, 1.0f);
+    gl_Position = PushConstants.world * globals.matrix * vec4(v.position, 1.0f);
     outColor = v.color;
 }

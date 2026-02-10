@@ -34,12 +34,12 @@ public class MappedBuffer implements Disposable {
         }
     }
 
-    public void write(long srcAddress, long numBytes) {
+    public void write(long srcAddress, long offset, long numBytes) {
         if (numBytes > size) {
             throw new IllegalArgumentException("Write exceeds buffer size");
         }
 
-        MemoryUtil.memCopy(srcAddress, mappedAddress, numBytes);
+        MemoryUtil.memCopy(srcAddress, mappedAddress + offset, numBytes);
     }
 
     public long getMappedAddress() {

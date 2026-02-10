@@ -5,7 +5,7 @@ import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.pipeline.PipelineLayout;

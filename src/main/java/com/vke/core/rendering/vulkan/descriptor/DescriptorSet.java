@@ -1,11 +1,10 @@
-package com.vke.core.rendering.vulkan.descriptor.ref;
+package com.vke.core.rendering.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

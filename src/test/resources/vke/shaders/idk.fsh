@@ -4,14 +4,11 @@ layout(location = 0) in vec4 col;
 
 layout (location = 0) out vec4 color;
 
-layout (set = 0, binding = 1) uniform Globals {
+layout (set = 0, binding = 0) uniform Globals {
+    mat4 matrix;
     float time;
 } globals;
 
-layout (set = 0, binding = 2) uniform Idk {
-    float timev2;
-} idks;
-
 void main() {
-    color = col * (1000.0 / idks.timev2);
+    color = col * (1000.0 / globals.time);
 }

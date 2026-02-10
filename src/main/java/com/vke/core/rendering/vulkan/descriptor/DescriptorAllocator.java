@@ -2,7 +2,6 @@ package com.vke.core.rendering.vulkan.descriptor;
 
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

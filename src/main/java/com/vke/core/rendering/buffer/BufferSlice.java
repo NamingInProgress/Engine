@@ -21,7 +21,7 @@ public class BufferSlice {
         ByteBuffer slice = MemoryUtil.memAlloc(length);
         long address = MemoryUtil.memAddress(slice);
         consumer.accept(slice);
-        mappedBuffer.write(address, length);
+        mappedBuffer.write(address, offset, length);
         MemoryUtil.memFree(slice);
     }
 }

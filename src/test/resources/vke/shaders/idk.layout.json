@@ -5,23 +5,10 @@
       "layouts": [
         {
           "type": "UBO",
-          "name": "testThingy",
-          "struct": [
-            { "name": "matrix", "type": "mat4" }
-          ]
-        },
-        {
-          "type": "UBO",
           "name": "globals",
           "struct": [
-            { "name": "time", "type": "float" }
-          ]
-        },
-        {
-          "type": "UBO",
-          "name": "idks",
-          "struct": [
-            { "name": "timev2", "type": "float" }
+            { "name": "matrix", "type": "mat4" },
+            { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
           ]
         }
       ]

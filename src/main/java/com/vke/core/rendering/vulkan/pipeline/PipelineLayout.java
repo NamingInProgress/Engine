@@ -3,7 +3,6 @@ package com.vke.core.rendering.vulkan.pipeline;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
-import com.vke.core.rendering.vulkan.descriptor.ref.DescriptorSet;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

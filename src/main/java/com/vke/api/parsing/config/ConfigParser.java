@@ -49,9 +49,10 @@ public interface ConfigParser {
     ConfigDocument parse(int flags) throws ConfigParseException;
 
     static ConfigParser forFileType(String filename) {
-        if (Utils.strContainsIgnoreCase(filename, "json")) {
-
-        }
+        //if (Utils.strContainsIgnoreCase(filename, "json")) {
+//
+        //}
+        return null;
     }
 
     class ConfigParseException extends Exception {

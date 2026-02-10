@@ -13,9 +13,8 @@ public class JsonDescriptorData extends DescriptorData {
         JsonDescriptorData self = new JsonDescriptorData();
 
         ConfigArrayNode sets = root.getArray("sets");
-        for (ConfigNode s : sets.values()) {
-            ConfigObjectNode set = (ConfigObjectNode) s;
-            self.sets.put((int) ((ConfigNumberNode) set.getNode("set")).getValue(), JsonSet.fromJson((ConfigArrayNode) set.getNode("layouts")));
+        for (ConfigNode set : sets.values()) {
+            self.sets.put(set.getInt("set"), JsonSet.fromJson(set.getArray("layouts")));
         }
 
         return self;
@@ -28,9 +27,8 @@ public class JsonDescriptorData extends DescriptorData {
             JsonSet self = new JsonSet();
 
             int i = 0;
-            for (ConfigNode b :  layouts.values()) {
-                ConfigObjectNode binding = (ConfigObjectNode) b;
-                self.bindings.put(i, JsonBinding.fromJson(binding));
+            for (ConfigNode binding :  layouts.values()) {
+                self.bindings.put(i, JsonBinding.fromJson((ConfigObjectNode) binding));
                 i++;
             }
 
@@ -45,12 +43,12 @@ public class JsonDescriptorData extends DescriptorData {
         public static JsonBinding fromJson(ConfigObjectNode binding) {
             JsonBinding self = new JsonBinding();
 
-            String t = ((ConfigValueNode) binding.getNode("type")).getValue();
+            String t = binding.getString("type");
             self.type = Type.fromString(t);
 
-            self.name = ((ConfigValueNode) binding.getNode("name")).getValue();
+            self.name = binding.getString("name");
 
-            self.struct = JsonStruct.fromJson((ConfigArrayNode) binding.getNode("struct"));
+            self.struct = JsonStruct.fromJson(binding.getArray("struct"));
 
             if (self.type == null) {
                 throw new IllegalStateException("Failed to get binding type for type: " + t);
@@ -68,7 +66,7 @@ public class JsonDescriptorData extends DescriptorData {
 
             for (ConfigNode e : struct.values()) {
                 ConfigObjectNode entry = (ConfigObjectNode) e;
-                ConfigObjectNode pad = (ConfigObjectNode) entry.getNode("padded");
+                ConfigObjectNode pad = entry.getObject("padded");
 
                 self.entries.add(JsonEntry.fromRegular(entry));
 
@@ -87,11 +85,11 @@ public class JsonDescriptorData extends DescriptorData {
         public static JsonEntry fromRegular(ConfigObjectNode json) {
             JsonEntry self = new JsonEntry();
 
-            ConfigBooleanNode autoObject = ((ConfigBooleanNode) json.getNode("auto"));
+            Boolean auto = json.getBooleanSafe("auto");
 
-            self.auto = autoObject != null && autoObject.getValue();
-            self.name = ((ConfigValueNode) json.getNode("name")).getValue();
-            self.type = Type.fromString(((ConfigValueNode) json.getNode("type")).getValue());
+            self.auto = auto != null && auto;
+            self.name = json.getString("name");
+            self.type = Type.fromString(json.getString("type"));
 
             return self;
         }
