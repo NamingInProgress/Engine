@@ -2,7 +2,6 @@ package com.vke.core.parsing.config.schema.elements;
 
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.types.SchemaType;
@@ -17,7 +16,7 @@ public class SchemaField extends SchemaElement {
     @JsonMarker("required")
     private boolean required;
 
-    public SchemaField(ConfigNode node, SchemaCtx ctx) {
+    public SchemaField(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.name = Configs.getString(node, "name");
         this.type = SchemaType.getType(node, ctx);

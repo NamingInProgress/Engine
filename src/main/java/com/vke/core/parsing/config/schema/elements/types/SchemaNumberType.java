@@ -6,7 +6,7 @@ import com.vke.api.parsing.config.node.ConfigNumberNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
-import com.vke.core.parsing.config.schema.elements.SchemaCtx;
+import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
 import java.util.ArrayDeque;
 
@@ -14,7 +14,7 @@ public class SchemaNumberType extends SchemaType {
     @JsonMarker("range")
     private Range range;
 
-    public SchemaNumberType(ConfigNode node, SchemaCtx ctx) {
+    public SchemaNumberType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.type = Type.Number;
 

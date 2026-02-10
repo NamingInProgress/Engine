@@ -8,9 +8,14 @@ public class SchemaTypedef {
     private String name;
     private SchemaType definition;
 
-    public SchemaTypedef(ConfigNode node, SchemaCtx ctx) {
+    public SchemaTypedef(ConfigNode node, SchemaHeader ctx) {
         this.name = Configs.getString(node, "name");
         this.definition = SchemaType.getType(node, ctx);
+    }
+
+    public SchemaTypedef(String name, SchemaType definition) {
+        this.name = name;
+        this.definition = definition;
     }
 
     public String getName() {

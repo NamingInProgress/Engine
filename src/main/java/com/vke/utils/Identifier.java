@@ -23,7 +23,7 @@ public class Identifier {
     }
     /// namespace:path
     public static Identifier of(String literal) {
-        String[] parts = literal.split(":", 1);
+        String[] parts = literal.split(":", 2);
         if (parts.length > 1) {
             return new Identifier(parts[0], parts[1]);
         } else {

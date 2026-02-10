@@ -3,11 +3,10 @@ package com.vke.core.parsing.config.schema.elements.types;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.ConfigNumberNode;
 import com.vke.api.parsing.config.node.ConfigValueNode;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
-import com.vke.core.parsing.config.schema.elements.SchemaCtx;
+import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -16,7 +15,7 @@ public class SchemaStringType extends SchemaType {
     @JsonMarker("enum")
     private final List<String> allowed;
 
-    public SchemaStringType(ConfigNode node, SchemaCtx ctx) {
+    public SchemaStringType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.type = Type.String;
         ConfigArrayNode arr = Configs.getArray(node, "enum");

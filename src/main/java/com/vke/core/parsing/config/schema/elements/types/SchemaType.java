@@ -3,18 +3,18 @@ package com.vke.core.parsing.config.schema.elements.types;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.config.schema.JsonMarker;
-import com.vke.core.parsing.config.schema.elements.SchemaCtx;
+import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaElement;
 
 public abstract class SchemaType extends SchemaElement {
     @JsonMarker("type")
     protected Type type;
 
-    public SchemaType(ConfigNode node, SchemaCtx ctx) {
+    public SchemaType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
     }
 
-    public static SchemaType getType(ConfigNode node, SchemaCtx ctx) {
+    public static SchemaType getType(ConfigNode node, SchemaHeader ctx) {
         String typeName = Configs.getString(node, "type");
         Type t = Type.tryFromString(typeName);
         if (t == null) {

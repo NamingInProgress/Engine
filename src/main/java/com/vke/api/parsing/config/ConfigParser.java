@@ -1,5 +1,7 @@
 package com.vke.api.parsing.config;
 
+import com.vke.core.parsing.config.json.JsonParser;
+import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.utils.Utils;
 
 public interface ConfigParser {
@@ -49,9 +51,12 @@ public interface ConfigParser {
     ConfigDocument parse(int flags) throws ConfigParseException;
 
     static ConfigParser forFileType(String filename) {
-        //if (Utils.strContainsIgnoreCase(filename, "json")) {
-//
-        //}
+        if (Utils.seqContainsIgnoreCase(filename, "json")) {
+            return new JsonParser();
+        }
+        if (Utils.seqContainsIgnoreCase(filename, "xml")) {
+            return new XmlParser();
+        }
         return null;
     }
 
