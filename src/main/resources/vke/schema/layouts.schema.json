@@ -20,6 +20,11 @@
   ],
   "fields": [
     {
+      "name": "xml",
+      "type": "meta",
+      "required": false
+    },
+    {
       "name": "sets",
       "type": "array",
       "required": true,

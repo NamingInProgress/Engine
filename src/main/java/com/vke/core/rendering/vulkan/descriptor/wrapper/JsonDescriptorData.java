@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.descriptor.wrapper;
 
 import com.vke.api.parsing.config.ConfigDocument;
+import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.*;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 

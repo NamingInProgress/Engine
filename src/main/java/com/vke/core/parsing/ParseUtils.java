@@ -40,4 +40,15 @@ public class ParseUtils {
         char hex = Character.toUpperCase(c);
         return hex - 'A' + 10;
     }
+
+    public static Object interpretString(String value) {
+        if ("true".equals(value)) return true;
+        if ("false".equals(value)) return false;
+
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ignore) {
+            return value;
+        }
+    }
 }

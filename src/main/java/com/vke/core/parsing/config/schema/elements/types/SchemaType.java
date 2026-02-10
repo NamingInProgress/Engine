@@ -26,6 +26,7 @@ public abstract class SchemaType extends SchemaElement {
             case Boolean -> new SchemaBoolType(node, ctx);
             case Array -> new SchemaArrayType(node, ctx);
             case Object -> new SchemaObjectType(node, ctx);
+            case Meta -> new SchemaMetaType(node, ctx);
         };
     }
 
@@ -34,7 +35,8 @@ public abstract class SchemaType extends SchemaElement {
         Number("number"),
         Boolean("boolean"),
         Array("array"),
-        Object("object");
+        Object("object"),
+        Meta("meta");
 
         public final String repr;
 

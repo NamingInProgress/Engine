@@ -9,6 +9,7 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.core.parsing.config.json.JsonParser;
+import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorType;
 import com.vke.core.rendering.vulkan.descriptor.wrapper.JsonDescriptorData;
 import com.vke.core.rendering.vulkan.shader.Shader;
@@ -91,12 +92,20 @@ public abstract class DescriptorData {
 
         if (extension.equalsIgnoreCase("json")) {
             parser = new JsonParser();
+        } else if (extension.equalsIgnoreCase("xml")) {
+            parser = new XmlParser();
         }
 
         parser.setSource(Utils.readCharsFromInputStream(ident.asInputStream()));
 
         if (extension.equalsIgnoreCase("json")) {
             ConfigDocument doc = parser.parse();
+            doc.validate(schema);
+            return JsonDescriptorData.fromJson(doc);
+        }
+
+        if (extension.equalsIgnoreCase("xml")) {
+            ConfigDocument doc = parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
             doc.validate(schema);
             return JsonDescriptorData.fromJson(doc);
         }

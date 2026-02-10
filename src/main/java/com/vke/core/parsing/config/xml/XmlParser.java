@@ -2,14 +2,16 @@ package com.vke.core.parsing.config.xml;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.core.file.deflate.BitUtils;
+import com.vke.core.parsing.ParseUtils;
 import com.vke.core.parsing.SourceCursor;
-import com.vke.core.parsing.config.xml.nodes.WriteAttribNode;
-import com.vke.core.parsing.config.xml.nodes.XmlMetaNode;
-import com.vke.core.parsing.config.xml.nodes.XmlTagNode;
-import com.vke.core.parsing.config.xml.nodes.XmlValueNode;
+import com.vke.core.parsing.config.xml.nodes.*;
 import com.vke.core.parsing.config.xml.tokens.XmlToken;
 import com.vke.core.parsing.config.xml.tokens.XmlTokenizer;
+import com.vke.utils.exception.Unreachable;
 
 import java.util.Objects;
 
@@ -22,14 +24,14 @@ public class XmlParser implements ConfigParser {
     }
 
     @Override
-    public ConfigDocument parse() throws ConfigParseException {
+    public ConfigDocument parse(int flags) throws ConfigParseException {
         XmlTagNode root = new XmlTagNode("");
-        parseNode(root);
+        parseNode(root, flags);
         root.finish();
         return new XmlDocument(root);
     }
 
-    private void parseNode(XmlTagNode parent) throws ConfigParseException {
+    private void parseNode(XmlTagNode parent, int flags) throws ConfigParseException {
         try {
             XmlToken next = tokenizer.nextToken();
             if (next.getType() == XmlToken.Type.LTri) {
@@ -52,7 +54,7 @@ public class XmlParser implements ConfigParser {
 
                     parent.addNode(tagName, metaNode);
                     //amazing fix
-                    parseNode(parent);
+                    parseNode(parent, flags);
                 } else if (next.getType() == XmlToken.Type.Ident){
                     //normal tag
                     tokenizer.setInTagHead(true);
@@ -62,7 +64,7 @@ public class XmlParser implements ConfigParser {
                     next = tokenizer.nextToken();
                     if (next.getType() == XmlToken.Type.Ident) {
                         tokenizer.putback(next);
-                        parseAttribs(tagNode);
+                        parseAttribsFlags(tagNode, flags);
                         next = tokenizer.nextToken();
                     }
 
@@ -100,13 +102,13 @@ public class XmlParser implements ConfigParser {
                                     //new tag (child)
                                     tokenizer.putback(next);
                                     tokenizer.putback(peek);
-                                    parseNode(tagNode);
+                                    parseNode(tagNode, flags);
                                 }
                             } else {
                                 //raw content
                                 tokenizer.resetToPreviousPosition();
-                                String content = tokenizer.collectContent();
-                                XmlValueNode valueNode = new XmlValueNode(content.trim());
+                                String content = tokenizer.collectContent().trim();
+                                ConfigNode valueNode = getStrLitNode(content, flags);
                                 tagNode.addNode(null, valueNode);
                             }
                         }
@@ -137,6 +139,37 @@ public class XmlParser implements ConfigParser {
             tokenizer.expectToken(XmlToken.Type.Eq);
             String value = tokenizer.expectToken(XmlToken.Type.StrLit).getValue();
             dest.addAttrib(name, value);
+
+            next = tokenizer.nextToken();
+        }
+        tokenizer.putback(next);
+    }
+
+    private ConfigNode getStrLitNode(String literal, int flags) {
+        if (BitUtils.bitsContains(flags, ConfigParser.PARSE_LITERALS)) {
+            Object value = ParseUtils.interpretString(literal);
+            return switch (value) {
+                case Float f -> new XmlNumberNode(f);
+                case Boolean f -> new XmlBooleanNode(f);
+                case String f -> new XmlValueNode(f);
+                default -> throw new Unreachable();
+            };
+        }
+        return new XmlValueNode(literal);
+    }
+
+    private void parseAttribsFlags(XmlTagNode dest, int flags) throws SourceCursor.EOF, NumberFormatException, IllegalStateException {
+        XmlToken next = tokenizer.nextToken();
+        while (next.getType() == XmlToken.Type.Ident) {
+            String name = next.getValue();
+            tokenizer.expectToken(XmlToken.Type.Eq);
+            String value = tokenizer.expectToken(XmlToken.Type.StrLit).getValue();
+            if (BitUtils.bitsContains(flags, ConfigParser.ATTRIBS_TO_FIELDS)) {
+                ConfigNode child = getStrLitNode(value, flags);
+                dest.addNode(name, child);
+            } else {
+                dest.addAttrib(name, value);
+            }
 
             next = tokenizer.nextToken();
         }
