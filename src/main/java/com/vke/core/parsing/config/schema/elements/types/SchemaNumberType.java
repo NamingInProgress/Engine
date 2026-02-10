@@ -4,6 +4,7 @@ import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigNumberNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
@@ -28,7 +29,7 @@ public class SchemaNumberType extends SchemaType {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (node instanceof ConfigNumberNode numberNode) {
             if (range != null) {
                 float val = numberNode.getValue();
@@ -49,7 +50,7 @@ public class SchemaNumberType extends SchemaType {
         @JsonMarker("max")
         private Float max;
 
-        private void validate(float val, SchemaValidationResult result, ArrayDeque<String> path) {
+        private void validate(float val, SchemaValidationResult result, SchemaElementLocation path) {
             if (min != null && min > val) {
                 String msg = String.format("%f is smaller than minimum value %f!", val, min);
                 result.addError(new SchemaValidationResult.ValidationError(msg, path));

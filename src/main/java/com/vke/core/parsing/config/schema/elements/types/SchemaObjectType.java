@@ -4,6 +4,7 @@ import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
@@ -29,7 +30,7 @@ public class SchemaObjectType extends SchemaType {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (node instanceof ConfigObjectNode objectNode) {
             for (String fieldName : objectNode.getDescendants().keySet()) {
                 if (fields.stream().noneMatch(f -> f.getName().equals(fieldName))) {

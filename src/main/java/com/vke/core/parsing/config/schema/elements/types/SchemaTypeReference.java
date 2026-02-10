@@ -1,6 +1,7 @@
 package com.vke.core.parsing.config.schema.elements.types;
 
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
@@ -20,7 +21,7 @@ public class SchemaTypeReference extends SchemaType {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (resolved == null) {
             result.addError(new SchemaValidationResult.ValidationError("Type has not been resolved yet (critical parsing bug)", path));
             return;

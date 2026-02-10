@@ -32,7 +32,7 @@ public abstract class DescriptorData {
             ConfigParser parser = new JsonParser();
             parser.setSource(source);
             ConfigDocument schemaDoc = parser.parse();
-            schema = ConfigSchema.readVke(schemaDoc);
+            schema = ConfigSchema.readVke(schemaDoc, ident.getPath());
         } catch (IOException | ConfigParser.ConfigParseException e) {
             throw new RuntimeException(e);
         }
@@ -100,13 +100,13 @@ public abstract class DescriptorData {
 
         if (extension.equalsIgnoreCase("json")) {
             ConfigDocument doc = parser.parse();
-            doc.validate(schema);
+            doc.validate(schema, ident.getPath());
             return JsonDescriptorData.fromJson(doc);
         }
 
         if (extension.equalsIgnoreCase("xml")) {
             ConfigDocument doc = parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
-            doc.validate(schema);
+            doc.validate(schema, ident.getPath());
             return JsonDescriptorData.fromJson(doc);
         }
 

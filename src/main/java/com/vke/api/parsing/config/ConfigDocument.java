@@ -12,8 +12,8 @@ public interface ConfigDocument {
 
     ConfigNode getRoot();
 
-    default void validate(ConfigSchema schema) throws SchemaMismatchException {
-        SchemaValidationResult result = schema.validate(getRoot());
+    default void validate(ConfigSchema schema, String filename) throws SchemaMismatchException {
+        SchemaValidationResult result = schema.validate(getRoot(), filename);
         if (!result.isValid()) {
             StringBuilder error = new StringBuilder();
             error.append("There were validation errors when validating input with schema:");

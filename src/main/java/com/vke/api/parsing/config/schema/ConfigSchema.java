@@ -6,9 +6,9 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.config.schema.VkeSchema;
 
 public interface ConfigSchema {
-    SchemaValidationResult validate(ConfigNode root);
+    SchemaValidationResult validate(ConfigNode root, String filename);
 
-    static ConfigSchema readVke(ConfigDocument schemaDocument) throws ConfigParser.ConfigParseException {
-        return new VkeSchema(schemaDocument);
+    static ConfigSchema readVke(ConfigDocument schemaDocument, String filename) throws ConfigParser.ConfigParseException {
+        return new VkeSchema(schemaDocument, filename);
     }
 }

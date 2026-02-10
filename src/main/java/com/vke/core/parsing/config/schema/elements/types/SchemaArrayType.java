@@ -3,6 +3,7 @@ package com.vke.core.parsing.config.schema.elements.types;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
@@ -20,14 +21,14 @@ public class SchemaArrayType extends SchemaType {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (node instanceof ConfigArrayNode arrayNode) {
             int i = 0;
             for (ConfigNode value : arrayNode.values()) {
                 String idx = String.format("[%d]", i++);
-                path.addLast(idx);
+                path.push(idx);
                 itemsType.validate(value, result, path);
-                path.removeLast();
+                path.pop();
             }
         } else {
             result.addError(SchemaValidationResult.ValidationError.illegalType(node, ConfigNode.Type.Array, path));

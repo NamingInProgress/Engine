@@ -3,6 +3,7 @@ package com.vke.core.parsing.config.schema.elements.types;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
@@ -25,7 +26,7 @@ public class SchemaMultiType extends SchemaType {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         for (SchemaType allowedType : allowed) {
             SchemaValidationResult tmpResult = new SchemaValidationResult();
             allowedType.validate(node, tmpResult, path);

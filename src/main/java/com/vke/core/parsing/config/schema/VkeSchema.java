@@ -6,6 +6,7 @@ import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.json.JsonParser;
@@ -28,7 +29,7 @@ public class VkeSchema implements ConfigSchema {
             ConfigParser parser = new JsonParser();
             parser.setSource(source);
             ConfigDocument d = parser.parse();
-            masterSchema = new VkeSchema(d, false);
+            masterSchema = new VkeSchema(d, "master", false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -36,14 +37,14 @@ public class VkeSchema implements ConfigSchema {
 
     private final SchemaObjectType root;
 
-    public VkeSchema(ConfigDocument schemaDoc) throws ConfigParser.ConfigParseException {
-        this(schemaDoc, true);
+    public VkeSchema(ConfigDocument schemaDoc, String filename) throws ConfigParser.ConfigParseException {
+        this(schemaDoc, filename, true);
     }
 
-    private VkeSchema(ConfigDocument schemaDoc, boolean validate) throws ConfigParser.ConfigParseException {
+    private VkeSchema(ConfigDocument schemaDoc, String filename, boolean validate) throws ConfigParser.ConfigParseException {
         if (validate) {
             try {
-                schemaDoc.validate(masterSchema);
+                schemaDoc.validate(masterSchema, filename);
             } catch (SchemaMismatchException e) {
                 throw new ConfigParser.ConfigParseException(e);
             }
@@ -63,9 +64,10 @@ public class VkeSchema implements ConfigSchema {
     }
 
     @Override
-    public SchemaValidationResult validate(ConfigNode root) {
+    public SchemaValidationResult validate(ConfigNode root, String filename) {
         SchemaValidationResult result = new SchemaValidationResult();
-        this.root.validate(root, result, new ArrayDeque<>());
+        SchemaElementLocation location = new SchemaElementLocation(filename);
+        this.root.validate(root, result, location);
         return result;
     }
 }

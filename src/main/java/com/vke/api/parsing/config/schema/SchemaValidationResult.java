@@ -32,21 +32,21 @@ public class SchemaValidationResult {
     public static class ValidationError {
         private final String message;
 
-        public ValidationError(String message, ArrayDeque<String> path) {
-            this.message = message + "\n\tPath: " + path;
+        public ValidationError(String message, SchemaElementLocation path) {
+            this.message = message + '\n' + path.getFormatted();
         }
 
-        public static ValidationError missingField(ArrayDeque<String> path, String field) {
+        public static ValidationError missingField(SchemaElementLocation path, String field) {
             String msg = String.format("Missing required field \"%s\"!", field);
             return new ValidationError(msg, path);
         }
 
-        public static ValidationError illegalField(String fieldName, ArrayDeque<String> path) {
+        public static ValidationError illegalField(String fieldName, SchemaElementLocation path) {
             String msg = String.format("Illegal field found \"%s\"!", fieldName);
             return new ValidationError(msg, path);
         }
 
-        public static ValidationError illegalType(ConfigNode node, ConfigNode.Type expected, ArrayDeque<String> path) {
+        public static ValidationError illegalType(ConfigNode node, ConfigNode.Type expected, SchemaElementLocation path) {
             String msg = String.format("Illegal node type found \"%s\", expected \"%s\"!", node.getType(), expected);
             return new ValidationError(msg, path);
         }

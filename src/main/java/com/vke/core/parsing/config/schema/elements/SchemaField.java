@@ -2,6 +2,7 @@ package com.vke.core.parsing.config.schema.elements;
 
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.types.SchemaType;
@@ -24,10 +25,10 @@ public class SchemaField extends SchemaElement {
     }
 
     @Override
-    public void validate(ConfigNode node, SchemaValidationResult result, ArrayDeque<String> path) {
-        path.addLast(name);
+    public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
+        path.push(name);
         type.validate(node, result, path);
-        path.removeLast();
+        path.pop();
     }
 
     public String getName() {
