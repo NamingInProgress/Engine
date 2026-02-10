@@ -173,6 +173,7 @@ public class Utils {
     }
 
     public static boolean seqEqualsIgnoreCase(CharSequence a, CharSequence b) {
+        if (a.length() != b.length()) return false;
         return Iter.of(a.chars().boxed())
                 .zip(b.chars().boxed())
                 .all(p -> Character.toLowerCase(p.v1) == Character.toLowerCase(p.v2));
@@ -181,7 +182,7 @@ public class Utils {
     public static boolean seqContainsIgnoreCase(CharSequence source, CharSequence seq) {
         int searchSize = seq.length();
         int maxI = source.length() - searchSize;
-        for (int i = 0; i < maxI; i++) {
+        for (int i = 0; i <= maxI; i++) {
             CharSequence sub = source.subSequence(i, i + searchSize);
             if (seqEqualsIgnoreCase(sub, seq)) return true;
         }

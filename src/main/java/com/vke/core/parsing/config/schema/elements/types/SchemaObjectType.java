@@ -6,7 +6,7 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
-import com.vke.core.parsing.config.schema.elements.SchemaCtx;
+import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaField;
 
 import java.util.ArrayDeque;
@@ -17,7 +17,7 @@ public class SchemaObjectType extends SchemaType {
     @JsonMarker("fields")
     private final List<SchemaField> fields;
 
-    public SchemaObjectType(ConfigNode node, SchemaCtx ctx) {
+    public SchemaObjectType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.type = Type.Object;
         this.fields = new ArrayList<>();

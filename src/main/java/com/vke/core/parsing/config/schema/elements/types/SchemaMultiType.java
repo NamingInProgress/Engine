@@ -4,7 +4,7 @@ import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
-import com.vke.core.parsing.config.schema.elements.SchemaCtx;
+import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class SchemaMultiType extends SchemaType {
     private final List<SchemaType> allowed;
 
-    public SchemaMultiType(ConfigNode node, SchemaCtx ctx) {
+    public SchemaMultiType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.type = Type.Multi;
         ConfigArrayNode arr = Configs.getArray(node, "allowed");

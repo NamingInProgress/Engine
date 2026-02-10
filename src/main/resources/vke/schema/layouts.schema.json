@@ -1,5 +1,5 @@
 {
-  "link": ["vke:schemas/vkcommon.schema.json"],
+  "link": ["schema/vkcommon.schemalib.json"],
   "fields": [
     {
       "name": "xml",
