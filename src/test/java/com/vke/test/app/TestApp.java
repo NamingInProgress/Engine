@@ -1,9 +1,8 @@
-package com.vke.test;
+package com.vke.test.app;
 
 import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.MeshBuffer;
 import com.vke.core.rendering.vulkan.Scissor;
@@ -13,8 +12,8 @@ import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
+import com.vke.test.TestPipelines;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
@@ -57,7 +56,7 @@ public class TestApp extends App {
     public void onDraw(Window window, VulkanRenderer.FrameData fd) {
         CommandBuffers cmd = fd.cmd();
         MemoryStack stack = fd.getStack();
-        cmd.bindRenderPipeline(RenderPipelines.IDK);
+        cmd.bindRenderPipeline(TestPipelines.IDK);
 
         new Scissor().use(fd);
         Viewport wp = new Viewport().use(fd);
@@ -67,26 +66,26 @@ public class TestApp extends App {
         Matrix4f mat = new Matrix4f();
         mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
 
-        TestPushConstant pc = RenderPipelines.IDK.getPushConstant("vertexBufferPtr");
+        TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
         pc.setVerticesPtr(mesh.verticesDeviceAddress());
         pc.setMat(mat);
 
         Matrix4f translation = new Matrix4f();
         translation.translation((float) (Math.abs(Math.sin(System.currentTimeMillis()) * 20f - 1f)), 0, 0);
-        RenderPipelines.IDK.setDescriptorEntryData("matrix", (slice) -> {
+        TestPipelines.IDK.setDescriptorEntryData("matrix", (slice) -> {
             slice.write((buf) -> {
                 AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
                 abb.float4x4(translation);
             });
         });
 
-        RenderPipelines.IDK.setDescriptorEntryData("time", (slice) -> {
+        TestPipelines.IDK.setDescriptorEntryData("time", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(System.currentTimeMillis() % 1000);
             });
         });
 
-        RenderPipelines.IDK.setDescriptorEntryData("timev2", (slice) -> {
+        TestPipelines.IDK.setDescriptorEntryData("timev2", (slice) -> {
             slice.write((buf) -> {
                 buf.putFloat(System.currentTimeMillis() % 1000);
             });
@@ -105,9 +104,9 @@ public class TestApp extends App {
 
 
 
-        cmd.setDescriptorSets(RenderPipelines.IDK, stack);
+        cmd.setDescriptorSets(TestPipelines.IDK, stack);
 
-        cmd.setPushConstants(RenderPipelines.IDK, stack);
+        cmd.setPushConstants(TestPipelines.IDK, stack);
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 

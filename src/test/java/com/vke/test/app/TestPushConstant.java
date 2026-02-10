@@ -1,4 +1,4 @@
-package com.vke.test;
+package com.vke.test.app;
 
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;

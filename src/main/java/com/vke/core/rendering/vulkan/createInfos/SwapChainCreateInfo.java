@@ -1,4 +1,4 @@
-package com.vke.api.vulkan.createInfos;
+package com.vke.core.rendering.vulkan.createInfos;
 
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;

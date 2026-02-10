@@ -1,24 +1,10 @@
 package com.vke;
 
-import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
-import com.vke.api.parsing.config.node.AttributedConfigNode;
-import com.vke.api.parsing.config.node.ConfigArrayNode;
-import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.ConfigObjectNode;
-import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
-import com.vke.core.EngineCreateInfo;
-import com.vke.core.VKEngine;
-import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.logger.*;
-import com.vke.core.parsing.config.json.JsonParser;
-import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
-import com.vke.test.TestApp;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Main {
 
@@ -91,16 +77,16 @@ public class Main {
 //        }
         //System.exit(0);
         //Thread.sleep(5000);
-        EngineCreateInfo createInfo = new EngineCreateInfo();
-        createInfo.releaseMode = true;
-        createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
-
-        RenderPipelines.init();
-        VKEngine engine = new VKEngine(createInfo);
+        //EngineCreateInfo createInfo = new EngineCreateInfo();
+        //createInfo.releaseMode = true;
+        //createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
+//
+        //RenderPipelines.init();
+        //VKEngine engine = new VKEngine(createInfo);
 
         //VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
 
-        engine.start(new TestApp());
+        //engine.start(new TestApp());
     }
 
 }

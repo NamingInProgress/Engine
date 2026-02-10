@@ -7,7 +7,7 @@ import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.VkEnum;
-import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;

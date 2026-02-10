@@ -2,7 +2,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
-import com.vke.api.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;

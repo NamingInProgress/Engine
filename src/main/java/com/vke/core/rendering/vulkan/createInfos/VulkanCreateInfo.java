@@ -1,4 +1,4 @@
-package com.vke.api.vulkan.createInfos;
+package com.vke.core.rendering.vulkan.createInfos;
 
 import com.vke.api.app.Version;
 import com.vke.core.rendering.vulkan.Consts;

@@ -9,6 +9,7 @@ import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
+import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
@@ -36,7 +37,10 @@ public class VKEngine {
 
     public VKEngine(EngineCreateInfo createInfo) {
         scc = new ServiceCreateContext(this, createInfo);
+
         Services.init();
+        RenderPipelines.init();
+
         vsync = createInfo.vsync;
 
         this.createInfo = createInfo;
