@@ -1,6 +1,7 @@
 package com.vke.utils;
 
 import com.vke.api.utils.OSType;
+import com.vke.utils.iter.Iter;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -13,7 +14,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -169,4 +172,19 @@ public class Utils {
         return Arrays.binarySearch(arr, query, cmp) >= 0;
     }
 
+    public static boolean seqEqualsIgnoreCase(CharSequence a, CharSequence b) {
+        return Iter.of(a.chars().boxed())
+                .zip(b.chars().boxed())
+                .all(p -> Character.toLowerCase(p.v1) == Character.toLowerCase(p.v2));
+    }
+
+    public static boolean seqContainsIgnoreCase(CharSequence source, CharSequence seq) {
+        int searchSize = seq.length();
+        int maxI = source.length() - searchSize;
+        for (int i = 0; i < maxI; i++) {
+            CharSequence sub = source.subSequence(i, i + searchSize);
+            if (seqEqualsIgnoreCase(sub, seq)) return true;
+        }
+        return false;
+    }
 }

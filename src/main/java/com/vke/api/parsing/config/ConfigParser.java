@@ -1,5 +1,7 @@
 package com.vke.api.parsing.config;
 
+import com.vke.utils.Utils;
+
 public interface ConfigParser {
     /**
      * Makes it so that all literals are converted to strings. That means that only {@link com.vke.api.parsing.config.node.ConfigValueNode ConfigValueNode}
@@ -45,6 +47,12 @@ public interface ConfigParser {
     }
 
     ConfigDocument parse(int flags) throws ConfigParseException;
+
+    static ConfigParser forFileType(String filename) {
+        if (Utils.strContainsIgnoreCase(filename, "json")) {
+
+        }
+    }
 
     class ConfigParseException extends Exception {
         public ConfigParseException(String message) {

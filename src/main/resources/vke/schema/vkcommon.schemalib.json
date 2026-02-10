@@ -1,0 +1,33 @@
+{
+  "typedefs": [
+    {
+      "name": "binding_type",
+      "type": "string",
+      "enum": [
+        "float",
+        "float2",
+        "mat4"
+      ]
+    },
+    {
+      "name": "layout_type",
+      "type": "string",
+      "enum": [
+        "UBO",
+        "image_sampler"
+      ]
+    },
+    {
+      "name": "test",
+      "type": "multi",
+      "allowed": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "layout_type"
+        }
+      ]
+    }
+  ]
+}
