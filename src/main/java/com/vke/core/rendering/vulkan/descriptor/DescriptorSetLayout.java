@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.vke.api.abstraction.IntEnum;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -29,7 +30,7 @@ public class DescriptorSetLayout implements Disposable {
         this.binding = b;
 
         ci.bindings.forEach(binding -> {
-            layout.put(binding.binding(), DescriptorType.UniformBuffer.fromVkHandle(binding.descriptorType()));
+            layout.put(binding.binding(), IntEnum.fromInt(DescriptorType.values(), binding.descriptorType()));
         });
 
         try(MemoryStack stack = MemoryStack.stackPush()) {

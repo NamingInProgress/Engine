@@ -1,28 +1,24 @@
 package com.vke.core.rendering.vulkan.shader;
 
-import com.vke.api.vulkan.VkBitEnum;
-import com.vke.api.vulkan.VkEnum;
-import com.vke.api.vulkan.descriptors.DescriptorData;
+import com.vke.api.abstraction.IntBitEnum;
+import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
-import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
-import java.util.Arrays;
 
 public class Shader implements Disposable {
 
-    private final Type type;
+    private final ShaderType type;
     private final long handle;
     private final LogicalDevice device;
 
-    public Shader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, Type type) {
+    public Shader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, ShaderType type) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkShaderModuleCreateInfo shaderCreateInfo = VkShaderModuleCreateInfo.calloc(stack)
@@ -43,53 +39,19 @@ public class Shader implements Disposable {
 
     public long getHandle() { return this.handle; }
 
-    public Type getType() {
+    public ShaderType getType() {
         return type;
     }
 
-    public enum Type implements VkEnum{
-        VERTEX(Shaderc.shaderc_vertex_shader, "vertex", "vert"),
-        FRAGMENT(Shaderc.shaderc_fragment_shader, "fragment", "frag"),
-        COMPUTE(Shaderc.shaderc_compute_shader, "compute", "comp");
-
-        private final int shadercHandle;
-
-        private final String[] names;
-
-        Type(int shadercHandle, String... names) {
-            this.shadercHandle = shadercHandle;
-            this.names = names;
-        }
-
-        public int getShadercHandle() {
-            return this.shadercHandle;
-        }
-
-        public int getVkHandle() {
-            return switch (this) {
-                case VERTEX -> VK14.VK_SHADER_STAGE_VERTEX_BIT;
-                case FRAGMENT -> VK14.VK_SHADER_STAGE_FRAGMENT_BIT;
-                case COMPUTE -> VK14.VK_SHADER_STAGE_COMPUTE_BIT;
-            };
-        }
-
-        public String[] getNames() { return this.names; }
-
-        public static Type fromString(String s) {
-            return Arrays.stream(Type.values()).filter(c -> Utils.arrayContains(c.getNames(), s)).findFirst().orElse(null);
-        }
-
-    }
-
-    public static class Stages implements VkBitEnum<Stages, Type> {
+    public static class Stages implements IntBitEnum<Stages, ShaderType> {
 
         private int mask;
 
-        public Stages(Type... types) { or(types); }
+        public Stages(ShaderType... types) { or(types); }
 
         @Override
-        public Stages or(Type... flags) {
-            for (Type type : flags) {
+        public Stages or(ShaderType... flags) {
+            for (ShaderType type : flags) {
                 mask |= type.getVkHandle();
             }
             return this;
@@ -104,7 +66,7 @@ public class Shader implements Disposable {
             Stages self = new Stages();
 
             for (String stage : strings) {
-                self.or(Type.fromString(stage));
+                self.or(ShaderType.fromString(stage));
             }
 
             return self;

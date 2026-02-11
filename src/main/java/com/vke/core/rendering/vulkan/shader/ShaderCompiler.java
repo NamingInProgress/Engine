@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.shader;
 
+import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.api.services.Service;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services.Services;
@@ -18,7 +19,7 @@ public class ShaderCompiler extends Service {
         compiler = Shaderc.shaderc_compiler_initialize();
     }
 
-    public ByteBuffer compileGlslToSpirV(byte[] shader, Shader.Type kind, @Nullable String fileName) throws Exception {
+    public ByteBuffer compileGlslToSpirV(byte[] shader, ShaderType kind, @Nullable String fileName) throws Exception {
         return this.compileGlslToSpirV(shader, kind.getShadercHandle(), fileName);
     }
 

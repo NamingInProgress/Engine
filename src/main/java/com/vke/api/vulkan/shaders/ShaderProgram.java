@@ -8,16 +8,16 @@ import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
 import com.vke.utils.Utils;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import static com.vke.core.rendering.vulkan.shader.Shader.Type;
+import com.vke.api.abstraction.descriptors.ShaderType;
 
 public class ShaderProgram {
 
-    private final HashMap<Type, Identifier> types = new HashMap<>();
+    private final HashMap<ShaderType, Identifier> types = new HashMap<>();
 
     private Shader[] shaders;
 
@@ -26,15 +26,15 @@ public class ShaderProgram {
     }
 
     public ShaderProgram(Identifier vertexShaderPath, Identifier fragmentShaderPath) {
-        this(Map.of(Type.VERTEX, vertexShaderPath, Type.FRAGMENT, fragmentShaderPath));
-        if (types.get(Type.FRAGMENT) == Identifier.empty()) types.remove(Type.FRAGMENT);
+        this(Map.of(ShaderType.VERTEX, vertexShaderPath, ShaderType.FRAGMENT, fragmentShaderPath));
+        if (Objects.equals(types.get(ShaderType.FRAGMENT), Identifier.empty())) types.remove(ShaderType.FRAGMENT);
     }
 
-    public ShaderProgram(Pair<Type, Identifier>[] shaders) {
+    public ShaderProgram(Pair<ShaderType, Identifier>[] shaders) {
         Arrays.stream(shaders).forEach(pair -> types.put(pair.v1, pair.v2));
     }
 
-    public ShaderProgram(Map<Type, Identifier> shaders) {
+    public ShaderProgram(Map<ShaderType, Identifier> shaders) {
         types.putAll(shaders);
     }
 
@@ -43,8 +43,8 @@ public class ShaderProgram {
             shaders = new Shader[types.size()];
 
             int idx = 0;
-            for (Map.Entry<Type, Identifier> shaderInfo : types.entrySet()) {
-                Type type = shaderInfo.getKey();
+            for (Map.Entry<ShaderType, Identifier> shaderInfo : types.entrySet()) {
+                ShaderType type = shaderInfo.getKey();
                 Identifier id = shaderInfo.getValue();
                 byte[] bytes = Utils.readAllBytesAndClose(id.asInputStream());
                 Shader s = new Shader(engine, device,

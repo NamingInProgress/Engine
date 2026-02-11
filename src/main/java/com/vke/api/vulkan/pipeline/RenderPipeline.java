@@ -7,7 +7,7 @@ import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.ImageLayout;
-import com.vke.api.vulkan.VkEnum;
+import com.vke.api.abstraction.IntEnum;
 import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
@@ -539,7 +539,7 @@ public class RenderPipeline implements Disposable {
         ERROR
     }
 
-    public enum Topology implements VkEnum {
+    public enum Topology implements IntEnum {
 
         POINTS(VK14.VK_PRIMITIVE_TOPOLOGY_POINT_LIST),
         PATCHES(VK14.VK_PRIMITIVE_TOPOLOGY_PATCH_LIST),
@@ -569,7 +569,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum PolygonMode implements VkEnum {
+    public enum PolygonMode implements IntEnum {
 
         POINT(VK14.VK_POLYGON_MODE_POINT),
         LINE(VK14.VK_POLYGON_MODE_LINE),
@@ -587,7 +587,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum CullMode implements VkEnum {
+    public enum CullMode implements IntEnum {
 
         NONE(VK14.VK_CULL_MODE_NONE),
         FRONT(VK14.VK_CULL_MODE_FRONT_BIT),
@@ -606,7 +606,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum WindingOrder implements VkEnum {
+    public enum WindingOrder implements IntEnum {
 
         CLOCKWISE(VK14.VK_FRONT_FACE_CLOCKWISE),
         COUNTERCLOCKWISE(VK14.VK_FRONT_FACE_COUNTER_CLOCKWISE);
@@ -623,7 +623,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum BlendFactor implements VkEnum {
+    public enum BlendFactor implements IntEnum {
 
         ZERO(VK14.VK_BLEND_FACTOR_ZERO),
         ONE(VK14.VK_BLEND_FACTOR_ONE),
@@ -656,7 +656,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum BlendOperation implements VkEnum {
+    public enum BlendOperation implements IntEnum {
 
         ADD(VK14.VK_BLEND_OP_ADD),
         SUBTRACT(VK14.VK_BLEND_OP_SUBTRACT),
@@ -676,7 +676,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum CompareOp implements VkEnum {
+    public enum CompareOp implements IntEnum {
 
         NEVER(VK14.VK_COMPARE_OP_NEVER),
         LESS(VK14.VK_COMPARE_OP_LESS),
@@ -699,7 +699,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum StencilOp implements VkEnum {
+    public enum StencilOp implements IntEnum {
 
         KEEP(VK14.VK_STENCIL_OP_KEEP),
         ZERO(VK14.VK_STENCIL_OP_ZERO),
@@ -722,7 +722,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum DynamicState implements VkEnum {
+    public enum DynamicState implements IntEnum {
 
         VIEWPORT(VK14.VK_DYNAMIC_STATE_VIEWPORT),
         SCISSOR(VK14.VK_DYNAMIC_STATE_SCISSOR),

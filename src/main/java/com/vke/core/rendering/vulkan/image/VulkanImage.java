@@ -3,7 +3,7 @@ package com.vke.core.rendering.vulkan.image;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.extent.Extent3D;
-import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -22,7 +22,7 @@ public class VulkanImage implements Disposable {
 
     private final VulkanSetup setup;
 
-    public VulkanImage(VKEngine engine, VulkanSetup setup, int VkFormat, Extent3D extent, int VkImageUsageFlags, int VkImageAspectFlags, GpuBuffer.MemoryUsage memoryUsage) {
+    public VulkanImage(VKEngine engine, VulkanSetup setup, int VkFormat, Extent3D extent, int VkImageUsageFlags, int VkImageAspectFlags, MemoryUsage memoryUsage) {
         this.setup = setup;
         this.VkFormat = VkFormat;
         this.extent = extent;

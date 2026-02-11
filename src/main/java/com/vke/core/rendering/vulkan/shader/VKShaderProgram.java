@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.shader;
 
+import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryUtil;
@@ -15,7 +16,7 @@ public class VKShaderProgram implements Disposable {
     public VKShaderProgram(Shader... shaders) {
         this.alloc = new AutoHeapAllocator();
 
-        HashSet<Shader.Type> types = new HashSet<>();
+        HashSet<ShaderType> types = new HashSet<>();
         for (Shader shader : shaders) {
             types.add(shader.getType());
         }

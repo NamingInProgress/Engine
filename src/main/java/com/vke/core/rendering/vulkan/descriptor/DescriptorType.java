@@ -1,10 +1,10 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
-import com.vke.api.vulkan.VkEnum;
+import com.vke.api.abstraction.IntEnum;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import org.lwjgl.vulkan.VK14;
 
-public enum DescriptorType implements VkEnum {
+public enum DescriptorType implements IntEnum {
     CombinedImageSampler(VK14.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER),
     StorageImage(VK14.VK_DESCRIPTOR_TYPE_STORAGE_IMAGE),
     UniformBuffer(VK14.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),

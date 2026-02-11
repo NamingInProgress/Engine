@@ -5,7 +5,9 @@ import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.services.Services;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -18,7 +20,7 @@ public class StagedBuffer implements Disposable {
     private final GpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
 
-    public StagedBuffer(VKEngine engine, VulkanSetup setup, CpuBuffer buffer, GpuBuffer.BufferUsage usage, GpuBuffer.MemoryUsage memoryUsage) {
+    public StagedBuffer(VKEngine engine, VulkanSetup setup, CpuBuffer buffer, BufferUsage usage, MemoryUsage memoryUsage) {
         this.cpuBuffer = buffer;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
         gpuBuffer = new GpuBuffer(engine, setup, allocSize, usage, memoryUsage);
@@ -27,12 +29,12 @@ public class StagedBuffer implements Disposable {
     public void uploadViaStaging(VKEngine engine, VulkanSetup setup) {
         long size = cpuBuffer.getSizeBytes();
 
-        GpuBuffer.BufferUsage bufUsage = new GpuBuffer.BufferUsage(
-                GpuBuffer.BufferUsage.Bits.TRANSFER_SRC
+        BufferUsage bufUsage = new BufferUsage(
+                BufferUsage.Bits.TRANSFER_SRC
         );
 
-        GpuBuffer.MemoryUsage memUsage = new GpuBuffer.MemoryUsage(
-                GpuBuffer.MemoryUsage.Bits.CPU_TO_GPU
+        MemoryUsage memUsage = new MemoryUsage(
+                MemoryUsage.Bits.CPU_TO_GPU
         );
 
         GpuBuffer staging = new GpuBuffer(engine, setup, size, bufUsage, memUsage);

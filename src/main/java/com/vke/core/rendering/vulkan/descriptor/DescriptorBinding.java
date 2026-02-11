@@ -6,7 +6,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.buffer.MappedBuffer;
-import com.vke.core.rendering.vulkan.mem.GpuBuffer;
+import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
@@ -125,7 +125,7 @@ public abstract class DescriptorBinding implements Disposable {
             super(engine, setup, type);
             this.struct = struct;
             
-            GpuBuffer.BufferUsage usage = new GpuBuffer.BufferUsage(type == DescriptorType.StorageBuffer ? GpuBuffer.BufferUsage.Bits.SSBO : GpuBuffer.BufferUsage.Bits.UBO);
+            BufferUsage usage = new BufferUsage(type == DescriptorType.StorageBuffer ? BufferUsage.Bits.SSBO : BufferUsage.Bits.UBO);
 
             buffer = new MappedBuffer(engine, setup, size, usage);
             this.size = size;

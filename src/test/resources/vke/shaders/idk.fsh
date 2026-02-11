@@ -9,6 +9,6 @@ layout (set = 0, binding = 0) uniform sampler2D tex;
 
 void main() {
     //color = col * (abs(sin((globals.time / 500) - 1))) * data.customColor;
-    //color = vec4(color.rgb, 1);
-    color = mix(col, texture(tex, uv), 0.5);
+    color = col;
+    //color = mix(col, texture(tex, uv), 0.5);
 }
