@@ -3,23 +3,19 @@ package com.vke.api.abstraction.descriptors;
 public class DeviceCapabilities {
 
     /** LIMITS **/
-    int maxTexture2DSize;
-    int maxTexture3DSize;
-    int maxCubeMapSize;
+    public int maxTexture2DSize;
+    public int maxTexture3DSize;
+    public int maxCubeMapSize;
 
-    int maxUBOSize;
-    int maxSSBOSize;
+    public int maxUBOSize;
+    public int maxSSBOSize;
 
-    int maxColorAttachments;
-    int maxDescriptorSets;
-    int maxBindingsPerSet;
+    public int maxColorAttachments;
+    public int maxDescriptorSets;
 
-    int maxVertexAttributes;
-    int maxVertexBuffers;
-
-    long maxBufferSize;
+    public int maxVertexAttributes;
 
     /** GPU INFO **/
-    GpuType gpuType;
+    public GpuType gpuType;
 
 }

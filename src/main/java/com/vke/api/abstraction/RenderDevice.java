@@ -12,12 +12,13 @@ import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;
+import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
 
 import java.util.Map;
 
-public interface RenderDevice {
+public interface RenderDevice extends Disposable {
 
     BackendType backend();
     DeviceCapabilities capabilities();

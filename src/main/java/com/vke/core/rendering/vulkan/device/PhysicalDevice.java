@@ -1,5 +1,8 @@
 package com.vke.core.rendering.vulkan.device;
 
+import com.vke.api.abstraction.IntEnum;
+import com.vke.api.abstraction.descriptors.DeviceCapabilities;
+import com.vke.api.abstraction.descriptors.GpuType;
 import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
@@ -71,6 +74,28 @@ public class PhysicalDevice implements Disposable {
 
     public VKCapabilitiesInstance getCapabilities() {
         return this.vk.getCapabilities();
+    }
+
+    public DeviceCapabilities getDeviceCapabilities() {
+        DeviceCapabilities caps = new DeviceCapabilities();
+        VkPhysicalDeviceProperties props = getProperties();
+        VkPhysicalDeviceLimits limits = props.limits();
+
+        caps.maxTexture2DSize = limits.maxImageDimension2D();
+        caps.maxTexture3DSize = limits.maxImageDimension3D();
+        caps.maxCubeMapSize = limits.maxImageDimensionCube();
+
+        caps.maxUBOSize = limits.maxUniformBufferRange();
+        caps.maxSSBOSize = limits.maxStorageBufferRange();
+
+        caps.maxColorAttachments = limits.maxColorAttachments();
+        caps.maxDescriptorSets = limits.maxBoundDescriptorSets();
+
+        caps.maxVertexAttributes = limits.maxVertexInputAttributes();
+
+        caps.gpuType = IntEnum.fromInt(GpuType.values(), props.deviceType());
+
+        return caps;
     }
 
     @Override

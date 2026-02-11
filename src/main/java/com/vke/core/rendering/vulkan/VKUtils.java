@@ -177,4 +177,5 @@ public class VKUtils {
 
         return ~0;
     }
+
 }
