@@ -1,13 +1,15 @@
 package com.vke.api.abstraction.swapchain;
 
+import com.vke.api.abstraction.RenderDevice;
 import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.abstraction.sync.Semaphore;
+import com.vke.core.VKEngine;
 import com.vke.utils.Disposable;
 
 public interface Swapchain extends Disposable {
 
-    record Description() {}
+    record Description(VKEngine engine, RenderDevice device, boolean vsync, long windowHandle) {}
 
     int width();
     int height();
@@ -23,6 +25,7 @@ public interface Swapchain extends Disposable {
     void present(Semaphore renderFinished);
 
     void resize(int width, int height);
+    void recreate();
     void destroy();
 
 }

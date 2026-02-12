@@ -22,6 +22,7 @@ import com.vke.core.rendering.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -253,4 +254,20 @@ public class VulkanRenderDevice implements RenderDevice {
         alloc.close();
     }
 
+    /** GETTERS **/
+    public PhysicalDevice getPhysicalDevice() {
+        return physicalDevice;
+    }
+
+    public LogicalDevice getLogicalDevice() {
+        return logicalDevice;
+    }
+
+    public long getSurface() {
+        return surface;
+    }
+
+    public VulkanQueue getQueue(VulkanQueue.Type type) {
+        return logicalDevice.getQueue(type);
+    }
 }
