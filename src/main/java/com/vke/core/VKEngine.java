@@ -9,7 +9,7 @@ import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
-import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
+import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;

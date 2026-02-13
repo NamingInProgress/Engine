@@ -5,7 +5,7 @@ import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.frame.Frame;
 import com.vke.core.rendering.vulkan.frame.ImmediateFrame;
-import com.vke.core.rendering.vulkan.sync.Semaphore;
+import com.vke.core.vulkan.sync.VulkanSemaphore;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -31,8 +31,8 @@ public class VulkanQueue {
         //submit queue
         VkCommandBufferSubmitInfo cmdSubmitInfo = CommandBuffers.getDefaultSubmitInfo(stack, frame.getBuffers());
 
-        VkSemaphoreSubmitInfo waitInfo = Semaphore.getDefaultSubmitInfo(stack, frame.getSwapChainSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT);
-        VkSemaphoreSubmitInfo signalInfo = Semaphore.getDefaultSubmitInfo(stack, frame.getRenderSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT);
+        VkSemaphoreSubmitInfo waitInfo = VulkanSemaphore.getDefaultSubmitInfo(stack, frame.getSwapChainSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT);
+        VkSemaphoreSubmitInfo signalInfo = VulkanSemaphore.getDefaultSubmitInfo(stack, frame.getRenderSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT);
 
         VkSubmitInfo2 submitInfo = createSubmitInfo2(stack, cmdSubmitInfo, waitInfo, signalInfo);
         VkSubmitInfo2.Buffer submitBuf = VkSubmitInfo2.calloc(1, stack);

@@ -25,7 +25,7 @@ public class DescriptorSet implements Disposable {
 
     private final LogicalDevice device;
 
-    public DescriptorSet(long handle, VKEngine engine, VulkanSetup setup, LogicalDevice device, DescriptorSetLayout layout) {
+    public DescriptorSet(long handle, VKEngine engine, LogicalDevice device, DescriptorSetLayout layout) {
         this.handle = handle;
         this.device = device;
 

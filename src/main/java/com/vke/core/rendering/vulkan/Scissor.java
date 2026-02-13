@@ -8,7 +8,7 @@ import org.lwjgl.vulkan.VkOffset2D;
 import org.lwjgl.vulkan.VkRect2D;
 
 public class Scissor {
-    private int x, y, w, h;
+    public int x, y, w, h;
 
     public Scissor() {
         this.w = -1;

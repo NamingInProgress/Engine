@@ -6,6 +6,7 @@ import com.vke.core.rendering.vulkan.createInfos.VkPresentMode;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
@@ -40,6 +41,13 @@ public class SwapchainUtils {
             GLFW.glfwGetFramebufferSize(windowHandle, pWidth, pHeight);
             return VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
         }
+    }
+
+    public static VkImageViewCreateInfo copyImageViewCreateInfo(VkImageViewCreateInfo original) {
+        int size = VkImageViewCreateInfo.SIZEOF;
+        long newAddr = MemoryUtil.nmemCalloc(1, size);
+        MemoryUtil.memCopy(original.address(), newAddr, size);
+        return VkImageViewCreateInfo.create(newAddr);
     }
 
 }

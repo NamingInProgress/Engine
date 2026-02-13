@@ -1,22 +1,22 @@
-package com.vke.core.rendering.vulkan.frame;
+package com.vke.core.vulkan;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.sync.Fence;
+import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.Disposable;
 
-public class Frame implements Disposable {
+public class VulkanFrame implements Disposable {
 
     private CommandPool pool;
     private CommandBuffers buffers;
-    private VulkanSemaphore swapChainSemaphore, renderSemaphore;
-    private Fence renderFence;
+    private VulkanSemaphore imageSemaphore, presentSemaphore;
+    private VulkanFence renderFence;
 
-    public Frame(VKEngine engine, LogicalDevice device) {
+    public VulkanFrame(VKEngine engine, LogicalDevice device) {
         pool = new CommandPool(engine, device, VulkanQueue.Type.GRAPHICS);
         buffers = new CommandBuffers(engine, pool, device, 1);
 
@@ -24,10 +24,14 @@ public class Frame implements Disposable {
     }
 
     private void setupSyncStructures(VKEngine engine, LogicalDevice device) {
-        swapChainSemaphore = VulkanSemaphore.createSemaphore(engine, device);
-        renderSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+        try {
+            imageSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+            presentSemaphore = VulkanSemaphore.createSemaphore(engine, device);
 
-        renderFence = Fence.createFence(engine, device);
+            renderFence = new VulkanFence(device);
+        } catch (Throwable t) {
+            engine.throwException(t, "VulkanFrame");
+        }
     }
 
     public CommandPool getPool() {
@@ -38,22 +42,22 @@ public class Frame implements Disposable {
         return buffers;
     }
 
-    public VulkanSemaphore getSwapChainSemaphore() {
-        return swapChainSemaphore;
+    public VulkanSemaphore getImageSemaphore() {
+        return imageSemaphore;
     }
 
-    public VulkanSemaphore getRenderSemaphore() {
-        return renderSemaphore;
+    public VulkanSemaphore getPresentSemaphore() {
+        return presentSemaphore;
     }
 
-    public Fence getRenderFence() {
+    public VulkanFence getRenderFence() {
         return renderFence;
     }
 
     @Override
     public void free() {
-        swapChainSemaphore.free();
-        renderSemaphore.free();
+        imageSemaphore.free();
+        presentSemaphore.free();
         renderFence.free();
         buffers.free();
         pool.free();

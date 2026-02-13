@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.pipeline;
+package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;

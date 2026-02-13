@@ -10,7 +10,7 @@ import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.image.ImageView;
 import com.vke.core.rendering.vulkan.sync.Fence;
-import com.vke.core.rendering.vulkan.sync.Semaphore;
+import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
@@ -225,7 +225,7 @@ public class SwapChain implements Disposable {
         }
     }
 
-    public int nextImage(MemoryStack stack, Semaphore semaphore, Fence fence) {
+    public int nextImage(MemoryStack stack, VulkanSemaphore semaphore, Fence fence) {
         VkAcquireNextImageInfoKHR acquireInfo = VkAcquireNextImageInfoKHR.calloc(stack);
         acquireInfo
                 .deviceMask(1)

@@ -14,12 +14,10 @@ public class DescriptorAllocator implements Disposable {
     private DescriptorPool pool;
     private LogicalDevice device;
     private VKEngine engine;
-    private VulkanSetup setup;
 
     public DescriptorAllocator(DescriptorPoolCreateInfo descriptorPoolCreateInfo) {
         this.device = descriptorPoolCreateInfo.logicalDevice;
         this.engine = descriptorPoolCreateInfo.engine;
-        this.setup = descriptorPoolCreateInfo.setup;
         this.pool = new DescriptorPool(descriptorPoolCreateInfo);
     }
 

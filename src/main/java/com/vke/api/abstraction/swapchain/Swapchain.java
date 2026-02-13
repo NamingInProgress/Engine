@@ -9,7 +9,7 @@ import com.vke.utils.Disposable;
 
 public interface Swapchain extends Disposable {
 
-    record Description(VKEngine engine, RenderDevice device, boolean vsync, long windowHandle) {}
+    record Description(boolean vsync, long windowHandle) {}
 
     int width();
     int height();

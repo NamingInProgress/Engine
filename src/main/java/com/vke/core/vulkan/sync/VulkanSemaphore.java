@@ -1,9 +1,8 @@
-package com.vke.core.rendering.vulkan.sync;
+package com.vke.core.vulkan.sync;
 
+import com.vke.api.abstraction.sync.Semaphore;
 import com.vke.core.VKEngine;
-import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
@@ -11,12 +10,12 @@ import org.lwjgl.vulkan.VkSemaphoreSubmitInfo;
 
 import java.nio.LongBuffer;
 
-public class Semaphore implements Disposable {
+public class VulkanSemaphore implements Semaphore {
 
     private final long handle;
     private final LogicalDevice device;
 
-    private Semaphore(LogicalDevice device, long handle) {
+    private VulkanSemaphore(LogicalDevice device, long handle) {
         this.handle = handle;
         this.device = device;
     }
@@ -32,7 +31,7 @@ public class Semaphore implements Disposable {
         return info;
     }
 
-    public static VkSemaphoreSubmitInfo getDefaultSubmitInfo(MemoryStack stack, Semaphore semaphore, int VkPipelineStageFlags2) {
+    public static VkSemaphoreSubmitInfo getDefaultSubmitInfo(MemoryStack stack, VulkanSemaphore semaphore, int VkPipelineStageFlags2) {
         VkSemaphoreSubmitInfo submitInfo = VkSemaphoreSubmitInfo.calloc(stack);
         submitInfo.sType$Default();
         submitInfo.stageMask(VkPipelineStageFlags2);
@@ -40,18 +39,18 @@ public class Semaphore implements Disposable {
         return submitInfo;
     }
 
-    public static Semaphore createSemaphore(VKEngine engine, LogicalDevice device, VkSemaphoreCreateInfo createInfo) {
+    public static VulkanSemaphore createSemaphore(VKEngine engine, LogicalDevice device, VkSemaphoreCreateInfo createInfo) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pSemaphore = stack.mallocLong(1);
             if (VK14.vkCreateSemaphore(device.getDevice(), createInfo, null, pSemaphore) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new Semaphore(device, pSemaphore.get(0));
+            return new VulkanSemaphore(device, pSemaphore.get(0));
         }
     }
 
-    public static Semaphore createSemaphore(VKEngine engine, LogicalDevice device) {
+    public static VulkanSemaphore createSemaphore(VKEngine engine, LogicalDevice device) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var i = VkSemaphoreCreateInfo.calloc(stack);
             i.flags(0);
@@ -62,7 +61,7 @@ public class Semaphore implements Disposable {
                 engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new Semaphore(device, pSemaphore.get(0));
+            return new VulkanSemaphore(device, pSemaphore.get(0));
         }
     }
 

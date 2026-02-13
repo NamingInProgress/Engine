@@ -1,8 +1,7 @@
-package com.vke.core.vulkan;
+package com.vke.core.vulkan.device;
 
 import com.vke.api.logger.Logger;
 import com.vke.core.EngineCreateInfo;
-import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.charPP;
 import com.vke.core.rendering.vulkan.Consts;

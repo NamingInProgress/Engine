@@ -6,8 +6,8 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkViewport;
 
 public class Viewport {
-    private int x, y, w, h;
-    private int minDepth, maxDepth;
+    public int x, y, w, h;
+    public int minDepth, maxDepth;
 
     public Viewport() {
         this(0, 0, -1, -1);

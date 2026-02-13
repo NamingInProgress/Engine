@@ -14,11 +14,11 @@ import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.buffer.BufferSlice;
-import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.rendering.vulkan.shader.Shader;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
@@ -43,17 +43,15 @@ public class RenderPipeline implements Disposable {
         this.builder = builder;
     }
 
-    public void setupGraphicsPipeline(VKEngine engine, VulkanSetup vkSetup) {
+    public void setupGraphicsPipeline(VKEngine engine, VulkanRenderDevice device) {
         if (graphicsPipeline != null) {
             log(LogLevel.WARN, "Remaking graphics pipeline from RenderPipeline, is this a bug?");
         }
 
         PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
-        pipelineCreateInfo.device = vkSetup.getLogicalDevice();
+        pipelineCreateInfo.device = device;
         pipelineCreateInfo.engine = engine;
-        pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
         pipelineCreateInfo.name = builder.getId();
-        pipelineCreateInfo.setup = vkSetup;
 
         int depthFormat = VK14.VK_FORMAT_UNDEFINED;
         int stencilFormat = VK14.VK_FORMAT_UNDEFINED;
@@ -80,7 +78,7 @@ public class RenderPipeline implements Disposable {
 
         Shader[] shaders = new Shader[0];
         try {
-            shaders = builder.shader.getShaderArray(engine, vkSetup.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
+            shaders = builder.shader.getShaderArray(engine, device.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
         } catch (Exception e) {
             engine.throwException(e, "Render Pipeline -> Shader Creation");
         }

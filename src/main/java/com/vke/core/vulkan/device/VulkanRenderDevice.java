@@ -1,4 +1,4 @@
-package com.vke.core.vulkan;
+package com.vke.core.vulkan.device;
 
 import com.vke.api.abstraction.RenderDevice;
 import com.vke.api.abstraction.commands.CommandBuffer;
@@ -23,6 +23,9 @@ import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.core.rendering.vulkan.frame.Frame;
+import com.vke.core.vulkan.VulkanFrame;
+import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -225,7 +228,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public CommandBuffer createCommandBuffer() {
-        return null;
+        throw new RuntimeException("Non VulkanFrame Command Buffers are not implemented yet!");
     }
 
     @Override
@@ -239,8 +242,22 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public Swapchain createSwapchain(Swapchain.Description info) {
-        return null;
+    public VulkanSwapchain createSwapchain(Swapchain.Description info) {
+        return new VulkanSwapchain(info, this, engine);
+    }
+
+    public VulkanFrame[] createFrames() {
+        VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
+
+        for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
+            frames[i] = new VulkanFrame(engine, logicalDevice);
+        }
+
+        return frames;
+    }
+
+    public VulkanFrame createImmediateFrame() {
+        return new VulkanFrame(engine, logicalDevice);
     }
 
     @Override

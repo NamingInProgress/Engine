@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.pipeline;
+package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
@@ -13,9 +13,8 @@ import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.descriptor.*;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorBinding;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorSet;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
-import com.vke.core.rendering.vulkan.swapchain.SwapChain;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import com.vke.utils.Pair;
 import com.vke.utils.Utils;
@@ -29,27 +28,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class GraphicsPipeline implements Disposable {
+public class GraphicsPipeline implements com.vke.api.abstraction.pipeline.GraphicsPipeline {
     private static String HERE = "GraphicsPipeline";
 
     private long handle;
-    private LogicalDevice device;
+    private VulkanRenderDevice device;
     private VKEngine engine;
-    private SwapChain swapChain;
     private PipelineLayout layout;
     private List<DescriptorSetLayout> descriptorSetLayouts = new ArrayList<>();
     private List<DescriptorSet> descriptorSets = new ArrayList<>();
-
-    private DescriptorData descriptorData;
 
     private DescriptorAllocator descAlloc;
 
     public GraphicsPipeline(PipelineCreateInfo createInfo, PipelineSettingsInfo pipelineSettingsInfo) {
         this.device = createInfo.device;
         this.engine = createInfo.engine;
-        this.swapChain = createInfo.swapChain;
 
-        descriptorData = pipelineSettingsInfo.descriptorData;
+        DescriptorData descriptorData = pipelineSettingsInfo.descriptorData;
 
         if (descriptorData != null) {
             List<DescriptorPool.DescriptorTypeCountInfo> descriptorTypeCountInfo = new ArrayList<>();
@@ -63,16 +58,15 @@ public class GraphicsPipeline implements Disposable {
 
                 builder.fromWrapper(set.value.getBindings());
 
-                descriptorSetLayouts.add(builder.build(engine, device));
+                descriptorSetLayouts.add(builder.build(engine, device.getLogicalDevice()));
             }
 
             if (descriptorData.getSetsAmount() != 0) {
                 DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
                 poolCreateInfo.maxSets = descriptorData.getSetsAmount();
                 poolCreateInfo.engine = engine;
-                poolCreateInfo.logicalDevice = device;
+                poolCreateInfo.logicalDevice = device.getLogicalDevice();
                 poolCreateInfo.descriptorTypeCountInfo = descriptorTypeCountInfo;
-                poolCreateInfo.setup = createInfo.setup;
 
                 descAlloc = new DescriptorAllocator(poolCreateInfo);
 
@@ -159,7 +153,7 @@ public class GraphicsPipeline implements Disposable {
             }
 
 
-            PipelineLayout pipelineLayout = new PipelineLayout(engine, device, pipelineSettingsInfo.pushConstants(), descriptorSetLayouts);
+            PipelineLayout pipelineLayout = new PipelineLayout(engine, device.getLogicalDevice(), pipelineSettingsInfo.pushConstants(), descriptorData, descriptorSetLayouts);
             this.layout = pipelineLayout;
 
             VkPipelineRenderingCreateInfo renderingCreateInfo = VkPipelineRenderingCreateInfo.calloc(stack)
@@ -208,13 +202,13 @@ public class GraphicsPipeline implements Disposable {
 
             LongBuffer pPipeline = stack.mallocLong(1);
 
-            if (VK14.vkCreateGraphicsPipelines(device.getDevice(), VK14.VK_NULL_HANDLE, pipelineInfos, null, pPipeline) != VK14.VK_SUCCESS) {
+            if (VK14.vkCreateGraphicsPipelines(device.getLogicalDevice().getDevice(), VK14.VK_NULL_HANDLE, pipelineInfos, null, pPipeline) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Couldn't create graphics pipeline"), HERE);
             }
 
             this.handle = pPipeline.get(0);
             if (engine.isDebugMode()) {
-                if (!VKUtils.setDebugName(device, createInfo.name, this.handle, VK14.VK_OBJECT_TYPE_PIPELINE)) {
+                if (!VKUtils.setDebugName(device.getLogicalDevice(), createInfo.name, this.handle, VK14.VK_OBJECT_TYPE_PIPELINE)) {
                     engine.throwException(new IllegalStateException("Couldn't set debug name"), HERE);
                 }
             }
@@ -227,10 +221,10 @@ public class GraphicsPipeline implements Disposable {
 
     public long getHandle() { return this.handle; }
     public PipelineLayout getPipelineLayout() { return this.layout; }
-    public DescriptorData getDescriptorData() { return this.descriptorData; }
+    public DescriptorData getDescriptorData() { return this.getPipelineLayout().getDescriptors(); }
 
     public void setUniform(String name, Consumer<BufferSlice> runnable) {
-        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
+        Pair<Integer, Integer> pos = getDescriptorData().getPosition(name);
 
         DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
         if (b instanceof DescriptorBinding.BufferBinding bb) {
@@ -241,7 +235,7 @@ public class GraphicsPipeline implements Disposable {
     }
 
     public void setSampler(String name, long sampler, long imageView, ImageLayout layout) {
-        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
+        Pair<Integer, Integer> pos = getDescriptorData().getPosition(name);
 
         DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
         if (b instanceof DescriptorBinding.SamplerBinding sb) {
@@ -261,7 +255,7 @@ public class GraphicsPipeline implements Disposable {
     }
 
     public void setImage(String name, long imageView, ImageLayout layout) {
-        Pair<Integer, Integer> pos = descriptorData.getPosition(name);
+        Pair<Integer, Integer> pos = getDescriptorData().getPosition(name);
 
         DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
         if (b instanceof DescriptorBinding.ImageBinding ib) {
@@ -280,7 +274,12 @@ public class GraphicsPipeline implements Disposable {
         descriptorSets.forEach(DescriptorSet::free);
         descriptorSetLayouts.forEach(DescriptorSetLayout::free);
         if (descAlloc != null) descAlloc.free();
-        VK14.vkDestroyPipeline(device.getDevice(), handle, null);
+        VK14.vkDestroyPipeline(device.getLogicalDevice().getDevice(), handle, null);
+    }
+
+    @Override
+    public com.vke.api.abstraction.pipeline.PipelineLayout layout() {
+        return this.layout;
     }
 
     public record PipelineSettingsInfo(

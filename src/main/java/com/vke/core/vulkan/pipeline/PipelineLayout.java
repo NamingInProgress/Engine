@@ -1,5 +1,6 @@
-package com.vke.core.rendering.vulkan.pipeline;
+package com.vke.core.vulkan.pipeline;
 
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorSetLayout;
@@ -15,15 +16,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PipelineLayout implements Disposable {
+public class PipelineLayout implements com.vke.api.abstraction.pipeline.PipelineLayout {
 
     private long handle;
     private final LinkedHashMap<String, PushConstantsDefinition> pushConstants;
     private final LogicalDevice device;
+    private final DescriptorData descriptorData;
 
-    public PipelineLayout(VKEngine engine, LogicalDevice device, LinkedHashMap<String, PushConstantsDefinition> pushConstants, List<DescriptorSetLayout> descriptors) {
+    public PipelineLayout(VKEngine engine, LogicalDevice device, LinkedHashMap<String, PushConstantsDefinition> pushConstants, DescriptorData data, List<DescriptorSetLayout> descriptors) {
         this.pushConstants = pushConstants;
         this.device = device;
+        this.descriptorData = data;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType$Default()
@@ -68,5 +71,20 @@ public class PipelineLayout implements Disposable {
     @Override
     public void free() {
         VK14.vkDestroyPipelineLayout(device.getDevice(), handle, null);
+    }
+
+    @Override
+    public DescriptorData getDescriptors() {
+        return descriptorData;
+    }
+
+    @Override
+    public int pushConstantSize() {
+        return this.pushConstants.size();
+    }
+
+    @Override
+    public int descriptorCount() {
+        return descriptorData.getSetsAmount();
     }
 }
