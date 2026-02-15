@@ -19,10 +19,9 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.createInfos.LogicalDeviceCreateInfo;
-import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
+import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
@@ -205,7 +204,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public Buffer createBuffer(Buffer.Description info) {
-        return null;
+        return new GpuBuffer(this.engine, this, info);
     }
 
     @Override
@@ -297,11 +296,11 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public void free() {
-        logicalDevice.free();
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         Vma.vmaDestroyAllocator(vmaAllocator);
         if (debugMessenger != VK14.VK_NULL_HANDLE)
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
+        logicalDevice.free();
         VK14.vkDestroyInstance(instance, null);
         alloc.close();
     }

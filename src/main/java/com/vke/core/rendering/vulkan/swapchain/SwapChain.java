@@ -1,14 +1,14 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
-import com.vke.core.rendering.vulkan.createInfos.SwapChainCreateInfo;
-import com.vke.core.rendering.vulkan.createInfos.VkPresentMode;
+import com.vke.core.vulkan.createInfos.SwapChainCreateInfo;
+import com.vke.core.vulkan.createInfos.VkPresentMode;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.vulkan.device.VulkanQueue;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.image.ImageView;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;

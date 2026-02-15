@@ -1,8 +1,7 @@
 package com.vke.core.rendering.vulkan.sync;
 
 import com.vke.core.VKEngine;
-import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;

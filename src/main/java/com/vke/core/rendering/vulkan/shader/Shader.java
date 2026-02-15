@@ -3,7 +3,7 @@ package com.vke.core.rendering.vulkan.shader;
 import com.vke.api.abstraction.IntBitEnum;
 import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;

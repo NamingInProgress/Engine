@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.sync;
 
 import com.vke.api.abstraction.sync.Fence;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkFenceCreateInfo;

@@ -6,7 +6,6 @@ import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.charPP;
 import com.vke.core.rendering.vulkan.Consts;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

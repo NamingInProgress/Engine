@@ -2,7 +2,7 @@ package com.vke.core.rendering.vulkan.image;
 
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.extent.Extent3D;
+import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;

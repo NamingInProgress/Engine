@@ -3,7 +3,7 @@ package com.vke.core.rendering.vulkan.image;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.swapchain.SwapchainImage;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

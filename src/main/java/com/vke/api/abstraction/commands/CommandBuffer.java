@@ -4,8 +4,8 @@ import com.vke.api.abstraction.pipeline.ComputePipeline;
 import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.sync.Fence;
 import com.vke.api.abstraction.sync.Semaphore;
-import com.vke.core.rendering.vulkan.Scissor;
-import com.vke.core.rendering.vulkan.Viewport;
+import com.vke.core.vulkan.Scissor;
+import com.vke.core.vulkan.Viewport;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.utils.Disposable;
 

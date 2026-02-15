@@ -3,8 +3,8 @@ package com.vke.core.rendering.vulkan.frame;
 import com.vke.core.VKEngine;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.commands.CommandPool;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.command.CommandPool;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.sync.Fence;
 import com.vke.utils.Disposable;
 

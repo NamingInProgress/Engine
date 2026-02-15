@@ -2,7 +2,7 @@ package com.vke.core.vulkan.swapchain;
 
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.createInfos.VkPresentMode;
+import com.vke.core.vulkan.createInfos.VkPresentMode;
 import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
@@ -23,7 +23,7 @@ public class SwapchainUtils {
 
     public static int choosePresentMode(IntBuffer pModes, boolean vsync) {
         int[] modes = Utils.acquireIntArrayFromBuffer(pModes);
-        if (vsync) {
+        if (!vsync) {
             if (Utils.intsContain(modes, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
                 return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
             }

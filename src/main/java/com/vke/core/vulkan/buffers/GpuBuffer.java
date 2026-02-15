@@ -32,7 +32,11 @@ public class GpuBuffer implements Buffer {
     private final BufferUsage usage;
     private final MemoryUsage memUsage;
 
-    public GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage) {
+    public GpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
+        this(engine, device, info.size(), info.usage(), info.memUsage());
+    }
+
+    private GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage) {
         this.size = size;
         this.usage = usageFlags;
         this.memUsage = memoryUsage;

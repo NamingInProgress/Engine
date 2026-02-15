@@ -7,12 +7,10 @@ import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.abstraction.sync.Semaphore;
-import com.vke.api.logger.Logger;
 import com.vke.core.VKEngine;
-import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
@@ -52,8 +50,6 @@ public class VulkanSwapchain implements Swapchain {
 
     private final AutoHeapAllocator alloc;
 
-    private final Logger logger;
-
     public VulkanSwapchain(Description description, RenderDevice device, VKEngine engine) {
         if (!(device instanceof VulkanRenderDevice)) engine
                 .throwException(new IllegalStateException("Provided incorrect device for backend type: %s (Provided: %s)".formatted(BackendType.VULKAN, device.backend())), HERE);
@@ -64,7 +60,6 @@ public class VulkanSwapchain implements Swapchain {
         this.windowHandle = description.windowHandle();
         this.surface = this.device.getSurface();
         this.alloc = new AutoHeapAllocator();
-        this.logger = LoggerFactory.get("Vulkan Setup");
 
         setupInfoStructs(this.device.getPhysicalDevice().getDevice(), this.device.getSurface());
         createSwapchain(this.device.getLogicalDevice());

@@ -4,13 +4,11 @@ import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.buffer.MeshBuffer;
-import com.vke.core.rendering.vulkan.Scissor;
-import com.vke.core.rendering.vulkan.Viewport;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.vulkan.buffers.premade.MeshBuffer;
+import com.vke.core.vulkan.Scissor;
+import com.vke.core.vulkan.Viewport;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.window.Window;
 import com.vke.test.TestPipelines;
@@ -137,13 +135,6 @@ public class TestApp extends App {
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
             VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
-
-
-            //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
-
-            //cmd.bindRenderPipeline(RenderPipelines.MAIN);
-            //cmd.setPushConstants(RenderPipelines.MAIN, stack);
-            //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
         }
     }
 

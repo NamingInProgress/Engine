@@ -6,7 +6,7 @@ import com.vke.api.abstraction.data.TextureView;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.abstraction.descriptors.texture.TextureViewType;
 import com.vke.api.vulkan.ImageLayout;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

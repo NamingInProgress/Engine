@@ -1,8 +1,8 @@
 package com.vke.core.rendering.vulkan;
 
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.PhysicalDevice;
 import com.vke.utils.Colors;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
