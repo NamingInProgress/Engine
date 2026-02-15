@@ -5,7 +5,7 @@ import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.buffer.MappedBuffer;
+import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

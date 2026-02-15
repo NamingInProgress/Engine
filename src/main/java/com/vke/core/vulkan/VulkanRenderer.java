@@ -1,5 +1,7 @@
 package com.vke.core.vulkan;
 
+import com.vke.api.abstraction.commands.CommandBuffer;
+import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
@@ -7,6 +9,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
@@ -16,6 +19,7 @@ import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class VulkanRenderer extends Service {
 
@@ -44,8 +48,8 @@ public class VulkanRenderer extends Service {
         this.device = new VulkanRenderDevice(engine, createInfo);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
-        this.frames = device.createFrames();
-        this.immediateFrame = device.createImmediateFrame();
+        this.frames = device.createFrames(swapchain);
+        this.immediateFrame = device.createImmediateFrame(swapchain);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
 
         VKERegistries.PIPELINES.makeVkPipelines(engine, device);
@@ -76,24 +80,54 @@ public class VulkanRenderer extends Service {
 
         imagesInFlight[imageIndex] = fence;
 
-        CommandBuffers cmd = frame.getBuffers();
+        VulkanCmdBuffers cmd = frame.getBuffers();
         cmd.reset();
 
-        cmd.startRecording(stack, swapchain);
+        cmd.begin();
 
         return new FrameData(frame, stack, imageIndex);
     }
 
     public void endFrame(FrameData frameData) {
-        CommandBuffers cmd = frameData.frame().getBuffers();
+        VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
-        cmd.endRecording(swapchain);
+        cmd.end();
 
-        // TODO: SUBMIT QUEUE
+        device.submit(cmd, new CommandBuffer.SubmitInfo(
+                frameData.frame.getImageSemaphore(),
+                frameData.frame.getPresentSemaphore(),
+                frameData.frame.getRenderFence(),
+                QueueType.GRAPHICS,
+                false
+        ));
+
         swapchain.present(frameData.frame().getPresentSemaphore());
 
         frameData.stack().close();
         currentFrame++;
+    }
+
+    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
+        this.immediateSubmit(consumer, () -> {});
+    }
+
+    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer, Runnable finisher) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VulkanFence fence = immediateFrame.getRenderFence();
+            VulkanCmdBuffers cmd = immediateFrame.getBuffers();
+
+            fence.reset();
+            cmd.reset();
+
+            cmd.beginImmediate();
+            consumer.accept(stack, cmd);
+            cmd.endImmediate();
+
+            device.submit(cmd, CommandBuffer.SubmitInfo.immediate(fence));
+
+            fence.waitForFence();
+            finisher.run();
+        }
     }
 
     @Override

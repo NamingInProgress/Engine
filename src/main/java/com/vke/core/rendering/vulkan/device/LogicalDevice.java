@@ -8,6 +8,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.file.deflate.BitUtils;
 import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.utils.StructureChain3;
+import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
@@ -17,7 +18,7 @@ import org.lwjgl.vulkan.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 
-import static com.vke.core.rendering.vulkan.device.VulkanQueue.Type;
+import com.vke.api.abstraction.descriptors.QueueType;
 
 public class LogicalDevice implements Disposable {
 
@@ -29,7 +30,7 @@ public class LogicalDevice implements Disposable {
     private final List<VulkanQueue> queues;
     private final VKEngine engine;
 
-    private final ObjectIntHashMap<Type> queueIndices;
+    private final ObjectIntHashMap<QueueType> queueIndices;
 
     private VkDevice device;
 
@@ -56,43 +57,43 @@ public class LogicalDevice implements Disposable {
             VkQueueFamilyProperties props = physicalDevice.getQueueFamilyBuffer().get(i);
             int flags = props.queueFlags();
             if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_GRAPHICS_BIT)) {
-                queueIndices.put(Type.GRAPHICS, i);
+                queueIndices.put(QueueType.GRAPHICS, i);
 
                 if (VKUtils.isPresentQueue(stack, physicalDevice, i, logicalDeviceCreateInfo.surfaceHandle)) {
-                    queueIndices.put(Type.PRESENT, i);
+                    queueIndices.put(QueueType.PRESENT, i);
                 }
             }
             if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_COMPUTE_BIT)) {
-                queueIndices.put(Type.COMPUTE, i);
+                queueIndices.put(QueueType.COMPUTE, i);
             }
             if (BitUtils.bitsContains(flags, VK14.VK_QUEUE_TRANSFER_BIT)) {
-                queueIndices.put(Type.TRANSFER, i);
+                queueIndices.put(QueueType.TRANSFER, i);
             }
         }
 
-        if (!queueIndices.containsKey(Type.PRESENT)) {
+        if (!queueIndices.containsKey(QueueType.PRESENT)) {
             for (int i = 0; i < physicalDevice.getQueueFamilyBuffer().capacity(); i++) {
                 if (VKUtils.isPresentQueue(stack, physicalDevice, i, logicalDeviceCreateInfo.surfaceHandle)) {
-                    queueIndices.put(Type.PRESENT, i);
+                    queueIndices.put(QueueType.PRESENT, i);
                     break;
                 }
             }
         }
 
-        if (!queueIndices.containsKey(Type.GRAPHICS)) {
+        if (!queueIndices.containsKey(QueueType.GRAPHICS)) {
             engine.throwException(new IllegalStateException("Unable to find suitable graphics queue!"), HERE);
         }
 
-        if (!queueIndices.containsKey(Type.PRESENT)) {
+        if (!queueIndices.containsKey(QueueType.PRESENT)) {
             engine.throwException(new IllegalStateException("Unable to find suitable present queue!"), HERE);
         }
 
         VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc(
-                (int) Utils.fromSpliterator(queueIndices.spliterator()).filter(c -> c.key != Type.PRESENT).count(), stack);
+                (int) Utils.fromSpliterator(queueIndices.spliterator()).filter(c -> c.key != QueueType.PRESENT).count(), stack);
         int bufferIndex = 0;
 
         for (var entry : queueIndices) {
-            if (entry.key == Type.PRESENT) {
+            if (entry.key == QueueType.PRESENT) {
                 continue;
             }
             FloatBuffer priorities = stack.floats(0.5f);
@@ -136,7 +137,7 @@ public class LogicalDevice implements Disposable {
             PointerBuffer pQueue = stack.mallocPointer(1);
             VK14.vkGetDeviceQueue(device, e.value, 0, pQueue);
             VkQueue queue = new VkQueue(pQueue.get(), device);
-            Type type = e.key;
+            QueueType type = e.key;
 
             queues.add(new VulkanQueue(queue, e.value, type));
         }
@@ -145,11 +146,11 @@ public class LogicalDevice implements Disposable {
     public long getHandle() { return this.device.address(); }
     public VkDevice getDevice() { return this.device; }
 
-    private VulkanQueue getQueueInternal(Type type) throws NoSuchElementException {
+    private VulkanQueue getQueueInternal(QueueType type) throws NoSuchElementException {
         return this.queues.stream().filter(c -> c.getType().equals(type)).findFirst().orElseThrow();
     }
 
-    public VulkanQueue getQueue(Type type) {
+    public VulkanQueue getQueue(QueueType type) {
         try {
             return getQueueInternal(type);
         } catch (NoSuchElementException e) {

@@ -7,7 +7,7 @@ import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.abstraction.descriptors.texture.TextureViewType;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.vulkan.command.CommandBuffers;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -44,7 +44,7 @@ public class SwapchainImageView implements TextureView {
         }
     }
 
-    public void transitionLayout(CommandBuffers buffers, ImageLayout newLayout, long srcAccessMask, long dstAccessMask, long srcStageMask, long dstStageMask) {
+    public void transitionLayout(VulkanCmdBuffers buffers, ImageLayout newLayout, long srcAccessMask, long dstAccessMask, long srcStageMask, long dstStageMask) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange range = VkImageSubresourceRange.calloc(stack)
                     .aspectMask(VK14.VK_IMAGE_ASPECT_COLOR_BIT)

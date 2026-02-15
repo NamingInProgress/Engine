@@ -20,7 +20,7 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
 
-public class CommandBuffers implements CommandBuffer {
+public class VulkanCmdBuffers implements CommandBuffer {
 
     private final long poolHandle;
     private final LogicalDevice device;
@@ -29,7 +29,7 @@ public class CommandBuffers implements CommandBuffer {
 
     private boolean recording;
 
-    public CommandBuffers(LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
+    public VulkanCmdBuffers(LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
         this.device = device;
         this.poolHandle = pool.getHandle();
         this.swapchain = swapchain;
@@ -58,6 +58,7 @@ public class CommandBuffers implements CommandBuffer {
 
     @Override
     public void begin() {
+        this.recording = true;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
                     .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -100,6 +101,7 @@ public class CommandBuffers implements CommandBuffer {
     }
 
     public void beginImmediate() {
+        this.recording = true;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
                     .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -108,11 +110,13 @@ public class CommandBuffers implements CommandBuffer {
     }
 
     public void endImmediate() {
+        this.recording = false;
         VK14.vkEndCommandBuffer(vk);
     }
 
     @Override
     public void end() {
+        this.recording = false;
         VK14.vkCmdEndRendering(vk);
 
         SwapchainImageView currentImage = swapchain.getImageView(swapchain.currentImageIndex());
@@ -208,12 +212,12 @@ public class CommandBuffers implements CommandBuffer {
 
     @Override
     public void draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance) {
-
+        VK14.vkCmdDraw(this.getBuffer(), vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
     @Override
     public void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance) {
-
+        VK14.vkCmdDrawIndexed(this.getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
     public VkCommandBuffer getBuffer() { return this.vk; }

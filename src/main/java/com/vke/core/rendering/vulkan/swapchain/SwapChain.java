@@ -6,7 +6,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.image.ImageView;
 import com.vke.core.rendering.vulkan.sync.Fence;
@@ -99,8 +100,8 @@ public class SwapChain implements Disposable {
                 .oldSwapchain(VK14.VK_NULL_HANDLE)
                 .clipped(true);
 
-        VulkanQueue graphicsQueue = device.getQueue(VulkanQueue.Type.GRAPHICS);
-        VulkanQueue presentQueue = device.getQueue(VulkanQueue.Type.PRESENT);
+        VulkanQueue graphicsQueue = device.getQueue(QueueType.GRAPHICS);
+        VulkanQueue presentQueue = device.getQueue(QueueType.PRESENT);
 
         if (!graphicsQueue.equals(presentQueue)) {
             IntBuffer queueIndices = alloc.ints(graphicsQueue.index(), presentQueue.index()).getHeapObject();

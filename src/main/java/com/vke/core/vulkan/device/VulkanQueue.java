@@ -1,5 +1,6 @@
-package com.vke.core.rendering.vulkan.device;
+package com.vke.core.vulkan.device;
 
+import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
@@ -14,16 +15,16 @@ import java.util.Objects;
 public class VulkanQueue {
     private final VkQueue queue;
     private final int familyIndex;
-    private final Type queueType;
+    private final QueueType queueType;
 
-    public VulkanQueue(VkQueue queue, int familyIndex, Type queueType) {
+    public VulkanQueue(VkQueue queue, int familyIndex, QueueType queueType) {
         Objects.requireNonNull(queueType, "Queue type must not be null!");
         this.queue = queue;
         this.familyIndex = familyIndex;
         this.queueType = queueType;
     }
 
-    public Type getType() { return this.queueType; }
+    public QueueType getType() { return this.queueType; }
     public int index() { return this.familyIndex; }
     public VkQueue vk() { return queue; }
 
@@ -38,7 +39,7 @@ public class VulkanQueue {
         VkSubmitInfo2.Buffer submitBuf = VkSubmitInfo2.calloc(1, stack);
         submitBuf.put(0, submitInfo);
 
-        VkQueue graphicsQueue = setup.getLogicalDevice().getQueue(VulkanQueue.Type.GRAPHICS).vk();
+        VkQueue graphicsQueue = setup.getLogicalDevice().getQueue(QueueType.GRAPHICS).vk();
         if (VK14.vkQueueSubmit2(graphicsQueue, submitBuf, frame.getRenderFence().getHandle()) != VK14.VK_SUCCESS) {
             engine.getLogger().warn("Failed to submit queue at frame " + frameCount);
         }
@@ -96,10 +97,4 @@ public class VulkanQueue {
         return familyIndex == ((VulkanQueue) other).familyIndex;
     }
 
-    public static enum Type {
-        GRAPHICS,
-        COMPUTE,
-        PRESENT,
-        TRANSFER
-    }
 }

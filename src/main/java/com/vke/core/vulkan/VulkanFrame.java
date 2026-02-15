@@ -1,32 +1,40 @@
 package com.vke.core.vulkan;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.Disposable;
+import org.jetbrains.annotations.Nullable;
 
 public class VulkanFrame implements Disposable {
 
     private CommandPool pool;
-    private CommandBuffers buffers;
+    private VulkanCmdBuffers buffers;
     private VulkanSemaphore imageSemaphore, presentSemaphore;
     private VulkanFence renderFence;
 
-    public VulkanFrame(VKEngine engine, LogicalDevice device) {
-        pool = new CommandPool(engine, device, VulkanQueue.Type.GRAPHICS);
-        buffers = new CommandBuffers(engine, pool, device, 1);
-
-        setupSyncStructures(engine, device);
+    public VulkanFrame(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain) {
+        this(engine, device, swapchain, false);
     }
 
-    private void setupSyncStructures(VKEngine engine, LogicalDevice device) {
+    public VulkanFrame(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, boolean immediate) {
+        pool = new CommandPool(engine, device, immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
+        buffers = new VulkanCmdBuffers(device, swapchain, pool);
+
+        setupSyncStructures(engine, device, immediate);
+    }
+
+    private void setupSyncStructures(VKEngine engine, LogicalDevice device, boolean immediate) {
         try {
-            imageSemaphore = VulkanSemaphore.createSemaphore(engine, device);
-            presentSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+            if (!immediate) {
+                imageSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+                presentSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+            }
 
             renderFence = new VulkanFence(device);
         } catch (Throwable t) {
@@ -38,15 +46,15 @@ public class VulkanFrame implements Disposable {
         return pool;
     }
 
-    public CommandBuffers getBuffers() {
+    public VulkanCmdBuffers getBuffers() {
         return buffers;
     }
 
-    public VulkanSemaphore getImageSemaphore() {
+    public @Nullable VulkanSemaphore getImageSemaphore() {
         return imageSemaphore;
     }
 
-    public VulkanSemaphore getPresentSemaphore() {
+    public @Nullable VulkanSemaphore getPresentSemaphore() {
         return presentSemaphore;
     }
 
@@ -56,8 +64,10 @@ public class VulkanFrame implements Disposable {
 
     @Override
     public void free() {
-        imageSemaphore.free();
-        presentSemaphore.free();
+        if (imageSemaphore != null)
+            imageSemaphore.free();
+        if (presentSemaphore != null)
+            presentSemaphore.free();
         renderFence.free();
         buffers.free();
         pool.free();

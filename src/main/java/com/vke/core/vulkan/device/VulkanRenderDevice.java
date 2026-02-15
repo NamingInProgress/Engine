@@ -7,6 +7,7 @@ import com.vke.api.abstraction.data.Sampler;
 import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
+import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.api.abstraction.pipeline.ComputePipeline;
 import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.swapchain.Swapchain;
@@ -22,10 +23,11 @@ import com.vke.core.rendering.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
-import com.vke.core.rendering.vulkan.frame.Frame;
 import com.vke.core.vulkan.VulkanFrame;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
+import com.vke.core.vulkan.sync.VulkanFence;
+import com.vke.core.vulkan.sync.VulkanSemaphore;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -232,8 +234,41 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public void submit(CommandBuffer cmd, CommandBuffer.SubmitInfo info) {
+    public void submit(CommandBuffer buffers, CommandBuffer.SubmitInfo info) {
+        if (!(buffers instanceof VulkanCmdBuffers)) throw new IllegalStateException("Provided non vulkan command buffers object to vulkan render device!");
+        VulkanCmdBuffers cmd = (VulkanCmdBuffers) buffers;
+        long pFence = info.getFence() == null ? VK14.VK_NULL_HANDLE : ((VulkanFence) info.getFence()).getHandle();
 
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandBufferSubmitInfo.Buffer cmdSubmitInfo = VkCommandBufferSubmitInfo.calloc(1, stack);
+            cmdSubmitInfo.get(0)
+                    .sType$Default()
+                    .deviceMask(0)
+                    .commandBuffer(cmd.getBuffer());
+
+            VkSemaphoreSubmitInfo.Buffer waitInfo = null;
+            VkSemaphoreSubmitInfo.Buffer signalInfo = null;
+
+            if (!info.isImmediate()) {
+                waitInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
+                signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
+
+                waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getImageSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+                signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getPresentSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+            }
+
+            VkSubmitInfo2.Buffer submitInfo = VkSubmitInfo2.calloc(1, stack);
+            submitInfo.get(0)
+                    .sType$Default()
+                    .pCommandBufferInfos(cmdSubmitInfo)
+                    .pWaitSemaphoreInfos(waitInfo)
+                    .pSignalSemaphoreInfos(signalInfo);
+
+            VkQueue queue = this.logicalDevice.getQueue(info.getType()).vk();
+            if (VK14.vkQueueSubmit2(queue, submitInfo, pFence) != VK14.VK_SUCCESS) {
+                logger.warn("Failed to submit queue!");
+            }
+        }
     }
 
     @Override
@@ -246,18 +281,18 @@ public class VulkanRenderDevice implements RenderDevice {
         return new VulkanSwapchain(info, this, engine);
     }
 
-    public VulkanFrame[] createFrames() {
+    public VulkanFrame[] createFrames(VulkanSwapchain swapchain) {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(engine, logicalDevice);
+            frames[i] = new VulkanFrame(engine, logicalDevice, swapchain);
         }
 
         return frames;
     }
 
-    public VulkanFrame createImmediateFrame() {
-        return new VulkanFrame(engine, logicalDevice);
+    public VulkanFrame createImmediateFrame(VulkanSwapchain swapchain) {
+        return new VulkanFrame(engine, logicalDevice, swapchain, true);
     }
 
     @Override
@@ -284,7 +319,7 @@ public class VulkanRenderDevice implements RenderDevice {
         return surface;
     }
 
-    public VulkanQueue getQueue(VulkanQueue.Type type) {
+    public VulkanQueue getQueue(QueueType type) {
         return logicalDevice.getQueue(type);
     }
 }

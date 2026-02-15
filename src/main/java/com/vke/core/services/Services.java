@@ -1,7 +1,7 @@
 package com.vke.core.services;
 
-import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
+import com.vke.core.vulkan.VulkanRenderer;
 
 import static com.vke.api.registry.VKERegistries.SERVICES;
 

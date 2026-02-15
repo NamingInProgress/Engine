@@ -4,7 +4,7 @@ import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.buffer.StagedBuffer;
+import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.utils.Disposable;

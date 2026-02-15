@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.buffer;
+package com.vke.core.vulkan.buffers;
 
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;

@@ -13,7 +13,8 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import org.lwjgl.system.MemoryStack;
@@ -117,8 +118,8 @@ public class VulkanSwapchain implements Swapchain {
                 .oldSwapchain(VK14.VK_NULL_HANDLE)
                 .clipped(true);
 
-        VulkanQueue graphicsQueue = device.getQueue(VulkanQueue.Type.GRAPHICS);
-        VulkanQueue presentQueue = device.getQueue(VulkanQueue.Type.PRESENT);
+        VulkanQueue graphicsQueue = device.getQueue(QueueType.GRAPHICS);
+        VulkanQueue presentQueue = device.getQueue(QueueType.PRESENT);
 
         if (!graphicsQueue.equals(presentQueue)) {
             IntBuffer queueIndices = stack.ints(graphicsQueue.index(), presentQueue.index()); // replaced alloc!
@@ -246,7 +247,7 @@ public class VulkanSwapchain implements Swapchain {
             presentInfo.pWaitSemaphores(stack.longs(((VulkanSemaphore) renderFinished).getHandle()));
             presentInfo.swapchainCount(1);
 
-            int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(device.getQueue(VulkanQueue.Type.PRESENT).vk(), presentInfo);
+            int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(device.getQueue(QueueType.PRESENT).vk(), presentInfo);
             if (VK_RESULT != VK14.VK_SUCCESS) {
                 if (VK_RESULT == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
                     recreate();

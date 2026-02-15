@@ -1,6 +1,6 @@
 package com.vke.core.rendering.buffer;
 
-import com.vke.core.rendering.vulkan.buffer.MappedBuffer;
+import com.vke.core.vulkan.buffers.MappedBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;

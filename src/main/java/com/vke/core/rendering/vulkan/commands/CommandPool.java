@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.commands;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -16,7 +16,7 @@ public class CommandPool implements Disposable {
     private final long handle;
     private LogicalDevice device;
 
-    public CommandPool(VKEngine engine, LogicalDevice device, VulkanQueue.Type type) {
+    public CommandPool(VKEngine engine, LogicalDevice device, QueueType type) {
         this.device = device;
 
         try(MemoryStack stack = MemoryStack.stackPush()) {

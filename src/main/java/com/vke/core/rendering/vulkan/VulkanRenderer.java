@@ -5,7 +5,8 @@ import com.vke.api.services.Service;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.frame.Frame;
 import com.vke.core.rendering.vulkan.frame.ImmediateFrame;
 import com.vke.core.rendering.vulkan.swapchain.SwapChain;
@@ -79,7 +80,7 @@ public class VulkanRenderer extends Service {
 
         cmd.endRecording(swapChain);
 
-        VulkanQueue graphicsQueueVKE = setup.getLogicalDevice().getQueue(VulkanQueue.Type.GRAPHICS);
+        VulkanQueue graphicsQueueVKE = setup.getLogicalDevice().getQueue(QueueType.GRAPHICS);
         graphicsQueueVKE.submit(engine, stack, setup, f, frame);
 
         VkQueue graphicsQueue = graphicsQueueVKE.vk();
@@ -130,7 +131,7 @@ public class VulkanRenderer extends Service {
             consumer.accept(stack, icmd);
             icmd.endRecordingImmediate();
 
-            VulkanQueue q = setup.getLogicalDevice().getQueue(VulkanQueue.Type.TRANSFER);
+            VulkanQueue q = setup.getLogicalDevice().getQueue(QueueType.TRANSFER);
             q.submitImmediate(engine, stack, f);
 
             //wait for fence

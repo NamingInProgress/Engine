@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.frame;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.rendering.vulkan.commands.CommandPool;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -17,7 +17,7 @@ public class Frame implements Disposable {
     private Fence renderFence;
 
     public Frame(VKEngine engine, LogicalDevice device) {
-        pool = new CommandPool(engine, device, VulkanQueue.Type.GRAPHICS);
+        pool = new CommandPool(engine, device, QueueType.GRAPHICS);
         buffers = new CommandBuffers(engine, pool, device, 1);
 
         setupSyncStructures(engine, device);
