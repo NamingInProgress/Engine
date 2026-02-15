@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class GraphicsPipeline implements com.vke.api.abstraction.pipeline.GraphicsPipeline {
+public class GraphicsPipeline implements Disposable {
     private static String HERE = "GraphicsPipeline";
 
     private long handle;
@@ -65,7 +65,7 @@ public class GraphicsPipeline implements com.vke.api.abstraction.pipeline.Graphi
                 DescriptorPoolCreateInfo poolCreateInfo = new DescriptorPoolCreateInfo();
                 poolCreateInfo.maxSets = descriptorData.getSetsAmount();
                 poolCreateInfo.engine = engine;
-                poolCreateInfo.logicalDevice = device.getLogicalDevice();
+                poolCreateInfo.device = device;
                 poolCreateInfo.descriptorTypeCountInfo = descriptorTypeCountInfo;
 
                 descAlloc = new DescriptorAllocator(poolCreateInfo);
@@ -277,7 +277,6 @@ public class GraphicsPipeline implements com.vke.api.abstraction.pipeline.Graphi
         VK14.vkDestroyPipeline(device.getLogicalDevice().getDevice(), handle, null);
     }
 
-    @Override
     public com.vke.api.abstraction.pipeline.PipelineLayout layout() {
         return this.layout;
     }

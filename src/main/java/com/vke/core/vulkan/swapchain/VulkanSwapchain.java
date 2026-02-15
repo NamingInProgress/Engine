@@ -276,6 +276,7 @@ public class VulkanSwapchain implements Swapchain {
     public void destroy() {
         this.device.waitIdle();
         KHRSwapchain.vkDestroySwapchainKHR(device.getLogicalDevice().getDevice(), this.swapchain, null);
+        this.imageViews.forEach(SwapchainImageView::free);
         this.images.clear();
         this.imageViews.clear();
     }

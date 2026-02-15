@@ -9,6 +9,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
@@ -56,6 +57,7 @@ public class VulkanRenderer extends Service {
     }
 
     public FrameData startFrame() {
+        device.waitIdle();
         MemoryStack stack = MemoryStack.stackPush();
 
         VulkanFrame frame = frames[currentFrame];
@@ -104,7 +106,7 @@ public class VulkanRenderer extends Service {
         swapchain.present(frameData.frame().getPresentSemaphore());
 
         frameData.stack().close();
-        currentFrame++;
+        currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
@@ -133,6 +135,10 @@ public class VulkanRenderer extends Service {
     @Override
     protected List<String> dependencies() {
         return List.of(Services.SHADER_COMPILER);
+    }
+
+    public VulkanRenderDevice getDevice() {
+        return this.device;
     }
 
     @Override

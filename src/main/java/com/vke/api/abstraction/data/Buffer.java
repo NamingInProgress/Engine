@@ -14,10 +14,10 @@ public interface Buffer extends Disposable {
     BufferUsage usage();
     MemoryUsage memoryUsage();
 
-    void upload(long offset, ByteBuffer data);
+    //void upload(long offset, ByteBuffer data);
 
-    boolean isMapped();
-    ByteBuffer map();
-    void unmap();
+    //boolean isMapped();
+    //ByteBuffer map();
+    //void unmap();
 
 }

@@ -322,4 +322,8 @@ public class VulkanRenderDevice implements RenderDevice {
     public VulkanQueue getQueue(QueueType type) {
         return logicalDevice.getQueue(type);
     }
+
+    public long getVmaAllocator() {
+        return vmaAllocator;
+    }
 }

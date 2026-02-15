@@ -1,5 +1,6 @@
 package com.vke.api.vulkan.pipeline;
 
+import com.vke.api.abstraction.pipeline.PipelineLayout;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.parsing.config.ConfigParser;
@@ -31,7 +32,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class RenderPipeline implements Disposable {
+public class RenderPipeline implements com.vke.api.abstraction.pipeline.GraphicsPipeline {
 
     private final RenderPipelineBuilder builder;
 
@@ -166,6 +167,11 @@ public class RenderPipeline implements Disposable {
 
     public void setImage(String key, long imageView, ImageLayout layout) {
         getGraphicsPipeline().setImage(key, imageView, layout);
+    }
+
+    @Override
+    public PipelineLayout layout() {
+        return getGraphicsPipeline().layout();
     }
 
     @Override

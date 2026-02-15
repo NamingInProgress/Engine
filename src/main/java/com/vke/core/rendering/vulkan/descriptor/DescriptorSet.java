@@ -6,6 +6,7 @@ import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -25,12 +26,12 @@ public class DescriptorSet implements Disposable {
 
     private final LogicalDevice device;
 
-    public DescriptorSet(long handle, VKEngine engine, LogicalDevice device, DescriptorSetLayout layout) {
+    public DescriptorSet(long handle, VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout) {
         this.handle = handle;
-        this.device = device;
+        this.device = device.getLogicalDevice();
 
         for (IntObjectCursor<DescriptorData.Binding> cursor : layout.getBindings()) {
-            bindings.put(cursor.key, DescriptorBinding.fromType(engine, setup, cursor.value));
+            bindings.put(cursor.key, DescriptorBinding.fromType(engine, device, cursor.value));
         }
 
         bindAll();

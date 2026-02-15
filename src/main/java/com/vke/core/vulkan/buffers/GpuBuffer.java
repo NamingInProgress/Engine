@@ -1,9 +1,12 @@
-package com.vke.core.rendering.vulkan.mem;
+package com.vke.core.vulkan.buffers;
 
+import com.vke.api.abstraction.data.Buffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.vulkan.VKUtils;
 import com.vke.core.rendering.vulkan.VulkanSetup;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -14,17 +17,26 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 
+import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
-public class GpuBuffer implements Disposable {
-    private static final String HERE = "Buffer";
+public class GpuBuffer implements Buffer {
+    private static final String HERE = "Buffer@VulkanImpl/GPUBuffer";
 
     private final long allocator;
     private final long buffer, allocation;
     private final VmaAllocationInfo info;
     private final VkDevice device;
 
-    public GpuBuffer(VKEngine engine, VulkanSetup setup, long size, BufferUsage usageFlags, MemoryUsage memoryUsage) {
+    private final long size;
+    private final BufferUsage usage;
+    private final MemoryUsage memUsage;
+
+    public GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage) {
+        this.size = size;
+        this.usage = usageFlags;
+        this.memUsage = memoryUsage;
+
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkBufferCreateInfo bufferCreateInfo = VkBufferCreateInfo.calloc(stack)
                     .sType$Default()
@@ -40,12 +52,14 @@ public class GpuBuffer implements Disposable {
             PointerBuffer pAllocation = stack.mallocPointer(1);
             VmaAllocationInfo allocationInfo = VmaAllocationInfo.calloc();
 
-            device = setup.getLogicalDevice().getDevice();
-            if (Vma.vmaCreateBuffer(setup.getVmaAllocator(), bufferCreateInfo, allocationCreateInfo, pBuffer, pAllocation, allocationInfo) != VK14.VK_SUCCESS) {
+            device = rd.getLogicalDevice().getDevice();
+            if (Vma.vmaCreateBuffer(rd.getVmaAllocator(), bufferCreateInfo, allocationCreateInfo, pBuffer, pAllocation, allocationInfo) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("Unable to allocate mapped gpu memory"), HERE);
             }
 
-            allocator = setup.getVmaAllocator();
+            VKUtils.setDebugName(rd.getLogicalDevice(), "Staging buf", pBuffer.get(0), VK14.VK_OBJECT_TYPE_BUFFER);
+
+            allocator = rd.getVmaAllocator();
             buffer = pBuffer.get(0);
             allocation = pAllocation.get(0);
             info = allocationInfo;
@@ -70,5 +84,19 @@ public class GpuBuffer implements Disposable {
         info.free();
     }
 
+    @Override
+    public long size() {
+        return size;
+    }
+
+    @Override
+    public BufferUsage usage() {
+        return usage;
+    }
+
+    @Override
+    public MemoryUsage memoryUsage() {
+        return memUsage;
+    }
 
 }

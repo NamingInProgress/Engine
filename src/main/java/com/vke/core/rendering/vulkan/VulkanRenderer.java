@@ -36,7 +36,7 @@ public class VulkanRenderer extends Service {
         this.setup = new VulkanSetup(createInfo);
         this.framesInFlight = createInfo.vulkanCreateInfo.framesInFlight;
         setup.initVulkan(engine);
-        VKERegistries.PIPELINES.makeVkPipelines(engine, setup);
+        //VKERegistries.PIPELINES.makeVkPipelines(engine, setup);
         this.swapChain = setup.getSwapChain();
         this.frameCount = swapChain.getImageCount();
 

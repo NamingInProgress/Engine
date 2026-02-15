@@ -1,10 +1,9 @@
 package com.vke.core.vulkan.buffers;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
-import com.vke.core.rendering.vulkan.mem.GpuBuffer;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryUtil;
 
@@ -15,7 +14,7 @@ public class MappedBuffer implements Disposable {
 
     public MappedBuffer(
             VKEngine engine,
-            VulkanSetup setup,
+            VulkanRenderDevice device,
             long size,
             BufferUsage usage
     ) {
@@ -23,7 +22,7 @@ public class MappedBuffer implements Disposable {
 
         this.gpuBuffer = new GpuBuffer(
                 engine,
-                setup,
+                device,
                 size,
                 usage,
                 MemoryUsage.Bits.CPU_TO_GPU.into()

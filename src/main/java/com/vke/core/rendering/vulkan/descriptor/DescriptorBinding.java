@@ -7,6 +7,7 @@ import com.vke.core.rendering.buffer.BufferSlice;
 import com.vke.core.rendering.vulkan.VulkanSetup;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
@@ -20,24 +21,24 @@ public abstract class DescriptorBinding implements Disposable {
 
     private final DescriptorType type;
     private final VKEngine engine;
-    private final VulkanSetup setup;
+    private final VulkanRenderDevice device;
 
-    public DescriptorBinding(VKEngine engine, VulkanSetup setup, DescriptorType type) {
+    public DescriptorBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type) {
         this.type = type;
         this.engine = engine;
-        this.setup = setup;
+        this.device = device;
     }
 
     public DescriptorType getType() {
         return type;
     }
 
-    public static DescriptorBinding fromType(VKEngine engine, VulkanSetup setup, DescriptorData.Binding binding) {
+    public static DescriptorBinding fromType(VKEngine engine, VulkanRenderDevice device, DescriptorData.Binding binding) {
         DescriptorType type = DescriptorType.fromWrapper(binding.getType());
         return switch (type) {
-            case CombinedImageSampler -> new SamplerBinding(engine, setup, type);
-            case StorageImage -> new ImageBinding(engine, setup, type);
-            case UniformBuffer, StorageBuffer -> new BufferBinding(engine, setup, type, binding.getStruct(), binding.getStruct().sizeof());
+            case CombinedImageSampler -> new SamplerBinding(engine, device, type);
+            case StorageImage -> new ImageBinding(engine, device, type);
+            case UniformBuffer, StorageBuffer -> new BufferBinding(engine, device, type, binding.getStruct(), binding.getStruct().sizeof());
         };
     }
 
@@ -48,8 +49,8 @@ public abstract class DescriptorBinding implements Disposable {
         public long imageView;
         public ImageLayout layout;
 
-        public ImageBinding(VKEngine engine, VulkanSetup setup, DescriptorType type) {
-            super(engine, setup, type);
+        public ImageBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type) {
+            super(engine, device, type);
         }
 
         public void setImageView(long handle) {
@@ -82,8 +83,8 @@ public abstract class DescriptorBinding implements Disposable {
         public long imageView;
         public ImageLayout layout;
 
-        public SamplerBinding(VKEngine engine, VulkanSetup setup, DescriptorType type) {
-            super(engine, setup, type);
+        public SamplerBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type) {
+            super(engine, device, type);
         }
 
         public void setSampler(long handle) {
@@ -121,13 +122,13 @@ public abstract class DescriptorBinding implements Disposable {
         private final DescriptorData.Struct struct;
 
         // Assumes size is byte aligned size
-        public BufferBinding(VKEngine engine, VulkanSetup setup, DescriptorType type, DescriptorData.Struct struct, long size) {
-            super(engine, setup, type);
+        public BufferBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type, DescriptorData.Struct struct, long size) {
+            super(engine, device, type);
             this.struct = struct;
             
             BufferUsage usage = new BufferUsage(type == DescriptorType.StorageBuffer ? BufferUsage.Bits.SSBO : BufferUsage.Bits.UBO);
 
-            buffer = new MappedBuffer(engine, setup, size, usage);
+            buffer = new MappedBuffer(engine, device, size, usage);
             this.size = size;
         }
 

@@ -14,7 +14,7 @@ public class DescriptorPool implements Disposable {
     private LogicalDevice device;
 
     public DescriptorPool(DescriptorPoolCreateInfo createInfo) {
-        this.device = createInfo.logicalDevice;
+        this.device = createInfo.device.getLogicalDevice();
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkDescriptorPoolSize.Buffer buf = VkDescriptorPoolSize.calloc(createInfo.descriptorTypeCountInfo.size(), stack);

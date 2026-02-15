@@ -6,6 +6,7 @@ import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
 import com.vke.core.rendering.vulkan.commands.CommandPool;
@@ -140,7 +141,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void bindRenderPipeline(GraphicsPipeline pipeline) {
         VK14.vkCmdBindPipeline(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, ((com.vke.core.vulkan.pipeline.GraphicsPipeline) pipeline).getHandle());
+                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, ((RenderPipeline) pipeline).getGraphicsPipeline().getHandle());
     }
 
     @Override
@@ -170,7 +171,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
     public void setDescriptorSets(GraphicsPipeline pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer sets = stack.longs(
-                    ((com.vke.core.vulkan.pipeline.GraphicsPipeline) pipeline)
+                    ((RenderPipeline) pipeline)
+                            .getGraphicsPipeline()
                             .getDescriptorSets()
                             .stream()
                             .mapToLong(DescriptorSet::getHandle)
