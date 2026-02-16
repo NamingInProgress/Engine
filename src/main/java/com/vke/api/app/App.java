@@ -1,7 +1,7 @@
 package com.vke.api.app;
 
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
 

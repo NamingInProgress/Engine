@@ -1,5 +1,6 @@
 package com.vke.api.vulkan.pipeline;
 
+import com.vke.api.abstraction.pipeline.PipelineLayout;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.parsing.config.ConfigParser;
@@ -7,19 +8,18 @@ import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.ImageLayout;
-import com.vke.api.vulkan.VkEnum;
-import com.vke.core.rendering.vulkan.createInfos.PipelineCreateInfo;
+import com.vke.api.abstraction.IntEnum;
+import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.rendering.buffer.BufferSlice;
-import com.vke.core.rendering.vulkan.VulkanSetup;
-import com.vke.core.rendering.vulkan.pipeline.GraphicsPipeline;
-import com.vke.core.rendering.vulkan.shader.Shader;
-import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
+import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.pipeline.GraphicsPipeline;
+import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.services.Services;
-import com.vke.utils.Disposable;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class RenderPipeline implements Disposable {
+public class RenderPipeline implements com.vke.api.abstraction.pipeline.GraphicsPipeline {
 
     private final RenderPipelineBuilder builder;
 
@@ -43,17 +43,15 @@ public class RenderPipeline implements Disposable {
         this.builder = builder;
     }
 
-    public void setupGraphicsPipeline(VKEngine engine, VulkanSetup vkSetup) {
+    public void setupGraphicsPipeline(VKEngine engine, VulkanRenderDevice device) {
         if (graphicsPipeline != null) {
             log(LogLevel.WARN, "Remaking graphics pipeline from RenderPipeline, is this a bug?");
         }
 
         PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
-        pipelineCreateInfo.device = vkSetup.getLogicalDevice();
+        pipelineCreateInfo.device = device;
         pipelineCreateInfo.engine = engine;
-        pipelineCreateInfo.swapChain = vkSetup.getSwapChain();
         pipelineCreateInfo.name = builder.getId();
-        pipelineCreateInfo.setup = vkSetup;
 
         int depthFormat = VK14.VK_FORMAT_UNDEFINED;
         int stencilFormat = VK14.VK_FORMAT_UNDEFINED;
@@ -80,7 +78,7 @@ public class RenderPipeline implements Disposable {
 
         Shader[] shaders = new Shader[0];
         try {
-            shaders = builder.shader.getShaderArray(engine, vkSetup.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
+            shaders = builder.shader.getShaderArray(engine, device.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
         } catch (Exception e) {
             engine.throwException(e, "Render Pipeline -> Shader Creation");
         }
@@ -168,6 +166,11 @@ public class RenderPipeline implements Disposable {
 
     public void setImage(String key, long imageView, ImageLayout layout) {
         getGraphicsPipeline().setImage(key, imageView, layout);
+    }
+
+    @Override
+    public PipelineLayout layout() {
+        return getGraphicsPipeline().layout();
     }
 
     @Override
@@ -539,7 +542,7 @@ public class RenderPipeline implements Disposable {
         ERROR
     }
 
-    public enum Topology implements VkEnum {
+    public enum Topology implements IntEnum {
 
         POINTS(VK14.VK_PRIMITIVE_TOPOLOGY_POINT_LIST),
         PATCHES(VK14.VK_PRIMITIVE_TOPOLOGY_PATCH_LIST),
@@ -569,7 +572,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum PolygonMode implements VkEnum {
+    public enum PolygonMode implements IntEnum {
 
         POINT(VK14.VK_POLYGON_MODE_POINT),
         LINE(VK14.VK_POLYGON_MODE_LINE),
@@ -587,7 +590,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum CullMode implements VkEnum {
+    public enum CullMode implements IntEnum {
 
         NONE(VK14.VK_CULL_MODE_NONE),
         FRONT(VK14.VK_CULL_MODE_FRONT_BIT),
@@ -606,7 +609,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum WindingOrder implements VkEnum {
+    public enum WindingOrder implements IntEnum {
 
         CLOCKWISE(VK14.VK_FRONT_FACE_CLOCKWISE),
         COUNTERCLOCKWISE(VK14.VK_FRONT_FACE_COUNTER_CLOCKWISE);
@@ -623,7 +626,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum BlendFactor implements VkEnum {
+    public enum BlendFactor implements IntEnum {
 
         ZERO(VK14.VK_BLEND_FACTOR_ZERO),
         ONE(VK14.VK_BLEND_FACTOR_ONE),
@@ -656,7 +659,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum BlendOperation implements VkEnum {
+    public enum BlendOperation implements IntEnum {
 
         ADD(VK14.VK_BLEND_OP_ADD),
         SUBTRACT(VK14.VK_BLEND_OP_SUBTRACT),
@@ -676,7 +679,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum CompareOp implements VkEnum {
+    public enum CompareOp implements IntEnum {
 
         NEVER(VK14.VK_COMPARE_OP_NEVER),
         LESS(VK14.VK_COMPARE_OP_LESS),
@@ -699,7 +702,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum StencilOp implements VkEnum {
+    public enum StencilOp implements IntEnum {
 
         KEEP(VK14.VK_STENCIL_OP_KEEP),
         ZERO(VK14.VK_STENCIL_OP_ZERO),
@@ -722,7 +725,7 @@ public class RenderPipeline implements Disposable {
         }
     }
 
-    public enum DynamicState implements VkEnum {
+    public enum DynamicState implements IntEnum {
 
         VIEWPORT(VK14.VK_DYNAMIC_STATE_VIEWPORT),
         SCISSOR(VK14.VK_DYNAMIC_STATE_SCISSOR),

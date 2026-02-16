@@ -1,7 +1,7 @@
 package com.vke.api.vulkan.pipeline;
 
 import com.vke.api.utils.AlignedByteBuffer;
-import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.Shader;
 
 import java.nio.ByteBuffer;
 

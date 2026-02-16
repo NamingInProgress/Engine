@@ -4,12 +4,12 @@ import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.buffer.MeshBuffer;
-import com.vke.core.rendering.vulkan.Scissor;
-import com.vke.core.rendering.vulkan.Viewport;
-import com.vke.core.rendering.vulkan.VulkanRenderer;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
+import com.vke.core.vulkan.buffers.premade.MeshBuffer;
+import com.vke.core.vulkan.Scissor;
+import com.vke.core.vulkan.Viewport;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.window.Window;
 import com.vke.test.TestPipelines;
 import org.joml.Matrix4f;
@@ -84,58 +84,58 @@ public class TestApp extends App {
 
     @Override
     public void onDraw(Window window, VulkanRenderer.FrameData fd) {
-        CommandBuffers cmd = fd.cmd();
-        MemoryStack stack = fd.getStack();
-        cmd.bindRenderPipeline(TestPipelines.IDK);
+        int width = window.getSize().width();
+        int height = window.getSize().height();
 
-        new Scissor().use(fd);
-        Viewport wp = new Viewport().use(fd);
-        //System.out.println("wp.width() = " + wp.width());
-        //System.out.println("wp.height() = " + wp.height());
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VulkanCmdBuffers cmd = fd.frame().getBuffers();
+            cmd.bindRenderPipeline(TestPipelines.IDK);
 
-        Matrix4f mat = new Matrix4f();
-        mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
+            Scissor sc = new Scissor(0, 0, width, height);
+            Viewport wp = new Viewport(0, 0, width, height);
 
-        TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
-        pc.setVerticesPtr(mesh.verticesDeviceAddress());
-        pc.setMat(mat);
+            cmd.setViewport(wp);
+            cmd.setScissor(sc);
+            //System.out.println("wp.width() = " + wp.width());
+            //System.out.println("wp.height() = " + wp.height());
 
-        // Set sampler (outside of render loop tho)
+            Matrix4f mat = new Matrix4f();
+            mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
 
-        cmd.setDescriptorSets(TestPipelines.IDK, stack);
+            TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
+            pc.setVerticesPtr(mesh.verticesDeviceAddress());
+            pc.setMat(mat);
 
-        cmd.setPushConstants(TestPipelines.IDK, stack);
+            // Set sampler (outside of render loop tho)
 
-        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+            cmd.setDescriptorSets(TestPipelines.IDK);
 
-        VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
+            cmd.setPushConstants(TestPipelines.IDK);
+
+            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+
+            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
 
 
-        // 2nd draw:
-        cmd.bindRenderPipeline(TestPipelines.STH);
+            // 2nd draw:
+            cmd.bindRenderPipeline(TestPipelines.STH);
 
-        ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
+            ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
 
-        TestPipelines.STH.setUniform("time", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(System.currentTimeMillis() % 1000);
+            TestPipelines.STH.setUniform("time", (slice) -> {
+                slice.write((buf) -> {
+                    buf.putFloat(System.currentTimeMillis() % 1000);
+                });
             });
-        });
 
-        cmd.setDescriptorSets(TestPipelines.STH, stack);
+            cmd.setDescriptorSets(TestPipelines.STH);
 
-        cmd.setPushConstants(TestPipelines.STH, stack);
+            cmd.setPushConstants(TestPipelines.STH);
 
-        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
-        VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
-
-
-        //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
-
-        //cmd.bindRenderPipeline(RenderPipelines.MAIN);
-        //cmd.setPushConstants(RenderPipelines.MAIN, stack);
-        //VK14.vkCmdDraw(cmd.getBuffer(), 3, 1, 0, 0);
+            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
+        }
     }
 
     @Override

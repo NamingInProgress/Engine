@@ -2,7 +2,8 @@ package com.vke.test.app;
 
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
-import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.Shader;
+import com.vke.api.abstraction.descriptors.ShaderType;
 
 import java.nio.ByteBuffer;
 
@@ -25,7 +26,7 @@ public class SthPushConstant extends PushConstantsDefinition {
 
     @Override
     public Shader.Stages getAplicableStages() {
-        return new Shader.Stages(Shader.Type.VERTEX);
+        return new Shader.Stages(ShaderType.VERTEX);
     }
 
     @Override

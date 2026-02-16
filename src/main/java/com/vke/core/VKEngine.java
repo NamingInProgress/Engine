@@ -8,8 +8,8 @@ import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.rendering.vulkan.VulkanRenderer;
-import com.vke.core.rendering.vulkan.pipeline.RenderPipelines;
+import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
@@ -71,27 +71,19 @@ public class VKEngine {
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            boolean recreate = false;
             if (!window.isMinimized()) {
-                VulkanRenderer.FrameData bfd = renderer.setupFrame();
-                if (bfd == null || renderer.resizeRequested) {
-                    recreate = true;
-                } else {
+                VulkanRenderer.FrameData bfd = renderer.startFrame();
+                if (bfd != null) {
                     app.onDraw(window, bfd);
                     renderer.endFrame(bfd);
-                    recreate |= renderer.resizeRequested;
                 }
             }
 
             GLFW.glfwPollEvents();
-
-            if (recreate) {
-                renderer.recreate(vsync);
-            }
         }
 
         // TODO: Fix me
-        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).waitIdle();
+        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).getDevice().waitIdle();
         free();
     }
 

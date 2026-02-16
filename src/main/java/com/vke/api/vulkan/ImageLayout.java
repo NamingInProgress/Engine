@@ -1,9 +1,10 @@
 package com.vke.api.vulkan;
 
+import com.vke.api.abstraction.IntEnum;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK14;
 
-public enum ImageLayout implements VkEnum {
+public enum ImageLayout implements IntEnum {
 
     UNDEFINED(VK14.VK_IMAGE_LAYOUT_UNDEFINED),
     GENERAL(VK14.VK_IMAGE_LAYOUT_GENERAL),

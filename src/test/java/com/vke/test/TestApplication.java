@@ -11,8 +11,8 @@ import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.parsing.config.json.JsonParser;
-import com.vke.core.rendering.vulkan.VulkanRenderer;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.test.app.TestApp;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
@@ -32,7 +32,7 @@ public class TestApplication {
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
-        if (renderdoc.get()) Thread.sleep(5000);
+        if (renderdoc.get()) Thread.sleep(10000);
 
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
