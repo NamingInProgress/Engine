@@ -3,7 +3,7 @@ package com.vke.core.logger;
 import com.vke.api.logger.LogFormatter;
 import com.vke.api.logger.LoggerOutput;
 import com.vke.api.logger.LogEvent;
-import com.vke.utils.Colors;
+import com.vke.utils.ColorStringBuilder;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.io.IOException;
 public class FileOutput implements LoggerOutput {
 
     static final LogFormatter defaultFormatter = (event) -> {
-        Colors text = new Colors();
+        ColorStringBuilder text = new ColorStringBuilder();
 
         text.write("[%s]".formatted(event.getTimestampFormatted()));
         text.write("[%s]".formatted(event.thread.getName()));

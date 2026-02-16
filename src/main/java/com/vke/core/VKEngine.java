@@ -8,11 +8,14 @@ import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.services.PerformanceStatistics;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.Disposable;
+import com.vke.utils.Infallible;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
@@ -27,6 +30,8 @@ public class VKEngine {
     private App app;
 
     public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
+    public static PerformanceStatistics profiler;
+
     private final ServiceCreateContext scc;
 
     private final EngineCreateInfo createInfo;
@@ -40,6 +45,8 @@ public class VKEngine {
 
         Services.init();
         RenderPipelines.init();
+
+        profiler = service(Services.PERFORMANCE_STATISTICS);
 
         vsync = createInfo.vsync;
 
@@ -72,11 +79,21 @@ public class VKEngine {
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
             if (!window.isMinimized()) {
+                profiler.beginFrame();
+                profiler.category("Render");
+                profiler.category("Frame Setup");
                 VulkanRenderer.FrameData bfd = renderer.startFrame();
+                profiler.endCategory();
                 if (bfd != null) {
+                    profiler.record("App Draw");
                     app.onDraw(window, bfd);
+                    profiler.end("App Draw");
+                    profiler.record("Frame End");
                     renderer.endFrame(bfd);
+                    profiler.end("Frame End");
                 }
+                profiler.endCategory();
+                profiler.endFrame();
             }
 
             GLFW.glfwPollEvents();
@@ -87,7 +104,7 @@ public class VKEngine {
         free();
     }
 
-    public void throwException(Throwable e, String where) {
+    public @NotNull Infallible throwException(Throwable e, String where) {
         logger.fatal("Fatal exception at %s", where);
         throw new RuntimeException(e);
     }

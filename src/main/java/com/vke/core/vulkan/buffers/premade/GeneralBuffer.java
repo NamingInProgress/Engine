@@ -57,4 +57,8 @@ public class GeneralBuffer extends CpuBuffer {
     public long getAddress() {
         return address;
     }
+
+    public ByteBuffer getData() {
+        return data.limit(elementCount);
+    }
 }

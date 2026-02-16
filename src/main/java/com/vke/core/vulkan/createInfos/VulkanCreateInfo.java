@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VulkanCreateInfo {
 
-    public int framesInFlight = 2;
+    public int framesInFlight = 3;
     public Version apiVersion = new Version(1, 4, 0);
     public List<String> extensions = new ArrayList<>();
     public List<String> gpuExtensions = new ArrayList<>(List.of(

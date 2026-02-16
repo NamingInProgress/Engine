@@ -22,13 +22,14 @@ public class SwapchainUtils {
     }
 
     public static int choosePresentMode(IntBuffer pModes, boolean vsync) {
-        int[] modes = Utils.acquireIntArrayFromBuffer(pModes);
-        if (!vsync) {
-            if (Utils.intsContain(modes, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
-                return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
-            }
-        }
-        return VkPresentMode.VK_PRESENT_MODE_FIFO_KHR;
+        return VkPresentMode.VK_PRESENT_MODE_IMMEDIATE_KHR;
+//        int[] modes = Utils.acquireIntArrayFromBuffer(pModes);
+//        if (!vsync) {
+//            if (Utils.intsContain(modes, VkPres<intentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
+//                return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
+//            }
+//        }
+//        return VkPresentMode.VK_PRESENT_MODE_FIFO_KHR;
     }
 
     public static VkExtent2D chooseExtent(VkSurfaceCapabilitiesKHR capabilities, AutoHeapAllocator alloc, long windowHandle) {

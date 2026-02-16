@@ -58,8 +58,6 @@ public class GpuBuffer implements Buffer {
                 engine.throwException(new IllegalStateException("Unable to allocate mapped gpu memory"), HERE);
             }
 
-            VKUtils.setDebugName(rd.getLogicalDevice(), "Staging buf", pBuffer.get(0), VK14.VK_OBJECT_TYPE_BUFFER);
-
             allocator = rd.getVmaAllocator();
             buffer = pBuffer.get(0);
             allocation = pAllocation.get(0);

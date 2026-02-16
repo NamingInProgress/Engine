@@ -14,7 +14,6 @@ public interface TextureView extends Disposable {
     Texture parent();
     TextureFormat format();
     TextureViewType type();
-    ImageLayout layout();
 
     int baseMip();
     int mipCount();

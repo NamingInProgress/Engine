@@ -8,6 +8,7 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.api.abstraction.pipeline.ComputePipeline;
 import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.swapchain.Swapchain;
@@ -27,6 +28,7 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.vulkan.texture.VulkanTexture;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -208,22 +210,12 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public Texture createTexture(Texture.Description info) {
-        return null;
+        return new VulkanTexture(this, info, MemoryUsage.Bits.GPU_ONLY.into());
     }
 
     @Override
     public Sampler createSampler(Sampler.Description info) {
         return null;
-    }
-
-    @Override
-    public GraphicsPipeline createRenderPipeline(RenderPipeline.RenderPipelineBuilder builder) {
-        return null;
-    }
-
-    @Override
-    public ComputePipeline createComputePipeline() {
-        throw new RuntimeException("Compute Pipelines are not yet implemented!");
     }
 
     @Override
@@ -324,4 +316,6 @@ public class VulkanRenderDevice implements RenderDevice {
     public long getVmaAllocator() {
         return vmaAllocator;
     }
+
+    public VKEngine getEngine() { return this.engine; }
 }

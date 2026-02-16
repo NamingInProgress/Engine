@@ -40,7 +40,7 @@ public class VulkanFence implements Fence {
 
     @Override
     public void waitForFence() {
-        waitForFence(1_000_000_000);
+        waitForFence(Integer.MAX_VALUE);
     }
 
     @Override

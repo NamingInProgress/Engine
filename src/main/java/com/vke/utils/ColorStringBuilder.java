@@ -1,7 +1,7 @@
 package com.vke.utils;
 
 @SuppressWarnings("all")
-public class Colors {
+public class ColorStringBuilder {
 
     public static final String RESET = "\033[0m";
     public static final String RESET_BOLD = "\033[22m";
@@ -26,6 +26,7 @@ public class Colors {
     public static final String MAGENTA = "\033[35m";
     public static final String CYAN = "\033[36m";
     public static final String WHITE = "\033[37m";
+    public static final String GRAY = "\u001B[90m";
     public static final String DEFAULT = "\033[39m";
 
     /**  BASE BACKGROUND COLORS  **/
@@ -47,29 +48,29 @@ public class Colors {
         return "\033[48;2;" + r + ";" + g + ";" + b + "m";
     }
 
-    private final StringBuilder builder;
+    private StringBuilder builder;
 
     private String previous;
 
-    public Colors(String message) {
+    public ColorStringBuilder(String message) {
         builder = new StringBuilder(message);
         previous = RESET;
     }
 
-    public Colors() {
+    public ColorStringBuilder() {
         this("");
     }
 
-    public Colors write(Object message) {
+    public ColorStringBuilder write(Object message) {
         builder.append(message);
         return this;
     }
 
-    public Colors line(String command, Object message) {
+    public ColorStringBuilder line(String command, Object message) {
         return line(command, message, false);
     }
 
-    public Colors line(String command, Object message, boolean swapToPreviousCommand) {
+    public ColorStringBuilder line(String command, Object message, boolean swapToPreviousCommand) {
         builder.append(command).append(message);
         if (swapToPreviousCommand) builder.append(previous);
         previous = command;
@@ -81,104 +82,111 @@ public class Colors {
         return builder.toString();
     }
 
-    public Colors reset() {
+    public ColorStringBuilder reset() {
         builder.append(RESET);
         return this;
     }
 
-    public Colors reset(Object message) {
+    public ColorStringBuilder reset(Object message) {
         builder.append(RESET).append(message);
         return this;
     }
 
-    public Colors defaultColor() {
+    public ColorStringBuilder defaultColor() {
         builder.append(DEFAULT);
         return this;
     }
 
-    public Colors backgroundDefaultColor() {
+    public ColorStringBuilder backgroundDefaultColor() {
         builder.append(BACKGROUND_DEFAULT);
         return this;
     }
 
-    // region Color Setters
-    public Colors rgb(Object message, int r, int g, int b) {
-        return line(Colors.rgb(r, g, b), message);
+    public ColorStringBuilder clear() {
+        builder = new StringBuilder();
+        previous = RESET;
+        return this;
     }
 
-    public Colors black(Object message) {
+    // region Color Setters
+    public ColorStringBuilder rgb(Object message, int r, int g, int b) {
+        return line(ColorStringBuilder.rgb(r, g, b), message);
+    }
+
+    public ColorStringBuilder black(Object message) {
         return line(BLACK, message);
     }
-    public Colors red(Object message) {
+    public ColorStringBuilder red(Object message) {
         return line(RED, message);
     }
-    public Colors green(Object message) {
+    public ColorStringBuilder green(Object message) {
         return line(GREEN, message);
     }
-    public Colors yellow(Object message) {
+    public ColorStringBuilder yellow(Object message) {
         return line(YELLOW, message);
     }
-    public Colors blue(Object message) {
+    public ColorStringBuilder blue(Object message) {
         return line(BLUE, message);
     }
-    public Colors magenta(Object message) {
+    public ColorStringBuilder magenta(Object message) {
         return line(MAGENTA, message);
     }
-    public Colors cyan(Object message) {
+    public ColorStringBuilder cyan(Object message) {
         return line(CYAN, message);
     }
-    public Colors white(Object message) {
+    public ColorStringBuilder white(Object message) {
         return line(WHITE, message);
     }
+    public ColorStringBuilder gray(Object message) { return line(GRAY, message); }
     // endregion
     // region Background Color Setters
-    public Colors backgroundRGB(Object message, int r, int g, int b) {
-        return line(Colors.backgroundRGB(r, g, b), message);
+    public ColorStringBuilder backgroundRGB(Object message, int r, int g, int b) {
+        return line(ColorStringBuilder.backgroundRGB(r, g, b), message);
     }
 
-    public Colors backgroundBlack(Object message) {
+    public ColorStringBuilder backgroundBlack(Object message) {
         return line(BACKGROUND_BLACK, message);
     }
-    public Colors backgroundRed(Object message) {
+    public ColorStringBuilder backgroundRed(Object message) {
         return line(BACKGROUND_RED, message);
     }
-    public Colors backgroundGreen(Object message) {
+    public ColorStringBuilder backgroundGreen(Object message) {
         return line(BACKGROUND_GREEN, message);
     }
-    public Colors backgroundYellow(Object message) {
+    public ColorStringBuilder backgroundYellow(Object message) {
         return line(BACKGROUND_YELLOW, message);
     }
-    public Colors backgroundBlue(Object message) {
+    public ColorStringBuilder backgroundBlue(Object message) {
         return line(BACKGROUND_BLUE, message);
     }
-    public Colors backgroundMagenta(Object message) {
+    public ColorStringBuilder backgroundMagenta(Object message) {
         return line(BACKGROUND_MAGENTA, message);
     }
-    public Colors backgroundCyan(Object message) {
+    public ColorStringBuilder backgroundCyan(Object message) {
         return line(BACKGROUND_CYAN, message);
     }
-    public Colors backgroundWhite(Object message) {
+    public ColorStringBuilder backgroundWhite(Object message) {
         return line(BACKGROUND_WHITE, message);
     }
     // endregion
     // region Graphics Mode Setters
-    public Colors bold(boolean on) {
+    public ColorStringBuilder bold(boolean on) {
         builder.append(on ? BOLD : RESET_BOLD);
         return this;
     }
-    public Colors italic(boolean on) {
+    public ColorStringBuilder italic(boolean on) {
         builder.append(on ? ITALIC : RESET_ITALIC);
         return this;
     }
-    public Colors underline(boolean on) {
+    public ColorStringBuilder underline(boolean on) {
         builder.append(on ? UNDERLINE : RESET_UNDERLINE);
         return this;
     }
-    public Colors blinking(boolean on) {
+    public ColorStringBuilder blinking(boolean on) {
         builder.append(on ? BLINKING : RESET_BLINKING);
         return this;
     }
-    public Colors strikethrough(boolean on) {
+    public ColorStringBuilder strikethrough(boolean on) {
         builder.append(on ? STRIKETHROUGH : RESET_STRIKETHROUGH);
         return this;
     }

@@ -120,7 +120,6 @@ public class VulkanTextureView implements TextureView {
         return this.viewType;
     }
 
-    @Override
     public ImageLayout layout() {
         return this.layout;
     }

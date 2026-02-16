@@ -14,6 +14,7 @@ public class Services {
     public static void init() {
         SERVICES.register(VULKAN_RENDERER, (ctx) -> new VulkanRenderer(ctx.engine(), ctx.engineCreateInfo()));
         SERVICES.register(SHADER_COMPILER, (_) -> new ShaderCompiler());
+        SERVICES.register(PERFORMANCE_STATISTICS, (_) -> new PerformanceStatistics());
     }
 
 }

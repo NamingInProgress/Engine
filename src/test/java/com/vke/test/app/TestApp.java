@@ -4,6 +4,7 @@ import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
+import com.vke.core.services.PerformanceStatistics;
 import com.vke.core.vulkan.buffers.premade.MeshBuffer;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -12,6 +13,7 @@ import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.window.Window;
 import com.vke.test.TestPipelines;
+import com.vke.utils.AppTimer;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -21,6 +23,8 @@ import java.nio.ByteBuffer;
 public class TestApp extends App {
     private MeshBuffer mesh;
     private MeshBuffer mesh2;
+
+    private AppTimer timer;
 
     @Override
     public void onInit(VKEngine engine) {
@@ -80,10 +84,14 @@ public class TestApp extends App {
                 buf.putFloat(1);
             });
         });
+
+        timer = new AppTimer();
     }
 
     @Override
     public void onDraw(Window window, VulkanRenderer.FrameData fd) {
+        timer.onFrameStart();
+
         int width = window.getSize().width();
         int height = window.getSize().height();
 
@@ -96,8 +104,6 @@ public class TestApp extends App {
 
             cmd.setViewport(wp);
             cmd.setScissor(sc);
-            //System.out.println("wp.width() = " + wp.width());
-            //System.out.println("wp.height() = " + wp.height());
 
             Matrix4f mat = new Matrix4f();
             mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
@@ -135,6 +141,10 @@ public class TestApp extends App {
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
             VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
+        }
+
+        if (timer.onFrameComplete(AppTimer.DEFAULT_TEST_INTERVAL_BEING_THE_DURATION_OF_9192631770_PERIODS_OF_THE_RADIATION_CORRESPONDING_TO_THE_TRANSITION_BETWEEN_THE_TWO_HYPERFINE_LEVELS_OF_THE_GROUND_STATE_OF_THE_CAESIUM_133_ATOM_EXPRESSED_IN_MILLISECONDS)) {
+            System.out.println("FPS: " + timer.fps());
         }
     }
 

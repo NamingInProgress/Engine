@@ -44,9 +44,6 @@ public class MeshBuffer implements Disposable {
                     MemoryUsage.Bits.GPU_ONLY
             );
             self.vertices = new StagedBuffer(engine, d, vbo, vertexBufUsage, vertexMemUsage);
-            if (!VKUtils.setDebugName(d.getLogicalDevice(), "Verts", self.vertices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
-                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
-            }
 
             VkBufferDeviceAddressInfo deviceAddressInfo = VkBufferDeviceAddressInfo.calloc(stack)
                     .sType$Default()
@@ -68,9 +65,6 @@ public class MeshBuffer implements Disposable {
                     MemoryUsage.Bits.GPU_ONLY
             );
             self.indices = new StagedBuffer(engine, d, ibo, indexBufUsage, indexMemUsage);
-            if (!VKUtils.setDebugName(d.getLogicalDevice(), "IDX", self.indices.getGpuBuffer().getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER)) {
-                engine.throwException(new IllegalStateException("Couldn't set debug name"), "asd");
-            }
 
             self.vertices.uploadViaStaging(engine, d);
             self.indices.uploadViaStaging(engine, d);

@@ -1,9 +1,10 @@
 package com.vke.core.vulkan;
 
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.device.PhysicalDevice;
-import com.vke.utils.Colors;
+import com.vke.utils.ColorStringBuilder;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
@@ -12,10 +13,13 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -83,7 +87,7 @@ public class VKUtils {
     }
 
     public static String getDebugMessageType(int type) {
-        Colors text = new Colors("[");
+        ColorStringBuilder text = new ColorStringBuilder("[");
 
         return switch (type) {
             case EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT -> text.cyan("GENERAL").reset("]").toString();
@@ -178,4 +182,18 @@ public class VKUtils {
         return ~0;
     }
 
+    public static GeneralBuffer readInputStreamToVulkanAndClose(InputStream stream, int educatedSizeGuess) throws IOException {
+        GeneralBuffer buffer = new GeneralBuffer(educatedSizeGuess, 1);
+
+        byte[] buf = new byte[4096];
+        int read;
+        while ((read = stream.read(buf)) != -1) {
+            byte[] chunk = Arrays.copyOf(buf, read);
+            buffer.putData(chunk);
+        }
+
+        stream.close();
+
+        return buffer;
+    }
 }

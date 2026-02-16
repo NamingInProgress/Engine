@@ -125,6 +125,10 @@ public class Utils {
         return index >= 0 && index < array.length;
     }
 
+    public static <T> boolean verifyArrayIndex(int index, int arrayLength) {
+        return index >= 0 && index < arrayLength;
+    }
+
     public static <T> int[] asIntArray(List<T> list, Function<T, Integer> func) {
         int[] opt = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -187,5 +191,21 @@ public class Utils {
             if (seqEqualsIgnoreCase(sub, seq)) return true;
         }
         return false;
+    }
+
+    public static String rpad(String s, char pad, int toLength) {
+        if (s.length() >= toLength) {
+            return s;
+        }
+        int missing = toLength - s.length();
+        return s + String.valueOf(pad).repeat(missing);
+    }
+
+    public static String lpad(String s, char pad, int toLength) {
+        if (s.length() >= toLength) {
+            return s;
+        }
+        int missing = toLength - s.length();
+        return String.valueOf(pad).repeat(missing) + s;
     }
 }

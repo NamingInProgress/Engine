@@ -33,8 +33,8 @@ public interface RenderDevice extends Disposable {
     default ShaderProgram createShader(Map<ShaderType, Identifier> shaders)    {   return new ShaderProgram(shaders);           }
 
     /** PIPELINE **/
-    GraphicsPipeline createRenderPipeline(RenderPipeline.RenderPipelineBuilder builder);
-    ComputePipeline createComputePipeline();
+    //GraphicsPipeline createRenderPipeline(RenderPipeline builder);
+    //ComputePipeline createComputePipeline();
 
     /** COMMAND BUFFERS **/
     CommandBuffer createCommandBuffer();

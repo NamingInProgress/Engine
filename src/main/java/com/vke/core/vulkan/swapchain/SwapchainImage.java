@@ -4,6 +4,8 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.data.TextureView;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 
+import java.io.InputStream;
+
 public class SwapchainImage implements Texture {
 
     private final long handle;
@@ -12,6 +14,11 @@ public class SwapchainImage implements Texture {
     public SwapchainImage(long handle, TextureFormat format) {
         this.handle = handle;
         this.format = format;
+    }
+
+    @Override
+    public void loadImage(InputStream data) {
+        throw new UnsupportedOperationException("Cannot load image to swapchain image");
     }
 
     @Override

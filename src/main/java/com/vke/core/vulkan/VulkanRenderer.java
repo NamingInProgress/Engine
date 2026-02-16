@@ -12,12 +12,15 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
+import com.vke.core.vulkan.sync.VulkanSemaphore;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+
+import static com.vke.core.VKEngine.profiler;
 
 public class VulkanRenderer extends Service {
 
@@ -29,6 +32,7 @@ public class VulkanRenderer extends Service {
     private final VulkanRenderDevice device;
     private final VulkanFrame[] frames;
     private final VulkanFence[] imagesInFlight;
+    private final VulkanSemaphore[] imagePresentInFlight;
 
     private final VulkanFrame immediateFrame;
 
@@ -49,41 +53,57 @@ public class VulkanRenderer extends Service {
         this.frames = device.createFrames(swapchain);
         this.immediateFrame = device.createImmediateFrame(swapchain);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
+        this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
+
+        for (int i = 0; i < this.swapchain.getImageCount(); i++) {
+            imagePresentInFlight[i] = VulkanSemaphore.createSemaphore(engine, device.getLogicalDevice());
+        }
 
         VKERegistries.PIPELINES.makeVkPipelines(engine, device);
     }
 
     public FrameData startFrame() {
-        // TODO: Remove this and replace with better semaphore handling
-        device.waitIdle();
         MemoryStack stack = MemoryStack.stackPush();
 
         VulkanFrame frame = frames[currentFrame];
         VulkanFence fence = frame.getRenderFence();
 
+        profiler.record("Frame Fence");
         fence.waitForFence();
-        fence.reset();
+        profiler.end("Frame Fence");
 
+        profiler.record("Image Acquire");
         int imageIndex = swapchain.acquireNextImage(frame.getImageSemaphore());
         if (imageIndex < 0) {
             int errorCode = ~imageIndex;
             if (errorCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
                 swapchain.recreate();
-                stack.close();
-                return null;
             }
+            stack.close();
+            return null;
         }
+        profiler.end("Image Acquire");
 
-        if (imagesInFlight[imageIndex] != null) {
-            imagesInFlight[imageIndex].waitForFence();
-        }
+        profiler.record("Flight Fence");
+        //if (imagesInFlight[imageIndex] != null) {
+        //    imagesInFlight[imageIndex].waitForFence();
+        //}
+
+        fence.reset();
 
         imagesInFlight[imageIndex] = fence;
+        profiler.end("Flight Fence");
 
+        profiler.category("Cmd Buffers");
+        profiler.record("Get");
         VulkanCmdBuffers cmd = frame.getBuffers();
         cmd.reset();
+        profiler.end("Get");
 
+        profiler.record("Begin");
         cmd.begin();
+        profiler.end("Begin");
+        profiler.endCategory();
 
         return new FrameData(frame, stack, imageIndex);
     }
@@ -95,13 +115,13 @@ public class VulkanRenderer extends Service {
 
         device.submit(cmd, new CommandBuffer.SubmitInfo(
                 frameData.frame.getImageSemaphore(),
-                frameData.frame.getPresentSemaphore(),
+                imagePresentInFlight[frameData.imageIndex],
                 frameData.frame.getRenderFence(),
                 QueueType.GRAPHICS,
                 false
         ));
 
-        swapchain.present(frameData.frame().getPresentSemaphore());
+        swapchain.present(imagePresentInFlight[frameData.imageIndex]);
 
         frameData.stack().close();
         currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;
@@ -143,6 +163,7 @@ public class VulkanRenderer extends Service {
     public void free() {
         VKERegistries.PIPELINES.freeVkPipelines();
         Arrays.stream(frames).forEach(VulkanFrame::free);
+        Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
         this.immediateFrame.free();
         this.swapchain.free();
         this.device.free();
