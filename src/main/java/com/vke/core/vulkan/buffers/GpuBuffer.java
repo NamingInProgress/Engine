@@ -4,10 +4,8 @@ import com.vke.api.abstraction.data.Buffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.VulkanSetup;
+import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;
@@ -17,7 +15,6 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 
-import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
 public class GpuBuffer implements Buffer {

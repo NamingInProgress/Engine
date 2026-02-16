@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.createInfos;
 
 import com.vke.api.app.Version;
-import com.vke.core.rendering.vulkan.Consts;
+import com.vke.core.vulkan.Consts;
 import com.vke.utils.ObservableList;
 import org.lwjgl.vulkan.VK14;
 

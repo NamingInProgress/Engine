@@ -1,9 +1,8 @@
 package com.vke.core.vulkan.buffers;
 
+import com.vke.api.abstraction.data.Buffer;
 import com.vke.api.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VKUtils;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.services.Services;
@@ -24,7 +23,7 @@ public class StagedBuffer implements Disposable {
     public StagedBuffer(VKEngine engine, VulkanRenderDevice device, CpuBuffer buffer, BufferUsage usage, MemoryUsage memoryUsage) {
         this.cpuBuffer = buffer;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
-        gpuBuffer = new GpuBuffer(engine, device, allocSize, usage, memoryUsage);
+        gpuBuffer = device.createBuffer(new Buffer.Description(allocSize, usage, memoryUsage));
     }
 
     public void uploadViaStaging(VKEngine engine, VulkanRenderDevice device) {
@@ -38,7 +37,7 @@ public class StagedBuffer implements Disposable {
                 MemoryUsage.Bits.CPU_TO_GPU
         );
 
-        GpuBuffer staging = new GpuBuffer(engine, device, size, bufUsage, memUsage);
+        GpuBuffer staging = device.createBuffer(new Buffer.Description(size, bufUsage, memUsage));
 
         long gpuAddress = staging.getInfo().pMappedData();
         long cpuAddress = cpuBuffer.getAddress();

@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.buffers;
 
+import com.vke.api.abstraction.data.Buffer;
 import com.vke.core.VKEngine;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
@@ -20,13 +21,8 @@ public class MappedBuffer implements Disposable {
     ) {
         this.size = size;
 
-        this.gpuBuffer = new GpuBuffer(
-                engine,
-                device,
-                size,
-                usage,
-                MemoryUsage.Bits.CPU_TO_GPU.into()
-        );
+        this.gpuBuffer = device.createBuffer(new Buffer.Description(size, usage, MemoryUsage.Bits.CPU_TO_GPU.into()));
+
 
         this.mappedAddress = gpuBuffer.getInfo().pMappedData();
 

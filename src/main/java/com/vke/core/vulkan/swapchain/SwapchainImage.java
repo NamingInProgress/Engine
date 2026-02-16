@@ -41,7 +41,7 @@ public class SwapchainImage implements Texture {
 
     @Override
     public boolean isSwapchainImage() {
-        return false;
+        return true;
     }
 
     @Override

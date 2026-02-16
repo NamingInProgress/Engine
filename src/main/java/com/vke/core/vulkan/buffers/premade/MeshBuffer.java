@@ -2,7 +2,7 @@ package com.vke.core.vulkan.buffers.premade;
 
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;

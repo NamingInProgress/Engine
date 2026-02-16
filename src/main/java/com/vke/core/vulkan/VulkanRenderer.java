@@ -7,16 +7,13 @@ import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.vulkan.commands.CommandBuffers;
 import com.vke.core.services.Services;
-import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
-import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +54,7 @@ public class VulkanRenderer extends Service {
     }
 
     public FrameData startFrame() {
+        // TODO: Remove this and replace with better semaphore handling
         device.waitIdle();
         MemoryStack stack = MemoryStack.stackPush();
 

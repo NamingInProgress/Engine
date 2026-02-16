@@ -18,7 +18,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
@@ -202,8 +202,7 @@ public class VulkanRenderDevice implements RenderDevice {
         return cachedCapabilities;
     }
 
-    @Override
-    public Buffer createBuffer(Buffer.Description info) {
+    public GpuBuffer createBuffer(Buffer.Description info) {
         return new GpuBuffer(this.engine, this, info);
     }
 

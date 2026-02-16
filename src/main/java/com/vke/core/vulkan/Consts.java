@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan;
+package com.vke.core.vulkan;
 
 import java.util.List;
 

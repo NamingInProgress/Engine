@@ -6,7 +6,7 @@ import com.vke.api.abstraction.IntEnum;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.Shader;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Struct;

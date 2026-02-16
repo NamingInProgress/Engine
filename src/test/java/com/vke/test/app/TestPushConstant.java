@@ -2,7 +2,7 @@ package com.vke.test.app;
 
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
-import com.vke.core.rendering.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.Shader;
 import com.vke.api.abstraction.descriptors.ShaderType;
 import org.joml.Matrix4f;
 

@@ -4,10 +4,9 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.data.TextureView;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.api.abstraction.descriptors.texture.ImageUsage;
+import com.vke.api.abstraction.descriptors.texture.TextureAspect;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
-import com.vke.core.VKEngine;
 import com.vke.core.vulkan.extent.Extent3D;
-import com.vke.core.rendering.vulkan.image.VulkanImage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
 import org.lwjgl.PointerBuffer;
@@ -20,95 +19,78 @@ import java.nio.LongBuffer;
 
 public class VulkanTexture implements Texture {
 
-    private final long VkImage;
-    private final VulkanTextureView view;
-    private final long VmaAllocation;
+    private final long image;
+    private final long allocation;
     private final Extent3D extent;
-    private final TextureFormat VkFormat;
+    private final TextureFormat format;
+
+    private VulkanTextureView view;
 
     private final VulkanRenderDevice device;
 
-    public VulkanTexture(VKEngine engine, VulkanRenderDevice device, Description info) {
-        this(engine, device, info.format(), info.extent(), info.usageFlags())
+    public VulkanTexture(VulkanRenderDevice device, Description info, MemoryUsage memUsage) {
+        this(device, info.format(), info.extent(), info.usageFlags(), info.aspect(), memUsage);
     }
 
-    private VulkanTexture(VKEngine engine, VulkanRenderDevice device, TextureFormat VkFormat, Extent3D extent, ImageUsage imageUsageFlags, int VkImageAspectFlags, MemoryUsage memoryUsage) {
+    private VulkanTexture(VulkanRenderDevice device, TextureFormat format, Extent3D extent, ImageUsage imageUsageFlags, TextureAspect aspectFlags, MemoryUsage memoryUsage) {
         this.device = device;
-        this.VkFormat = VkFormat;
+        this.format = format;
         this.extent = extent;
 
-        try(MemoryStack stack = MemoryStack.stackPush()) {
-            VkImageCreateInfo imageCreateInfo = getDefaultImageCreateInfo(stack, VkFormat, VkImageUsageFlags, VulkanExtentUtils.createVk3D(stack, extent));
-            VmaAllocationCreateInfo allocationCreateInfo = VmaAllocationCreateInfo.calloc(stack)
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageCreateInfo imageCreateInfo = getDefaultImageCreateInfo(stack, format, imageUsageFlags, VulkanExtentUtils.createVk3D(stack, extent));
+            VmaAllocationCreateInfo allocInfo = VmaAllocationCreateInfo.calloc(stack)
                     .usage(memoryUsage.getVkHandle())
                     .requiredFlags(VK14.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-            LongBuffer pVkImage = stack.mallocLong(1);
+            LongBuffer pImage = stack.mallocLong(1);
             PointerBuffer pAllocation = stack.mallocPointer(1);
-            Vma.vmaCreateImage(setup.getVmaAllocator(), imageCreateInfo, allocationCreateInfo, pVkImage, pAllocation, null);
-            this.VkImage = pVkImage.get(0);
-            this.VmaAllocation = pAllocation.get(0);
-
-            VkImageViewCreateInfo imageViewCreateInfo = getDefaultImageViewCreateInfo(stack, VkFormat, this, VkImageAspectFlags);
-            this.imageView = ImageView.createFromImage(this, engine, setup.getLogicalDevice(), imageViewCreateInfo);
+            Vma.vmaCreateImage(device.getVmaAllocator(), imageCreateInfo, allocInfo, pImage, pAllocation, null);
+            this.image = pImage.get(0);
+            this.allocation = pAllocation.get(0);
         }
     }
 
-    public static VkImageCreateInfo getDefaultImageCreateInfo(MemoryStack stack, int VkFormat, int VkImageUsageFlags, VkExtent3D extent) {
+    public static VkImageCreateInfo getDefaultImageCreateInfo(MemoryStack stack, TextureFormat format, ImageUsage usageFlags, VkExtent3D extent) {
         return VkImageCreateInfo.calloc(stack)
                 .sType$Default()
                 .imageType(VK14.VK_IMAGE_TYPE_2D)
-                .format(VkFormat)
+                .format(format.getVkHandle())
                 .extent(extent)
                 .mipLevels(1)
                 .arrayLayers(1)
                 .samples(VK14.VK_SAMPLE_COUNT_1_BIT)
                 .tiling(VK14.VK_IMAGE_TILING_OPTIMAL)
-                .usage(VkImageUsageFlags);
+                .usage(usageFlags.getVkHandle());
     }
 
-    public static VkImageViewCreateInfo getDefaultImageViewCreateInfo(MemoryStack stack, int VkFormat, VulkanImage image, int VkImageAspectFlags) {
-        VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
-                .baseMipLevel(0)
-                .levelCount(1)
-                .baseArrayLayer(0)
-                .layerCount(1)
-                .aspectMask(VkImageAspectFlags);
-
-        return VkImageViewCreateInfo.calloc(stack)
-                .sType$Default()
-                .viewType(VK14.VK_IMAGE_VIEW_TYPE_2D)
-                .image(image.VkImage)
-                .format(VkFormat)
-                .subresourceRange(subresourceRange);
-    }
-
-    public long getHandle() { return this.VkImage; }
+    public long getHandle() { return this.image; }
 
     @Override
     public void free() {
-        imageView.free();
-        Vma.vmaDestroyImage(setup.getVmaAllocator(), VkImage, VmaAllocation);
+        if (view != null)
+            view.free();
+        Vma.vmaDestroyImage(device.getVmaAllocator(), image, allocation);
     }
 
     @Override
     public int width() {
-        return 0;
+        return extent.width;
     }
 
     @Override
     public int height() {
-        return 0;
+        return extent.height;
     }
 
     @Override
     public int depth() {
-        return 0;
+        return extent.depth;
     }
 
     @Override
     public TextureFormat format() {
-        return null;
+        return format;
     }
 
     @Override
@@ -123,6 +105,8 @@ public class VulkanTexture implements Texture {
 
     @Override
     public TextureView createView(TextureView.Description info) {
-        return null;
+        if (view != null) return view;
+        this.view = new VulkanTextureView(device.getLogicalDevice(), info);
+        return this.view;
     }
 }

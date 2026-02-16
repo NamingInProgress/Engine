@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.shader;
+package com.vke.core.vulkan.shader;
 
 import com.vke.api.abstraction.IntBitEnum;
 import com.vke.api.abstraction.descriptors.ShaderType;

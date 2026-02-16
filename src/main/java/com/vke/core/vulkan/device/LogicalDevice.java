@@ -6,7 +6,7 @@ import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.deflate.BitUtils;
-import com.vke.core.rendering.vulkan.VKUtils;
+import com.vke.core.vulkan.VKUtils;
 import com.vke.core.utils.StructureChain3;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
