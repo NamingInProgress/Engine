@@ -15,9 +15,9 @@ public class Lz77Decoder {
     private int pendingDistance = 0;
 
 
-    public Lz77Decoder(int[] literalCodeLengths, int[] distanceCodeLengths, int windowSize) {
+    public Lz77Decoder(int[] literalCodeLengths, int[] distanceCodeLengths, SlidingWindow window) {
         this.literalLengthDecoder = new HMSymbolDecoder(literalCodeLengths);
-        this.slidingWindow = new SlidingWindow(windowSize);
+        this.slidingWindow = window;
         this.finished = false;
         this.distanceDecoder = new HMSymbolDecoder(distanceCodeLengths);
     }

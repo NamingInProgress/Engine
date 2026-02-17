@@ -3,6 +3,7 @@ package com.vke.core.file.deflate.block;
 import com.vke.core.file.deflate.DeflateBlock;
 import com.vke.core.file.deflate.huffman.HMSymbolDecoder;
 import com.vke.core.file.deflate.lz77.Lz77Decoder;
+import com.vke.core.file.deflate.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 
@@ -19,10 +20,11 @@ public class DynamicBlock implements DeflateBlock {
     private Lz77Decoder decoder;
     private final int[] codeLenCodeLengths = new int[19];
     private int windowSize;
+    private SlidingWindow windowReference;
 
-    public DynamicBlock(boolean bFinal, int windowSize) {
+    public DynamicBlock(boolean bFinal, SlidingWindow window) {
         this.bFinal = bFinal;
-        this.windowSize = windowSize;
+        this.windowReference = window;
     }
 
     @Override
@@ -95,7 +97,7 @@ public class DynamicBlock implements DeflateBlock {
             distanceCodeLengths = new int[] { 1 };
         }
 
-        this.decoder = new Lz77Decoder(literalLengthCodeLengths, distanceCodeLengths, windowSize);
+        this.decoder = new Lz77Decoder(literalLengthCodeLengths, distanceCodeLengths, windowReference);
     }
 
     @Override

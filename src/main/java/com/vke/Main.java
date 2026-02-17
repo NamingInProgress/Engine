@@ -1,20 +1,22 @@
 package com.vke;
 
-import com.vke.api.file.Decoder;
-import com.vke.api.file.Decoders;
-import com.vke.api.file.LazyDecoder;
-import com.vke.api.file.LazyArray;
-import com.vke.core.EngineCreateInfo;
-import com.vke.core.VKEngine;
+import com.vke.core.file.png.PixelOutput;
+import com.vke.core.file.png.PngFile;
+import com.vke.utils.Identifier;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.InputStream;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         try {
-            VKEngine engine = new VKEngine(new EngineCreateInfo());
-            Decoder<byte[]> decoder = Decoders.find("gzip");
-            LazyDecoder<Byte> decoder2 = Decoders.find("gzip");
-            LazyArray<Byte> data = decoder2.decodeLazy("test.gz");
-
+            InputStream stream = new Identifier("transparency.png").asInputStream();
+            PngFile pngFile = new PngFile(stream);
+            PixelOutput output = pngFile.getOutput();
+            BufferedImage image = output.toJavaImage();
+            ImageIO.write(image, "PNG", new File("test.png"));
 
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -4,9 +4,10 @@ import com.vke.core.file.deflate.BitUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 
 public class ShittyBitInputStream implements BitInputStream {
-    private final InputStream in;
+    private final ArrayDeque<InputStream> input;
     private int buffer;
     private int bitsLeft;
 
@@ -24,9 +25,26 @@ public class ShittyBitInputStream implements BitInputStream {
     }
 
     public ShittyBitInputStream(InputStream in) {
-        this.in = in;
         this.buffer = 0;
         this.bitsLeft = 0;
+        this.input = new ArrayDeque<>();
+        if (in != null) input.addLast(in);
+    }
+
+    @Override
+    public void appendData(InputStream toAppend) {
+        input.addLast(toAppend);
+    }
+
+    private int read() throws IOException {
+        if (input.isEmpty()) return -1;
+        InputStream current = input.getFirst();
+        int r = current.read();
+        if (r == -1) {
+            input.removeFirst();
+            return read();
+        }
+        return r;
     }
 
     public int readBit() throws IOException {
@@ -38,7 +56,7 @@ public class ShittyBitInputStream implements BitInputStream {
         }
 
         if (bitsLeft == 0) {
-            int nextByte = in.read();
+            int nextByte = read();
             if (nextByte == -1) {
                 return -1;
             }
@@ -115,6 +133,8 @@ public class ShittyBitInputStream implements BitInputStream {
     }
 
     public void close() throws IOException {
-        in.close();
+        for (InputStream inputStream : input) {
+            inputStream.close();
+        }
     }
 }
