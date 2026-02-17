@@ -5,7 +5,6 @@ import com.vke.api.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.api.window.WindowCreateInfo;
 
 public class EngineCreateInfo {
-
     public WindowCreateInfo windowCreateInfo;
     public VulkanCreateInfo vulkanCreateInfo;
     public String applicationName;

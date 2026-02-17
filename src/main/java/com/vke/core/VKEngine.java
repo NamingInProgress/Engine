@@ -11,14 +11,16 @@ import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
 import com.vke.core.window.Window;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VKEngine {
     private final Logger logger;
     private final Logger soutLogger;
 
-    private final Window window;
-
-    private final VulkanRenderer renderer;
-    private final ShaderCompiler compiler;
+    private Window window;
+    private VulkanRenderer renderer;
+    private ShaderCompiler compiler;
 
     public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
 
@@ -26,18 +28,20 @@ public class VKEngine {
 
     public VKEngine(EngineCreateInfo createInfo) {
         this.createInfo = createInfo;
+
         logger = LoggerFactory.get(VKEngine.class.getName());
         soutLogger = LoggerFactory.get(SOUT.TAG);
         SOUT.redirect(soutLogger);
+    }
+
+    public void start(Game game) {
         this.window = new Window(this, createInfo.windowCreateInfo);
         this.compiler = new ShaderCompiler();
 
         this.renderer = new VulkanRenderer(this, createInfo, createInfo.vulkanCreateInfo.framesInFlight);
 
         GLFW.glfwShowWindow(this.window.getHandle());
-    }
 
-    public void start(Game game) {
         game.onInit(this);
 
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {

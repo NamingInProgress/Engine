@@ -21,6 +21,20 @@ public class BitStreamUtils {
         return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
     }
 
+    public static int readBigEndian16(BitInputStream stream) throws IOException {
+        int hi = stream.readBits(8);
+        int lo = stream.readBits(8);
+        return lo | (hi << 8);
+    }
+
+    public static int readBigEndian32(BitInputStream stream) throws IOException {
+        int b3 = stream.readBits(8);
+        int b2 = stream.readBits(8);
+        int b1 = stream.readBits(8);
+        int b0 = stream.readBits(8);
+        return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+    }
+
     public static String readNullTermStr(BitInputStream stream, int sizeHint) throws IOException {
         return readNullTermStr(stream, sizeHint, StandardCharsets.UTF_8);
     }
