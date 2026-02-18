@@ -2,6 +2,7 @@ package com.vke.core.services.profiler;
 
 import com.vke.api.logger.Logger;
 import com.vke.api.services.Service;
+import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.AnsiColors;
 
@@ -27,6 +28,8 @@ public class Profiler extends Service {
 
     public Profiler() {
         super("prof");
+
+        VKEngine.profiler = this;
 
         enabledDisplayTypes = TABLE.asInt() | TREE.asInt();
         settings.put(TABLE, Settings.defaultTable());

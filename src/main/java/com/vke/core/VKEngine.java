@@ -1,11 +1,15 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
+import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
+import com.vke.core.event.DummyEventBus;
+import com.vke.core.event.events.ServiceLoadEvent;
+import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.profiler.DummyProfiler;
@@ -24,23 +28,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class VKEngine {
+
+    public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
+
     private final Logger logger;
     private final Logger soutLogger;
 
     private final Window window;
-
-    private App app;
-
-    public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
-    public static Profiler profiler;
-
     private final ServiceCreateContext scc;
-
     private final EngineCreateInfo createInfo;
-
     private final Set<Service> loadedServices = new HashSet<>();
 
-    private boolean vsync;
+    private App app;
+    public EventBus EVENT_BUS;
+
+    public static Profiler profiler;
 
     public VKEngine(EngineCreateInfo createInfo) {
         scc = new ServiceCreateContext(this, createInfo);
@@ -49,8 +51,7 @@ public class VKEngine {
         RenderPipelines.init();
 
         profiler = new DummyProfiler();
-
-        vsync = createInfo.vsync;
+        EVENT_BUS = new DummyEventBus();
 
         this.createInfo = createInfo;
         logger = LoggerFactory.get(VKEngine.class.getName());
@@ -72,7 +73,7 @@ public class VKEngine {
         loadedServices.add(s);
         s.getDependencies().forEach(this::service);
 
-        if (key.equals(Services.PROFILER)) profiler = (Profiler) s;
+        EVENT_BUS.fire(new ServiceLoadEvent(key, s));
 
         return (T) s;
     }
@@ -84,7 +85,9 @@ public class VKEngine {
 
     public void start(App app) {
         this.app = app;
+        EVENT_BUS.fire(new AppLifecycleEvents.PreLoad(app));
         app.onInit(this);
+        EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
@@ -122,7 +125,9 @@ public class VKEngine {
     }
 
     private void free() {
+        EVENT_BUS.fire(new AppLifecycleEvents.PreFree(app));
         app.free();
+        EVENT_BUS.fire(new AppLifecycleEvents.PostFree(app));
         window.close();
         loadedServices.forEach(Disposable::free);
     }
