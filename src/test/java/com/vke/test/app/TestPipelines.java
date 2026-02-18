@@ -1,10 +1,8 @@
-package com.vke.test;
+package com.vke.test.app;
 
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
-import com.vke.test.app.SthPushConstant;
-import com.vke.test.app.TestPushConstant;
 import com.vke.utils.Identifier;
 
 public class TestPipelines {

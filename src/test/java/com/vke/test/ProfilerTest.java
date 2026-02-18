@@ -1,0 +1,42 @@
+package com.vke.test;
+
+import com.vke.annotations.Test;
+import com.vke.annotations.organization.DisplayName;
+import com.vke.core.services.profiler.Profiler;
+import com.vke.core.services.profiler.ProfilerPrinter;
+import com.vke.utils.AnsiColors;
+
+public class ProfilerTest {
+
+    @Test
+    @DisplayName("Profiler Test")
+    public void profilerTest() {
+        Profiler profiler = new Profiler();
+        profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
+        var s = new ProfilerPrinter.PieChartSettings();
+        s.setDepth(2);
+        profiler.setSettingsForType(ProfilerPrinter.Type.PIE_CHART, s);
+        profiler.beginFrame();
+
+        profiler.begin("Render", AnsiColors.RED);
+        profiler.begin("Start Frame");
+        profiler.end();
+
+        profiler.begin("App", AnsiColors.CYAN);
+        profiler.begin("idk");
+        profiler.end();
+        profiler.end();
+
+        profiler.begin("End Frame", AnsiColors.GOLD);
+        profiler.end();
+
+        profiler.end();
+        profiler.begin("Physics", AnsiColors.BLUE);
+        profiler.begin("Idk v2");
+        profiler.end();
+        profiler.end();
+
+        profiler.endFrame();
+    }
+
+}

@@ -11,7 +11,6 @@ import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.window.Window;
-import com.vke.test.TestPipelines;
 import com.vke.utils.AppTimer;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
