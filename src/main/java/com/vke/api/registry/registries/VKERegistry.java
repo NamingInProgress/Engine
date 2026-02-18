@@ -39,7 +39,7 @@ public abstract class VKERegistry<K, V> {
         this.frozen = false;
     }
 
-    public <T extends V> T register(K key, T value) {
+    public V register(K key, V value) {
         if (values.containsKey(key)) throw new IllegalStateException("Registry %s already has key %s".formatted(registryName, key));
 
         if (frozen) throw new IllegalStateException("Tried modifying registry %s while frozen!".formatted(registryName));

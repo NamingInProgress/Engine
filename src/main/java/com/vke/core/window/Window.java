@@ -2,6 +2,8 @@ package com.vke.core.window;
 
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.callbacks.FramebufferCallbacks;
+import com.vke.core.callbacks.KeyboardCallbacks;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
 
@@ -11,6 +13,8 @@ public class Window {
     private static final String HERE = "Window Init";
 
     private final long window;
+    private boolean minimized;
+    private WindowSize size;
 
     public Window(VKEngine engine, WindowCreateInfo windowCreateInfo) throws IllegalStateException {
         if (!glfwInit()) {
@@ -47,6 +51,32 @@ public class Window {
                 (vidMode.width() - pWidth[0]) / 2,
                 (vidMode.height() - pHeight[0]) / 2
         );
+
+        setupCallbacks();
+    }
+
+    public boolean isMinimized() {
+        return minimized;
+    }
+
+    private void setupCallbacks() {
+        glfwSetFramebufferSizeCallback(this.getHandle(), FramebufferCallbacks::onResize);
+        glfwSetKeyCallback(this.getHandle(), KeyboardCallbacks::onKey);
+        glfwSetWindowIconifyCallback(this.getHandle(), FramebufferCallbacks::onMinimize);
+
+        FramebufferCallbacks.minimize((state) -> minimized = state);
+        FramebufferCallbacks.resize((w, h) -> size = new WindowSize(w, h));
+    }
+
+    private void fetchSize() {
+        int[] w = new int[1], h = new int[1];
+        glfwGetFramebufferSize(this.getHandle(), w, h);
+        size = new WindowSize(w[0], h[0]);
+    }
+
+    public WindowSize getSize() {
+        if (size == null) fetchSize();
+        return size;
     }
 
     public void close() {
@@ -69,5 +99,7 @@ public class Window {
         if (!(other instanceof Window)) return false;
         return this.getHandle() == ((Window) other).getHandle();
     }
+
+    public record WindowSize(int width, int height) {}
 
 }

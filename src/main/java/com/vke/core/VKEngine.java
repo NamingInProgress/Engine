@@ -1,18 +1,25 @@
 package com.vke.core;
 
-import com.vke.api.game.Game;
+import com.vke.api.app.App;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
+import com.vke.api.services.Service;
+import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.rendering.vulkan.VulkanRenderer;
-import com.vke.core.rendering.vulkan.shader.ShaderCompiler;
+import com.vke.core.services.PerformanceStatistics;
+import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.pipeline.RenderPipelines;
+import com.vke.core.services.Services;
 import com.vke.core.window.Window;
+import com.vke.utils.Disposable;
+import com.vke.utils.Infallible;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class VKEngine {
     private final Logger logger;
@@ -22,11 +29,29 @@ public class VKEngine {
     private VulkanRenderer renderer;
     private ShaderCompiler compiler;
 
+    private App app;
+
     public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
+    public static PerformanceStatistics profiler;
+
+    private final ServiceCreateContext scc;
 
     private final EngineCreateInfo createInfo;
 
+    private final Set<Service> loadedServices = new HashSet<>();
+
+    private boolean vsync;
+
     public VKEngine(EngineCreateInfo createInfo) {
+        scc = new ServiceCreateContext(this, createInfo);
+
+        Services.init();
+        RenderPipelines.init();
+
+        profiler = service(Services.PERFORMANCE_STATISTICS);
+
+        vsync = createInfo.vsync;
+
         this.createInfo = createInfo;
 
         logger = LoggerFactory.get(VKEngine.class.getName());
@@ -36,33 +61,63 @@ public class VKEngine {
 
     public void start(Game game) {
         this.window = new Window(this, createInfo.windowCreateInfo);
-        this.compiler = new ShaderCompiler();
-
-        this.renderer = new VulkanRenderer(this, createInfo, createInfo.vulkanCreateInfo.framesInFlight);
 
         GLFW.glfwShowWindow(this.window.getHandle());
 
-        game.onInit(this);
+    @SuppressWarnings("unchecked")
+    public <T extends Service> T service(String key) {
+        Service s = VKERegistries.SERVICES.get(key, scc);
+        if (s == null) {
+            logger.error("Tried to access service \"%s\", but it wasn't registered!", key);
+            return null;
+        }
+        loadedServices.add(s);
+        s.getDependencies().forEach(this::service);
 
+        return (T) s;
+    }
+
+    public void start(App app) {
+        this.app = app;
+        app.onInit(this);
+
+        VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            renderer.draw();
-
-            game.onDraw(window);
+            if (!window.isMinimized()) {
+                profiler.beginFrame();
+                profiler.category("Render");
+                profiler.category("Frame Setup");
+                VulkanRenderer.FrameData bfd = renderer.startFrame();
+                profiler.endCategory();
+                if (bfd != null) {
+                    profiler.record("App Draw");
+                    app.onDraw(window, bfd);
+                    profiler.end("App Draw");
+                    profiler.record("Frame End");
+                    renderer.endFrame(bfd);
+                    profiler.end("Frame End");
+                }
+                profiler.endCategory();
+                profiler.endFrame();
+            }
 
             GLFW.glfwPollEvents();
         }
 
+        // TODO: Fix me
+        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).getDevice().waitIdle();
         free();
     }
 
-    public void throwException(Throwable e, String where) {
+    public @NotNull Infallible throwException(Throwable e, String where) {
         logger.fatal("Fatal exception at %s", where);
         throw new RuntimeException(e);
     }
 
     private void free() {
+        app.free();
         window.close();
-        this.compiler.free();
+        loadedServices.forEach(Disposable::free);
     }
     public Window getWindow() {
         return this.window;
@@ -70,8 +125,6 @@ public class VKEngine {
     public Logger getLogger() {
         return logger;
     }
-    public ShaderCompiler getCompiler() { return this.compiler; }
-    public VulkanRenderer getRenderer() { return renderer; }
 
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }
 

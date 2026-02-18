@@ -1,0 +1,43 @@
+{
+  "typedefs": [
+    {
+      "name": "binding_type",
+      "type": "string",
+      "enum": [
+        "float",
+        "float2",
+        "float3",
+        "float4",
+        "mat4",
+        "sampler2D",
+        "image2D"
+      ]
+    },
+    {
+      "name": "layout_type",
+      "type": "string",
+      "enum": [
+        "combined_image_sampler",
+        "cis",
+        "storage_image",
+        "si",
+        "uniform_buffer",
+        "UBO",
+        "storage_buffer",
+        "SSBO"
+      ]
+    },
+    {
+      "name": "shader_stage",
+      "type": "string",
+      "enum": [
+        "vertex",
+        "fragment",
+        "compute",
+        "vert",
+        "frag",
+        "comp"
+      ]
+    }
+  ]
+}

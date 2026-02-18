@@ -24,6 +24,15 @@ public class Identifier {
     public static Identifier empty() {
         return new Identifier("", "");
     }
+    /// namespace:path
+    public static Identifier of(String literal) {
+        String[] parts = literal.split(":", 2);
+        if (parts.length > 1) {
+            return new Identifier(parts[0], parts[1]);
+        } else {
+            return new Identifier(parts[0]);
+        }
+    }
 
     public String getNamespace() { return this.namespace; }
     public String getPath() { return this.path; }

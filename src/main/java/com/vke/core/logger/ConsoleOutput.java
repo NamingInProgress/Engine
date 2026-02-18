@@ -3,14 +3,14 @@ package com.vke.core.logger;
 import com.vke.api.logger.LogFormatter;
 import com.vke.api.logger.LoggerOutput;
 import com.vke.api.logger.LogEvent;
-import com.vke.utils.Colors;
+import com.vke.utils.ColorStringBuilder;
 
 import java.io.PrintStream;
 
 public class ConsoleOutput implements LoggerOutput {
 
     static final LogFormatter defaultFormatter = (event) -> {
-        Colors text = new Colors();
+        ColorStringBuilder text = new ColorStringBuilder();
 
         text.write("[").green(event.getTimestampFormatted()).reset("]");
         text.write("[").blue(event.thread.getName()).reset("]");

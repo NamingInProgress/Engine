@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sets>
+    <set set="0">
+        <layouts>
+            <layout type="UBO" name="testThingy">
+                <struct>
+                    <field name="matrix" type="mat4"/>
+                </struct>
+            </layout>
+            <layout type="UBO" name="globals">
+                <struct>
+                    <field name="time" type="float"/>
+                </struct>
+            </layout>
+            <layout type="UBO" name="idks">
+                <struct>
+                    <field name="timev2" type="float"/>
+                </struct>
+            </layout>
+        </layouts>
+    </set>
+</sets>

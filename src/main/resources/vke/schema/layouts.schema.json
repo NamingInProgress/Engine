@@ -1,0 +1,98 @@
+{
+  "link": ["schema/vkcommon.schemalib.json"],
+  "fields": [
+    {
+      "name": "xml",
+      "type": "meta",
+      "required": false
+    },
+    {
+      "name": "sets",
+      "type": "array",
+      "required": true,
+      "items": {
+        "type": "object",
+        "fields": [
+          {
+            "name": "set",
+            "type": "number",
+            "required": true,
+            "range": {
+              "min": 0
+            }
+          },
+          {
+            "name": "layouts",
+            "type": "array",
+            "required": true,
+            "items": {
+              "type": "object",
+              "fields": [
+                {
+                  "name": "type",
+                  "type": "layout_type",
+                  "required": true
+                },
+                {
+                  "name": "name",
+                  "type": "string",
+                  "required": true
+                },
+                {
+                  "name": "stages",
+                  "type": "array",
+                  "required": true,
+                  "items": {
+                    "type": "shader_stage"
+                  }
+                },
+                {
+                  "name": "struct",
+                  "type": "array",
+                  "required": true,
+                  "items": {
+                    "type": "object",
+                    "fields": [
+                      {
+                        "name": "name",
+                        "type": "string",
+                        "required": true
+                      },
+                      {
+                        "name": "type",
+                        "type": "binding_type",
+                        "required": true
+                      },
+                      {
+                        "name": "auto",
+                        "type": "boolean",
+                        "required": false
+                      },
+                      {
+                        "name": "padded",
+                        "type": "object",
+                        "required": false,
+                        "fields": [
+                          {
+                            "name": "name",
+                            "type": "string",
+                            "required": true
+                          },
+                          {
+                            "name": "type",
+                            "type": "binding_type",
+                            "required": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

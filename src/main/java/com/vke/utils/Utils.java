@@ -1,15 +1,22 @@
 package com.vke.utils;
 
 import com.vke.api.utils.OSType;
+import com.vke.utils.iter.Iter;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -118,11 +125,87 @@ public class Utils {
         return index >= 0 && index < array.length;
     }
 
+    public static <T> boolean verifyArrayIndex(int index, int arrayLength) {
+        return index >= 0 && index < arrayLength;
+    }
+
     public static <T> int[] asIntArray(List<T> list, Function<T, Integer> func) {
         int[] opt = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
             opt[i] = func.apply(list.get(i));
         }
         return opt;
+    }
+
+    public static void printBuffer(ByteBuffer buf) {
+        for (int i = 0; i < buf.limit(); i++) {
+            System.out.println("Element at " + i + " is " + buf.get(i));
+        }
+    }
+
+    public static char[] readCharsFromInputStream(InputStream stream) throws IOException {
+        Reader reader = new InputStreamReader(stream);
+        StringBuilder sb = new StringBuilder();
+        char[] buffer = new char[4096];
+        int n;
+
+        try {
+            while ((n = reader.read(buffer)) != -1) {
+                sb.append(buffer, 0, n);
+            }
+        } finally {
+            reader.close();
+        }
+
+        return sb.toString().toCharArray();
+    }
+
+
+    public static <T> boolean arrayContains(T[] arr, T query) {
+        for (T t : arr) {
+            if (t.equals(query)) return true;
+        }
+        return false;
+    }
+
+    public static <T extends Comparable<T>> boolean sortedArrayContains(T[] arr, T query) {
+        return Arrays.binarySearch(arr, query, T::compareTo) >= 0;
+    }
+
+    public static <T> boolean sortedArrayContains(T[] arr, T query, Comparator<T> cmp) {
+        return Arrays.binarySearch(arr, query, cmp) >= 0;
+    }
+
+    public static boolean seqEqualsIgnoreCase(CharSequence a, CharSequence b) {
+        if (a.length() != b.length()) return false;
+        return Iter.of(a.chars().boxed())
+                .zip(b.chars().boxed())
+                .all(p -> Character.toLowerCase(p.v1) == Character.toLowerCase(p.v2));
+    }
+
+    public static boolean seqContainsIgnoreCase(CharSequence source, CharSequence seq) {
+        int searchSize = seq.length();
+        int maxI = source.length() - searchSize;
+        for (int i = 0; i <= maxI; i++) {
+            CharSequence sub = source.subSequence(i, i + searchSize);
+            if (seqEqualsIgnoreCase(sub, seq)) return true;
+        }
+        return false;
+    }
+
+    public static String rpad(String s, char pad, int toLength) {
+        if (s.length() >= toLength) {
+            return s;
+        }
+        int missing = toLength - s.length();
+        return s + String.valueOf(pad).repeat(missing);
+    }
+
+    public static String lpad(String s, char pad, int toLength) {
+        if (s.length() >= toLength) {
+            return s;
+        }
+        int missing = toLength - s.length();
+        return String.valueOf(pad).repeat(missing) + s;
     }
 }

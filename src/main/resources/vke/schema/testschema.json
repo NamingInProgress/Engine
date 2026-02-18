@@ -1,0 +1,22 @@
+{
+  "typedefs": [
+    {
+      "name": "vkCreateInfo",
+      "type": "object",
+      "fields": [
+        {
+          "name": "pNext",
+          "type": "vkCreateInfo",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "name": "a",
+      "type": "vkCreateInfo",
+      "required": false
+    }
+  ]
+}

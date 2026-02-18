@@ -3,6 +3,7 @@ package com.vke.api.vulkan.buffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
@@ -11,14 +12,20 @@ public abstract class VertexBuffer extends CpuBuffer {
         super(baseVertexCount);
     }
 
+    public VertexBuffer(int baseVertexCount, int stride) {
+        super(baseVertexCount, stride);
+    }
+
     @Override
     protected void alloc(int size) {
         data = MemoryUtil.memAlloc(size);
+        data.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     @Override
     protected void realloc(int newSize) {
         data = MemoryUtil.memRealloc(data, newSize);
+        data.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public ByteBuffer getData() {

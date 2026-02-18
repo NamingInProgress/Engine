@@ -1,0 +1,17 @@
+{
+  "sets": [
+    {
+      "set": 0,
+      "layouts": [
+        {
+          "type": "cis",
+          "stages": [ "frag", "vert" ],
+          "name": "tex",
+          "struct": [
+            { "name": "tex", "type": "sampler2D" }
+          ]
+        }
+      ]
+    }
+  ]
+}

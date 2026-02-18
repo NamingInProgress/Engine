@@ -1,6 +1,6 @@
 package com.vke.api.logger;
 
-import com.vke.utils.Colors;
+import com.vke.utils.ColorStringBuilder;
 import org.lwjgl.vulkan.EXTDebugUtils;
 
 public enum LogLevel {
@@ -16,11 +16,11 @@ public enum LogLevel {
 
     public String getColor() {
         return switch(this) {
-            case TRACE -> Colors.BLUE;
-            case DEBUG -> Colors.CYAN;
-            case INFO -> Colors.GREEN;
-            case WARN -> Colors.YELLOW;
-            case ERROR, FATAL -> Colors.RED;
+            case TRACE -> ColorStringBuilder.BLUE;
+            case DEBUG -> ColorStringBuilder.CYAN;
+            case INFO -> ColorStringBuilder.GREEN;
+            case WARN -> ColorStringBuilder.YELLOW;
+            case ERROR, FATAL -> ColorStringBuilder.RED;
         };
     }
 
