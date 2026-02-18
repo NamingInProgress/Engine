@@ -5,7 +5,6 @@ import com.vke.api.file.Decoder;
 import com.vke.api.file.Decoders;
 import com.vke.core.file.png.PixelOutput;
 import com.vke.core.file.png.PngFile;
-import com.vke.core.file.wav.WAVDecoder;
 import com.vke.core.file.wav.WAVFile;
 import com.vke.utils.Identifier;
 
@@ -25,7 +24,8 @@ public class Main {
 
         try {
             InputStream stream = new Identifier("adam7.png").asInputStream();
-            PngFile pngFile = new PngFile(stream);
+            Decoder<PngFile> pngDecoder = Decoders.find("png");
+            PngFile pngFile = pngDecoder.decode(stream);
             PixelOutput output = pngFile.getOutput();
             BufferedImage image = output.toJavaImage();
             ImageIO.write(image, "PNG", new File("test.png"));
