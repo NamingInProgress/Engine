@@ -1,15 +1,13 @@
 package com.vke.core.file.png;
 
 import com.vke.core.file.io.bit.ShittyBitInputStream;
+import com.vke.core.file.png.adam7.Adam7ImageSampler;
 import com.vke.core.file.png.chunks.*;
-import com.vke.core.file.png.chunks.scanlines.Scanline;
 import com.vke.core.file.zlib.ZlibDecompressor;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 public class PngFile {
     private static final byte[] SIGNATURE = {
@@ -60,35 +58,12 @@ public class PngFile {
         }
 
 
-        byte[] sampleData = unfilterIdatData(idatDecompressor);
-
-        output = new PixelOutput(pngInfo);
-        output.readSamples(sampleData, palette);
-    }
-
-    private byte[] unfilterIdatData(ZlibDecompressor decompressor) throws IOException {
-        decompressor.parseHeader();
-        int bytesPerPixel = pngInfo.getPixelStride();
-        int scanlineLength = bytesPerPixel * pngInfo.width;
-
-        byte[] imageData = new byte[scanlineLength * pngInfo.height];
-
-        Scanline prev = null;
-        Scanline curr = null;
-        int offset = 0;
-
-        for (int y = 0; y < pngInfo.height; y++) {
-            curr = new Scanline(prev, pngInfo, decompressor);
-
-            System.arraycopy(curr.unfilteredBytes, 0, imageData, offset, scanlineLength);
-            offset += scanlineLength;
-
-            prev = curr;
+        if (pngInfo.interlacingMethod == PngInfo.InterlacingMethod.Adam7) {
+            //then i hate my life
+            output = Adam7ImageSampler.sample(pngInfo, idatDecompressor, palette);
+        } else {
+            output = SequentialImageSampler.sample(pngInfo, idatDecompressor, palette);
         }
-
-        //decompressor.parseFooter();
-
-        return imageData;
     }
 
     public PixelOutput getOutput() {

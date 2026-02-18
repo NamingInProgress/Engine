@@ -14,10 +14,14 @@ public class Scanline {
     private final int pixelStride;
 
     public Scanline(@Nullable Scanline previous, PngInfo pngInfo, ZlibDecompressor data) throws IOException {
+        this(previous, pngInfo, data, pngInfo.width);
+    }
+
+    public Scanline(@Nullable Scanline previous, PngInfo pngInfo, ZlibDecompressor data, int width) throws IOException {
         this.previous = previous;
         this.pixelStride = pngInfo.getPixelStride();
-        this.filteredBytes = new byte[pixelStride * pngInfo.width];
-        this.unfilteredBytes = new byte[pixelStride * pngInfo.width];
+        this.filteredBytes = new byte[pixelStride * width];
+        this.unfilteredBytes = new byte[pixelStride * width];
 
         int filterByte = data.nextByte();
         FilterMethod[] availableFilters = FilterMethod.values();

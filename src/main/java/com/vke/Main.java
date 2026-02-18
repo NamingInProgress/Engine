@@ -12,7 +12,7 @@ import java.io.InputStream;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         try {
-            InputStream stream = new Identifier("transparency.png").asInputStream();
+            InputStream stream = new Identifier("adam7.png").asInputStream();
             PngFile pngFile = new PngFile(stream);
             PixelOutput output = pngFile.getOutput();
             BufferedImage image = output.toJavaImage();
