@@ -33,19 +33,24 @@ public interface Serializer<T> {
         return null;
     }
 
-    static void saveCheckNull(Object value, Saver saver) throws SaveException {
-        saver.saveBits(1, value == null ? 1 : 0);
+    static void saveCheckNull(Object value, Saver saver, boolean enable) throws SaveException {
+        if (enable) saver.saveBits(1, value == null ? 1 : 0);
     }
 
-    static boolean loadCheckNull(Loader loader) throws LoadException {
+    static boolean loadCheckNull(Loader loader, boolean enable) throws LoadException {
+        if (!enable) return false;
         return (loader.loadBits(1) & 1) == 1;
     }
 
     static <U> void saveObject(U value, Saver saver) throws SaveException {
+        saveObject(value, saver, true);
+    }
+
+    static <U> void saveObject(U value, Saver saver, boolean nullCheck) throws SaveException {
         DefaultSerializers.checkRegistration();
 
         try {
-            saveCheckNull(value, saver);
+            saveCheckNull(value, saver, nullCheck);
             if (value == null) return;
             Serializer<U> s = (Serializer<U>) findSerializer(value.getClass());
             if (s == null) throw new ClassCastException();
@@ -56,9 +61,13 @@ public interface Serializer<T> {
     }
 
     static <U> U loadObject(Class<?> clazz, Loader loader) throws LoadException {
+        return loadObject(clazz, loader, true);
+    }
+
+    static <U> U loadObject(Class<?> clazz, Loader loader, boolean nullCheck) throws LoadException {
         DefaultSerializers.checkRegistration();
 
-        if (loadCheckNull(loader)) return null;
+        if (loadCheckNull(loader, nullCheck)) return null;
         try {
             Serializer<U> s = (Serializer<U>) findSerializer(clazz);
             if (s == null) throw new ClassCastException();
@@ -69,10 +78,14 @@ public interface Serializer<T> {
     }
 
     static <U> void saveFatObject(U value, Saver saver) throws SaveException {
+        saveFatObject(value, saver, true);
+    }
+
+    static <U> void saveFatObject(U value, Saver saver, boolean nullCheck) throws SaveException {
         DefaultSerializers.checkRegistration();
 
         try {
-            saveCheckNull(value, saver);
+            saveCheckNull(value, saver, nullCheck);
             if (value == null) return;
             Class<?> clazz = value.getClass();
             Serializer<U> s = (Serializer<U>) findSerializer(clazz);
@@ -88,14 +101,22 @@ public interface Serializer<T> {
         }
     }
 
-    static Object loadFatObject(Loader loader) throws LoadException {
-        return loadFatObject(loader, Serializer.class.getClassLoader());
+    static Object loadFatObject(Loader loader, boolean nullCheck) throws LoadException {
+        return loadFatObject(loader, Serializer.class.getClassLoader(), nullCheck);
     }
 
     static Object loadFatObject(Loader loader, ClassLoader classLoader) throws LoadException {
+        return loadFatObject(loader, classLoader, true);
+    }
+
+    static Object loadFatObject(Loader loader) throws LoadException {
+        return loadFatObject(loader, Serializer.class.getClassLoader(), true);
+    }
+
+    static Object loadFatObject(Loader loader, ClassLoader classLoader, boolean nullCheck) throws LoadException {
         DefaultSerializers.checkRegistration();
 
-        if (loadCheckNull(loader)) return null;
+        if (loadCheckNull(loader, nullCheck)) return null;
         String className = "<unknown>";
         try {
             Serializer<String> str = findSerializer(String.class);

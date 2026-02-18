@@ -1,5 +1,7 @@
 package com.vke.core.vkz.types.lo;
 
+import com.vke.api.serializer.Loader;
+import com.vke.api.serializer.Serializer;
 import com.vke.api.vkz.VkzEditor;
 import com.vke.api.vkz.VkzFileHandle;
 import com.vke.core.vkz.types.VkzName;
@@ -7,11 +9,14 @@ import com.vke.core.vkz.types.VkzName;
 import java.io.InputStream;
 
 public class VkzListOnlyFile implements VkzFileHandle {
-    private VkzName name;
-    private int length;
+    private final VkzName name;
+    private final int length;
 
-    public VkzListOnlyFile(int length) {
+    public VkzListOnlyFile(int length, Loader loader) {
         this.length = length;
+        name = Serializer.loadObject(VkzName.class, loader, false);
+        //skip data bytes
+        loader.loadRaw(length);
     }
 
     @Override

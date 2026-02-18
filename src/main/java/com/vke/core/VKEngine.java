@@ -25,7 +25,9 @@ public class VKEngine {
     private final Logger logger;
     private final Logger soutLogger;
 
-    private final Window window;
+    private Window window;
+    private VulkanRenderer renderer;
+    private ShaderCompiler compiler;
 
     private App app;
 
@@ -51,13 +53,16 @@ public class VKEngine {
         vsync = createInfo.vsync;
 
         this.createInfo = createInfo;
+
         logger = LoggerFactory.get(VKEngine.class.getName());
         soutLogger = LoggerFactory.get(SOUT.TAG);
         SOUT.redirect(soutLogger);
+    }
+
+    public void start(Game game) {
         this.window = new Window(this, createInfo.windowCreateInfo);
 
         GLFW.glfwShowWindow(this.window.getHandle());
-    }
 
     @SuppressWarnings("unchecked")
     public <T extends Service> T service(String key) {

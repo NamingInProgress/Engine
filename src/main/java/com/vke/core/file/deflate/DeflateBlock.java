@@ -3,6 +3,7 @@ package com.vke.core.file.deflate;
 import com.vke.core.file.deflate.block.DynamicBlock;
 import com.vke.core.file.deflate.block.FixedBlock;
 import com.vke.core.file.deflate.block.UncompressedBlock;
+import com.vke.core.file.deflate.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 
@@ -19,7 +20,7 @@ public interface DeflateBlock {
 
     boolean bFinal();
 
-    static DeflateBlock createNextBlock(BitInputStream inputStream, int windowSize) throws IOException {
+    static DeflateBlock createNextBlock(BitInputStream inputStream, SlidingWindow window) throws IOException {
         inputStream.setOrdering(BitOrdering.LSB_FIRST);
         boolean bFinal = inputStream.readBits(1) == 1;
         int bType = inputStream.readBits(2);
@@ -29,11 +30,11 @@ public interface DeflateBlock {
         }
 
         if (bType == TYPE_FIXED) {
-            return new FixedBlock(bFinal, windowSize);
+            return new FixedBlock(bFinal, window);
         }
 
         if (bType == TYPE_DYNAMIC) {
-            return new DynamicBlock(bFinal, windowSize);
+            return new DynamicBlock(bFinal, window);
         }
 
         throw new IOException("Illegal block header!");

@@ -7,15 +7,18 @@ import java.util.Objects;
 public class Identifier {
 
     private final String namespace, path;
+    private final String combined;
 
     public Identifier(String path) {
         this.namespace = "vke";
         this.path = path;
+        this.combined = namespace.concat("/").concat(path);
     }
 
     public Identifier(String namespace, String path) {
         this.namespace = namespace;
         this.path = path;
+        this.combined = namespace.concat("/").concat(path);
     }
 
     public static Identifier empty() {
@@ -35,8 +38,8 @@ public class Identifier {
     public String getPath() { return this.path; }
 
     public InputStream asInputStream() throws IOException {
-        var s = Identifier.class.getClassLoader().getResourceAsStream("%s/%s".formatted(namespace, path));
-        if (s == null) throw new IOException("Failed to find file at %s/%s".formatted(namespace, path));
+        var s = Identifier.class.getClassLoader().getResourceAsStream(combined);
+        if (s == null) throw new IOException("Failed to find file at " + combined);
         return s;
     }
 

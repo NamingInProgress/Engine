@@ -49,13 +49,13 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     @Override
     public void save(VkzImmediateArchive value, Saver saver) throws SaveException {
         saver.saveInt(value.magic);
-        Serializer.saveObject(value.root, saver);
+        Serializer.saveObject(value.root, saver, false);
         value.fileLengths.save(saver);
         int totalFiles = value.fileChunks.length;
         int i = 1;
         for (VkzImmediateFileChunk fileChunk : value.fileChunks) {
-            if (progressListener != null) {
-                progressListener.onNewProgress(new ProgressReport(fileChunk.getName(), totalFiles, i, fileChunk.getSize()));
+            if (value.progressListener != null) {
+                value.progressListener.onNewProgress(new ProgressReport(fileChunk.getName(), totalFiles, i, fileChunk.getSize()));
             }
             i++;
             fileChunk.save(saver);
@@ -69,7 +69,7 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         }
 
         int magic = loader.loadInt();
-        VkzImmediateDirLayer root = Serializer.loadObject(VkzImmediateDirLayer.class, loader);
+        VkzImmediateDirLayer root = Serializer.loadObject(VkzImmediateDirLayer.class, loader, false);
         if (root == null) {
             throw new LoadException("Unable to load filesystem!");
         }
@@ -142,7 +142,7 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         this.progressListener = progressListener;
 
         VkzObjSaver saver = new VkzObjSaver(stream);
-        Serializer.saveObject(this, saver);
+        Serializer.saveObject(this, saver, false);
         saver.flush();
         saver.close();
     }
