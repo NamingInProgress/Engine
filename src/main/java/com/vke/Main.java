@@ -7,6 +7,7 @@ import com.vke.core.services.profiler.Profiler;
 import com.vke.utils.AnsiColors;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Main {
 
@@ -113,5 +114,4 @@ public class Main {
 
         profiler.endFrame();
     }
-
 }

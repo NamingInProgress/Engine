@@ -53,14 +53,14 @@ public class VkzImmediateDirLayer implements Serializer<VkzImmediateDirLayer>, V
 
     @Override
     public void save(VkzImmediateDirLayer value, Saver saver) throws SaveException {
-        Serializer.saveObject(value.layerName, saver);
+        Serializer.saveObject(value.layerName, saver, false);
         value.entries.save(saver);
         value.layers.save(saver);
     }
 
     @Override
     public VkzImmediateDirLayer load(Loader loader) throws LoadException {
-        VkzName name = Serializer.loadObject(VkzName.class, loader);
+        VkzName name = Serializer.loadObject(VkzName.class, loader, false);
         VkzArray<VkzEntry> entries = new VkzArray<>(VkzEntry.class, new VkzEntry[0]);
         entries.load(loader);
         VkzArray<VkzImmediateDirLayer> layers = new VkzArray<>(VkzImmediateDirLayer.class, new VkzImmediateDirLayer[0]);

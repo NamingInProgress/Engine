@@ -2,6 +2,7 @@ package com.vke.core.file.deflate.block;
 
 import com.vke.core.file.deflate.DeflateBlock;
 import com.vke.core.file.deflate.lz77.Lz77Decoder;
+import com.vke.core.file.deflate.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.BitInputStream;
 
 import java.io.IOException;
@@ -40,9 +41,9 @@ public class FixedBlock implements DeflateBlock {
     private final boolean bFinal;
     private final Lz77Decoder decoder;
 
-    public FixedBlock(boolean bFinal, int windowSize) {
+    public FixedBlock(boolean bFinal, SlidingWindow window) {
         this.bFinal = bFinal;
-        this.decoder = new Lz77Decoder(LITERAL_LENGTH_CODE_LENGTHS, DISTANCE_CODE_LENGTHS, windowSize);
+        this.decoder = new Lz77Decoder(LITERAL_LENGTH_CODE_LENGTHS, DISTANCE_CODE_LENGTHS, window);
     }
 
     @Override
