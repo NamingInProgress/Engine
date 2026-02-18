@@ -115,7 +115,7 @@ public class VulkanTexture implements Texture {
         MemoryUtil.memCopy(srcAddress, uploadAddress, imageSize);
 
         renderer.immediateSubmit((stack, cmd) -> {
-
+            //TODO: transition layout and copy the buffer to this image
         });
 
         uploadBuffer.free();
