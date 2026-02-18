@@ -1,8 +1,5 @@
-package com.vke.core.file.png.adam7;
+package com.vke.core.file.png;
 
-import com.vke.core.file.png.PixelOutput;
-import com.vke.core.file.png.PngInfo;
-import com.vke.core.file.png.SequentialImageSampler;
 import com.vke.core.file.png.chunks.scanlines.Scanline;
 import com.vke.core.file.zlib.ZlibDecompressor;
 
