@@ -13,6 +13,7 @@ import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.utils.AnsiColors;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
@@ -68,11 +69,11 @@ public class VulkanRenderer extends Service {
         VulkanFrame frame = frames[currentFrame];
         VulkanFence fence = frame.getRenderFence();
 
-        profiler.record("Frame Fence");
+        profiler.begin("Frame Fence");
         fence.waitForFence();
-        profiler.end("Frame Fence");
+        profiler.end();
 
-        profiler.record("Image Acquire");
+        profiler.begin("Image Acquire");
         int imageIndex = swapchain.acquireNextImage(frame.getImageSemaphore());
         if (imageIndex < 0) {
             int errorCode = ~imageIndex;
@@ -80,11 +81,12 @@ public class VulkanRenderer extends Service {
                 swapchain.recreate();
             }
             stack.close();
+            profiler.closeStack();
             return null;
         }
-        profiler.end("Image Acquire");
+        profiler.end();
 
-        profiler.record("Flight Fence");
+        profiler.begin("Flight Fence");
         //if (imagesInFlight[imageIndex] != null) {
         //    imagesInFlight[imageIndex].waitForFence();
         //}
@@ -92,18 +94,18 @@ public class VulkanRenderer extends Service {
         fence.reset();
 
         imagesInFlight[imageIndex] = fence;
-        profiler.end("Flight Fence");
+        profiler.end();
 
-        profiler.category("Cmd Buffers");
-        profiler.record("Get");
+        profiler.begin("Cmd Buffers", AnsiColors.BLUE);
+        profiler.begin("Get");
         VulkanCmdBuffers cmd = frame.getBuffers();
         cmd.reset();
-        profiler.end("Get");
+        profiler.end();
 
-        profiler.record("Begin");
+        profiler.begin("Begin");
         cmd.begin();
-        profiler.end("Begin");
-        profiler.endCategory();
+        profiler.end();
+        profiler.end();
 
         return new FrameData(frame, stack, imageIndex);
     }

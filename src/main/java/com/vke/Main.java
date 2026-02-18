@@ -3,6 +3,8 @@ package com.vke;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.core.logger.*;
+import com.vke.core.services.profiler.Profiler;
+import com.vke.utils.AnsiColors;
 
 import java.io.IOException;
 
@@ -87,6 +89,29 @@ public class Main {
         //VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
 
         //engine.start(new TestApp());
+
+        Profiler profiler = new Profiler();
+        profiler.beginFrame();
+
+        profiler.begin("Render", AnsiColors.RED);
+        profiler.begin("Start Frame");
+        profiler.end();
+
+        profiler.begin("App", AnsiColors.CYAN);
+        profiler.begin("idk");
+        profiler.end();
+        profiler.end();
+
+        profiler.begin("End Frame");
+        profiler.end();
+
+        profiler.end();
+        profiler.begin("Physics", AnsiColors.BLUE);
+        profiler.begin("Idk v2");
+        profiler.end();
+        profiler.end();
+
+        profiler.endFrame();
     }
 
 }

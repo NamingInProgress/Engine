@@ -12,6 +12,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.services.Services;
+import com.vke.core.services.profiler.Profiler;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.test.app.TestApp;
 import com.vke.utils.Identifier;
@@ -42,6 +43,7 @@ public class TestApplication {
         VKEngine engine = new VKEngine(createInfo);
 
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
+        //Profiler profiler = engine.service(Services.PROFILER);
 
         engine.start(new TestApp());
     }
