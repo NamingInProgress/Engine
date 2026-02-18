@@ -1,11 +1,7 @@
 package com.vke.api.registry;
 
-import com.vke.api.registry.registries.PipelinesRegistry;
-import com.vke.api.registry.registries.SerializersRegistry;
-import com.vke.api.registry.registries.ServicesRegistry;
-import com.vke.api.registry.registries.VKERegistry;
+import com.vke.api.registry.registries.*;
 import com.vke.api.serializer.Serializer;
-import com.vke.api.services.ServiceProvider;
 import com.vke.utils.Identifier;
 
 import java.util.LinkedHashMap;

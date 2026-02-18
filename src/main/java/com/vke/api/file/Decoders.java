@@ -3,6 +3,7 @@ package com.vke.api.file;
 import com.vke.core.file.decoders.GzipDecoder;
 import com.vke.core.file.decoders.PngDecoder;
 import com.vke.core.file.decoders.ZlibDecoder;
+import com.vke.core.file.wav.WAVDecoder;
 
 import java.util.HashMap;
 
@@ -16,6 +17,7 @@ public class Decoders {
 
         decoders.put(GzipDecoder.KEY, new GzipDecoder());
         decoders.put(ZlibDecoder.KEY, new ZlibDecoder());
+        decoders.put(WAVDecoder.KEY, new WAVDecoder());
         decoders.put(PngDecoder.KEY, new PngDecoder());
     }
 
