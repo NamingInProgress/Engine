@@ -16,7 +16,7 @@ public class Services {
 
     public static void init() {
         SERVICES.register(VULKAN_RENDERER, (ctx) -> new VulkanRenderer(ctx.engine(), ctx.engineCreateInfo()));
-        SERVICES.register(SHADER_COMPILER, (_) -> new ShaderCompiler());
+        SERVICES.register(SHADER_COMPILER, (ctx) -> new ShaderCompiler(ctx.engine()));
         SERVICES.register(PROFILER, (_) -> new Profiler());
         SERVICES.register(EVENT_BUS, (ctx) -> new EventBus(ctx.engine()));
     }

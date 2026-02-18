@@ -1,6 +1,7 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
+import com.vke.api.app.Version;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
@@ -14,6 +15,7 @@ import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.profiler.DummyProfiler;
 import com.vke.core.services.profiler.Profiler;
+import com.vke.core.vkz.types.Vkz;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
@@ -45,6 +47,7 @@ public class VKEngine {
     public static Profiler profiler;
 
     public VKEngine(EngineCreateInfo createInfo) {
+        Vkz.registerVkzSerializers();
         scc = new ServiceCreateContext(this, createInfo);
 
         Services.init();
@@ -136,6 +139,12 @@ public class VKEngine {
     }
     public Logger getLogger() {
         return logger;
+    }
+    public App getApp() {
+        return app;
+    }
+    public Version getAppVersion() {
+        return createInfo.applicationVersion;
     }
 
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }

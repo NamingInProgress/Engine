@@ -48,7 +48,7 @@ public class ShaderProgram {
                 Identifier id = shaderInfo.getValue();
                 byte[] bytes = Utils.readAllBytesAndClose(id.asInputStream());
                 Shader s = new Shader(engine, device,
-                        compiler.compileGlslToSpirV(bytes, type, type.toString()),
+                        compiler.compileGlslToSpirV(bytes, type, id),
                         type);
                 shaders[idx++] = s;
             }

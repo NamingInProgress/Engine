@@ -19,7 +19,7 @@ public interface VkzArchive {
 
         VkzArchive archive = switch (strategy) {
             case LazyFiles -> throw new VkzOpenException("Currently no support for LazyFiles sadly :(");
-            case InflateAll -> Serializer.loadObject(VkzImmediateArchive.class, loader);
+            case InflateAll -> Serializer.loadObject(VkzImmediateArchive.class, loader, false);
             case ListOnly -> new VkzListOnlyArchive(loader);
             case null -> throw new VkzOpenException("Strategy " + strategy + " is illegal!");
         };

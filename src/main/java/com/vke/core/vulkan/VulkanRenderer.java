@@ -44,7 +44,7 @@ public class VulkanRenderer extends Service {
     private final EngineCreateInfo engineCreateInfo;
 
     public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
-        super("vkr");
+        super(Services.VULKAN_RENDERER);
         this.FRAMES_IN_FLIGHT = createInfo.vulkanCreateInfo.framesInFlight;
         this.engine = engine;
         this.engineCreateInfo = createInfo;

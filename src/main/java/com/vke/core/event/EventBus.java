@@ -5,6 +5,7 @@ import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.services.Service;
 import com.vke.core.VKEngine;
+import com.vke.core.services.Services;
 import com.vke.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
@@ -19,7 +20,7 @@ public class EventBus extends Service implements com.vke.api.event.EventBus {
     private final VKEngine engine;
 
     public EventBus(VKEngine engine) {
-        super("evnt");
+        super(Services.EVENT_BUS);
         this.engine = engine;
         engine.EVENT_BUS = this;
     }

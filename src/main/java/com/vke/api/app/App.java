@@ -8,4 +8,5 @@ import com.vke.utils.Disposable;
 public abstract class App implements Disposable {
     public abstract void onInit(VKEngine engine);
     public abstract void onDraw(Window window, VulkanRenderer.FrameData fd);
+    public abstract String getName();
 }

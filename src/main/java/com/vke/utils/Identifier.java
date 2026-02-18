@@ -48,6 +48,8 @@ public class Identifier {
         return namespace + ":" + path;
     }
 
+    public String toSpecialVkzFormatCuzItsBad() { return (namespace + "_" + path).replaceAll("/", "_"); }
+
     @Override
     public int hashCode() {
         return Objects.hash(this.namespace, this.path);

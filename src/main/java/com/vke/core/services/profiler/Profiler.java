@@ -4,6 +4,7 @@ import com.vke.api.logger.Logger;
 import com.vke.api.services.Service;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.services.Services;
 import com.vke.utils.AnsiColors;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class Profiler extends Service {
     private Stack<Node> stack = new Stack<>();
 
     public Profiler() {
-        super("prof");
+        super(Services.PROFILER);
 
         VKEngine.profiler = this;
 

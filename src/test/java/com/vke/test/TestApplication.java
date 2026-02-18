@@ -1,7 +1,9 @@
 package com.vke.test;
 
+import com.vke.api.app.Version;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.api.vkz.VkzArchive;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
@@ -35,10 +37,10 @@ public class TestApplication {
         TestPipelines.init();
         VKEngine engine = new VKEngine(createInfo);
 
-        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
         //Profiler profiler = engine.service(Services.PROFILER);
 
         engine.start(new TestApp());
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
     }
 
 }

@@ -51,7 +51,7 @@ public class VkzArray<T> {
         short length = (short) elements.length;
         saver.saveShort(length);
         for (int i = 0; i < length; i++) {
-            Serializer.saveObject(elements[i], saver, true);
+            Serializer.saveObject(elements[i], saver, false);
         }
     }
 }

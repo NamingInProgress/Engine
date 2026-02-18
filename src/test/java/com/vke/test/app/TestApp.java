@@ -147,6 +147,11 @@ public class TestApp extends App {
     }
 
     @Override
+    public String getName() {
+        return "TestApp";
+    }
+
+    @Override
     public void free() {
         mesh.free();
         mesh2.free();

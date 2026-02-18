@@ -144,6 +144,10 @@ public class Utils {
     }
 
     public static char[] readCharsFromInputStream(InputStream stream) throws IOException {
+        return readStringFromInputStream(stream).toCharArray();
+    }
+
+    public static String readStringFromInputStream(InputStream stream) throws IOException {
         Reader reader = new InputStreamReader(stream);
         StringBuilder sb = new StringBuilder();
         char[] buffer = new char[4096];
@@ -157,9 +161,8 @@ public class Utils {
             reader.close();
         }
 
-        return sb.toString().toCharArray();
+        return sb.toString();
     }
-
 
     public static <T> boolean arrayContains(T[] arr, T query) {
         for (T t : arr) {
