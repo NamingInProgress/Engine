@@ -47,6 +47,7 @@ public class VKEngine {
     public static Profiler profiler;
 
     public VKEngine(EngineCreateInfo createInfo) {
+        if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
         Vkz.registerVkzSerializers();
         scc = new ServiceCreateContext(this, createInfo);
 
@@ -84,7 +85,6 @@ public class VKEngine {
     public boolean isServiceLoaded(String key) {
         return loadedServices.stream().anyMatch(service -> service.getId().equals(key));
     }
-
 
     public void start(App app) {
         this.app = app;

@@ -1,5 +1,7 @@
 package com.vke.core.vulkan.descriptor;
 
+import com.vke.api.abstraction.descriptors.texture.ImageAspect;
+import com.vke.api.abstraction.descriptors.texture.TextureType;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
@@ -7,6 +9,10 @@ import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.core.vulkan.texture.VulkanTextureView;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
@@ -78,20 +84,25 @@ public abstract class DescriptorBinding implements Disposable {
 
     public static class SamplerBinding extends DescriptorBinding {
 
-        public long sampler;
-        public long imageView;
+        public VulkanSampler sampler;
+        public VulkanTextureView imageView;
         public ImageLayout layout;
 
         public SamplerBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type) {
             super(engine, device, type);
         }
 
-        public void setSampler(long handle) {
-            this.sampler = handle;
+        public void setSampler(VulkanSampler sampler) {
+            this.sampler = sampler;
         }
 
-        public void setImageView(long handle) {
-            this.imageView = handle;
+        public void setImageView(VulkanTextureView view) {
+            this.imageView = view;
+            setImageLayout(view.image.layout());
+        }
+
+        public void setImageView(VulkanTexture tex) {
+            this.setImageView(tex.getView());
         }
 
         public void setImageLayout(ImageLayout layout) {
@@ -103,8 +114,8 @@ public abstract class DescriptorBinding implements Disposable {
             VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack);
 
             info.get(0)
-                    .sampler(this.sampler)
-                    .imageView(this.imageView)
+                    .sampler(this.sampler.getHandle())
+                    .imageView(this.imageView.getHandle())
                     .imageLayout(layout.getVkHandle());
 
             return (T) info;

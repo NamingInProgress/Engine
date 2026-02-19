@@ -9,12 +9,9 @@ import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
-import com.vke.api.abstraction.pipeline.ComputePipeline;
-import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
@@ -25,10 +22,13 @@ import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -37,6 +37,7 @@ import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 
@@ -209,17 +210,22 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public Texture createTexture(Texture.Description info) {
-        return new VulkanTexture(this, info, MemoryUsage.Bits.GPU_ONLY.into());
-    }
-
-    @Override
-    public Sampler createSampler(Sampler.Description info) {
+    public VulkanTexture createTexture(Identifier id, Texture.TextureDesc info) {
+        try {
+            return new VulkanTexture(this, id.asInputStream(), info);
+        } catch (IOException e) {
+            engine.throwException(e, HERE + "/createTexture");
+        }
         return null;
     }
 
     @Override
-    public CommandBuffer createCommandBuffer() {
+    public VulkanSampler createSampler(Sampler.Description info) {
+        return new VulkanSampler(this, info);
+    }
+
+    @Override
+    public VulkanCmdBuffers createCommandBuffer() {
         throw new RuntimeException("Non VulkanFrame Command Buffers are not implemented yet!");
     }
 

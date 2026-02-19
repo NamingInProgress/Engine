@@ -16,6 +16,7 @@ import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
 
+import java.io.InputStream;
 import java.util.Map;
 
 public interface RenderDevice extends Disposable {
@@ -24,9 +25,9 @@ public interface RenderDevice extends Disposable {
     DeviceCapabilities capabilities();
 
     /** MEMORY ALLOC **/
-    Buffer createBuffer(Buffer.Description info);
-    Texture createTexture(Texture.Description info);
-    Sampler createSampler(Sampler.Description info);
+    <T extends Buffer> T createBuffer(Buffer.Description info);
+    <T extends Texture> T createTexture(Identifier id, Texture.TextureDesc info);
+    <T extends Sampler> T createSampler(Sampler.Description info);
     default ShaderProgram createShader(Identifier vertex)                      {   return new ShaderProgram(vertex);            }
     default ShaderProgram createShader(Identifier vertex, Identifier fragment) {   return new ShaderProgram(vertex, fragment);  }
     default ShaderProgram createShader(Pair<ShaderType, Identifier> shaders[]) {   return new ShaderProgram(shaders);           }
@@ -37,12 +38,12 @@ public interface RenderDevice extends Disposable {
     //ComputePipeline createComputePipeline();
 
     /** COMMAND BUFFERS **/
-    CommandBuffer createCommandBuffer();
+    <T extends CommandBuffer> T createCommandBuffer();
 
-    void submit(CommandBuffer cmd, CommandBuffer.SubmitInfo info);
+    <T extends CommandBuffer> void submit(T cmd, CommandBuffer.SubmitInfo info);
     void waitIdle();
 
     /** SWAPCHAIN **/
-    Swapchain createSwapchain(Swapchain.Description info);
+    <T extends Swapchain> T createSwapchain(Swapchain.Description info);
 
 }

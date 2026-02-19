@@ -10,6 +10,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
@@ -61,6 +62,7 @@ public class VulkanRenderer extends Service {
         }
 
         VKERegistries.PIPELINES.makeVkPipelines(engine, device);
+        Samplers.init(device);
     }
 
     public FrameData startFrame() {
@@ -163,6 +165,8 @@ public class VulkanRenderer extends Service {
 
     @Override
     public void free() {
+        Samplers.NEAREST.free();
+        Samplers.LINEAR.free();
         VKERegistries.PIPELINES.freeVkPipelines();
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);

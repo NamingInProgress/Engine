@@ -1,46 +1,37 @@
 package com.vke.core.rendering.imageloading;
 
 import com.vke.core.VKEngine;
+import com.vke.core.file.png.PngFile;
+import com.vke.core.memory.AutoHeapAllocator;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 public class LowLevelImageLoader {
 
-    private final ByteBuffer rawData;
+    private final InputStream is;
 
-    public LowLevelImageLoader(ByteBuffer data) {
-        this.rawData = data;
+    public LowLevelImageLoader(InputStream is) {
+        this.is = is;
     }
 
-    public ImageData decode(VKEngine engine) {
+    public ImageData decode(AutoHeapAllocator alloc) {
         //todo: replace with my png decoder once its done
 
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-
-            IntBuffer width = stack.mallocInt(1);
-            IntBuffer height = stack.mallocInt(1);
-            IntBuffer channels = stack.mallocInt(1);
-
-            ByteBuffer pixels = STBImage.stbi_load_from_memory(
-                    rawData,
-                    width,
-                    height,
-                    channels,
-                    4 // force RGBA //probably not chatGPT but for testing purposes sure
-            );
-
-            if (pixels == null) {
-                engine.throwException(new ImageDecodeException("Failed to load image: " + STBImage.stbi_failure_reason()), "Low Level Image Loader");
-            }
+        try {
+            PngFile png = new PngFile(is);
 
             return new ImageData(
-                    width.get(0),
-                    height.get(0),
-                    pixels
+                    png.getPngInfo().width,
+                    png.getPngInfo().height,
+                    png.getOutput().argbToByteBuffer(alloc)
             );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

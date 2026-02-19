@@ -1,16 +1,12 @@
 package com.vke.test;
 
-import com.vke.annotations.Test;
-import com.vke.annotations.organization.DisplayName;
 import com.vke.core.services.profiler.Profiler;
 import com.vke.core.services.profiler.ProfilerPrinter;
 import com.vke.utils.AnsiColors;
 
 public class ProfilerTest {
 
-    @Test
-    @DisplayName("Profiler Test")
-    public void profilerTest() {
+    public static void main(String[] args) {
         Profiler profiler = new Profiler();
         profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
         var s = new ProfilerPrinter.PieChartSettings();

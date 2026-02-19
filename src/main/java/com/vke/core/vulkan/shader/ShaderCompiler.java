@@ -48,7 +48,6 @@ public class ShaderCompiler extends Service {
 
     public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @NotNull Identifier fileName) throws Exception {
         if (CACHE.containsKey(fileName.toSpecialVkzFormatCuzItsBad())) return CACHE.get(fileName.toSpecialVkzFormatCuzItsBad());
-        System.out.println("recompile");
 
         ByteBuffer source = alloc.bytes(shader).getHeapObject();
         long options = Shaderc.shaderc_compile_options_initialize();

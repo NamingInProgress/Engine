@@ -14,11 +14,6 @@ public interface Swapchain extends Disposable {
     TextureFormat format();
 
     int acquireNextImage(Semaphore imageAvailable);
-    Texture getImage(int index);
-
-    default Texture acquireAndGet(Semaphore imageAvailable) {
-        return getImage(acquireNextImage(imageAvailable));
-    }
 
     void present(Semaphore renderFinished);
 

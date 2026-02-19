@@ -1,5 +1,8 @@
 package com.vke.api.vulkan.pipeline;
 
+import com.vke.api.abstraction.data.Sampler;
+import com.vke.api.abstraction.data.Texture;
+import com.vke.api.abstraction.descriptors.CompareOp;
 import com.vke.api.abstraction.pipeline.PipelineLayout;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
@@ -156,8 +159,8 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         getGraphicsPipeline().setUniform(key, runnable);
     }
 
-    public void setSampler(String key, long sampler, long imageView, ImageLayout layout) {
-        getGraphicsPipeline().setSampler(key, sampler, imageView, layout);
+    public void setSampler(String key, Sampler sampler, Texture tex) {
+        getGraphicsPipeline().setSampler(key, sampler, tex);
     }
 
     public void setImage(String key, long imageView) {
@@ -670,29 +673,6 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         private final int vkHandle;
 
         BlendOperation(int vkHandle) {
-            this.vkHandle = vkHandle;
-        }
-
-        @Override
-        public int getVkHandle() {
-            return vkHandle;
-        }
-    }
-
-    public enum CompareOp implements IntEnum {
-
-        NEVER(VK14.VK_COMPARE_OP_NEVER),
-        LESS(VK14.VK_COMPARE_OP_LESS),
-        EQUAL(VK14.VK_COMPARE_OP_EQUAL),
-        LEQUAL(VK14.VK_COMPARE_OP_LESS_OR_EQUAL),
-        GREATER(VK14.VK_COMPARE_OP_GREATER),
-        NOT_EQUAL(VK14.VK_COMPARE_OP_NOT_EQUAL),
-        GEQUAL(VK14.VK_COMPARE_OP_GREATER_OR_EQUAL),
-        ALWAYS(VK14.VK_COMPARE_OP_ALWAYS);
-
-        private final int vkHandle;
-
-        CompareOp(int vkHandle) {
             this.vkHandle = vkHandle;
         }
 

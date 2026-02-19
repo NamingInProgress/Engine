@@ -2,6 +2,8 @@ package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
+import com.vke.api.abstraction.data.Sampler;
+import com.vke.api.abstraction.data.Texture;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.vulkan.descriptors.DescriptorData;
@@ -11,8 +13,11 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.descriptor.*;
+import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.utils.Disposable;
 import com.vke.utils.Pair;
 import com.vke.utils.Utils;
@@ -232,15 +237,14 @@ public class GraphicsPipeline implements Disposable {
         }
     }
 
-    public void setSampler(String name, long sampler, long imageView, ImageLayout layout) {
+    public void setSampler(String name, Sampler sampler, Texture tex) {
         Pair<Integer, Integer> pos = getDescriptorData().getPosition(name);
 
         DescriptorBinding b = this.descriptorSets.get(pos.v1).getBinding(pos.v2);
         if (b instanceof DescriptorBinding.SamplerBinding sb) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                sb.setSampler(sampler);
-                sb.setImageView(imageView);
-                sb.setImageLayout(layout);
+                sb.setSampler((VulkanSampler) sampler);
+                sb.setImageView((VulkanTexture) tex);
 
 
                 this.descriptorSets.get(pos.v1).updateImage(stack, pos.v2, b, b.getBindingInfo(stack));

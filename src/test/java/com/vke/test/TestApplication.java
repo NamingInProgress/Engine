@@ -28,14 +28,13 @@ public class TestApplication {
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
-        if (renderdoc.get()) Thread.sleep(10000);
-
         EngineCreateInfo createInfo = new EngineCreateInfo();
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         TestPipelines.init();
         VKEngine engine = new VKEngine(createInfo);
+        if (renderdoc.get()) Thread.sleep(5000);
 
         //Profiler profiler = engine.service(Services.PROFILER);
 

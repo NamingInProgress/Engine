@@ -159,7 +159,7 @@ public class VulkanSwapchain implements Swapchain {
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, images);
 
         for (int i = 0; i < count.get(0); i++) {
-            this.images.add(new SwapchainImage(images.get(i), this.format));
+            this.images.add(new SwapchainImage(images.get(i)));
         }
 
         VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
@@ -221,11 +221,6 @@ public class VulkanSwapchain implements Swapchain {
             currentImageIndex = pNextImageIndex.get(0);
             return currentImageIndex;
         }
-    }
-
-    @Override
-    public Texture getImage(int index) {
-        return images.get(index);
     }
 
     public SwapchainImageView getImageView(int index) {

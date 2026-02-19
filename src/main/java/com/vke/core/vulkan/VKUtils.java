@@ -13,6 +13,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -182,18 +183,20 @@ public class VKUtils {
         return ~0;
     }
 
-    public static GeneralBuffer readInputStreamToVulkanAndClose(InputStream stream, int educatedSizeGuess) throws IOException {
-        GeneralBuffer buffer = new GeneralBuffer(educatedSizeGuess, 1);
+    public static GeneralBuffer readInputStreamToVulkanAndClose(InputStream stream) throws IOException {
+        try (stream; ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[4096];
+            int read;
 
-        byte[] buf = new byte[4096];
-        int read;
-        while ((read = stream.read(buf)) != -1) {
-            byte[] chunk = Arrays.copyOf(buf, read);
-            buffer.putData(chunk);
+            while ((read = stream.read(buf)) != -1) {
+                baos.write(buf, 0, read);
+            }
+
+            byte[] data = baos.toByteArray();
+
+            GeneralBuffer buffer = new GeneralBuffer(data.length, 1);
+            buffer.putData(data);
+            return buffer;
         }
-
-        stream.close();
-
-        return buffer;
     }
 }
