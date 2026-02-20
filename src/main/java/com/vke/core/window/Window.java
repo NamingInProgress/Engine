@@ -4,6 +4,7 @@ import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.callbacks.FramebufferCallbacks;
 import com.vke.core.callbacks.KeyboardCallbacks;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
 
@@ -77,6 +78,10 @@ public class Window {
     public WindowSize getSize() {
         if (size == null) fetchSize();
         return size;
+    }
+
+    public void show() {
+        GLFW.glfwShowWindow(this.getHandle());
     }
 
     public void close() {

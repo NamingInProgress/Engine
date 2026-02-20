@@ -9,6 +9,7 @@ import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.VkzPath;
 import com.vke.core.vkz.types.VkzArray;
 import com.vke.utils.collection.ArrayIter;
+import com.vke.utils.iter.Iter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,8 +82,8 @@ public class VkzListOnlyArchive implements VkzArchive {
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
-        return new ArrayIter<>(files);
+    public Iter<VkzFileHandle> iterateFiles() {
+        return Iter.of(files);
     }
 
     @Override

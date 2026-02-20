@@ -8,35 +8,34 @@ import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
-import com.vke.core.event.DummyEventBus;
 import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.profiler.DummyProfiler;
 import com.vke.core.services.profiler.Profiler;
-import com.vke.core.vkz.types.Vkz;
 import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.AnsiColors;
 import com.vke.utils.Disposable;
+import com.vke.utils.Identifier;
 import com.vke.utils.Infallible;
+import com.vke.utils.iter.Iter;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class VKEngine {
+    public static final String VKE_NAMESPACE = "vke";
 
-    public static final VKERegistrate REGISTRATE = VKERegistries.get("vke");
+    public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
     private final Logger logger;
     private final Logger soutLogger;
 
-    private final Window window;
+    private Window window;
     private final ServiceCreateContext scc;
     private final EngineCreateInfo createInfo;
     private final Set<Service> loadedServices = new HashSet<>();
@@ -46,24 +45,24 @@ public class VKEngine {
 
     public static Profiler profiler;
 
+    private final List<String> namespaces;
+
     public VKEngine(EngineCreateInfo createInfo) {
         if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
-        Vkz.registerVkzSerializers();
-        scc = new ServiceCreateContext(this, createInfo);
-
-        Services.init();
-        RenderPipelines.init();
-
-        profiler = new DummyProfiler();
-        EVENT_BUS = new DummyEventBus();
 
         this.createInfo = createInfo;
-        logger = LoggerFactory.get(VKEngine.class.getName());
-        soutLogger = LoggerFactory.get(SOUT.TAG);
-        SOUT.redirect(soutLogger);
-        this.window = new Window(this, createInfo.windowCreateInfo);
+        this.namespaces = new ArrayList<>() {{ add(VKE_NAMESPACE);
+            if (!getAppNamespace().equals(VKE_NAMESPACE)) add(VKE_NAMESPACE);
+        }};
+        this.logger = LoggerFactory.get(VKEngine.class.getName());
+        this.soutLogger = LoggerFactory.get(SOUT.TAG);
+        this.scc = new ServiceCreateContext(this, createInfo);
+        Services.init();
 
-        GLFW.glfwShowWindow(this.window.getHandle());
+        SOUT.redirect(soutLogger);
+
+        profiler = new DummyProfiler();
+        EVENT_BUS = service(Services.EVENT_BUS);
     }
 
     @SuppressWarnings("unchecked")
@@ -73,6 +72,8 @@ public class VKEngine {
             logger.error("Tried to access service \"%s\", but it wasn't registered!", key);
             return null;
         }
+
+        if (loadedServices.contains(s)) return (T) s;
 
         loadedServices.add(s);
         s.getDependencies().forEach(this::service);
@@ -87,12 +88,19 @@ public class VKEngine {
     }
 
     public void start(App app) {
+        this.window = new Window(this, createInfo.windowCreateInfo);
+
         this.app = app;
-        EVENT_BUS.fire(new AppLifecycleEvents.PreLoad(app));
+        AppLifecycleEvents.PreLoad event = new AppLifecycleEvents.PreLoad(app);
+        EVENT_BUS.fire(event);
+        this.namespaces.addAll(event.getPlugins());
+
         app.onInit(this);
         EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
+
+        this.window.show();
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
             if (!window.isMinimized()) {
                 profiler.beginFrame();
@@ -132,6 +140,7 @@ public class VKEngine {
         app.free();
         EVENT_BUS.fire(new AppLifecycleEvents.PostFree(app));
         window.close();
+        // TODO: Free in order type shit
         loadedServices.forEach(Disposable::free);
     }
     public Window getWindow() {
@@ -146,7 +155,23 @@ public class VKEngine {
     public Version getAppVersion() {
         return createInfo.applicationVersion;
     }
+    public Identifier id(String pathOrIdent) {
+        if (pathOrIdent.indexOf(':') >= 0) {
+            return Identifier.of(pathOrIdent);
+        }
+        return new Identifier(createInfo.applicationNamespace, pathOrIdent);
+    }
+    public String getAppNamespace() {
+        return createInfo.applicationNamespace;
+    }
 
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }
 
+    public Iter<String> getAllNamespaces() {
+        return Iter.of(namespaces);
+    }
+
+    public EngineCreateInfo.RendererType rendererType() {
+        return createInfo.rendererType;
+    }
 }

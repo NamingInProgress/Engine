@@ -7,7 +7,7 @@ public abstract class Service implements Disposable {
     protected String id;
     private List<String> depCache;
 
-    protected Service(String id) {
+    public Service(String id) {
         this.id = id;
     }
 

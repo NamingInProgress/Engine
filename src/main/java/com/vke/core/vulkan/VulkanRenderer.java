@@ -1,5 +1,6 @@
 package com.vke.core.vulkan;
 
+import com.vke.api.abstraction.Renderer;
 import com.vke.api.abstraction.commands.CommandBuffer;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.api.abstraction.swapchain.Swapchain;
@@ -10,6 +11,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
@@ -24,7 +26,7 @@ import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
 
-public class VulkanRenderer extends Service {
+public class VulkanRenderer extends Service implements Renderer {
 
     private static final String HERE = "VulkanRenderer";
 
@@ -61,8 +63,10 @@ public class VulkanRenderer extends Service {
             imagePresentInFlight[i] = VulkanSemaphore.createSemaphore(engine, device.getLogicalDevice());
         }
 
-        VKERegistries.PIPELINES.makeVkPipelines(engine, device);
+        RenderPipelines.init();
         Samplers.init(device);
+
+        VKERegistries.PIPELINES.makeVkPipelines(engine, device);
     }
 
     public FrameData startFrame() {
@@ -156,9 +160,10 @@ public class VulkanRenderer extends Service {
 
     @Override
     protected List<String> dependencies() {
-        return List.of(Services.SHADER_COMPILER);
+        return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER);
     }
 
+    @Override
     public VulkanRenderDevice getDevice() {
         return this.device;
     }

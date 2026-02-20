@@ -10,6 +10,7 @@ import com.vke.core.vkz.types.VkzName;
 import com.vke.utils.collection.ArrayIter;
 import com.vke.utils.collection.IdxArrayIter;
 import com.vke.utils.exception.LoadException;
+import com.vke.utils.iter.Iter;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -44,16 +45,16 @@ public class VkzListOnlyDirLayer implements VkzDirectoryHandle {
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
+    public Iter<VkzFileHandle> iterateFiles() {
         Iterator<Integer> indices = Arrays.stream(entries.elements())
                 .map(VkzEntry::getChunkOffset)
                 .iterator();
-        return new IdxArrayIter<>(archive.files(), indices);
+        return Iter.of(new IdxArrayIter<>(archive.files(), indices));
     }
 
     @Override
-    public Iterator<VkzDirectoryHandle> iterateDirectories() {
-        return new ArrayIter<>(subLayers);
+    public Iter<VkzDirectoryHandle> iterateDirectories() {
+        return Iter.of(subLayers);
     }
 
     @Override

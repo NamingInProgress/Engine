@@ -1,9 +1,22 @@
 package com.vke.utils;
 
+import com.vke.utils.iter.Iter;
+import com.vke.utils.iter.helpers.Option;
+
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 public class FileUtils {
 
@@ -59,4 +72,75 @@ public class FileUtils {
         };
     }
 
+    public static Iter<WalkedFile> getRelativePaths(String folder, int maxDepth) {
+        try {
+            URL url = ClassLoader.getSystemResource(folder);
+            if (url == null)
+                return Iter.of();
+
+            return switch (url.getProtocol()) {
+                case "file" -> listFromFileSystem(url, maxDepth);
+                case "jar"  -> listFromJar(url, maxDepth);
+                default     -> Iter.of();
+            };
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Iter<WalkedFile> listFromFileSystem(URL url, int maxDepth) throws IOException, URISyntaxException {
+        Path root = Paths.get(url.toURI());
+
+        Stream<Path> stream = Files.walk(root, maxDepth);
+        return Iter.of(stream)
+                    .filter(p -> !p.equals(root))
+                    .map(p -> {
+                        String path = root.relativize(p).toString().replace('\\', '/');
+                        return new WalkedFile(path, Files.isRegularFile(p));
+                    })
+                    .finisher(stream::close);
+    }
+
+    public static Iter<WalkedFile> listFromJar(URL url, int maxDepth) throws IOException {
+        String path = url.getPath();
+        String jarPath = path.substring(5, path.indexOf("!"));
+        String rootEntry = path.substring(path.indexOf("!") + 2);
+
+        if (!rootEntry.endsWith("/")) {
+            rootEntry += "/";
+        }
+
+        JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
+
+        Enumeration<JarEntry> entries = jar.entries();
+
+        String finalRootEntry = rootEntry;
+        return Iter.of(entries.asIterator())
+                .filterMap(jarEntry -> {
+                    String name = jarEntry.getName();
+
+                    if (!name.startsWith(finalRootEntry)) {
+                        return Option.none();
+                    }
+
+                    String relative = name.substring(finalRootEntry.length());
+
+                    if (relative.isEmpty()) {
+                        return Option.none();
+                    }
+
+                    int depth = relative.split("/").length;
+
+                    if (depth > maxDepth) {
+                        return Option.none();
+                    }
+
+                    return Option.some(
+                            new WalkedFile(relative, !jarEntry.isDirectory())
+                    );
+                })
+                .faultyFinisher(jar::close);
+    }
+
+    public record WalkedFile(String name, boolean isFile) {}
 }

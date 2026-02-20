@@ -2,6 +2,7 @@ package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import com.vke.utils.Pair;
+import com.vke.utils.fi.FaultyRunnable;
 import com.vke.utils.iter.helpers.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,6 +47,14 @@ public interface Iter<T> extends Iterable<T> {
 
     default Iter<T> filter(Predicate<T> p) {
         return new Filter<>(this, p);
+    }
+
+    default Iter<T> finisher(Runnable p) {
+        return new Finisher<>(this, p);
+    }
+
+    default Iter<T> faultyFinisher(FaultyRunnable p) {
+        return new FaultyFinisher<>(this, p);
     }
 
     default <U> Iter<U> filterMap(Function<T, Option<U>> f) {

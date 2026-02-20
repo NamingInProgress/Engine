@@ -1,5 +1,6 @@
 package com.vke.core.event;
 
+import com.vke.api.event.CancellableEvent;
 import com.vke.api.event.Event;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
@@ -48,7 +49,7 @@ public class EventBus extends Service implements com.vke.api.event.EventBus {
     }
 
     @Override
-    public void fire(Event event) {
+    public boolean fire(Event event) {
         handlers.getOrDefault(event.getClass(), new ArrayList<>()).forEach(handler -> {
             try {
                 handler.methodHandle().invoke(handler.instance(), event);
@@ -56,6 +57,8 @@ public class EventBus extends Service implements com.vke.api.event.EventBus {
                 engine.throwException(e, "EventBus#fire");
             }
         });
+
+        return !(event instanceof CancellableEvent ce) || !ce.isCancelled();
     }
 
     @Override

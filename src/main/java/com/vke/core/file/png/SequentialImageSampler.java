@@ -6,9 +6,9 @@ import com.vke.core.file.zlib.ZlibDecompressor;
 import java.io.IOException;
 
 public class SequentialImageSampler {
-    public static PixelOutput sample(PngInfo info, ZlibDecompressor idat, int[][] palette) throws IOException {
+    public static Pixels sample(PngInfo info, ZlibDecompressor idat, int[][] palette) throws IOException {
         byte[] samples = unfilterIdatDataSequential(info, idat);
-        PixelOutput output = new PixelOutput(info);
+        Pixels output = new Pixels(info);
         readSamples(info, output, samples, palette);
         return output;
     }
@@ -38,7 +38,7 @@ public class SequentialImageSampler {
         return imageData;
     }
 
-    public static void readSamples(PngInfo info, PixelOutput output, byte[] samples, int[][] palette) {
+    public static void readSamples(PngInfo info, Pixels output, byte[] samples, int[][] palette) {
         int cursor = 0;
         int size = info.width * info.height;
 

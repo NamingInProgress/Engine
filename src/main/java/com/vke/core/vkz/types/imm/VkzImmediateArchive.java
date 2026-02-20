@@ -13,6 +13,7 @@ import com.vke.core.vkz.VkzPath;
 import com.vke.core.vkz.types.VkzArray;
 import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
+import com.vke.utils.iter.Iter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -133,8 +134,8 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
-        return new VkzFileIter(fileChunks);
+    public Iter<VkzFileHandle> iterateFiles() {
+        return Iter.of(new VkzFileIter(fileChunks));
     }
 
     @Override

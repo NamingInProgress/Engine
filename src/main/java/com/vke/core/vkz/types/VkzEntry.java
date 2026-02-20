@@ -7,7 +7,7 @@ import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
 
 public class VkzEntry implements Serializer<VkzEntry> {
-    static VkzEntry SERIALIZER = new VkzEntry(0);
+    public static VkzEntry SERIALIZER = new VkzEntry(0);
 
     private int chunkOffset;
 

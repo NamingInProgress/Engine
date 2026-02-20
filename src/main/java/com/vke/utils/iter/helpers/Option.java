@@ -22,6 +22,11 @@ public class Option<T> {
         return new Option<>(null, false);
     }
 
+    public static <T> Option<T> useIf(boolean condition, Supplier<T> value) {
+        if (condition) return Option.some(value.get());
+        return Option.none();
+    }
+
     public boolean isSome() {
         return some;
     }

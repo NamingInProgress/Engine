@@ -7,10 +7,10 @@ import com.vke.utils.Identifier;
 
 public class ServicesRegistry extends VKERegistry.String<Service> {
 
-    public static final VKERegistry.String<ServiceProvider<? extends Service>> PROVIDERS = new VKERegistry.String<>(new Identifier("vke", "service_providers"));
+    public static final VKERegistry.String<ServiceProvider<? extends Service>> PROVIDERS = new VKERegistry.String<>(new Identifier("service_providers"));
 
     public ServicesRegistry() {
-        super(new Identifier("vke", "service_cache"));
+        super(new Identifier("service_cache"));
     }
 
     public void register(java.lang.String k, ServiceProvider<?> provider) {

@@ -10,6 +10,7 @@ import com.vke.core.vkz.types.VkzEntry;
 import com.vke.core.vkz.types.VkzName;
 import com.vke.utils.exception.LoadException;
 import com.vke.utils.exception.SaveException;
+import com.vke.utils.iter.Iter;
 
 import java.util.Iterator;
 
@@ -79,15 +80,15 @@ public class VkzImmediateDirLayer implements Serializer<VkzImmediateDirLayer>, V
     }
 
     @Override
-    public Iterator<VkzFileHandle> iterateFiles() {
+    public Iter<VkzFileHandle> iterateFiles() {
         if (arrayRef == null) return null;
 
-        return new VkzDirFilesIter();
+        return Iter.of(new VkzDirFilesIter());
     }
 
     @Override
-    public Iterator<VkzDirectoryHandle> iterateDirectories() {
-        return new VkzDirDirsIter();
+    public Iter<VkzDirectoryHandle> iterateDirectories() {
+        return Iter.of(new VkzDirDirsIter());
     }
 
     @Override

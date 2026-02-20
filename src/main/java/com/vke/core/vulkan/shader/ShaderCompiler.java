@@ -9,6 +9,7 @@ import com.vke.api.vkz.VkzEditor;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services.Services;
+import com.vke.core.vkz.Vkz;
 import com.vke.utils.FileUtils;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
@@ -33,12 +34,15 @@ public class ShaderCompiler extends Service {
     private final long compiler;
     private final AutoHeapAllocator alloc;
     private final VKEngine engine;
+    private final Vkz vkz;
 
     public ShaderCompiler(VKEngine engine) {
         super(Services.SHADER_COMPILER);
         this.engine = engine;
-        compiler = Shaderc.shaderc_compiler_initialize();
-        alloc = new AutoHeapAllocator();
+        this.compiler = Shaderc.shaderc_compiler_initialize();
+        this.alloc = new AutoHeapAllocator();
+        this.vkz = engine.<Vkz>service(Services.VKZ);
+
         loadCacheFromArchive();
     }
 
@@ -82,7 +86,7 @@ public class ShaderCompiler extends Service {
             Path archivePath = Path.of(cacheFolder + "/shaders.vkz");
             if (!archivePath.toFile().exists()) return;
 
-            VkzArchive archive = VkzArchive.open(new FileInputStream(archivePath.toFile()), ArchiveType.InflateAll);
+            VkzArchive archive = vkz.open(new FileInputStream(archivePath.toFile()), ArchiveType.InflateAll);
 
             Version ver = Version.fromString(Utils.readStringFromInputStream(archive.file("CACHE_VERSION.txt").getInputStream()));
             if (!ver.equals(engine.getAppVersion())) {
@@ -90,7 +94,7 @@ public class ShaderCompiler extends Service {
                 return;
             }
 
-            archive.iterateFiles().forEachRemaining((f) -> {
+            archive.iterateFiles().forEach((f) -> {
                 try {
                     CACHE.put(f.getName(), alloc.bytes(f.getInputStream().readAllBytes()).getHeapObject());
                 } catch (IOException e) {
@@ -104,7 +108,7 @@ public class ShaderCompiler extends Service {
 
     public void dumpCacheToArchive() {
         try {
-            VkzArchive archive = VkzArchive.createNew();
+            VkzArchive archive = vkz.createNew();
             Path cacheFolder = FileUtils.getCacheFolder(engine.getApp().getName());
             Path archivePath = Path.of(cacheFolder + "/shaders.vkz");
             if (!archivePath.toFile().exists()) Files.createFile(archivePath);
@@ -145,7 +149,7 @@ public class ShaderCompiler extends Service {
 
     @Override
     public List<String> dependencies() {
-        return Collections.emptyList();
+        return List.of(Services.VKZ);
     }
 
 }

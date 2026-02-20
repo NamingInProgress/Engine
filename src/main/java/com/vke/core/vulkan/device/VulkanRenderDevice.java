@@ -14,6 +14,7 @@ import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.VKUtils;
@@ -210,13 +211,8 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public VulkanTexture createTexture(Identifier id, Texture.TextureDesc info) {
-        try {
-            return new VulkanTexture(this, id.asInputStream(), info);
-        } catch (IOException e) {
-            engine.throwException(e, HERE + "/createTexture");
-        }
-        return null;
+    public VulkanTexture createTexture(Pixels pixels, Texture.TextureDesc info) {
+        return new VulkanTexture(this, pixels, info);
     }
 
     @Override

@@ -21,7 +21,7 @@ public class PngFile {
     };
 
     private final PngInfo pngInfo;
-    private final PixelOutput output;
+    private final Pixels output;
 
     public PngFile(InputStream inputStream) throws IOException {
         if (!verifySignature(inputStream)) {
@@ -65,7 +65,7 @@ public class PngFile {
         }
     }
 
-    public PixelOutput getOutput() {
+    public Pixels getOutput() {
         return output;
     }
 

@@ -9,7 +9,7 @@ import com.vke.utils.exception.SaveException;
 import java.nio.charset.StandardCharsets;
 
 public class VkzName implements Serializer<VkzName> {
-    static VkzName SERIALIZER = new VkzName("");
+    public static VkzName SERIALIZER = new VkzName("");
 
     private String name;
 

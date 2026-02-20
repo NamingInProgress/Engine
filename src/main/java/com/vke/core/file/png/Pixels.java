@@ -1,17 +1,16 @@
 package com.vke.core.file.png;
 
 import com.vke.core.memory.AutoHeapAllocator;
-import org.lwjgl.system.MemoryStack;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class PixelOutput {
+public class Pixels {
     private final PngInfo info;
     private final int[] pixels;
 
-    public PixelOutput(PngInfo info) {
+    public Pixels(PngInfo info) {
         this.info = info;
         this.pixels = new int[info.width * info.height];
     }

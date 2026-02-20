@@ -10,7 +10,7 @@ import com.vke.core.services.Services;
 public class EventBusTest implements EventListener {
 
     public static void main(String[] args) {
-        EngineCreateInfo createInfo = new EngineCreateInfo();
+        EngineCreateInfo createInfo = new EngineCreateInfo("idfk", "vke");
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 

@@ -12,6 +12,7 @@ import com.vke.api.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;
+import com.vke.core.file.png.Pixels;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
@@ -26,7 +27,7 @@ public interface RenderDevice extends Disposable {
 
     /** MEMORY ALLOC **/
     <T extends Buffer> T createBuffer(Buffer.Description info);
-    <T extends Texture> T createTexture(Identifier id, Texture.TextureDesc info);
+    <T extends Texture> T createTexture(Pixels pixels, Texture.TextureDesc info);
     <T extends Sampler> T createSampler(Sampler.Description info);
     default ShaderProgram createShader(Identifier vertex)                      {   return new ShaderProgram(vertex);            }
     default ShaderProgram createShader(Identifier vertex, Identifier fragment) {   return new ShaderProgram(vertex, fragment);  }

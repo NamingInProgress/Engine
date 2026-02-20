@@ -7,6 +7,7 @@ import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.VKEAssetManager;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.premade.MeshBuffer;
 import com.vke.core.vulkan.Scissor;
@@ -97,9 +98,17 @@ public class TestApp extends App {
         timer = new AppTimer();
 
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
+        VKEAssetManager R = engine.service(Services.ASSET_MANAGER);
+        R.swapBundle(engine.id("scene1"));
 
-        scaryVk = renderer.getDevice().createTexture(new Identifier("scaryvulkan.png"), Texture.TextureDesc.albedo2D(1920, 1080));
-        VKUtils.setDebugName(renderer.getDevice().getLogicalDevice(), "SCARY_VULKAN", scaryVk.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+        try {
+            scaryVk = (VulkanTexture) R.getAsset(engine.id("scaryvulkan.png")).acquire(engine);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        //scaryVk = renderer.getDevice().createTexture(new Identifier("scaryvulkan.png"), Texture.TextureDesc.albedo2D(1920, 1080));
+        //VKUtils.setDebugName(renderer.getDevice().getLogicalDevice(), "SCARY_VULKAN", scaryVk.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
 
         TestPipelines.IDK.setSampler("tex", Samplers.LINEAR, scaryVk);
     }
@@ -171,7 +180,7 @@ public class TestApp extends App {
 
     @Override
     public void free() {
-        scaryVk.free();
+        //scaryVk.free();
         mesh.free();
         mesh2.free();
     }

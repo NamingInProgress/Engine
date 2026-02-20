@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Big5" ?>
+<bundle>
+    <assets>
+        //strings ints bools...
+    </assets>
+    <descriptions>
+        <desc for="test.png">
+            <mipmap value="4"/>
+        </desc>
+    </descriptions>
+</bundle>

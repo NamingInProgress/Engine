@@ -16,7 +16,7 @@ public class Adam7ImageSampler {
             {0, 1, 1, 2}
     };
 
-    public static PixelOutput sample(PngInfo info, ZlibDecompressor decompressor, int[][] palette) throws IOException {
+    public static Pixels sample(PngInfo info, ZlibDecompressor decompressor, int[][] palette) throws IOException {
         decompressor.parseHeader();
 
         byte[] samples = new byte[info.width * info.height * info.getPixelStride()];
@@ -63,7 +63,7 @@ public class Adam7ImageSampler {
             }
         }
 
-        PixelOutput output = new PixelOutput(info);
+        Pixels output = new Pixels(info);
         SequentialImageSampler.readSamples(info, output, samples, palette);
         return output;
     }

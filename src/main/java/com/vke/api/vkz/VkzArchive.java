@@ -4,6 +4,7 @@ import com.vke.api.serializer.Serializer;
 import com.vke.core.vkz.VkzObjLoader;
 import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 import com.vke.core.vkz.types.lo.VkzListOnlyArchive;
+import com.vke.utils.iter.Iter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,36 +15,13 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public interface VkzArchive {
-    static VkzArchive open(InputStream stream, ArchiveType strategy) throws VkzOpenException {
-        VkzObjLoader loader = new VkzObjLoader(stream, Integer.MAX_VALUE, 0);
-
-        VkzArchive archive = switch (strategy) {
-            case LazyFiles -> throw new VkzOpenException("Currently no support for LazyFiles sadly :(");
-            case InflateAll -> Serializer.loadObject(VkzImmediateArchive.class, loader, false);
-            case ListOnly -> new VkzListOnlyArchive(loader);
-            case null -> throw new VkzOpenException("Strategy " + strategy + " is illegal!");
-        };
-
-        try {
-            stream.close();
-        } catch (IOException e) {
-            throw new VkzOpenException(e);
-        }
-
-        return archive;
-    }
-
-    static VkzArchive createNew() {
-        return VkzImmediateArchive.empty();
-    }
-
     VkzFileHandle file(CharSequence path);
 
     VkzDirectoryHandle directory(CharSequence path);
 
     VkzDirectoryHandle root();
 
-    Iterator<VkzFileHandle> iterateFiles();
+    Iter<VkzFileHandle> iterateFiles();
 
     default void writeOut(OutputStream stream) throws IOException {
         writeOut(stream, ProgressReport.Listener.silent());
@@ -66,8 +44,8 @@ public interface VkzArchive {
             Frame(VkzDirectoryHandle dir, int depth) {
                 this.dir = dir;
                 this.depth = depth;
-                this.dirs = dir.iterateDirectories();
-                this.files = dir.iterateFiles();
+                this.dirs = dir.iterateDirectories().iterator();
+                this.files = dir.iterateFiles().iterator();
             }
         }
 

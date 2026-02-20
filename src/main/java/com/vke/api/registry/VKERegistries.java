@@ -12,8 +12,8 @@ public class VKERegistries {
 
     private static final Map<String, VKERegistrate> REGISTRATES = new LinkedHashMap<>();
 
-    public static final VKERegistry<Class<?>, Serializer<?>> SERIALIZERS = new SerializersRegistry(new Identifier("vke", "serializers"));
-    public static final PipelinesRegistry PIPELINES = new PipelinesRegistry(new Identifier("vke", "pipelines"));
+    public static final VKERegistry<Class<?>, Serializer<?>> SERIALIZERS = new SerializersRegistry(new Identifier("serializers"));
+    public static final PipelinesRegistry PIPELINES = new PipelinesRegistry(new Identifier("pipelines"));
     public static final ServicesRegistry SERVICES = new ServicesRegistry();
 
     public static VKERegistrate get(String addonId) {

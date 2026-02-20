@@ -1,11 +1,15 @@
 package com.vke.api.event;
 
 import java.lang.invoke.MethodHandle;
+import java.util.function.Consumer;
 
 public interface EventBus {
 
     void register(EventListener instance);
-    void fire(Event event);
+    /**
+     * @return true when success, false when canceled
+     */
+    boolean fire(Event event);
 
     record CallableHandler(EventListener instance, MethodHandle methodHandle) {}
 

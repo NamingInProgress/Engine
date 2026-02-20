@@ -3,6 +3,9 @@ package com.vke.core.event.events.lifetime;
 import com.vke.api.app.App;
 import com.vke.api.event.Event;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AppLifecycleEvents {
 
     public abstract static class AppEvent extends Event {
@@ -19,9 +22,18 @@ public class AppLifecycleEvents {
     }
 
     public static class PreLoad extends AppEvent {
+        private final List<String> plugins;
+
         public PreLoad(App app) {
             super(app);
+            this.plugins = new ArrayList<>();
         }
+
+        public void addPlugin(String pluginName) {
+            this.plugins.add(pluginName);
+        }
+
+        public List<String> getPlugins() { return this.plugins; }
     }
 
     public static class PostLoad extends AppEvent {

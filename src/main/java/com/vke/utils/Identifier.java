@@ -1,5 +1,9 @@
 package com.vke.utils;
 
+import com.vke.core.VKEngine;
+import com.vke.utils.iter.Iter;
+import com.vke.utils.iter.helpers.Option;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -10,7 +14,7 @@ public class Identifier {
     private final String combined;
 
     public Identifier(String path) {
-        this.namespace = "vke";
+        this.namespace = VKEngine.VKE_NAMESPACE;
         this.path = path;
         this.combined = namespace.concat("/").concat(path);
     }
@@ -34,6 +38,26 @@ public class Identifier {
         }
     }
 
+    public Identifier extend(String additionalPath) {
+        return new Identifier(this.namespace, this.path + "/" + additionalPath);
+    }
+
+    public Iter<Identifier> walkFiles() {
+        return walkFiles(Integer.MAX_VALUE);
+    }
+
+    public Iter<Identifier> walkDirectories() {
+        return walkDirectories(Integer.MAX_VALUE);
+    }
+
+    public Iter<Identifier> walkFiles(int maxDepth) {
+        return FileUtils.getRelativePaths(combined, maxDepth).filterMap(wf -> Option.useIf(wf.isFile(), () -> this.extend(wf.name())));
+    }
+
+    public Iter<Identifier> walkDirectories(int maxDepth) {
+        return FileUtils.getRelativePaths(combined, maxDepth).filterMap(wf -> Option.useIf(!wf.isFile(), () -> this.extend(wf.name())));
+    }
+
     public String getNamespace() { return this.namespace; }
     public String getPath() { return this.path; }
 
@@ -43,9 +67,31 @@ public class Identifier {
         return s;
     }
 
+    public boolean existsFile() {
+        ClassLoader cl = getClass().getClassLoader();
+        return cl.getResource(combined) != null;
+    }
+
+    public String getExtension() {
+        return path.substring(path.lastIndexOf('.') + 1);
+    }
+
+    public String getExtensionLower() {
+        return getExtension().toLowerCase();
+    }
+
+    public Identifier strip() {
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            return new Identifier(namespace, path.substring(lastSlash + 1));
+        }
+        //new instance to not confuse any usages
+        return new Identifier(namespace, path);
+    }
+
     @Override
     public String toString() {
-        return namespace + ":" + path;
+        return combined;
     }
 
     public String toSpecialVkzFormatCuzItsBad() { return (namespace + "_" + path).replaceAll("/", "_"); }
