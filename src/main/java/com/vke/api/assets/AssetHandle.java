@@ -13,6 +13,7 @@ public interface AssetHandle<T> extends Disposable {
         String,
         Bool,
         Number,
+        Pipeline,
         Unresolved
     }
 

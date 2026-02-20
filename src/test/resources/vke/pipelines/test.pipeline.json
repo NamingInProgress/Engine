@@ -5,5 +5,16 @@
     {
       "blendEnable": false
     }
+  ],
+  "shader_layout": "vke:shaders/test.layout.json",
+  "shaders": [
+    {
+      "type": "vert",
+      "identifier": "vke:shaders/test.vsh"
+    },
+    {
+      "type": "frag",
+      "identifier": "vke:shaders/test.fsh"
+    }
   ]
 }
