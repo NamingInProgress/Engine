@@ -14,6 +14,8 @@ public class RenderPipelines {
             .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
             .register();
 
+    public static final PipelineAsset MAIN = R.pipelines.reserve("myMainPipeline");
+
     public static void init() {}
 
 }

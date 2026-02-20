@@ -45,6 +45,10 @@ public class VKEAssetManager extends Service implements AssetManager {
         this.mLoadedBundle = b;
     }
 
+    public void swapBundle(String id) {
+        swapBundle(mEngine.id(id));
+    }
+
     public void addBundle(Identifier id, Bundle bundle) {
         this.mAllBundles.put(id, bundle);
     }
@@ -63,6 +67,11 @@ public class VKEAssetManager extends Service implements AssetManager {
             tried = mGlobalBundleWhichImplementsAssetManager.getAsset(id);
         }
         return tried;
+    }
+
+    @Override
+    public <T> AssetHandle<T> getAsset(String path) {
+        return getAsset(mEngine.id(path));
     }
 
     @Override

@@ -9,7 +9,10 @@ import java.io.IOException;
 
 public interface AssetHandle<T> extends Disposable {
     enum Type {
-        Texture
+        Texture,
+        String,
+        Bool,
+        Number
     }
 
     Type getType();
@@ -21,10 +24,10 @@ public interface AssetHandle<T> extends Disposable {
     T acquire(VKEngine engine) throws IOException;
 
     /**
-     * Tries to get this asset and throws an exception if it's not available.
+     * Tries to get this asset and returns null if it's not available.
      * @return The asset
      */
-    T get() throws AssetUnavailableException;
+    T get();
 
     boolean isAvailable();
 

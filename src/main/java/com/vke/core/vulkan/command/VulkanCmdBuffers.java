@@ -9,6 +9,7 @@ import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
+import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorSet;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.pipeline.PipelineLayout;
@@ -209,6 +210,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             VK14.vkCmdSetScissor(this.getBuffer(), 0, scissorBuffer);
         }
+    }
+
+    public void bindIndexBuffer(GpuBuffer buffer, int offset) {
+        VK14.vkCmdBindIndexBuffer(this.getBuffer(), buffer.getBuffer(), offset, VK14.VK_INDEX_TYPE_UINT32);
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.vke.utils.Identifier;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterInputStream;
 

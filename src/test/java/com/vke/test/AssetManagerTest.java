@@ -1,9 +1,14 @@
 package com.vke.test;
 
+import com.vke.api.assets.AssetManager;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.VKEAssetManager;
+import com.vke.core.services.Services;
 import com.vke.utils.Identifier;
+
+import java.io.IOException;
 
 public class AssetManagerTest {
 
@@ -14,11 +19,10 @@ public class AssetManagerTest {
 
         VKEngine engine = new VKEngine(createInfo);
 
-        new Identifier("assets").walkFiles().forEach(System.out::println);
-        System.out.println("h");
-        new Identifier("assets").walkDirectories(1).forEach(System.out::println);
+        VKEAssetManager R = engine.service(Services.ASSET_MANAGER);
+        R.swapBundle("scene1");
 
-        //AssetUtils.getBundle(engine, new Identifier("assets"));
+        System.out.println(R.getAsset("aNum").get());
     }
 
 }

@@ -29,6 +29,7 @@ public final class Bundle implements AssetManager {
         return (AssetHandle<T>) assets.get(id);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> AssetHandle<T> getAsset(String name) {
         return (AssetHandle<T>) assets.get(engine.id(name));

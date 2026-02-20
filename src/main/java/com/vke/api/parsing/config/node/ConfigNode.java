@@ -42,12 +42,44 @@ public interface ConfigNode {
         return Configs.getArray(this, key);
     }
 
+    default String getNodeName() {
+        if (this instanceof NamedConfigNode named) {
+            return named.getName();
+        }
+        return null;
+    }
+
     default boolean hasField(String key) {
         if (this instanceof ConfigObjectNode objectNode) {
             return objectNode.getNode(key) != null;
         }
         return false;
     }
+
+    default ConfigObjectNode asObject() {
+        if (this instanceof ConfigObjectNode valueNode) return valueNode;
+        return null;
+    }
+
+    default ConfigArrayNode asArray() {
+        if (this instanceof ConfigArrayNode valueNode) return valueNode;
+        return null;
+    }
+
+    default String asString() {
+        if (this instanceof ConfigValueNode valueNode) return valueNode.getValue();
+        return null;
+    }
+    default float asNumber() {
+        if (this instanceof ConfigNumberNode valueNode) return valueNode.getValue();
+        return 0;
+    }
+
+    default boolean asBoolean() {
+        if (this instanceof ConfigBooleanNode valueNode) return valueNode.getValue();
+        return false;
+    }
+
 
     enum Type {
         Object,

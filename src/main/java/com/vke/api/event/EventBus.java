@@ -1,7 +1,6 @@
 package com.vke.api.event;
 
 import java.lang.invoke.MethodHandle;
-import java.util.function.Consumer;
 
 public interface EventBus {
 

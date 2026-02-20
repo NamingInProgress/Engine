@@ -4,23 +4,27 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Bundle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.node.*;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.handles.primitives.BoolAssetHandle;
+import com.vke.core.assets.handles.primitives.NumberAssetHandle;
+import com.vke.core.assets.handles.primitives.StringAssetHandle;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class AssetUtils {
 
     public static Bundle getBundle(VKEngine engine, Identifier ident) {
         Bundle bundle = new Bundle(engine);
         Identifier bundleXMLIdent = ident.extend("bundle.xml");
-        if (!bundleXMLIdent.existsFile()) {
-            bundleXMLIdent = ident.extend("bundle.json");
-        }
 
         if (bundleXMLIdent.existsFile()) {
             try {
@@ -32,7 +36,7 @@ public class AssetUtils {
                 parser.setSource(Utils.readCharsFromInputStream(xmlStream));
                 ConfigDocument document = parser.parse(ConfigParser.ATTRIBS_TO_FIELDS | ConfigParser.PARSE_LITERALS);
 
-                readBundleXml(bundle, document);
+                readBundleXml(engine, bundle, document);
             } catch (ConfigParser.ConfigParseException | IOException e) {
                 engine.throwException(e, "BundleXML");
                 System.exit(67);
@@ -75,7 +79,23 @@ public class AssetUtils {
         }
     }
 
-    private static void readBundleXml(Bundle bundle, ConfigDocument xml) {
+    private static void readBundleXml(VKEngine engine, Bundle target, ConfigDocument xml) {
+        ConfigNode root = xml.getRoot();
+        ConfigObjectNode bundle = root.getObject("bundle");
+        ConfigArrayNode assets = bundle.getArray("assets");
 
+        for (ConfigNode v : assets.values()) {
+            ConfigArrayNode asset = v.asArray();
+            Identifier id = engine.id(asset.getString("name"));
+            ConfigNode value = asset.values()[1];
+
+            switch (asset.getNodeName()) {
+                case "bool" -> target.addAsset(id, new BoolAssetHandle(value.asBoolean()));
+                case "string" -> target.addAsset(id, new StringAssetHandle(value.asString()));
+                case "number" -> target.addAsset(id, new NumberAssetHandle(value.asNumber()));
+                default -> throw new IllegalStateException("Unknown asset type: " + asset.getNodeName());
+            }
+        }
     }
+
 }

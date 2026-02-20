@@ -5,6 +5,7 @@ import com.vke.utils.Identifier;
 
 public interface AssetManager extends Disposable {
     <T> AssetHandle<T> getAsset(Identifier id);
+    <T> AssetHandle<T> getAsset(String path);
 
     default AssetHandle.Type getTypeOfAsset(Identifier id) {
         AssetHandle<?> handle = getAsset(id);

@@ -12,6 +12,7 @@ import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.services.ServiceManager;
 import com.vke.core.services.profiler.DummyProfiler;
 import com.vke.core.services.profiler.Profiler;
 import com.vke.core.vulkan.VulkanRenderer;
@@ -28,22 +29,22 @@ import org.lwjgl.glfw.GLFW;
 import java.util.*;
 
 public class VKEngine {
-    public static final String VKE_NAMESPACE = "vke";
 
+    public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
+
+    public static Profiler profiler;
 
     private final Logger logger;
     private final Logger soutLogger;
 
-    private Window window;
     private final ServiceCreateContext scc;
     private final EngineCreateInfo createInfo;
-    private final Set<Service> loadedServices = new HashSet<>();
+    private final ServiceManager serviceManager;
 
+    private Window window;
     private App app;
     public EventBus EVENT_BUS;
-
-    public static Profiler profiler;
 
     private final List<String> namespaces;
 
@@ -57,7 +58,7 @@ public class VKEngine {
         this.logger = LoggerFactory.get(VKEngine.class.getName());
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
         this.scc = new ServiceCreateContext(this, createInfo);
-        Services.init();
+        this.serviceManager = new ServiceManager(scc);
 
         SOUT.redirect(soutLogger);
 
@@ -65,26 +66,8 @@ public class VKEngine {
         EVENT_BUS = service(Services.EVENT_BUS);
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends Service> T service(String key) {
-        Service s = VKERegistries.SERVICES.get(key, scc);
-        if (s == null) {
-            logger.error("Tried to access service \"%s\", but it wasn't registered!", key);
-            return null;
-        }
-
-        if (loadedServices.contains(s)) return (T) s;
-
-        loadedServices.add(s);
-        s.getDependencies().forEach(this::service);
-
-        EVENT_BUS.fire(new ServiceLoadEvent(key, s));
-
-        return (T) s;
-    }
-
-    public boolean isServiceLoaded(String key) {
-        return loadedServices.stream().anyMatch(service -> service.getId().equals(key));
+        return this.serviceManager.service(key);
     }
 
     public void start(App app) {
@@ -139,10 +122,11 @@ public class VKEngine {
         EVENT_BUS.fire(new AppLifecycleEvents.PreFree(app));
         app.free();
         EVENT_BUS.fire(new AppLifecycleEvents.PostFree(app));
+
+        serviceManager.free();
         window.close();
-        // TODO: Free in order type shit
-        loadedServices.forEach(Disposable::free);
     }
+
     public Window getWindow() {
         return this.window;
     }
@@ -174,4 +158,6 @@ public class VKEngine {
     public EngineCreateInfo.RendererType rendererType() {
         return createInfo.rendererType;
     }
+
+    public ServiceManager getServiceManager() { return this.serviceManager; }
 }

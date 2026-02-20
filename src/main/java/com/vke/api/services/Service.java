@@ -4,11 +4,13 @@ import java.util.List;
 import com.vke.utils.Disposable;
 
 public abstract class Service implements Disposable {
+    private boolean hasBeenFreed;
     protected String id;
     private List<String> depCache;
 
     public Service(String id) {
         this.id = id;
+        this.hasBeenFreed = false;
     }
 
     public String getId() { return this.id; }
@@ -29,5 +31,12 @@ public abstract class Service implements Disposable {
     public List<String> getDependencies() {
         if (depCache == null) depCache = dependencies();
         return depCache;
+    }
+
+    public void freeSafe() {
+        if (!hasBeenFreed) {
+            free();
+            hasBeenFreed = true;
+        }
     }
 }

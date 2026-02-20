@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="Big5" ?>
 <bundle>
     <assets>
-        //strings ints bools...
+        <bool name="hello">true</bool>
+        <string name="something">Something</string>
+        <number name="aNum">3.14159</number>
     </assets>
     <descriptions>
         <desc for="test.png">

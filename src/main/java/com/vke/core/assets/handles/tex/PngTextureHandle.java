@@ -49,8 +49,7 @@ public class PngTextureHandle implements AssetHandle<Texture> {
     }
 
     @Override
-    public Texture get() throws AssetUnavailableException {
-        if (texture == null) throw new AssetUnavailableException(id);
+    public Texture get() {
         return texture;
     }
 
