@@ -12,7 +12,8 @@ public interface AssetHandle<T> extends Disposable {
         Texture,
         String,
         Bool,
-        Number
+        Number,
+        Unresolved
     }
 
     Type getType();

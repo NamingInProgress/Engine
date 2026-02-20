@@ -2,13 +2,10 @@ package com.vke;
 
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
-import com.vke.core.logger.*;
-import com.vke.core.services.profiler.Profiler;
-import com.vke.core.services.profiler.ProfilerPrinter;
-import com.vke.utils.AnsiColors;
+import com.vke.core.logger.CoreLogger;
+import com.vke.core.logger.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class Main {
 

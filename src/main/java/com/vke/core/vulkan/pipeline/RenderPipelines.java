@@ -1,5 +1,7 @@
 package com.vke.core.vulkan.pipeline;
 
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.r.R;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
@@ -14,7 +16,7 @@ public class RenderPipelines {
             .withColorAttachment(new RenderPipeline.ColorAttachmentInfo())
             .register();
 
-    public static final PipelineAsset MAIN = R.pipelines.reserve("myMainPipeline");
+    public static final AssetHandle<RenderPipeline> IDK = R.pipelines.get("myMainPipeline");
 
     public static void init() {}
 
