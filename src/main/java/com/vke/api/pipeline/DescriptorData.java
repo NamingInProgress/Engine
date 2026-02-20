@@ -1,4 +1,4 @@
-package com.vke.api.vulkan.descriptors;
+package com.vke.api.pipeline;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectIntHashMap;

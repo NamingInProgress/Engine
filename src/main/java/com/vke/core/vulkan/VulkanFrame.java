@@ -24,7 +24,7 @@ public class VulkanFrame implements Disposable {
 
     public VulkanFrame(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, boolean immediate) {
         pool = new CommandPool(engine, device, immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
-        buffers = new VulkanCmdBuffers(device, swapchain, pool);
+        buffers = new VulkanCmdBuffers(engine, device, swapchain, pool);
 
         setupSyncStructures(engine, device, immediate);
     }

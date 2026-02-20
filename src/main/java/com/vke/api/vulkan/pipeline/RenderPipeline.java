@@ -13,7 +13,7 @@ import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.abstraction.IntEnum;
 import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
-import com.vke.api.vulkan.descriptors.DescriptorData;
+import com.vke.api.pipeline.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
@@ -46,6 +46,7 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         this.builder = builder;
     }
 
+    // setup separate depth and stencil objects (abstract attachment info)
     public void setupGraphicsPipeline(VKEngine engine, VulkanRenderDevice device) {
         if (graphicsPipeline != null) {
             log(LogLevel.WARN, "Remaking graphics pipeline from RenderPipeline, is this a bug?");

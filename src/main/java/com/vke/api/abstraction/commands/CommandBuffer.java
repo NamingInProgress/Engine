@@ -2,8 +2,11 @@ package com.vke.api.abstraction.commands;
 
 import com.vke.api.abstraction.pipeline.ComputePipeline;
 import com.vke.api.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.abstraction.pipeline.Pipeline;
 import com.vke.api.abstraction.sync.Fence;
 import com.vke.api.abstraction.sync.Semaphore;
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.api.abstraction.descriptors.QueueType;
@@ -58,11 +61,11 @@ public interface CommandBuffer extends Disposable {
     void end();
     void reset();
 
-    void bindRenderPipeline(GraphicsPipeline pipeline);
-    void bindComputePipeline(ComputePipeline pipeline);
+    void bindRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline);
+    void bindComputePipeline(AssetHandle<? extends ComputePipeline> pipeline);
 
-    void setPushConstants(GraphicsPipeline pipeline);
-    void setDescriptorSets(GraphicsPipeline pipeline);
+    void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
+    void setDescriptorSets(AssetHandle<? extends Pipeline> pipeline);
 
     void setViewport(Viewport viewport);
     void setScissor(Scissor scissor);

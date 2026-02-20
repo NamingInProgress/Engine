@@ -1,6 +1,6 @@
 package com.vke.api.abstraction.pipeline;
 
-import com.vke.api.vulkan.descriptors.DescriptorData;
+import com.vke.api.pipeline.DescriptorData;
 import com.vke.utils.Disposable;
 
 public interface PipelineLayout extends Disposable {

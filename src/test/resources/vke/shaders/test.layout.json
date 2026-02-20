@@ -16,11 +16,19 @@
       ]
     }
   ],
-  "input": [
+  "vertex_inputs": [
     {
       "binding": 0,
       "layouts": [
 
+      ]
+    }
+  ],
+  "push_constants": [
+    {
+      "name": "pushConstant",
+      "struct": [
+        { "name": "verticesBufferPtr", "type": "ptr" }
       ]
     }
   ]

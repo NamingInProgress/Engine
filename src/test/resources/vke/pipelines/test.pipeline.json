@@ -6,7 +6,6 @@
       "blendEnable": false
     }
   ],
-  "shader_layout": "vke:shaders/test.layout.json",
   "shaders": [
     {
       "type": "vert",
@@ -16,5 +15,40 @@
       "type": "frag",
       "identifier": "vke:shaders/test.fsh"
     }
-  ]
+  ],
+  "shader_layout": {
+    "sets": [
+      {
+        "set": 0,
+        "layouts": [
+          {
+            "type": "UBO",
+            "name": "globals",
+            "stages": [ "frag" ],
+            "struct": [
+              { "name": "fColor", "type": "float4", "auto": true },
+              { "name": "sColor", "type": "float4" },
+              { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
+            ]
+          }
+        ]
+      }
+    ],
+    "vertex_inputs": [
+      {
+        "binding": 0,
+        "struct": [
+          { "name": "pos", "type": "float3" }
+        ]
+      }
+    ],
+    "push_constants": [
+      {
+        "name": "pushConstant",
+        "struct": [
+          { "name": "verticesBufferPtr", "type": "ptr" }
+        ]
+      }
+    ]
+  }
 }

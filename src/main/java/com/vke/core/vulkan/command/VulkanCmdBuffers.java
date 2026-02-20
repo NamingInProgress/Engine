@@ -3,10 +3,13 @@ package com.vke.core.vulkan.command;
 import com.vke.api.abstraction.commands.CommandBuffer;
 import com.vke.api.abstraction.pipeline.ComputePipeline;
 import com.vke.api.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.abstraction.pipeline.Pipeline;
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
@@ -19,6 +22,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.io.IOException;
 import java.nio.LongBuffer;
 
 public class VulkanCmdBuffers implements CommandBuffer {
@@ -27,13 +31,15 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final LogicalDevice device;
     private final VkCommandBuffer vk;
     private final VulkanSwapchain swapchain;
+    private final VKEngine engine;
 
     private boolean recording;
 
-    public VulkanCmdBuffers(LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
+    public VulkanCmdBuffers(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
         this.device = device;
         this.poolHandle = pool.getHandle();
         this.swapchain = swapchain;
+        this.engine = engine;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc(stack)
@@ -138,23 +144,41 @@ public class VulkanCmdBuffers implements CommandBuffer {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    @Override
-    public void bindRenderPipeline(GraphicsPipeline pipeline) {
-        VK14.vkCmdBindPipeline(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, ((RenderPipeline) pipeline).getGraphicsPipeline().getHandle());
+    @Deprecated
+    public RenderPipeline cast(AssetHandle<? extends GraphicsPipeline> pipeline) {
+        try {
+            return ((RenderPipeline) pipeline.acquire(engine));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Deprecated
+    public RenderPipeline castU(AssetHandle<? extends Pipeline> pipeline) {
+        try {
+            return ((RenderPipeline) pipeline.acquire(engine));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void bindComputePipeline(ComputePipeline pipeline) {
+    public void bindRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline) {
+        VK14.vkCmdBindPipeline(this.getBuffer(),
+                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, cast(pipeline).getGraphicsPipeline().getHandle());
+    }
+
+    @Override
+    public void bindComputePipeline(AssetHandle<? extends ComputePipeline> pipeline) {
         throw new RuntimeException("Compute Pipelines are not implemented yet!");
         //VK14.vkCmdBindPipeline(this.getBuffer(),
         //        VK14.VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.getHandle());
     }
 
     @Override
-    public void setPushConstants(GraphicsPipeline pipeline) {
+    public void setPushConstants(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            PipelineLayout layout = (PipelineLayout) pipeline.layout();
+            PipelineLayout layout = (PipelineLayout) castU(pipeline).layout();
             layout.getPushConstants().forEach((k, v) -> {
                 int size = v.getSize(PushConstantsDefinition.ALIGN);
                 AlignedByteBuffer buf = new AlignedByteBuffer(stack.calloc(size), PushConstantsDefinition.ALIGN);
@@ -168,7 +192,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     }
 
     @Override
-    public void setDescriptorSets(GraphicsPipeline pipeline) {
+    public void setDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer sets = stack.longs(
                     ((RenderPipeline) pipeline)
@@ -180,7 +204,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             VK14.vkCmdBindDescriptorSets(this.getBuffer(),
                     VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    ((PipelineLayout) pipeline.layout()).getHandle(),
+                    ((PipelineLayout) castU(pipeline).layout()).getHandle(),
                     0, sets, null);
         }
     }
