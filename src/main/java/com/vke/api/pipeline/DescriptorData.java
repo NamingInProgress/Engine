@@ -2,7 +2,6 @@ package com.vke.api.pipeline;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectIntHashMap;
-import com.carrotsearch.hppc.ObjectLongHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
@@ -18,7 +17,6 @@ import com.vke.utils.Pair;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -138,7 +136,6 @@ public abstract class DescriptorData {
 
         protected Type type;
         protected Shader.Stages stages;
-        protected String name;
         protected Struct struct;
 
         public Entry getEntry(String name) {
@@ -167,83 +164,8 @@ public abstract class DescriptorData {
         }
 
         public Type getType() { return this.type; }
-        public String getName() { return name; }
         public Struct getStruct() { return struct; }
         public Shader.Stages getStages() { return this.stages; }
-    }
-
-    public static abstract class Struct {
-
-        protected final ArrayList<Entry> entries = new ArrayList<>();
-        protected final ObjectLongHashMap<Entry> precedings = new ObjectLongHashMap<>();
-
-        public ArrayList<Entry> getEntries() {
-            return this.entries;
-        }
-
-        public Entry byName(String name) {
-            return entries.stream().filter(c -> c.name.equals(name)).findFirst().orElse(null);
-        }
-
-        public long preceding(String name) {
-            return preceding(byName(name));
-        }
-        
-        public long preceding(Entry e) {
-            if (precedings.containsKey(e)) return precedings.get(e);
-
-            int idx = entries.indexOf(e);
-            
-            long count = 0;
-            for (int i = 0; i < idx; i++) {
-                count += entries.get(i).getSize();
-            }
-
-            precedings.put(e, count);
-            
-            return count;
-        }
-
-        public int sizeof() { return entries.stream().mapToInt(Entry::getSize).sum(); }
-
-    }
-
-    public static abstract class Entry {
-
-        protected String name;
-        protected Type type;
-        protected boolean auto;
-
-        public int getSize() { return type.bytes(); }
-
-        public enum Type {
-
-            MAT4("mat4", 64),
-            FLOAT("float", 4),
-            FLOAT2("float2", 8),
-            FLOAT3("float3", 12),
-            FLOAT4("float4", 16),
-            SAMPLER2D("sampler2D", 0),
-            IMAGE2D("image2D", 0);
-
-            private final String name;
-            private final int bytes;
-
-            Type(String name, int bytes) {
-                this.name = name;
-                this.bytes = bytes;
-            }
-
-            public String getName() { return this.name; }
-
-            public int bytes() { return bytes; }
-
-            public static Type fromString(String name) {
-                return Arrays.stream(Type.values()).filter(c -> c.getName().equals(name)).findFirst().orElse(null);
-            }
-
-        }
-
     }
 
 }

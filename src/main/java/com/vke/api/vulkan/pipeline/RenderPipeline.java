@@ -8,6 +8,7 @@ import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.api.pipeline.Entry;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.ImageLayout;
@@ -152,7 +153,7 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         return (T) getGraphicsPipeline().getPipelineLayout().getPushConst(key);
     }
 
-    public DescriptorData.Entry getDescriptorEntry(String key) {
+    public Entry getDescriptorEntry(String key) {
         return getGraphicsPipeline().getDescriptorData().getEntry(key);
     }
 

@@ -1,5 +1,7 @@
 package com.vke.core.vulkan.descriptor;
 
+import com.vke.api.pipeline.Entry;
+import com.vke.api.pipeline.Struct;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.pipeline.DescriptorData;
 import com.vke.core.VKEngine;
@@ -126,10 +128,10 @@ public abstract class DescriptorBinding implements Disposable {
 
         private final MappedBuffer buffer;
         private final long size;
-        private final DescriptorData.Struct struct;
+        private final Struct struct;
 
         // Assumes size is byte aligned size
-        public BufferBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type, DescriptorData.Struct struct, long size) {
+        public BufferBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type, Struct struct, long size) {
             super(engine, device, type);
             this.struct = struct;
             
@@ -140,7 +142,7 @@ public abstract class DescriptorBinding implements Disposable {
         }
 
         public void write(String name, Consumer<BufferSlice> consumer) {
-            DescriptorData.Entry entry = struct.byName(name);
+            Entry entry = struct.byName(name);
             long preceding = struct.preceding(entry);
             consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
         }

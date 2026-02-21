@@ -23,7 +23,6 @@
         "layouts": [
           {
             "type": "UBO",
-            "name": "globals",
             "stages": [ "frag" ],
             "struct": [
               { "name": "fColor", "type": "float4", "auto": true },
@@ -44,7 +43,7 @@
     ],
     "push_constants": [
       {
-        "name": "pushConstant",
+        "stages": [ "vert" ],
         "struct": [
           { "name": "verticesBufferPtr", "type": "ptr" }
         ]

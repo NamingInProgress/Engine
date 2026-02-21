@@ -3,6 +3,8 @@ package com.vke.core.vulkan.descriptor.wrapper;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
 import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.Entry;
+import com.vke.api.pipeline.Struct;
 import com.vke.core.vulkan.shader.Shader;
 
 public class JsonDescriptorData extends DescriptorData {
@@ -46,8 +48,6 @@ public class JsonDescriptorData extends DescriptorData {
             String t = binding.getString("type");
             self.type = Type.fromString(t);
 
-            self.name = binding.getString("name");
-
             self.struct = JsonStruct.fromJson(binding.getArray("struct"));
 
             ConfigArrayNode stages = binding.getArray("stages");
@@ -71,7 +71,7 @@ public class JsonDescriptorData extends DescriptorData {
 
     }
 
-    public static class JsonStruct extends DescriptorData.Struct {
+    public static class JsonStruct extends Struct {
 
         public static JsonStruct fromJson(ConfigArrayNode struct) {
             JsonStruct self = new JsonStruct();
@@ -92,7 +92,7 @@ public class JsonDescriptorData extends DescriptorData {
 
     }
 
-    public static class JsonEntry extends DescriptorData.Entry {
+    public static class JsonEntry extends Entry {
 
         public static JsonEntry fromRegular(ConfigObjectNode json) {
             JsonEntry self = new JsonEntry();
