@@ -3,7 +3,7 @@ package com.vke.core.vulkan.descriptor;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.api.vulkan.ImageLayout;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.buffers.MappedBuffer;
@@ -143,7 +143,7 @@ public abstract class DescriptorBinding implements Disposable {
 
         public void write(String name, Consumer<BufferSlice> consumer) {
             Entry entry = struct.byName(name);
-            long preceding = struct.preceding(entry);
+            long preceding = struct.offsetOf(entry);
             consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
         }
 

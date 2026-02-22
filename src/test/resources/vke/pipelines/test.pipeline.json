@@ -1,9 +1,23 @@
 {
   "topology": "TRIANGLES",
   "cullMode": "NONE",
-  "colorAttachments": [
+  "attachments": [
     {
+      "type": "COLOR",
       "blendEnable": false
+    },
+    {
+      "type": "DEPTH",
+      "depth_op": "LEQUAL",
+      "format": "DEPTH32F"
+    },
+    {
+      "type": "STENCIL",
+      "format": "STENCIL8"
+    },
+    {
+      "type": "DEPTH_STENCIL",
+      "format": "DEPTH32F_STENCIL8"
     }
   ],
   "shaders": [
@@ -16,18 +30,19 @@
       "identifier": "vke:shaders/test.fsh"
     }
   ],
+  "auto_values": [ "global.time" ],
   "shader_layout": {
-    "sets": [
+    "descriptor_sets": [
       {
-        "set": 0,
-        "layouts": [
+        "bindings": [
           {
+            "name": "global",
             "type": "UBO",
             "stages": [ "frag" ],
             "struct": [
               { "name": "fColor", "type": "float4", "auto": true },
               { "name": "sColor", "type": "float4" },
-              { "name": "time", "type": "float", "padded": { "name": "pad0", "type": "float3" } }
+              { "name": "time", "type": "float" }
             ]
           }
         ]
@@ -43,6 +58,7 @@
     ],
     "push_constants": [
       {
+        "name": "PushConstants",
         "stages": [ "vert" ],
         "struct": [
           { "name": "verticesBufferPtr", "type": "ptr" }

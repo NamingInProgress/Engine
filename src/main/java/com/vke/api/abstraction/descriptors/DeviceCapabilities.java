@@ -15,6 +15,8 @@ public class DeviceCapabilities {
 
     public int maxVertexAttributes;
 
+    public int maxPushConstantSize;
+
     /** GPU INFO **/
     public GpuType gpuType;
 

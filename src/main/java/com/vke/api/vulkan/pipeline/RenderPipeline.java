@@ -14,7 +14,7 @@ import com.vke.api.registry.builders.VKERegistrar;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.abstraction.IntEnum;
 import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;

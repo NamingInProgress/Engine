@@ -2,7 +2,7 @@ package com.vke.core.vulkan.descriptor.wrapper;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.core.vulkan.shader.Shader;

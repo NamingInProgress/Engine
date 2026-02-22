@@ -93,6 +93,8 @@ public class PhysicalDevice implements Disposable {
 
         caps.maxVertexAttributes = limits.maxVertexInputAttributes();
 
+        caps.maxPushConstantSize = limits.maxPushConstantsSize();
+
         caps.gpuType = IntEnum.fromInt(GpuType.values(), props.deviceType());
 
         return caps;

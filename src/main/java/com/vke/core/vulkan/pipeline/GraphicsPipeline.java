@@ -6,7 +6,7 @@ import com.vke.api.abstraction.data.Sampler;
 import com.vke.api.abstraction.data.Texture;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;

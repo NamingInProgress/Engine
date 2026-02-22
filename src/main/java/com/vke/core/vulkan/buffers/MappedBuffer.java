@@ -23,7 +23,6 @@ public class MappedBuffer implements Disposable {
 
         this.gpuBuffer = device.createBuffer(new Buffer.Description(size, usage, MemoryUsage.Bits.CPU_TO_GPU.into()));
 
-
         this.mappedAddress = gpuBuffer.getInfo().pMappedData();
 
         if (mappedAddress == MemoryUtil.NULL) {

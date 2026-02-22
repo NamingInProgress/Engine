@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.pipeline;
 
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.descriptor.DescriptorSetLayout;
