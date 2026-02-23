@@ -192,7 +192,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     }
 
     @Override
-    public void setDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
+    public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer sets = stack.longs(
                     ((RenderPipeline) pipeline)

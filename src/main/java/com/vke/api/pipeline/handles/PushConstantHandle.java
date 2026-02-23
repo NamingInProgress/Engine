@@ -11,11 +11,11 @@ public class PushConstantHandle extends DataHandle {
 
     public int size;
     public long offset;
-    public ByteBuffer buffer;
+    public long buffer;
     public PackingType packing;
 
     public void write(Consumer<BufferSlice> consumer) {
-        consumer.accept(new BufferSlice(MemoryUtil.memAddress(buffer), offset, size, packing));
+        consumer.accept(new BufferSlice(buffer, offset, size, packing));
     }
 
 }

@@ -2,9 +2,16 @@ package com.vke.api.pipeline;
 
 public abstract class Entry {
 
-    protected String name;
-    protected int size;
-    protected long offset;
-    protected boolean auto;
+    public String name;
+    public int size;
+    public long offset;
+    public boolean auto;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Entry e = (Entry) o;
+        return name.equals(e.name) && size == e.size && offset == e.offset && auto == e.auto;
+    }
 
 }
