@@ -1,10 +1,12 @@
 package com.vke.api.pipeline;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
+import com.vke.api.abstraction.IntEnum;
 import com.vke.api.pipeline.handles.UniformHandle;
 import com.vke.core.vulkan.shader.Shader;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
+import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,23 +69,32 @@ public abstract class DescriptorData implements Disposable {
             return name.equals(b.name) && type == b.type && struct.equals(b.struct);
         }
 
-        public enum Type {
+        public enum Type implements IntEnum {
 
-            COMBINED_IMAGE_SAMPLER("combined_image_sampler", "cis"),
-            STORAGE_IMAGE("storage_image", "si"),
-            UNIFORM_BUFFER("uniform_buffer", "UBO"),
-            STORAGE_BUFFER("storage_buffer", "SSBO");
+            COMBINED_IMAGE_SAMPLER(VK14.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, "combined_image_sampler", "cis"),
+            STORAGE_IMAGE(VK14.VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, "storage_image", "si"),
+            UNIFORM_BUFFER(VK14.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, "uniform_buffer", "UBO"),
+            STORAGE_BUFFER(VK14.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, "storage_buffer", "SSBO");
 
+            private final int vkHandle;
             private final String[] names;
 
-            Type(String... names) {
+            Type(int vkHandle, String... names) {
+                this.vkHandle = vkHandle;
                 this.names = names;
             }
 
             public String[] getNames() { return this.names; }
 
+            public boolean isBuffer() { return this == UNIFORM_BUFFER || this == STORAGE_BUFFER; }
+
             public static Type fromString(String name) {
                 return Arrays.stream(Type.values()).filter(c -> Utils.arrayContains(c.getNames(), name)).findFirst().orElse(Type.valueOf(name));
+            }
+
+            @Override
+            public int getVkHandle() {
+                return vkHandle;
             }
 
         }

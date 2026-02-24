@@ -18,6 +18,8 @@ public class UniformHandle extends DataHandle {
     public PackingType packing;
     public DescriptorData.Binding.Type bindingType;
 
+    public long setHandle;
+
     public long buffer;
     public long gpuBuffer;
     public @Nullable Texture[] textures;
@@ -30,11 +32,11 @@ public class UniformHandle extends DataHandle {
     }
 
     public void setSampler(Sampler s, Texture t) {
-        this.setSampler(s, t, 0, true);
+        this.setSampler(s, t, 0, false);
     }
 
     public void setSampler(Sampler s, Texture t, int index) {
-        this.setSampler(s, t, index, true);
+        this.setSampler(s, t, index, false);
     }
 
     public void setSampler(Sampler s, Texture t, boolean flush) {
@@ -48,11 +50,11 @@ public class UniformHandle extends DataHandle {
     }
 
     public void setImage(Texture t) {
-        this.setImage(t, 0, true);
+        this.setImage(t, 0, false);
     }
 
     public void setImage(Texture t, int index) {
-        this.setImage(t, index, true);
+        this.setImage(t, index, false);
     }
 
     public void setImage(Texture t, boolean flush) {

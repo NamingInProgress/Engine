@@ -86,6 +86,8 @@ public class VulkanTexture implements Texture {
 
     public VulkanTextureView getView() { return this.image.getView(); }
 
+    public VulkanImage getImage() { return this.image; }
+
     @Override
     public int width() {
         return image.extent.width;
