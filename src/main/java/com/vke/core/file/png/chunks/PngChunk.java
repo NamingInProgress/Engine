@@ -1,11 +1,6 @@
 package com.vke.core.file.png.chunks;
 
-import com.vke.core.file.deflate.check.Crc32;
-import com.vke.core.file.io.bit.BitInputStream;
-import com.vke.core.file.io.bit.BitOrdering;
-import com.vke.core.file.io.bit.BitStreamUtils;
-import com.vke.core.file.io.bit.ShittyBitInputStream;
-import com.vke.core.file.png.PngInfo;
+import com.vke.core.file.deflate.decompress.check.Crc32;
 import com.vke.core.file.utils.DataUtils;
 
 import java.io.IOException;

@@ -211,4 +211,8 @@ public class Utils {
         int missing = toLength - s.length();
         return String.valueOf(pad).repeat(missing) + s;
     }
+
+    public static double log(double x, double base) {
+        return Math.log(x) / Math.log(base);
+    }
 }

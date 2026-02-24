@@ -1,6 +1,6 @@
 package com.vke.core.file.png;
 
-import com.vke.core.file.io.bit.ShittyBitInputStream;
+import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.png.chunks.*;
 import com.vke.core.file.zlib.ZlibDecompressor;
 

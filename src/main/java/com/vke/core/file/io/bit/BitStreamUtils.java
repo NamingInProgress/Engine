@@ -1,6 +1,7 @@
 package com.vke.core.file.io.bit;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.core.file.io.bit.input.BitInputStream;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

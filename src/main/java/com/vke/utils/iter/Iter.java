@@ -36,6 +36,7 @@ public interface Iter<T> extends Iterable<T> {
         return new OfIterator<>(iterable.iterator());
     }
 
+
     @SafeVarargs //i have no clue what this does
     static <T> Iter<T> of(T... array) {
         return new OfArray<>(array);
@@ -180,6 +181,10 @@ public interface Iter<T> extends Iterable<T> {
         List<T> out = new ArrayList<>();
         forEach(out::add);
         return out;
+    }
+
+    default T[] toArray(T... templateDoNotUse) {
+        return collectToList().toArray(templateDoNotUse);
     }
 
     default Stream<T> intoStream() {

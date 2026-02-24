@@ -16,7 +16,7 @@ public abstract class RIFFChunk extends RIFFPayload {
     public RIFFChunk(Ascii4 name, InputStream stream, RIFFFormat format) throws IOException {
         this.name = name;
         int size = DataUtils.readU32LittleEndian(stream);
-        this.size = DataUtils.unsignInt(size);
+        this.size = DataUtils.unsign32(size);
         this.payload = readPayload(stream, format);
         if (size % 2 == 1) {
             //read once extra byte here because the chunks are aligned to even numbers only for some reason

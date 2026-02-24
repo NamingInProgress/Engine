@@ -9,6 +9,7 @@ import com.vke.core.vkz.types.VkzName;
 import com.vke.core.vkz.types.imm.VkzImmediateDirLayer;
 import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 import com.vke.core.vkz.types.lo.VkzListOnlyArchive;
+import com.vke.utils.Identifier;
 import com.vke.utils.collection.IterAble;
 
 import java.io.IOException;
@@ -108,6 +109,14 @@ public class Vkz extends Service {
                     report.currentFile(),
                     report.currentSize());
         };
+    }
+
+    public VkzArchive open(Identifier identifier, ArchiveType type) {
+        try {
+            return open(identifier.asInputStream(), type);
+        } catch (IOException e) {
+            throw new VkzOpenException(e);
+        }
     }
 
     public VkzArchive open(InputStream stream, ArchiveType type) throws VkzOpenException {

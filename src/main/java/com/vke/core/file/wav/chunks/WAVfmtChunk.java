@@ -48,8 +48,8 @@ public class WAVfmtChunk extends RIFFChunk {
             int rawFormat = DataUtils.readU16LittleEndian(stream);
             this.audioFormat = WAVAudioFormat.fromCode(rawFormat);
             this.numChannels = DataUtils.readU16LittleEndian(stream);
-            this.sampleRate = DataUtils.unsignInt(DataUtils.readU32LittleEndian(stream));
-            this.byteRate = DataUtils.unsignInt(DataUtils.readU32LittleEndian(stream));
+            this.sampleRate = DataUtils.unsign32(DataUtils.readU32LittleEndian(stream));
+            this.byteRate = DataUtils.unsign32(DataUtils.readU32LittleEndian(stream));
             this.blockAlign = DataUtils.readU16LittleEndian(stream);
             this.bitsPerSample = DataUtils.readU16LittleEndian(stream);
 

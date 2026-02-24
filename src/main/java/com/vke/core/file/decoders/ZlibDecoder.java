@@ -1,7 +1,7 @@
 package com.vke.core.file.decoders;
 
 import com.carrotsearch.hppc.ByteArrayList;
-import com.vke.core.file.io.bit.ShittyBitInputStream;
+import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.utils.HBFLazyDecoder;
 import com.vke.core.file.zlib.ZlibDecompressor;
 

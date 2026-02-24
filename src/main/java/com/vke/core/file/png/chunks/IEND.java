@@ -1,7 +1,5 @@
 package com.vke.core.file.png.chunks;
 
-import com.vke.core.file.io.bit.BitInputStream;
-
 import java.io.IOException;
 import java.io.InputStream;
 

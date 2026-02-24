@@ -1,7 +1,7 @@
 package com.vke.test;
 
 import com.carrotsearch.hppc.ByteArrayList;
-import com.vke.core.file.io.bit.ShittyBitInputStream;
+import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
 import com.vke.utils.Identifier;
 

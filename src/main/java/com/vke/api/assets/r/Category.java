@@ -15,9 +15,9 @@ public class Category<T> {
         return entry;
     }
 
-    public AssetHandle<T> get(String rawIdentifier) {
+    public AssetHandle<T> get(String name) {
         //dont use the cache here cuz the namespace could vary i think
-        Identifier identifier = new Identifier("\0", rawIdentifier);
+        Identifier identifier = new Identifier("\0", name);
         return new LazyAssetHandle<>(identifier);
     }
 }

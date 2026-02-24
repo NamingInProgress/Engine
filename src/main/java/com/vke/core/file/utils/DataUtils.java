@@ -1,8 +1,12 @@
 package com.vke.core.file.utils;
 
+import com.carrotsearch.hppc.ByteArrayList;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class DataUtils {
@@ -51,8 +55,40 @@ public class DataUtils {
         return dcba(d, c, b, a);
     }
 
-    public static long unsignInt(int size) {
+    public static void writeU8(OutputStream stream, int u8) throws IOException {
+        stream.write(u8);
+    }
+
+    public static void writeU16LittleEndian(OutputStream stream, int value) throws IOException {
+        stream.write(value & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+    }
+
+    public static void writeU32LittleEndian(OutputStream stream, int value) throws IOException {
+        stream.write(value & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+        stream.write((value >> 16) & 0xFF);
+        stream.write((value >> 24) & 0xFF);
+    }
+
+    public static void writeU16BigEndian(OutputStream stream, int value) throws IOException {
+        stream.write((value >> 8) & 0xFF);
+        stream.write(value & 0xFF);
+    }
+
+    public static void writeU32BigEndian(OutputStream stream, int value) throws IOException {
+        stream.write((value >> 24) & 0xFF);
+        stream.write((value >> 16) & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+        stream.write(value & 0xFF);
+    }
+
+    public static long unsign32(int size) {
         return Integer.toUnsignedLong(size);
+    }
+
+    public static int sign32(long size) {
+        return (int) (size & 0xFFFFFFFFL);
     }
 
     public static UUID readGuidLittleEndian(InputStream stream) throws IOException {
@@ -75,5 +111,29 @@ public class DataUtils {
         }
 
         return new UUID(msb, lsb);
+    }
+    
+    public static void writeNullStringUTF8(OutputStream stream, String value) throws IOException {
+        byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        stream.write(bytes);
+        stream.write('\0');
+    }
+    
+    public static String readNullStringUTF8(InputStream stream) throws IOException {
+        ByteArrayList bytes = new ByteArrayList();
+        int current = stream.read();
+        int counter = 1;
+        if (current == -1) throw new EOFException();
+        while (current != '\0') {
+            if (counter >= 65536) {
+                throw new IOException("I think your string is kinda infinite...");
+            }
+            
+            bytes.add((byte) current);
+            current = stream.read();
+            counter++;
+            if (current == -1) throw new EOFException();
+        }
+        return new String(bytes.toArray(), StandardCharsets.UTF_8);
     }
 }
