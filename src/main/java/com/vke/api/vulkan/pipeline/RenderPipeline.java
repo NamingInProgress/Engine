@@ -20,12 +20,13 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.pipeline.GraphicsPipeline;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkStencilOpState;
@@ -81,9 +82,9 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
             }
         }
 
-        Shader[] shaders = new Shader[0];
+        VulkanShader[] shaders = new VulkanShader[0];
         try {
-            shaders = builder.shader.getShaderArray(engine, device.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
+            shaders = (VulkanShader[]) builder.shader.getShaderArray(engine, device.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
         } catch (Exception e) {
             engine.throwException(e, "Render Pipeline -> Shader Creation");
         }
@@ -593,6 +594,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         public int getVkHandle() {
             return vkHandle;
         }
+
+        public static Option<PolygonMode> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> PolygonMode.valueOf(name));
+        }
     }
 
     public enum CullMode implements IntEnum {
@@ -612,6 +617,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         public int getVkHandle() {
             return vkHandle;
         }
+
+        public static Option<CullMode> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> CullMode.valueOf(name));
+        }
     }
 
     public enum WindingOrder implements IntEnum {
@@ -628,6 +637,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         @Override
         public int getVkHandle() {
             return vkHandle;
+        }
+
+        public static Option<WindingOrder> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> WindingOrder.valueOf(name));
         }
     }
 
@@ -662,6 +675,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         public int getVkHandle() {
             return vkHandle;
         }
+
+        public static Option<BlendFactor> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> BlendFactor.valueOf(name));
+        }
     }
 
     public enum BlendOperation implements IntEnum {
@@ -681,6 +698,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         @Override
         public int getVkHandle() {
             return vkHandle;
+        }
+
+        public static Option<BlendOperation> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> BlendOperation.valueOf(name));
         }
     }
 
@@ -704,6 +725,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         @Override
         public int getVkHandle() {
             return vkHandle;
+        }
+
+        public static Option<StencilOp> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> StencilOp.valueOf(name));
         }
     }
 
@@ -731,6 +756,10 @@ public class RenderPipeline implements com.vke.api.abstraction.pipeline.Graphics
         @Override
         public int getVkHandle() {
             return vkHandle;
+        }
+
+        public static Option<DynamicState> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> DynamicState.valueOf(name));
         }
     }
 

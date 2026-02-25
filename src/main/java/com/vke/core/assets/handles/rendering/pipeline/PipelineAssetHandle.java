@@ -1,4 +1,4 @@
-package com.vke.core.assets.handles;
+package com.vke.core.assets.handles.rendering.pipeline;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.vulkan.pipeline.RenderPipeline;

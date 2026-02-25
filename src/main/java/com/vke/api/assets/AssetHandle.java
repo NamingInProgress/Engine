@@ -1,7 +1,7 @@
 package com.vke.api.assets;
 
 import com.vke.core.VKEngine;
-import com.vke.core.assets.handles.tex.PngTextureHandle;
+import com.vke.core.assets.handles.rendering.tex.PngTextureHandle;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 
@@ -9,11 +9,15 @@ import java.io.IOException;
 
 public interface AssetHandle<T> extends Disposable {
     enum Type {
-        Texture,
+        //Primitve
         String,
         Bool,
         Number,
+        //Rendering
+        Texture,
         Pipeline,
+        Shader,
+        ShaderProgram,
         Unresolved
     }
 

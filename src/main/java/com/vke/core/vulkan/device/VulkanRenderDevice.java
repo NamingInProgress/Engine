@@ -8,6 +8,7 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
@@ -19,11 +20,13 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
@@ -39,6 +42,7 @@ import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 
@@ -218,6 +222,15 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public VulkanSampler createSampler(Sampler.Description info) {
         return new VulkanSampler(this, info);
+    }
+
+    @Override
+    public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
+        GeneralBuffer buffer = VKUtils.readInputStreamToVulkanAndClose(identifier.asInputStream());
+        ByteBuffer data = buffer.getData();
+        VulkanShader shader = new VulkanShader(engine, logicalDevice, data, shaderType);
+        buffer.free();
+        return shader;
     }
 
     @Override

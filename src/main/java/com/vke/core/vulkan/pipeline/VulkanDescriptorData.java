@@ -14,7 +14,7 @@ import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.utils.Disposable;
 import com.vke.utils.Pair;
@@ -38,7 +38,7 @@ public class VulkanDescriptorData extends DescriptorData {
         this.writer = new DescriptorWriter(device);
     }
 
-    public Set initAndAddDescriptorSet(long setHandle, int setIndex, List<Pair<Binding, Shader.Stages>> bindingData) {
+    public Set initAndAddDescriptorSet(long setHandle, int setIndex, List<Pair<Binding, VulkanShader.Stages>> bindingData) {
         VulkanSet set = new VulkanSet();
         set.set = setIndex;
         set.handle = setHandle;
@@ -89,7 +89,7 @@ public class VulkanDescriptorData extends DescriptorData {
         UniformHandle handle = new UniformHandle();
         handle.set = set;
         handle.binding = bindingIdx;
-        handle.size = e.size;
+        handle.size = (int) e.size;
         handle.offset = e.offset;
         handle.packing = PackingType.STD140;
         handle.bindingType = binding.type;

@@ -23,47 +23,12 @@
   "shaders": [
     {
       "type": "vert",
-      "identifier": "vke:shaders/test.vsh"
+      "src": "vke:shaders/test.vsh"
     },
     {
       "type": "frag",
-      "identifier": "vke:shaders/test.fsh"
+      "src": "vke:shaders/test.fsh"
     }
   ],
-  "auto_values": [ "global.time" ],
-  "shader_layout": {
-    "descriptor_sets": [
-      {
-        "bindings": [
-          {
-            "name": "global",
-            "type": "UBO",
-            "stages": [ "frag" ],
-            "struct": [
-              { "name": "fColor", "type": "float4", "auto": true },
-              { "name": "sColor", "type": "float4" },
-              { "name": "time", "type": "float" }
-            ]
-          }
-        ]
-      }
-    ],
-    "vertex_inputs": [
-      {
-        "binding": 0,
-        "struct": [
-          { "name": "pos", "type": "float3" }
-        ]
-      }
-    ],
-    "push_constants": [
-      {
-        "name": "PushConstants",
-        "stages": [ "vert" ],
-        "struct": [
-          { "name": "verticesBufferPtr", "type": "ptr" }
-        ]
-      }
-    ]
-  }
+  "auto_values": [ "global.time" ]
 }

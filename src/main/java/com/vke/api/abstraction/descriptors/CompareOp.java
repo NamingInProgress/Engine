@@ -1,6 +1,8 @@
 package com.vke.api.abstraction.descriptors;
 
 import com.vke.api.abstraction.IntEnum;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.vulkan.VK14;
 
 public enum CompareOp implements IntEnum {
@@ -24,4 +26,9 @@ public enum CompareOp implements IntEnum {
     public int getVkHandle() {
         return vkHandle;
     }
+
+    public static Option<CompareOp> valueOfOption(String name) {
+        return Option.useIfNotFaulty(() -> CompareOp.valueOf(name));
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.vke.api.parsing.config.node;
 
 import com.vke.api.parsing.config.Configs;
+import com.vke.utils.iter.helpers.Option;
 
 public interface ConfigNode {
 
@@ -78,6 +79,36 @@ public interface ConfigNode {
     default boolean asBoolean() {
         if (this instanceof ConfigBooleanNode valueNode) return valueNode.getValue();
         return false;
+    }
+
+    default Option<String> getStringOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getString(name));
+    }
+
+    default Option<Float> getNumberOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getNumberSafe(name));
+    }
+
+    default Option<Integer> getIntOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getIntSafe(name));
+    }
+
+    default Option<Boolean> getBooleanOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getBooleanSafe(name));
+    }
+
+    default Option<ConfigObjectNode> getObjectOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getObject(name));
+    }
+
+    default Option<ConfigArrayNode> getArrayOption(String name) {
+        if (!hasField(name)) return Option.none();
+        return Option.useIfNotNull(getArray(name));
     }
 
 

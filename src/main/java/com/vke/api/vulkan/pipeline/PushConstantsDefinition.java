@@ -1,7 +1,7 @@
 package com.vke.api.vulkan.pipeline;
 
 import com.vke.api.utils.AlignedByteBuffer;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 
 import java.nio.ByteBuffer;
 
@@ -11,7 +11,7 @@ public abstract class PushConstantsDefinition {
 
     protected abstract int size();
     public abstract int getOffset();
-    public abstract Shader.Stages getAplicableStages();
+    public abstract VulkanShader.Stages getAplicableStages();
     public abstract ByteBuffer getBytes(AlignedByteBuffer buf);
 
     protected int t_float() { return 4; }

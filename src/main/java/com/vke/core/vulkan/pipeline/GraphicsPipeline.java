@@ -141,6 +141,10 @@ public class GraphicsPipeline implements Disposable {
                     .logicOpEnable(false)
                     .logicOp(VK14.VK_LOGIC_OP_COPY);
 
+            for (int i = 0; i < pipelineSettingsInfo.blendConstants.length; i++) {
+                colorBlending.blendConstants(i, pipelineSettingsInfo.blendConstants[i]);
+            }
+
             VkPipelineDepthStencilStateCreateInfo depthStencilInfo = null;
             if (pipelineSettingsInfo.depthStencilAttachment() != null) {
                  depthStencilInfo = VkPipelineDepthStencilStateCreateInfo.calloc(stack)

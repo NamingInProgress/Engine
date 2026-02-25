@@ -2,10 +2,9 @@ package com.vke.api.pipeline;
 
 import com.vke.api.abstraction.descriptors.buffer.PackingType;
 import com.vke.api.pipeline.handles.PushConstantHandle;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Disposable;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 public abstract class PushConstantsData implements Disposable {
@@ -24,7 +23,7 @@ public abstract class PushConstantsData implements Disposable {
         Entry e = pc.getEntry(split[1]);
         handle.buffer = pc.buffer;
         handle.offset = e.offset;
-        handle.size = e.size;
+        handle.size = (int) e.size;
         handle.packing = pc.packing;
 
         HANDLE_CACHE.put(name, handle);
@@ -34,12 +33,12 @@ public abstract class PushConstantsData implements Disposable {
     public static class PushConstant {
 
         protected String name;
-        protected Shader.Stages shaderStages;
+        protected VulkanShader.Stages shaderStages;
         protected Struct struct;
         protected long buffer;
         protected PackingType packing;
 
-        public PushConstant(PushConstant base, Shader.Stages stages, long buf) {
+        public PushConstant(PushConstant base, VulkanShader.Stages stages, long buf) {
             this(base.name, stages, base.struct, buf, base.packing);
         }
 
@@ -47,7 +46,7 @@ public abstract class PushConstantsData implements Disposable {
             this(name, null, struct, 0, packing);
         }
 
-        public PushConstant(String name, Shader.Stages stages, Struct struct, long buf, PackingType packing) {
+        public PushConstant(String name, VulkanShader.Stages stages, Struct struct, long buf, PackingType packing) {
             this.name = name;
             this.struct = struct;
             this.packing = packing;

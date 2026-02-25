@@ -5,7 +5,7 @@ import com.vke.api.parsing.config.node.*;
 import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 
 public class JsonDescriptorData extends DescriptorData {
 
@@ -60,7 +60,7 @@ public class JsonDescriptorData extends DescriptorData {
                 names[i] = ((ConfigValueNode) value).getValue();
             }
 
-            self.stages = Shader.Stages.fromString(names);
+            self.stages = VulkanShader.Stages.fromString(names);
 
             if (self.type == null) {
                 throw new IllegalStateException("Failed to get binding type for type: " + t);
@@ -80,10 +80,10 @@ public class JsonDescriptorData extends DescriptorData {
                 ConfigObjectNode entry = (ConfigObjectNode) e;
                 ConfigObjectNode pad = entry.getObject("padded");
 
-                self.entries.add(JsonEntry.fromRegular(entry));
+                //self.entries.add(JsonEntry.fromRegular(entry));
 
                 if (pad != null) {
-                    self.entries.add(JsonEntry.fromPadding(pad));
+                //    self.entries.add(JsonEntry.fromPadding(pad));
                 }
             }
 
@@ -94,14 +94,18 @@ public class JsonDescriptorData extends DescriptorData {
 
     public static class JsonEntry extends Entry {
 
+        public JsonEntry(String name, long size, int offset) {
+            super(name, size, offset);
+        }
+
         public static JsonEntry fromRegular(ConfigObjectNode json) {
-            JsonEntry self = new JsonEntry();
+            JsonEntry self = new JsonEntry(null, 0 ,0);
 
             Boolean auto = json.getBooleanSafe("auto");
 
             self.auto = auto != null && auto;
             self.name = json.getString("name");
-            self.type = Type.fromString(json.getString("type"));
+            //self.type = Type.fromString(json.getString("type"));
 
             return self;
         }

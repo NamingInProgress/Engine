@@ -142,9 +142,9 @@ public abstract class DescriptorBinding implements Disposable {
         }
 
         public void write(String name, Consumer<BufferSlice> consumer) {
-            Entry entry = struct.byName(name);
-            long preceding = struct.offsetOf(entry);
-            consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
+            //Entry entry = struct.byName(name);
+            //long preceding = struct.offsetOf(entry);
+            //consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
         }
 
         public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {

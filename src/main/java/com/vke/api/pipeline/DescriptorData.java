@@ -3,7 +3,7 @@ package com.vke.api.pipeline;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.api.abstraction.IntEnum;
 import com.vke.api.pipeline.handles.UniformHandle;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
 import org.lwjgl.vulkan.VK14;
@@ -41,13 +41,13 @@ public abstract class DescriptorData implements Disposable {
 
         public String name;
         public Type type;
-        public Shader.Stages stages;
+        public VulkanShader.Stages stages;
         public Struct struct;
         public long buf;
         public long gpuBuf;
         public int textureCount;
 
-        public Binding(Binding b, Shader.Stages stages, long buf, long gpuBuf) {
+        public Binding(Binding b, VulkanShader.Stages stages, long buf, long gpuBuf) {
             this(b.name, b.type, stages, b.struct, buf, gpuBuf, b.textureCount);
         }
 
@@ -55,7 +55,7 @@ public abstract class DescriptorData implements Disposable {
             this(name, type, null, struct, 0, 0, textureCount);
         }
 
-        public Binding(String name, Type type, Shader.Stages stages, Struct struct, long buf, long gpuBuf, int textureCount) {
+        public Binding(String name, Type type, VulkanShader.Stages stages, Struct struct, long buf, long gpuBuf, int textureCount) {
             this.name = name;
             this.type = type;
             this.stages = stages;

@@ -1,5 +1,9 @@
 package com.vke.utils.iter.helpers;
 
+import com.vke.utils.fi.FaultyFunction;
+import com.vke.utils.fi.FaultySupplier;
+
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -25,6 +29,21 @@ public class Option<T> {
     public static <T> Option<T> useIf(boolean condition, Supplier<T> value) {
         if (condition) return Option.some(value.get());
         return Option.none();
+    }
+
+    public static <T> Option<T> useIfNotNull(T nullableValue) {
+        if (nullableValue == null) {
+            return Option.none();
+        }
+        return Option.some(nullableValue);
+    }
+
+    public static <T> Option<T> useIfNotFaulty(FaultySupplier<T, ? extends Throwable> faultySupplier) {
+        try {
+            return Option.some(faultySupplier.get());
+        } catch (Throwable _) {
+            return Option.none();
+        }
     }
 
     public boolean isSome() {
@@ -53,6 +72,42 @@ public class Option<T> {
     public T unwrapOrElse(Supplier<T> defaultValue) {
         if (isNone()) return defaultValue.get();
         return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T unwrapOrDefault(T... ignore) {
+        if (isSome()) return value;
+
+        Class<?> c = ignore.getClass().getComponentType();
+        if (c == Byte.class) {
+            return (T) (Byte) (byte) 0;
+        }
+        if (c == Short.class) {
+            return (T) (Short) (short) 0;
+        }
+        if (c == Integer.class) {
+            return (T) (Integer) 0;
+        }
+        if (c == Long.class) {
+            return (T) (Long) 0L;
+        }
+        if (c == Float.class) {
+            return (T) (Float) 0f;
+        }
+        if (c == Double.class) {
+            return (T) (Double) 0D;
+        }
+        if (c == Boolean.class) {
+            return (T) (Boolean) false;
+        }
+        if (c == Character.class) {
+            return (T) (Character) '\0';
+        }
+        if (c == String.class) {
+            return (T) "";
+        }
+
+        return null;
     }
 
     public void inspect(Consumer<T> inspector) {

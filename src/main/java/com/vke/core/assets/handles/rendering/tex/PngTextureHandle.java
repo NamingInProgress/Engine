@@ -1,23 +1,22 @@
-package com.vke.core.assets.handles.tex;
+package com.vke.core.assets.handles.rendering.tex;
 
 import com.vke.api.abstraction.RenderDevice;
 import com.vke.api.abstraction.Renderer;
 import com.vke.api.abstraction.data.Texture;
+import com.vke.api.abstraction.shader.Shader;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetUnavailableException;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.handles.rendering.RenderingAssetHandle;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.file.png.PngFile;
 import com.vke.utils.Identifier;
 
 import java.io.IOException;
 
-public class PngTextureHandle implements AssetHandle<Texture> {
-
+public class PngTextureHandle extends RenderingAssetHandle<Texture> {
     private final Identifier id;
-
-    private Texture texture;
 
     public PngTextureHandle(Identifier id) {
         this.id = id;
@@ -29,18 +28,12 @@ public class PngTextureHandle implements AssetHandle<Texture> {
     }
 
     @Override
-    public Texture acquire(VKEngine engine) throws IOException {
-        if (texture != null) return texture;
-
-        EngineCreateInfo.RendererType rendererType = engine.rendererType();
-        Renderer renderer = engine.service(rendererType.serviceName);
-        RenderDevice device = renderer.getDevice();
+    protected Texture acquire(VKEngine engine, RenderDevice device) throws IOException {
         PngFile pngFile = new PngFile(id.asInputStream());
         Pixels pixels = pngFile.getOutput();
         Texture.TextureDesc desc = getDescription(pngFile);
 
-        this.texture = device.createTexture(pixels, desc);
-        return this.texture;
+        return device.createTexture(pixels, desc);
     }
 
     private Texture.TextureDesc getDescription(PngFile pngFile) {
@@ -49,20 +42,10 @@ public class PngTextureHandle implements AssetHandle<Texture> {
     }
 
     @Override
-    public Texture get() {
-        return texture;
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return texture != null;
-    }
-
-    @Override
     public void free() {
-        if (texture != null) {
-            texture.free();
+        if (isAvailable()) {
+            get().free();
         }
-        texture = null;
+        setCache(null);
     }
 }

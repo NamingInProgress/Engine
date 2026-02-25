@@ -1,13 +1,16 @@
 package com.vke.api.pipeline;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
-public abstract class Struct {
+public class Struct {
 
-    protected final LinkedHashMap<String, Entry> entries = new LinkedHashMap<>();
+    public final HashMap<String, Entry> entries = new HashMap<>();
 
-    public int sizeof() { return entries.values().stream().mapToInt(e -> e.size).sum(); }
+    public int sizeof() { return entries.values().stream().mapToInt(e -> (int) e.size).sum(); }
 
     public Entry getEntry(String name) { return entries.get(name); }
 

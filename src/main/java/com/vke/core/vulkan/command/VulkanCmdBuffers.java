@@ -97,6 +97,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
             VkRect2D area = VkRect2D.calloc(stack);
             area.extent(swapchain.getExtent());
 
+            // add color attachments, depth attachments and stencil attachments store image on swapchain and yeah
             VkRenderingInfo info = VkRenderingInfo.calloc(stack)
                     .sType$Default()
                     .layerCount(1)

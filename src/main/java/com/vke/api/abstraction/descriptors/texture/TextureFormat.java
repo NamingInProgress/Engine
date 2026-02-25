@@ -1,6 +1,8 @@
 package com.vke.api.abstraction.descriptors.texture;
 
 import com.vke.api.abstraction.IntEnum;
+import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.vulkan.VK14;
 
 public enum TextureFormat implements IntEnum {
@@ -85,4 +87,9 @@ public enum TextureFormat implements IntEnum {
     public int getVkHandle() {
         return this.handle;
     }
+
+    public static Option<TextureFormat> valueOfOption(String name) {
+        return Option.useIfNotFaulty(() -> TextureFormat.valueOf(name));
+    }
+
 }

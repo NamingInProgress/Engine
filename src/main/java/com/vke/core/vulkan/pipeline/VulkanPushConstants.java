@@ -2,7 +2,7 @@ package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.pipeline.PushConstantsData;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -15,7 +15,7 @@ public class VulkanPushConstants extends PushConstantsData {
         this.alloc = new AutoHeapAllocator();
     }
 
-    public PushConstant initAndAddPushConstant(PushConstant c, Shader.Stages stages) {
+    public PushConstant initAndAddPushConstant(PushConstant c, VulkanShader.Stages stages) {
         ByteBuffer buf = alloc.alloc(c.sizeof()).getHeapObject();
         PushConstant pc = new PushConstant(c, stages, MemoryUtil.memAddress(buf));
 

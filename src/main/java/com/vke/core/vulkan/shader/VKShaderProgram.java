@@ -10,15 +10,15 @@ import java.util.HashSet;
 
 public class VKShaderProgram implements Disposable {
 
-    private final Shader[] shaders;
+    private final VulkanShader[] shaders;
     private final AutoHeapAllocator alloc;
 
-    public VKShaderProgram(Shader... shaders) {
+    public VKShaderProgram(VulkanShader... shaders) {
         this.alloc = new AutoHeapAllocator();
 
         HashSet<ShaderType> types = new HashSet<>();
-        for (Shader shader : shaders) {
-            types.add(shader.getType());
+        for (VulkanShader shader : shaders) {
+            types.add(shader.type());
         }
         if (types.size() != shaders.length) {
             throw new RuntimeException("No duplicate shader type allowed for one program!");
@@ -30,10 +30,10 @@ public class VKShaderProgram implements Disposable {
     public VkPipelineShaderStageCreateInfo[] getShaderCreateInfos() {
         VkPipelineShaderStageCreateInfo[] infos = new VkPipelineShaderStageCreateInfo[shaders.length];
         for (int i = 0; i < shaders.length; i++) {
-            Shader shader = shaders[i];
+            VulkanShader shader = shaders[i];
             infos[i] = alloc.allocStruct(VkPipelineShaderStageCreateInfo.SIZEOF, VkPipelineShaderStageCreateInfo::new)
                     .sType$Default()
-                    .stage(shader.getType().getVkHandle())
+                    .stage(shader.type().getVkHandle())
                     .module(shader.getHandle())
                     .pName(MemoryUtil.memUTF8("main", true));
         }
@@ -43,7 +43,7 @@ public class VKShaderProgram implements Disposable {
 
     @Override
     public void free() {
-        for (Shader s : shaders) {
+        for (VulkanShader s : shaders) {
             s.free();
         }
         alloc.close();

@@ -115,7 +115,7 @@ public class TestApp extends App {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = fd.frame().getBuffers();
-            cmd.bindRenderPipeline(TestPipelines.IDK);
+            //cmd.bindRenderPipeline(TestPipelines.IDK);
 
             Scissor sc = new Scissor(0, 0, width, height);
             Viewport wp = new Viewport(0, 0, width, height);
@@ -132,9 +132,9 @@ public class TestApp extends App {
 
             // Set sampler (outside of render loop tho)
 
-            cmd.bindDescriptorSets(TestPipelines.IDK);
+            //cmd.bindDescriptorSets(TestPipelines.IDK);
 
-            cmd.setPushConstants(TestPipelines.IDK);
+            //cmd.setPushConstants(TestPipelines.IDK);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
@@ -142,7 +142,7 @@ public class TestApp extends App {
 
 
             // 2nd draw:
-            cmd.bindRenderPipeline(TestPipelines.STH);
+            //cmd.bindRenderPipeline(TestPipelines.STH);
 
             ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
 
@@ -152,9 +152,9 @@ public class TestApp extends App {
                 });
             });
 
-            cmd.bindDescriptorSets(TestPipelines.STH);
+            //cmd.bindDescriptorSets(TestPipelines.STH);
 
-            cmd.setPushConstants(TestPipelines.STH);
+            //cmd.setPushConstants(TestPipelines.STH);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 

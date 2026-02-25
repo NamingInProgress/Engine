@@ -3,6 +3,7 @@ package com.vke.core.vulkan.device;
 import com.vke.api.abstraction.IntEnum;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.GpuType;
+import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
@@ -96,6 +97,24 @@ public class PhysicalDevice implements Disposable {
         caps.maxPushConstantSize = limits.maxPushConstantsSize();
 
         caps.gpuType = IntEnum.fromInt(GpuType.values(), props.deviceType());
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkFormatProperties vkProps = VkFormatProperties.malloc(stack);
+
+            VK14.vkGetPhysicalDeviceFormatProperties(
+                    getDevice(),
+                    VK14.VK_FORMAT_S8_UINT,
+                    vkProps
+            );
+
+            boolean supported =
+                    (vkProps.optimalTilingFeatures()
+                            & VK14.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0;
+
+            if (!supported) {
+                throw new RuntimeException("Stencil-only format not supported!");
+            }
+        }
 
         return caps;
     }

@@ -7,17 +7,15 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.ShaderType;
-import com.vke.api.abstraction.pipeline.ComputePipeline;
-import com.vke.api.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.abstraction.shader.Shader;
 import com.vke.api.abstraction.swapchain.Swapchain;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.core.file.png.Pixels;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
 
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.Map;
 
 public interface RenderDevice extends Disposable {
@@ -26,25 +24,27 @@ public interface RenderDevice extends Disposable {
     DeviceCapabilities capabilities();
 
     /** MEMORY ALLOC **/
-    <T extends Buffer> T createBuffer(Buffer.Description info);
-    <T extends Texture> T createTexture(Pixels pixels, Texture.TextureDesc info);
-    <T extends Sampler> T createSampler(Sampler.Description info);
-    default ShaderProgram createShader(Identifier vertex)                      {   return new ShaderProgram(vertex);            }
-    default ShaderProgram createShader(Identifier vertex, Identifier fragment) {   return new ShaderProgram(vertex, fragment);  }
-    default ShaderProgram createShader(Pair<ShaderType, Identifier> shaders[]) {   return new ShaderProgram(shaders);           }
-    default ShaderProgram createShader(Map<ShaderType, Identifier> shaders)    {   return new ShaderProgram(shaders);           }
+    Buffer createBuffer(Buffer.Description info);
+    Texture createTexture(Pixels pixels, Texture.TextureDesc info);
+    Sampler createSampler(Sampler.Description info);
+    Shader createShader(Identifier identifier, ShaderType type) throws IOException;
+
+    default ShaderProgram createShaders(Identifier vertex)                      {   return new ShaderProgram(vertex);            }
+    default ShaderProgram createShaders(Identifier vertex, Identifier fragment) {   return new ShaderProgram(vertex, fragment);  }
+    default ShaderProgram createShaders(Pair<ShaderType, Identifier>[] shaders) {   return new ShaderProgram(shaders);           }
+    default ShaderProgram createShaders(Map<ShaderType, Identifier> shaders)    {   return new ShaderProgram(shaders);           }
 
     /** PIPELINE **/
     //GraphicsPipeline createRenderPipeline(RenderPipeline builder);
     //ComputePipeline createComputePipeline();
 
     /** COMMAND BUFFERS **/
-    <T extends CommandBuffer> T createCommandBuffer();
+    CommandBuffer createCommandBuffer();
 
     <T extends CommandBuffer> void submit(T cmd, CommandBuffer.SubmitInfo info);
     void waitIdle();
 
     /** SWAPCHAIN **/
-    <T extends Swapchain> T createSwapchain(Swapchain.Description info);
+    Swapchain createSwapchain(Swapchain.Description info);
 
 }

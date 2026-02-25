@@ -1,8 +1,9 @@
 package com.vke.api.vulkan.shaders;
 
+import com.vke.api.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.core.vulkan.shader.Shader;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.utils.Identifier;
 import com.vke.utils.Pair;
@@ -40,14 +41,14 @@ public class ShaderProgram {
 
     public Shader[] getShaderArray(VKEngine engine, LogicalDevice device, ShaderCompiler compiler) throws Exception {
         if (shaders == null) {
-            shaders = new Shader[types.size()];
+            shaders = new VulkanShader[types.size()];
 
             int idx = 0;
             for (Map.Entry<ShaderType, Identifier> shaderInfo : types.entrySet()) {
                 ShaderType type = shaderInfo.getKey();
                 Identifier id = shaderInfo.getValue();
                 byte[] bytes = Utils.readAllBytesAndClose(id.asInputStream());
-                Shader s = new Shader(engine, device,
+                VulkanShader s = new VulkanShader(engine, device,
                         compiler.compileGlslToSpirV(bytes, type, id),
                         type);
                 shaders[idx++] = s;
