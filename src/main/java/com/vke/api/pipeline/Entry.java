@@ -1,7 +1,6 @@
 package com.vke.api.pipeline;
 
 import com.vke.core.services.shr.ReflectedShader;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.util.spvc.Spvc;
 
 public class Entry {

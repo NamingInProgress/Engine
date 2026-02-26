@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.sync;
 
-import com.vke.api.abstraction.sync.Semaphore;
+import com.vke.api.rendering.abstraction.sync.Semaphore;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
 import org.lwjgl.system.MemoryStack;

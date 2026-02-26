@@ -1,9 +1,9 @@
 package com.vke.test.app;
 
 import com.vke.api.utils.AlignedByteBuffer;
-import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
+import com.vke.api.rendering.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.api.abstraction.descriptors.ShaderType;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
 import org.joml.Matrix4f;
 
 import java.nio.ByteBuffer;

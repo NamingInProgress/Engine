@@ -1,6 +1,6 @@
 package com.vke.api.registry.registries;
 
-import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Identifier;

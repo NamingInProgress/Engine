@@ -1,4 +1,7 @@
 package com.vke.api.pipeline.handles.parsing.node;
 
-public interface Node {
+public abstract class Node {
+
+    public Node child;
+
 }

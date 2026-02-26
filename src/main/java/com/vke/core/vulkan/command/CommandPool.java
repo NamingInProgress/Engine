@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.command;
 
 import com.vke.core.VKEngine;
-import com.vke.api.abstraction.descriptors.QueueType;
+import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

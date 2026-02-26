@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.descriptor;
 
-import com.vke.api.abstraction.IntEnum;
+import com.vke.api.rendering.abstraction.IntEnum;
 import com.vke.api.pipeline.fucvk.DescriptorData;
 import org.lwjgl.vulkan.VK14;
 

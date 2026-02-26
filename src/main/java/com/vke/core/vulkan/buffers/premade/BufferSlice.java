@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.abstraction.descriptors.buffer.PackingType;
+import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
 

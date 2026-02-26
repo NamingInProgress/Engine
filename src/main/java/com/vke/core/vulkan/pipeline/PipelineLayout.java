@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.pipeline.fucvk.DescriptorData;
-import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
+import com.vke.api.rendering.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.descriptor.DescriptorSetLayout;
 import com.vke.core.vulkan.device.LogicalDevice;
@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PipelineLayout implements com.vke.api.abstraction.pipeline.PipelineLayout {
+public class PipelineLayout implements com.vke.api.rendering.abstraction.pipeline.PipelineLayout {
 
     private long handle;
     private final LinkedHashMap<String, PushConstantsDefinition> pushConstants;

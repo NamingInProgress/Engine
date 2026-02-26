@@ -1,11 +1,13 @@
 package com.vke.api.pipeline;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
-import com.vke.api.abstraction.IntEnum;
-import com.vke.api.pipeline.handles.UniformHandle;
+import com.vke.api.rendering.abstraction.IntEnum;
+import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Disposable;
 import com.vke.utils.Utils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
@@ -37,36 +39,35 @@ public abstract class DescriptorData implements Disposable {
 
     protected abstract UniformHandle createHandle(String name);
 
-    public static class Binding {
+    public abstract static class Binding {
 
-        public String name;
-        public Type type;
-        public VulkanShader.Stages stages;
-        public Struct struct;
-        public long buf;
-        public long gpuBuf;
-        public int textureCount;
+        public final String name;
+        public final Type type;
+        public final VulkanShader.Stages stages;
+        public final @Nullable Struct struct; // STRUCT'S SIZE MUST ABSOLUTELY MUSTTT BE BYTE ALIGNED TO WHATEVER THE BUFFER REQUIRES AND SHIT
+        public final int binding;
+        public final int descriptorCount; // -1 if it's not an array
 
-        public Binding(Binding b, VulkanShader.Stages stages, long buf, long gpuBuf) {
-            this(b.name, b.type, stages, b.struct, buf, gpuBuf, b.textureCount);
+        public Binding(Binding b, VulkanShader.Stages stages, int descriptorCount) {
+            this(b.name, b.binding, b.type, stages, b.struct, descriptorCount);
         }
 
-        public Binding(String name, Type type, Struct struct, int textureCount) {
-            this(name, type, null, struct, 0, 0, textureCount);
+        public Binding(String name, int binding, Type type, @Nullable Struct struct, int descriptorCount) {
+            this(name, binding, type, null, struct, descriptorCount);
         }
 
-        public Binding(String name, Type type, VulkanShader.Stages stages, Struct struct, long buf, long gpuBuf, int textureCount) {
+        public Binding(String name, int binding, Type type, VulkanShader.Stages stages, @Nullable Struct struct, int descriptorCount) {
             this.name = name;
             this.type = type;
             this.stages = stages;
             this.struct = struct;
-            this.buf = buf;
-            this.gpuBuf = gpuBuf;
-            this.textureCount = textureCount;
+            this.binding = binding;
+            this.descriptorCount = descriptorCount;
         }
 
         public boolean compare(Binding b) {
-            return name.equals(b.name) && type == b.type && struct.equals(b.struct);
+            boolean structEquals = struct == null || struct.equals(b.struct);
+            return name.equals(b.name) && type == b.type && structEquals;
         }
 
         public enum Type implements IntEnum {
@@ -99,6 +100,41 @@ public abstract class DescriptorData implements Disposable {
 
         }
 
+    }
+
+    public static class BufferBinding extends Binding {
+        public final long buf;
+        public final long gpuBuf;
+        public final int totalSize;
+
+        public BufferBinding(BufferBinding b, VulkanShader.Stages stages, long cpuBuffer, long gpuBuffer, int arraySize, int totalSize) {
+            this(b.name, b.binding, b.type, stages, b.struct, cpuBuffer, gpuBuffer, arraySize, totalSize);
+        }
+
+        public BufferBinding(String name, int binding, Type type, @NotNull Struct struct, int arraySize, int totalSize) {
+            this(name, binding, type, null, struct, 0, 0, arraySize, totalSize);
+        }
+
+        public BufferBinding(String name, int binding, Type type, VulkanShader.Stages stages, @NotNull Struct struct, long cpuBuffer, long gpuBuffer, int arraySize, int totalSize) {
+            super(name, binding, type, stages, struct, arraySize);
+            this.buf = cpuBuffer;
+            this.gpuBuf = gpuBuffer;
+            this.totalSize = totalSize;
+        }
+    }
+
+    public static class ImageBinding extends Binding {
+        public ImageBinding(Binding b, VulkanShader.Stages stages, int arraySize) {
+            this(b.name, b.binding, b.type, stages, b.struct, arraySize);
+        }
+
+        public ImageBinding(String name, int binding, Type type, @Nullable Struct struct, int arraySize) {
+            this(name, binding, type, null, struct, arraySize);
+        }
+
+        public ImageBinding(String name, int binding, Type type, VulkanShader.Stages stages, @Nullable Struct struct, int arraySize) {
+            super(name, binding, type, stages, struct, arraySize);
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 package com.vke.core.assets.handles.rendering.pipeline;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 
 import java.io.IOException;

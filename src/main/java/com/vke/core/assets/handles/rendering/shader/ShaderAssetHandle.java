@@ -1,8 +1,8 @@
 package com.vke.core.assets.handles.rendering.shader;
 
-import com.vke.api.abstraction.RenderDevice;
-import com.vke.api.abstraction.descriptors.ShaderType;
-import com.vke.api.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.rendering.RenderingAssetHandle;
 import com.vke.utils.Identifier;

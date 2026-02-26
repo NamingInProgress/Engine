@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.shader;
 
-import com.vke.api.abstraction.descriptors.ShaderType;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryUtil;

@@ -1,12 +1,7 @@
 package com.vke.core.assets.handles.rendering.tex;
 
-import com.vke.api.abstraction.RenderDevice;
-import com.vke.api.abstraction.Renderer;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.shader.Shader;
-import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetUnavailableException;
-import com.vke.core.EngineCreateInfo;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.rendering.RenderingAssetHandle;
 import com.vke.core.file.png.Pixels;

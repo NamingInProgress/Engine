@@ -1,8 +1,8 @@
 package com.vke.core.vulkan.sampler;
 
-import com.vke.api.abstraction.RenderDevice;
-import com.vke.api.abstraction.data.Sampler;
-import com.vke.api.abstraction.descriptors.Filter;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.data.Sampler;
+import com.vke.api.rendering.abstraction.enums.Filter;
 
 public class Samplers {
 

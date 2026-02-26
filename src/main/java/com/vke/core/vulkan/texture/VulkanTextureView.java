@@ -1,11 +1,6 @@
 package com.vke.core.vulkan.texture;
 
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.texture.ImageAspect;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
-import com.vke.api.abstraction.descriptors.texture.TextureType;
-import com.vke.api.vulkan.ImageLayout;
-import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;

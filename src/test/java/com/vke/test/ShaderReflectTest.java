@@ -1,6 +1,6 @@
 package com.vke.test;
 
-import com.vke.api.abstraction.descriptors.ShaderType;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.app.App;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -98,7 +98,15 @@ public class ShaderReflectTest {
                         int set = Spvc.spvc_compiler_get_decoration(compiler, resource.id(), Spv.SpvDecorationDescriptorSet);
                         int binding = Spvc.spvc_compiler_get_decoration(compiler, resource.id(), Spv.SpvDecorationBinding);
 
+                        // Block type name
+                        String blockName = Spvc.spvc_compiler_get_name(compiler, resource.base_type_id());
+
+                        // Variable name (what you want)
+                        String varName = Spvc.spvc_compiler_get_name(compiler, resource.id());
+
                         System.out.println("Uniform: " + resource.nameString());
+                        System.out.println("BASE TYPE NAME: " + blockName);
+                        System.out.println("ID TYPE NAME: " + varName);
                         System.out.println("ID: " + resource.id());
                         System.out.println("Set = " + set);
                         System.out.println("Binding = " + binding);
@@ -106,6 +114,12 @@ public class ShaderReflectTest {
 
                         long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.base_type_id());
                         int memberCount = Spvc.spvc_type_get_num_member_types(typeHandle);
+
+                        int nArrayDim = Spvc.spvc_type_get_num_array_dimensions(typeHandle);
+                        System.out.println("num array dim: " + nArrayDim);
+                        System.out.println("array dimension: " + Spvc.spvc_type_get_array_dimension(typeHandle, 1));
+
+
                         for (int j = 0; j < memberCount; j++) {
                             String memberName = Spvc.spvc_compiler_get_member_name(compiler, resource.base_type_id(), j);
                             int memberTypeId = Spvc.spvc_type_get_member_type(typeHandle, j);

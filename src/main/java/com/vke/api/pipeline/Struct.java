@@ -10,6 +10,8 @@ public class Struct {
 
     public final HashMap<String, Entry> entries = new HashMap<>();
 
+    public int offset = 0;
+
     public int sizeof() { return entries.values().stream().mapToInt(e -> (int) e.size).sum(); }
 
     public Entry getEntry(String name) { return entries.get(name); }

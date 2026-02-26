@@ -1,10 +1,8 @@
 package com.vke.api.pipeline.handles;
 
-import com.vke.api.abstraction.descriptors.buffer.PackingType;
+import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
-import org.lwjgl.system.MemoryUtil;
 
-import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class PushConstantHandle extends DataHandle {

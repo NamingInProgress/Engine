@@ -1,9 +1,9 @@
 package com.vke.core.vulkan;
 
-import com.vke.api.abstraction.Renderer;
-import com.vke.api.abstraction.commands.CommandBuffer;
-import com.vke.api.abstraction.descriptors.QueueType;
-import com.vke.api.abstraction.swapchain.Swapchain;
+import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.core.EngineCreateInfo;

@@ -1,19 +1,11 @@
 package com.vke.core.vulkan.texture;
 
-import com.vke.api.abstraction.data.Buffer;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
-import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
-import com.vke.api.abstraction.descriptors.texture.ImageAspect;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
-import com.vke.api.abstraction.descriptors.texture.TextureType;
-import com.vke.api.vulkan.ImageLayout;
-import com.vke.core.VKEngine;
-import com.vke.core.rendering.imageloading.ImageData;
-import com.vke.core.rendering.imageloading.LowLevelImageLoader;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
+import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.TextureType;
+import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
@@ -21,13 +13,10 @@ import com.vke.core.vulkan.extent.VulkanExtentUtils;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.*;
 
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 
 public class VulkanImage implements Disposable {

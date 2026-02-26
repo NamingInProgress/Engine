@@ -1,9 +1,8 @@
 package com.vke.core.vulkan.device;
 
-import com.vke.api.abstraction.IntEnum;
-import com.vke.api.abstraction.descriptors.DeviceCapabilities;
-import com.vke.api.abstraction.descriptors.GpuType;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.IntEnum;
+import com.vke.api.rendering.abstraction.enums.DeviceCapabilities;
+import com.vke.api.rendering.abstraction.enums.GpuType;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.Disposable;

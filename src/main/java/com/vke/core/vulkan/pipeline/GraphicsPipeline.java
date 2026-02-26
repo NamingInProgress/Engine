@@ -2,13 +2,13 @@ package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
-import com.vke.api.abstraction.data.Sampler;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.vulkan.ImageLayout;
+import com.vke.api.rendering.abstraction.data.Sampler;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
 import com.vke.api.pipeline.fucvk.DescriptorData;
-import com.vke.api.vulkan.pipeline.PushConstantsDefinition;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pipeline.PushConstantsDefinition;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.VKUtils;
@@ -282,7 +282,7 @@ public class GraphicsPipeline implements Disposable {
         VK14.vkDestroyPipeline(device.getLogicalDevice().getDevice(), handle, null);
     }
 
-    public com.vke.api.abstraction.pipeline.PipelineLayout layout() {
+    public com.vke.api.rendering.abstraction.pipeline.PipelineLayout layout() {
         return this.layout;
     }
 

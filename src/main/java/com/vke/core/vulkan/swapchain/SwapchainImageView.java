@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.swapchain;
 
-import com.vke.api.abstraction.descriptors.texture.ImageAspect;
-import com.vke.api.vulkan.ImageLayout;
+import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
+import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.texture.VKTextureUtil;

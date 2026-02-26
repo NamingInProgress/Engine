@@ -1,16 +1,15 @@
 package com.vke.api.pipeline;
 
-import com.vke.api.abstraction.descriptors.CompareOp;
-import com.vke.api.abstraction.descriptors.ShaderType;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
+import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
+import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
+import com.vke.api.rendering.abstraction.enums.CompareOp;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.parsing.config.node.ConfigArrayNode;
-import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.ConfigNumberNode;
-import com.vke.api.parsing.config.node.ConfigObjectNode;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
-import com.vke.api.vulkan.shaders.ShaderProgram;
+import com.vke.api.parsing.config.node.*;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.assets.handles.rendering.shader.ShaderProgramAssetHandle;
 import com.vke.utils.Identifier;
 import com.vke.utils.iter.helpers.Option;
@@ -20,7 +19,8 @@ import java.util.*;
 
 public class PipelineData {
 
-    private DescriptorData descriptorData;
+    private ArrayList<DescriptorSetLayout> descriptorLayouts;
+    private DescriptorsInfo additionalDescriptorInfo;
     private PushConstantsData pushConstantsData;
     private VertexLayoutData vertexLayoutData;
 
@@ -68,12 +68,17 @@ public class PipelineData {
             HAS_STENCIL_ATTACHMENT_NAME = "stencilAttachment",
             AUTO_REGISTER_DYNAMIC_STATES_NAME = "autoRegisterDynamicStates",
             SHADERS_ARRAY_NAME = "shaders",
-    BLEND_CONSTANTS_NAME = "blendConstants";
+    BLEND_CONSTANTS_NAME = "blendConstants",
+    DYNAMIC_BUFFERS_ARRAY_NAME = "dynamicBuffers",
+    RUNTIME_SIZE_ARRAYS_NAME = "runtimeSizeArrays";
 
     private static final String
             SHADERS_ARRAY_IDENTIFIER_NAME = "src",
             SHADERS_ARRAY_TYPE_NAME = "type";
 
+    private static final String
+            RUNTIME_SIZE_ARRAYS_NAME_NAME = "name",
+            RUNTIME_SIZE_ARRAYS_SIZE_NAME = "size";
 
     public static PipelineData fromConfig(ConfigDocument document) {
         ConfigNode root = document.getRoot();
@@ -93,7 +98,8 @@ public class PipelineData {
         pd.autoRegisterDynamicStates = root.getBooleanOption(AUTO_REGISTER_DYNAMIC_STATES_NAME).unwrapOr(pd.autoRegisterDynamicStates);
         pd.blendConstants = float4OrDefault(root, BLEND_CONSTANTS_NAME, pd.blendConstants);
         pd.shaders = shaders(root);
-        pd.attachments = attachments(root, ATTACHMENTS_ARRAY_NAME);
+        pd.attachments = attachments(root);
+        pd.additionalDescriptorInfo = descriptorsInfo(root);
         return pd;
     }
 
@@ -140,7 +146,34 @@ public class PipelineData {
         return new ShaderProgramAssetHandle(shaderSources);
     }
 
-    public static ArrayList<AttachmentInfo> attachments(ConfigNode parent, String fieldName) {
+    public static DescriptorsInfo descriptorsInfo(ConfigNode parent) {
+        DescriptorsInfo di = new DescriptorsInfo();
+
+        Option<ConfigArrayNode> dynamicBufferOptional = parent.getArrayOption(DYNAMIC_BUFFERS_ARRAY_NAME);
+        if (dynamicBufferOptional.isSome()) {
+            for (ConfigNode n : dynamicBufferOptional.unwrap().values()) {
+                String name = n.asString();
+                di.dynamicBuffers.add(name);
+            }
+        }
+
+        Option<ConfigArrayNode> runtimeSizeArraysOptional = parent.getArrayOption(RUNTIME_SIZE_ARRAYS_NAME);
+        if (runtimeSizeArraysOptional.isSome()) {
+            for (ConfigNode n : runtimeSizeArraysOptional.unwrap().values()) {
+                ConfigObjectNode obj = n.asObject();
+                String name = obj.getString(RUNTIME_SIZE_ARRAYS_NAME_NAME);
+                int size = obj.getInt(RUNTIME_SIZE_ARRAYS_SIZE_NAME);
+
+                if (size < 1) throw new IllegalStateException("Cannot create runtime size array of size " + size);
+
+                di.runtimeSizeArraySizes.put(name, size);
+            }
+        }
+
+        return di;
+    }
+
+    public static ArrayList<AttachmentInfo> attachments(ConfigNode parent) {
         ArrayList<AttachmentInfo> attachments = new ArrayList<>();
         Option<ConfigArrayNode> arrNodeOpt = parent.getArrayOption(ATTACHMENTS_ARRAY_NAME);
         if (arrNodeOpt.isNone()) return attachments;

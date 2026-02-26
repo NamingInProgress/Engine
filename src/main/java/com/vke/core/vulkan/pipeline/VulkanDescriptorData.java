@@ -1,21 +1,21 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.vke.api.abstraction.data.Sampler;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
-import com.vke.api.abstraction.descriptors.buffer.PackingType;
+import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.DescriptorData;
 import com.vke.api.pipeline.Entry;
-import com.vke.api.pipeline.handles.UniformHandle;
+import com.vke.api.pipeline.handles.parsing.HandleParser;
+import com.vke.api.pipeline.handles.parsing.node.ArrayIndexNode;
+import com.vke.api.pipeline.handles.parsing.node.BaseNode;
+import com.vke.api.pipeline.handles.parsing.node.BindingNode;
+import com.vke.api.pipeline.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.handles.*;
 import com.vke.core.VKEngine;
-import com.vke.core.logger.LoggerFactory;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.utils.Disposable;
 import com.vke.utils.Pair;
 
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class VulkanDescriptorData extends DescriptorData {
+
+    private static final HandleParser parser = new HandleParser();
 
     private final ArrayList<MappedBuffer> buffers = new ArrayList<>();
 
@@ -45,16 +47,19 @@ public class VulkanDescriptorData extends DescriptorData {
 
         AtomicInteger i = new AtomicInteger(0);
         bindingData.forEach((pair) -> {
-            MappedBuffer buffer = null;
-
-            if (pair.v1.type.isBuffer()) {
-                BufferUsage usage = new BufferUsage(pair.v1.type == Binding.Type.STORAGE_BUFFER ? BufferUsage.Bits.SSBO : BufferUsage.Bits.UBO);
-                buffer = new MappedBuffer(engine, device, pair.v1.struct.sizeof(), usage);
+            Binding binding = pair.v1;
+            VulkanShader.Stages stages = pair.v2;
+            if (binding.type.isBuffer()) {
+                BufferBinding bufferBinding = (BufferBinding) binding;
+                int totalSize = Math.abs(binding.struct.sizeof() * bufferBinding.descriptorCount);
+                BufferUsage usage = new BufferUsage(binding.type == Binding.Type.STORAGE_BUFFER ? BufferUsage.Bits.SSBO : BufferUsage.Bits.UBO);
+                MappedBuffer buffer = new MappedBuffer(engine, device, totalSize, usage);
                 buffers.add(buffer);
-            }
 
-            Binding binding = new Binding(pair.v1, pair.v2, buffer == null ? 0 : buffer.getMappedAddress(), buffer == null ? 0 : buffer.getGpuBuffer().getBuffer());
-            set.bindings.put(i.getAndIncrement(), binding);
+                set.bindings.put(i.getAndIncrement(), new BufferBinding(bufferBinding, stages, buffer.getMappedAddress(), buffer.getGpuBuffer().getBuffer(), bufferBinding.descriptorCount, totalSize));
+            } else {
+                set.bindings.put(i.getAndIncrement(), new ImageBinding(binding, stages, ((ImageBinding) binding).descriptorCount));
+            }
         });
 
         sets.put(set.getSet(), set);
@@ -63,58 +68,109 @@ public class VulkanDescriptorData extends DescriptorData {
 
     @Override
     protected UniformHandle createHandle(String name) {
-        String[] split = name.split("\\.");
-        if (split.length == 1) split = new String[]{ split[0], split[0] };
-        Entry e = null;
-        Binding binding = null;
-        int set = 0, bindingIdx = 0;
-        long setHandle = 0;
+        BaseNode master = parser.parse(name);
+        BindingNode bindingNode = master.child;
+        Node child = bindingNode.child;
 
-        outer:
-        for (IntObjectCursor<Set> setCursor : sets) {
-            for (IntObjectCursor<Binding> bindingCursor : setCursor.value.bindings) {
-                if (!bindingCursor.value.name.equals(split[0])) continue;
+        if (child == null) return fastEOL(bindingNode.name);
 
-                e = bindingCursor.value.struct.getEntry(split[1]);
-                set = setCursor.key;
-                bindingIdx = bindingCursor.key;
-                binding = bindingCursor.value;
-                setHandle = ((VulkanSet) setCursor.value).handle;
-                break outer;
+        Pair<Set, Binding> base = getBase(bindingNode.name);
+        VulkanSet set = (VulkanSet) base.v1;
+        Binding binding = base.v2;
+        ResolveState state = new ResolveState();
+        state.setHandle = set.handle;
+        state.binding = binding.binding;
+        state.type = binding.type;
+
+        if (child instanceof ArrayIndexNode ain) {
+            if (binding.descriptorCount > 1) {
+                state.descriptorArrayIndex = ain.index;
+                child = ain.child;
+            } else {
+                throw new IllegalStateException("Cannot index into non array descriptor!");
             }
         }
 
-        if (e == null) return null;
+        while (child != null) {
+            if (child instanceof ArrayIndexNode ain) {
 
-        UniformHandle handle = new UniformHandle();
-        handle.set = set;
-        handle.binding = bindingIdx;
-        handle.size = (int) e.size;
-        handle.offset = e.offset;
-        handle.packing = PackingType.STD140;
-        handle.bindingType = binding.type;
-        handle.buffer = binding.buf;
-        handle.setHandle = setHandle;
-        if (binding.textureCount > 0) {
-            handle.textures = new Texture[binding.textureCount];
-            if (binding.type == Binding.Type.COMBINED_IMAGE_SAMPLER)
-                handle.samplers = new Sampler[binding.textureCount];
+            }
+
+            child = child.child;
         }
 
-        handle.flushCallback = this::flush;
+        return null;
+    }
 
-        return handle;
+    public static class ResolveState {
+        long setHandle;
+        int binding;
+        Binding.Type type;
+        int descriptorArrayIndex = -1;
+
+        Entry.BaseType baseType;
+        long offset = 0;
+    }
+
+    public UniformHandle fastEOL(String bindingName) {
+        Pair<Set, Binding> base = getBase(bindingName);
+        if (base == null) throw new IllegalStateException("Unknown uniform " + bindingName);
+
+        VulkanSet set = (VulkanSet) base.v1;
+        Binding binding = base.v2;
+
+        return switch (binding.type) {
+            case COMBINED_IMAGE_SAMPLER -> getFromCISType(set, (ImageBinding) binding);
+            case STORAGE_IMAGE -> getFromSIType(set, (ImageBinding) binding);
+            case UNIFORM_BUFFER, STORAGE_BUFFER -> getFromBufferType(set, (BufferBinding) binding, binding.type);
+        };
+    }
+
+    public UniformHandle getFromCISType(VulkanSet set, ImageBinding binding) {
+        if (binding.descriptorCount == -1) { // -1 specifies it is a single sampler not a sampler[]
+            return new SamplerHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, -1);
+        } else {
+            return new SamplerArrayHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, binding.descriptorCount);
+        }
+    }
+
+    public UniformHandle getFromSIType(VulkanSet set, ImageBinding binding) {
+        if (binding.descriptorCount == -1) { // -1 specifies it is a single image not a image[]
+            return new ImageHandle(set.handle, binding.binding, Binding.Type.STORAGE_IMAGE, PackingType.STD140, -1);
+        } else {
+            return new ImageArrayHandle(set.handle, binding.binding, Binding.Type.STORAGE_IMAGE, PackingType.STD140, binding.descriptorCount);
+        }
+    }
+
+    public UniformHandle getFromBufferType(VulkanSet set, BufferBinding binding, Binding.Type type) {
+        if (binding.descriptorCount == -1) { // -1 specifies it is a single buffer not a buffer[]
+            return new BufferHandle(set.handle, binding.binding, type, PackingType.STD140, -1, binding.struct.sizeof(), binding.buf, binding.gpuBuf);
+        } else {
+            return new BufferArrayHandle(set.handle, binding.binding, type, PackingType.STD140, binding.descriptorCount, binding.struct.sizeof(), binding.totalSize, binding.buf, binding.gpuBuf);
+        }
+    }
+
+    private Pair<Set, Binding> getBase(String base) {
+        for (IntObjectCursor<Set> setCursor : sets) {
+            for (IntObjectCursor<Binding> bindingCursor : setCursor.value.bindings) {
+                if (!bindingCursor.value.name.equals(base)) continue;
+
+                return new Pair<>(setCursor.value, bindingCursor.value);
+            }
+        }
+
+        return null;
     }
 
     public void flush(UniformHandle handle) {
-        switch (handle.bindingType) {
-            case STORAGE_BUFFER, UNIFORM_BUFFER -> {
-                LoggerFactory.get("Vulkan Descriptor Set").warn("Flushing a buffer uniform (setting the vulkan binding and not writing data). Are you sure this is correct?");
-                writer.writeBuffer(handle.setHandle, handle.binding, handle.size, handle.offset, handle.gpuBuffer, handle.bindingType);
-            }
-            case COMBINED_IMAGE_SAMPLER -> writer.writeSamplers(handle.setHandle, handle.binding, (VulkanTexture[]) handle.textures, (VulkanSampler[]) handle.samplers);
-            case STORAGE_IMAGE -> writer.writeImages(handle.setHandle, handle.binding, (VulkanTexture[]) handle.textures);
-        }
+        //switch (handle.bindingType) {
+        //    case STORAGE_BUFFER, UNIFORM_BUFFER -> {
+        //        LoggerFactory.get("Vulkan Descriptor Set").warn("Flushing a buffer uniform (setting the vulkan binding and not writing data). Are you sure this is correct?");
+        //        writer.writeBuffer(handle.setHandle, handle.binding, handle.size, handle.offset, handle.gpuBuffer, handle.bindingType);
+        //    }
+        //    case COMBINED_IMAGE_SAMPLER -> writer.writeSamplers(handle.setHandle, handle.binding, (VulkanTexture[]) handle.textures, (VulkanSampler[]) handle.samplers);
+        //    case STORAGE_IMAGE -> writer.writeImages(handle.setHandle, handle.binding, (VulkanTexture[]) handle.textures);
+        //}
 
     }
 

@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.vulkan.buffer.Vertex;
-import com.vke.api.vulkan.buffer.VertexBuffer;
+import com.vke.api.rendering.vulkan.buffer.Vertex;
+import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.vke.test.app;
 
 import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
-import com.vke.api.vulkan.buffer.Vertex;
+import com.vke.api.rendering.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.VKEAssetManager;
 import com.vke.core.vulkan.buffers.premade.MeshBuffer;

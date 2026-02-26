@@ -1,7 +1,7 @@
 package com.vke.core.assets.handles.rendering;
 
-import com.vke.api.abstraction.RenderDevice;
-import com.vke.api.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.CacheOnceAssetHandle;

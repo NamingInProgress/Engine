@@ -1,13 +1,12 @@
 package com.vke.core.vulkan.descriptor;
 
-import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
-import com.vke.api.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import com.vke.core.vulkan.buffers.MappedBuffer;
-import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.texture.VulkanTexture;

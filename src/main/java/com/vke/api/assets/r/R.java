@@ -1,8 +1,8 @@
 package com.vke.api.assets.r;
 
-import com.vke.api.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.utils.Identifier;
 
 import java.io.IOException;

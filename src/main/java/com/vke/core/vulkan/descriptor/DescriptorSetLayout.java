@@ -2,7 +2,7 @@ package com.vke.core.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.vke.api.abstraction.IntEnum;
+import com.vke.api.rendering.abstraction.IntEnum;
 import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;

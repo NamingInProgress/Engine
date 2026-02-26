@@ -1,4 +1,4 @@
-package com.vke.api.pipeline;
+package com.vke.api.pipeline.handles.parsing;
 
 import java.util.ArrayDeque;
 
@@ -60,6 +60,66 @@ public class HandleLexer {
                 yield new HandleToken(TokenType.LITERAL, sb.toString());
             }
         };
+    }
+
+    public HandleToken expectLiteral() {
+        return expectLiteral("");
+    }
+
+    public HandleToken expectNumber() {
+        return expectNumber("");
+    }
+
+    public HandleToken expectLBracket() {
+        return expectLBracket("");
+    }
+
+    public HandleToken expectRBracket() {
+        return expectRBracket("");
+    }
+
+    public HandleToken expectDot() {
+        return expectDot("");
+    }
+
+    public HandleToken expectEOL() {
+        return expectEOL("");
+    }
+
+    public HandleToken expectLiteral(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.LITERAL) throw new IllegalStateException("Expected LITERAL" + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
+    }
+
+    public HandleToken expectNumber(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.NUM_LITERAL) throw new IllegalStateException("Expected NUMBER" + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
+    }
+
+    public HandleToken expectLBracket(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.LBRACKET) throw new IllegalStateException("Expected [" + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
+    }
+
+    public HandleToken expectRBracket(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.RBRACKET) throw new IllegalStateException("Expected ]" + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
+    }
+
+    public HandleToken expectDot(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.DOT) throw new IllegalStateException("Expected ." + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
+    }
+
+    public HandleToken expectEOL(String after) {
+        HandleToken t = nextToken();
+        if (t.type != TokenType.EOL) throw new IllegalStateException("Expected EOL" + (after.isEmpty() ? "" : " after " + after) + " but found " + t.type);
+        return t;
     }
 
     public boolean isPartOfLiteral(char c) {

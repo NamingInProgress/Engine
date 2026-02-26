@@ -1,8 +1,8 @@
 package com.vke.api.pipeline.handles;
 
-import com.vke.api.abstraction.data.Sampler;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.buffer.PackingType;
+import com.vke.api.rendering.abstraction.data.Sampler;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.DescriptorData;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 import org.jetbrains.annotations.Nullable;

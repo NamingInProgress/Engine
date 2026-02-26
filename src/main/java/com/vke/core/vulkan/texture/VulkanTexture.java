@@ -1,12 +1,12 @@
 package com.vke.core.vulkan.texture;
 
-import com.vke.api.abstraction.data.Buffer;
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
-import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
-import com.vke.api.abstraction.descriptors.texture.TextureType;
-import com.vke.api.vulkan.ImageLayout;
+import com.vke.api.rendering.abstraction.data.Buffer;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.TextureType;
+import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.memory.AutoHeapAllocator;
@@ -20,7 +20,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferImageCopy;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class VulkanTexture implements Texture {

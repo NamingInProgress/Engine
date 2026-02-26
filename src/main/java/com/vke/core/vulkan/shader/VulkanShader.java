@@ -1,8 +1,8 @@
 package com.vke.core.vulkan.shader;
 
-import com.vke.api.abstraction.IntBitEnum;
-import com.vke.api.abstraction.descriptors.ShaderType;
-import com.vke.api.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.IntBitEnum;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
 import org.lwjgl.system.MemoryStack;

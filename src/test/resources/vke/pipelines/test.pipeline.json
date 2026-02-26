@@ -30,5 +30,8 @@
       "src": "vke:shaders/test.fsh"
     }
   ],
-  "auto_values": [ "global.time" ]
+  "dynamicBuffers": [ "UBO" ],
+  "runtimeSizeArrays": [
+    { "name": "UBO.values", "size": 15 }
+  ]
 }

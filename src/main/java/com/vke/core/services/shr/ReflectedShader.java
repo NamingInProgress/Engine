@@ -57,7 +57,11 @@ public class ReflectedShader implements Disposable {
             bdr.set = resource.set;
             bdr.binding = resource.binding;
             bdr.name = resource.name;
-            bdr.struct = generateStruct(resource);
+            if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
+                bdr.struct = generateStruct(resource);
+            }
+            bdr.baseTypeRaw = resource.baseType;
+            bdr.baseType = Entry.BaseType.fromSpvc(resource.baseType);
 
             bdr.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.baseTypeId);
             bdr.arrayDim = new int[bdr.nArrayDim];
@@ -180,7 +184,7 @@ public class ReflectedShader implements Disposable {
             Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.parentBaseTypeId, member.idx, buf);
             member.arrayStride = buf.get(0);
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
-                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId);
+                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
                 member.struct = generateStruct(resource);
             }
         }
@@ -204,7 +208,7 @@ public class ReflectedShader implements Disposable {
             member.matrixRows = Spvc.spvc_type_get_vector_size(member.typeHandle);
             member.matrixColumns = Spvc.spvc_type_get_columns(member.typeHandle);
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
-                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId);
+                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
                 member.struct = generateStruct(resource);
             }
         }
@@ -228,6 +232,7 @@ public class ReflectedShader implements Disposable {
                     resource.id,
                     resource.baseTypeId,
                     resource.typeId,
+                    resource.baseType,
                     set,
                     binding,
                     location,
@@ -256,7 +261,9 @@ public class ReflectedShader implements Disposable {
 
             int i = 0;
             for (SpvcReflectedResource res : resourcesBuffer) {
-                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id());
+                long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.id());
+                int baseType = Spvc.spvc_type_get_basetype(typeHandle);
+                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType);
             }
 
             resourcesBuffer.free();
@@ -275,12 +282,14 @@ public class ReflectedShader implements Disposable {
         public int id;
         public int baseTypeId;
         public int typeId;
+        public int baseType;
 
-        public SPVCResource(String name, int id, int baseTypeId, int typeId) {
+        public SPVCResource(String name, int id, int baseTypeId, int typeId, int baseType) {
             this.name = name;
             this.id = id;
             this.baseTypeId = baseTypeId;
             this.typeId = typeId;
+            this.baseType = baseType;
         }
     }
 
@@ -290,8 +299,8 @@ public class ReflectedShader implements Disposable {
         public int location;
         public int arrayStride, matrixStride;
 
-        public SPVCDescriptorResource(String name, int id, int baseTypeId, int typeId, int set, int binding, int location, int arrayStride, int matrixStride) {
-            super(name, id, baseTypeId, typeId);
+        public SPVCDescriptorResource(String name, int id, int baseTypeId, int typeId, int baseType, int set, int binding, int location, int arrayStride, int matrixStride) {
+            super(name, id, baseTypeId, typeId, baseType);
             this.set = set;
             this.binding = binding;
             this.location = location;
@@ -316,6 +325,8 @@ public class ReflectedShader implements Disposable {
     public static class BufferDescriptorResource extends DescriptorResource {
 
         public Struct struct;
+        public int baseTypeRaw;
+        public Entry.BaseType baseType;
 
         public int nArrayDim;
         public int[] arrayDim;

@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.vulkan.buffer.CpuBuffer;
+import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
