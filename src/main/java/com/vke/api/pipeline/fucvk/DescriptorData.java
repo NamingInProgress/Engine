@@ -11,7 +11,6 @@ import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.parsing.config.xml.XmlParser;
-import com.vke.core.vulkan.descriptor.DescriptorType;
 import com.vke.core.vulkan.descriptor.wrapper.JsonDescriptorData;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Identifier;

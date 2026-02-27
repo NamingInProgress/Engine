@@ -1,6 +1,7 @@
-package com.vke.api.pipeline.handles.parsing;
+package com.vke.api.rendering.vulkan.descriptors.handles.parsing;
 
 import com.vke.api.pipeline.handles.parsing.node.*;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.*;
 
 public class HandleParser {
 

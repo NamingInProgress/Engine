@@ -1,10 +1,10 @@
 package com.vke.api.rendering.vulkan.descriptors.types;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class StructType extends TypeLayout {
 
-    public List<Member> members;
+    public HashMap<String, Member> members;
 
     public static class Member {
         public String name;

@@ -5,12 +5,18 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.DescriptorData;
 import com.vke.api.pipeline.Entry;
-import com.vke.api.pipeline.handles.parsing.HandleParser;
-import com.vke.api.pipeline.handles.parsing.node.ArrayIndexNode;
-import com.vke.api.pipeline.handles.parsing.node.BaseNode;
-import com.vke.api.pipeline.handles.parsing.node.BindingNode;
-import com.vke.api.pipeline.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BaseNode;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BindingNode;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
 import com.vke.api.rendering.vulkan.descriptors.handles.*;
+import com.vke.api.rendering.vulkan.descriptors.handles.array.BufferArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors.handles.array.CombinedImageSamplerArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors.handles.array.ImageArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.BufferHandle;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
@@ -128,9 +134,9 @@ public class VulkanDescriptorData extends DescriptorData {
 
     public UniformHandle getFromCISType(VulkanSet set, ImageBinding binding) {
         if (binding.descriptorCount == -1) { // -1 specifies it is a single sampler not a sampler[]
-            return new SamplerHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, -1);
+            return new CombinedImageSamplerHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, -1);
         } else {
-            return new SamplerArrayHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, binding.descriptorCount);
+            return new CombinedImageSamplerArrayHandle(set.handle, binding.binding, Binding.Type.COMBINED_IMAGE_SAMPLER, PackingType.STD140, binding.descriptorCount);
         }
     }
 

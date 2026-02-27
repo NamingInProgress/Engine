@@ -1,7 +1,7 @@
-package com.vke.api.rendering.vulkan.descriptors.handles;
+package com.vke.api.rendering.vulkan.descriptors.handles.single;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.core.vulkan.buffers.premade.BufferSlice;
 
 import java.util.function.Consumer;
@@ -10,7 +10,7 @@ public class EntryHandle extends BufferHandle {
 
     public long offset;
 
-    public EntryHandle(long setHandle, int binding, DescriptorData.Binding.Type bindingType, PackingType packingType, int bufferIndex, int size, long cpuAddress, long gpuAddress, long offset) {
+    public EntryHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, int bufferIndex, int size, long cpuAddress, long gpuAddress, long offset) {
         super(setHandle, binding, bindingType, packingType, bufferIndex, size, cpuAddress, gpuAddress);
         this.offset = offset;
     }

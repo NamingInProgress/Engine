@@ -25,7 +25,7 @@ public class BufferSlice {
     }
 
     public void write(Consumer<ByteBuffer> consumer) {
-        ByteBuffer slice = MemoryUtil.memAlloc(length);
+        ByteBuffer slice = MemoryUtil.memCalloc(length);
         long address = MemoryUtil.memAddress(slice);
         consumer.accept(slice);
 

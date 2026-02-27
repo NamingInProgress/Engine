@@ -28,4 +28,9 @@ public enum DescriptorType implements IntEnum {
     public int getVkHandle() {
         return vkHandle;
     }
+
+    public boolean isBuffer() {
+        return this == UNIFORM_BUFFER || this == UNIFORM_BUFFER_DYNAMIC || this == STORAGE_BUFFER || this == STORAGE_BUFFER_DYNAMIC;
+    }
+
 }

@@ -1,17 +1,32 @@
 package com.vke.api.rendering.vulkan.descriptors;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
-import com.vke.api.pipeline.handles.parsing.HandleParser;
-import com.vke.api.pipeline.handles.parsing.node.BindingNode;
+import com.vke.api.logger.Logger;
+import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
+import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
+import com.vke.api.rendering.vulkan.descriptors.bindings.SamplerBinding;
+import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
+import com.vke.api.rendering.vulkan.descriptors.handles.array.*;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BindingNode;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
-import com.vke.api.rendering.vulkan.descriptors.handles.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors.MOVEME.CompiledDescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.MOVEME.DescriptorAllocator;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.*;
+import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
+import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
+import com.vke.api.rendering.vulkan.descriptors.types.StructType;
+import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.VKEngine;
+import com.vke.core.logger.LoggerFactory;
+import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Disposable;
 
@@ -20,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DescriptorSets implements Disposable {
+
+    public static final Logger logger = LoggerFactory.get("Descriptor Sets");
 
     private final HashMap<String, UniformHandle> HANDLE_CACHE = new HashMap<>();
 
@@ -32,10 +49,12 @@ public class DescriptorSets implements Disposable {
     private final DescriptorAllocator allocator;
 
     private final HandleParser parser = new HandleParser();
+    private final DescriptorWriter writer;
 
     public DescriptorSets(VKEngine engine, VulkanRenderDevice device, ArrayList<DescriptorSetLayout> layouts, DescriptorsInfo additionalInfo) {
         this.engine = engine;
         this.device = device;
+        this.writer = new DescriptorWriter(device);
 
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();
 
@@ -60,6 +79,7 @@ public class DescriptorSets implements Disposable {
         return (T) handle;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends UniformHandle> T createHandle(String name) {
         BindingNode node = parser.parse(name).child;
         DescriptorSet set = null;
@@ -75,14 +95,116 @@ public class DescriptorSets implements Disposable {
 
         if (set == null || binding == null) throw new IllegalStateException("Failed to find binding of name " + node.name);
 
-        return switch (binding.layout.type) {
-            case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> null;
-            case COMBINED_IMAGE_SAMPLER -> null;
-            case SAMPLED_IMAGE -> null;
-            case STORAGE_IMAGE -> null;
-            case SAMPLER -> null;
-            case ACCELERATION_STRUCTURE -> null;
+        boolean isDeep = node.child.child != null;
+        boolean hasIndex = node.child instanceof ArrayIndexNode;
+        int descriptorCount = binding.layout.descriptorCount;
+
+        if (!isDeep) {
+            if (binding.layout.type.isBuffer()) {
+                return (T) resolveShallowBuffer((BufferBinding) binding, set, node, descriptorCount, hasIndex);
+            }
+            return (T) resolveShallowNonBuffer(binding, set, node, descriptorCount, hasIndex);
+        }
+
+        if (!binding.layout.type.isBuffer()) throw new IllegalStateException("Only Buffer type uniforms support deep access!");
+
+        return (T) resolveDeep((BufferBinding) binding, set, node);
+    }
+
+    private UniformHandle resolveDeep(BufferBinding binding, DescriptorSet set, BindingNode ast) {
+        int descriptorIndex = ((ArrayIndexNode) ast.child).index;
+
+        TypeLayout current = binding.layout.typeLayout;
+        long offset = 0;
+
+        Node node = ast.child.child;
+
+        while (node != null) {
+
+            if (node instanceof EntryNode entry) {
+                StructType.Member m = ((StructType) current).members.get(entry.name);
+
+                offset += m.offset;
+                current = m.type;
+            } else if (node instanceof ArrayIndexNode arr) {
+                ArrayType arrType = ((ArrayType) current);
+
+                offset += arr.index * arrType.stride;
+                current = arrType.elementType;
+            }
+
+            node = node.child;
+        }
+
+        BindingLayout layout = binding.layout;
+        long cpuAddress = binding.buffer.getMappedAddress();
+        long gpuAddress = binding.buffer.getGpuBuffer().getBuffer();
+
+        if (current instanceof ArrayType)
+            return new EntryArrayHandle(set.handle, layout.binding, layout.type, layout.packingType, ((ArrayType) current).length, ((ArrayType) current).stride, cpuAddress, gpuAddress, offset);
+
+        return new EntryHandle(set.handle, layout.binding, layout.type, layout.packingType, descriptorIndex, (int) current.size, cpuAddress, gpuAddress, offset); // I really fucking hope this is correct
+    }
+
+    private UniformHandle resolveShallowBuffer(BufferBinding binding, DescriptorSet set, BindingNode node, int descriptorCount, boolean hasIndex) {
+        BindingLayout layout = binding.layout;
+        if (descriptorCount > 1) {
+            if (!hasIndex) {
+                return new BufferArrayHandle(set.handle, layout.binding, layout.type, layout.packingType, layout.descriptorCount, binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+            }
+            return new BufferHandle(set.handle, layout.binding, layout.type, layout.packingType, ((ArrayIndexNode) node.child).index, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+        } else {
+            if (hasIndex) throw new IllegalStateException("Requested buffer with index from a non-array buffer!");
+
+            return new BufferHandle(set.handle, layout.binding, layout.type, layout.packingType, 0, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+        }
+    }
+
+    private UniformHandle resolveShallowNonBuffer(DescriptorBinding binding, DescriptorSet set, BindingNode node, int descriptorCount, boolean hasIndex) {
+        BindingLayout layout = binding.layout;
+        if (descriptorCount > 1) {
+            if (!hasIndex) {
+                return getHandleForNonBufferArrayType(binding, layout, set);
+            }
+            return getHandleForNonBufferType(binding, layout, set, ((ArrayIndexNode) node.child).index);
+        } else {
+            if (hasIndex) throw new IllegalStateException("Requested uniform with index from a non-array uniform!");
+
+            return getHandleForNonBufferType(binding, layout, set, 0);
+        }
+    }
+
+    private UniformHandle getHandleForNonBufferArrayType(DescriptorBinding binding, BindingLayout layout, DescriptorSet set) {
+        return switch (layout.type) {
+            case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerArrayHandle(set.handle, layout.binding, layout.type, null, (CombinedImageSamplerBinding) binding);
+            case SAMPLED_IMAGE, STORAGE_IMAGE -> new ImageArrayHandle(set.handle, layout.binding, layout.type, null, (ImageBinding) binding);
+            case SAMPLER -> new SamplerArrayHandle(set.handle, layout.binding, layout.type, null, (SamplerBinding) binding);
+            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures unsupported!");
+            default -> throw new IllegalStateException("Provided buffer type binding to builder");
         };
+    }
+
+    private UniformHandle getHandleForNonBufferType(DescriptorBinding binding, BindingLayout layout, DescriptorSet set, int index) {
+        return switch (layout.type) {
+            case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerHandle(set.handle, layout.binding, layout.type, null, (CombinedImageSamplerBinding) binding, index);
+            case SAMPLED_IMAGE, STORAGE_IMAGE -> new ImageHandle(set.handle, layout.binding, layout.type, null, (ImageBinding) binding, index);
+            case SAMPLER -> new SamplerHandle(set.handle, layout.binding, layout.type, null, (SamplerBinding) binding, index);
+            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures unsupported!");
+            default -> throw new IllegalStateException("Provided buffer type binding to builder");
+        };
+    }
+
+
+    public void update(UniformHandle... uniforms) {
+        for (UniformHandle uniform : uniforms) {
+            if (uniform instanceof BufferArrayHandle || uniform instanceof BufferHandle || uniform instanceof EntryArrayHandle) {
+                logger.warn("Tried updating a buffer based handle!");
+                continue;
+            }
+            uniform.writeDescriptor(writer);
+        }
+
+        writer.flush();
     }
 
     @Override

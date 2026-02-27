@@ -1,18 +1,23 @@
 package com.vke.api.rendering.vulkan.descriptors.handles;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.pipeline.DescriptorData;
+import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.core.vulkan.descriptor.DescriptorWriter;
+import org.jetbrains.annotations.ApiStatus;
 
-public class UniformHandle {
+public abstract class UniformHandle {
     public final long setHandle;
     public final int binding;
     public final PackingType packingType;
-    public final DescriptorData.Binding.Type bindingType;
+    public final DescriptorType bindingType;
 
-    public UniformHandle(long setHandle, int binding, DescriptorData.Binding.Type bindingType, PackingType packingType) {
+    public UniformHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType) {
         this.setHandle = setHandle;
         this.binding = binding;
         this.bindingType = bindingType;
         this.packingType = packingType;
     }
+
+    @ApiStatus.Internal
+    public abstract void writeDescriptor(DescriptorWriter writer);
 }

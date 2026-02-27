@@ -1,20 +1,17 @@
 package com.vke.api.rendering.vulkan.descriptors.bindings;
 
+import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
+import com.vke.core.vulkan.sampler.VulkanSampler;
 
-public class CombinedImageSamplerBinding extends DescriptorBinding {
+public class CombinedImageSamplerBinding extends ImageBinding {
 
-    public final long[] imageViewHandles;
-    public final long[] samplerHandles;
-    public final int[] imageLayouts;
+    public final VulkanSampler[] samplers;
 
     public CombinedImageSamplerBinding(BindingLayout layout) {
         super(layout);
-        int count = layout.descriptorCount;
 
-        this.imageViewHandles = new long[count];
-        this.samplerHandles = new long[count];
-        this.imageLayouts = new int[count];
+        this.samplers = new VulkanSampler[layout.descriptorCount];
     }
 
 }
