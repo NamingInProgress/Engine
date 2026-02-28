@@ -3,20 +3,28 @@ package com.vke.core.assets;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetManager;
 import com.vke.api.assets.Bundle;
+import com.vke.api.assets.pipeline.AssetPipeline;
+import com.vke.api.assets.pipeline.PipelineContext;
+import com.vke.api.parsing.config.ConfigDocument;
+import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.services.Service;
 import com.vke.core.VKEngine;
 import com.vke.core.event.events.assets.BundleSwapEvent;
+import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.core.services.Services;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
+import com.vke.utils.Utils;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 
 public class VKEAssetManager extends Service implements AssetManager {
-
     private final VKEngine mEngine;
+    private final PipelineContext pipelineContext;
+    private AssetPipeline pipeline;
 
     private Bundle mLoadedBundle;
     private Bundle mGlobalBundleWhichImplementsAssetManager;
@@ -26,9 +34,7 @@ public class VKEAssetManager extends Service implements AssetManager {
         super(Services.ASSET_MANAGER);
         this.mEngine = engine;
         this.mAllBundles = new HashMap<>();
-
-        this.mGlobalBundleWhichImplementsAssetManager = AssetUtils.collectGlobalBundles(engine);
-        AssetUtils.collectBundles(engine, this);
+        this.pipelineContext = new PipelineContext(engine);
     }
 
     public void swapBundle(Identifier bundle) {
@@ -58,6 +64,36 @@ public class VKEAssetManager extends Service implements AssetManager {
             this.mLoadedBundle.free();
         }
         this.mLoadedBundle = null;
+    }
+
+    @Override
+    public PipelineContext getPipelineContext() {
+        return pipelineContext;
+    }
+
+    @Override
+    public void initialize() {
+        initPipeline();
+        this.mGlobalBundleWhichImplementsAssetManager = AssetUtils.collectGlobalBundles(mEngine, pipeline);
+        AssetUtils.collectBundles(mEngine, this, pipeline);
+    }
+
+    private void initPipeline() {
+        Identifier assetsXMLIdent = new Identifier(mEngine.getAppNamespace(), "assets/assets.xml");
+        if (assetsXMLIdent.existsFile()) {
+            try {
+                //yes i hardcode this to xml here, go cry somewhere
+                ConfigParser parser = new XmlParser();
+                char[] source = Utils.readCharsFromInputStream(assetsXMLIdent.asInputStream());
+                parser.setSource(source);
+                ConfigDocument document = parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
+                ConfigNode assetsNode = document.getRoot().asObject().getNode("assets");
+                //every xml node is an array so were chilling
+                this.pipeline = new AssetPipeline(assetsNode.asArray(), pipelineContext);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

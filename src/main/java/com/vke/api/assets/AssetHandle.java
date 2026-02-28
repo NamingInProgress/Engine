@@ -14,6 +14,8 @@ public interface AssetHandle<T> extends Disposable {
         Bool,
         Number,
         Pipeline,
+        Config,
+        Plain,
         Unresolved
     }
 

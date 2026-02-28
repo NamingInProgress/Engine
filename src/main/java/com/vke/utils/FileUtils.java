@@ -143,4 +143,15 @@ public class FileUtils {
     }
 
     public record WalkedFile(String name, boolean isFile) {}
+
+    public static String getFileName(Path path) {
+        return path.getFileName().toString();
+    }
+
+    public static String getExtension(Path path) {
+        String filename = getFileName(path);
+        int dot = filename.lastIndexOf('.');
+        if (dot == -1) return null;
+        return filename.substring(dot + 1);
+    }
 }

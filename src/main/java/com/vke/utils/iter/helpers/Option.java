@@ -1,13 +1,17 @@
 package com.vke.utils.iter.helpers;
 
+import com.vke.utils.fi.FaultySupplier;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Option<T> {
-    private final T value;
-    private final boolean some;
+    private T value;
+    private boolean some;
 
     private Option(T value, boolean some) {
         this.value = value;
@@ -25,6 +29,19 @@ public class Option<T> {
     public static <T> Option<T> useIf(boolean condition, Supplier<T> value) {
         if (condition) return Option.some(value.get());
         return Option.none();
+    }
+
+    public static <T> Option<T> useIfNotNull(@Nullable T nullable) {
+        if (nullable == null) return Option.none();
+        return Option.some(nullable);
+    }
+
+    public static <T> Option<T> useIfNotFaulty(FaultySupplier<T, ? extends Throwable> value) {
+        try {
+            return Option.some(value.get());
+        } catch (Throwable _) {
+            return Option.none();
+        }
     }
 
     public boolean isSome() {
@@ -74,8 +91,50 @@ public class Option<T> {
         return mapper.apply(value);
     }
 
+    @SuppressWarnings("unchecked")
+    public <O, R> Option<R> flatMap(Function<O, R> mapper) {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        if (t instanceof Option<?> unknown) {
+            Option<O> opt = (Option<O>) unknown;
+            if (opt.isNone()) return Option.none();
+            O o = opt.unwrap();
+            return Option.some(mapper.apply(o));
+        }
+        return Option.none();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <R> Option<R> flatten() {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        if (t instanceof Option<?> unknown) {
+            Option<R> opt = (Option<R>) unknown;
+            return opt.flatten();
+        }
+        return Option.some((R) t);
+    }
+
+    public Option<T> take() {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        value = null;
+        some = false;
+        return Option.some(t);
+    }
+
     public Optional<T> asOptional() {
         if (isNone()) return Optional.empty();
         return Optional.ofNullable(value);
+    }
+
+    @Override
+    public String toString() {
+        return isSome() ? "Some(" + value + ")" : "None";
+    }
+
+    @Override
+    public int hashCode() {
+        return isSome() ? Objects.hashCode(value) : 0;
     }
 }

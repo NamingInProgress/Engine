@@ -6,7 +6,7 @@ import com.vke.utils.Identifier;
 
 import java.util.HashMap;
 
-public final class Bundle implements AssetManager {
+public final class Bundle implements Disposable {
     private final VKEngine engine;
 
     private final HashMap<Identifier, AssetHandle<?>> assets = new HashMap<>();
@@ -23,13 +23,11 @@ public final class Bundle implements AssetManager {
         assets.put(identifier, handle);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public <T> AssetHandle<T> getAsset(Identifier id) {
         return (AssetHandle<T>) assets.get(id);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public <T> AssetHandle<T> getAsset(String name) {
         return (AssetHandle<T>) assets.get(engine.id(name));

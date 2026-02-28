@@ -1,9 +1,14 @@
 package com.vke.api.assets;
 
+import com.vke.api.assets.pipeline.PipelineContext;
 import com.vke.utils.Disposable;
 import com.vke.utils.Identifier;
 
 public interface AssetManager extends Disposable {
+    PipelineContext getPipelineContext();
+
+    void initialize();
+
     <T> AssetHandle<T> getAsset(Identifier id);
     <T> AssetHandle<T> getAsset(String path);
 

@@ -6,6 +6,8 @@ import com.vke.utils.iter.helpers.Option;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 public class Identifier {
@@ -65,6 +67,10 @@ public class Identifier {
         var s = Identifier.class.getClassLoader().getResourceAsStream(combined);
         if (s == null) throw new IOException("Failed to find file at " + combined);
         return s;
+    }
+
+    public Path toPath() {
+        return Paths.get(combined).normalize();
     }
 
     public boolean existsFile() {

@@ -2,10 +2,15 @@ package com.vke.core.assets;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Bundle;
+import com.vke.api.assets.pipeline.AssetPipeline;
+import com.vke.api.assets.pipeline.AssetPipelineException;
+import com.vke.api.assets.pipeline.PipelineContext;
+import com.vke.api.assets.pipeline.StageElement;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.*;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.handles.PipelinedAssetHandle;
 import com.vke.core.assets.handles.primitives.BoolAssetHandle;
 import com.vke.core.assets.handles.primitives.NumberAssetHandle;
 import com.vke.core.assets.handles.primitives.StringAssetHandle;
@@ -15,14 +20,11 @@ import com.vke.utils.exception.Unreachable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class AssetUtils {
 
-    public static Bundle getBundle(VKEngine engine, Identifier ident) {
+    public static Bundle getBundle(VKEngine engine, Identifier ident, AssetPipeline pipeline) {
         Bundle bundle = new Bundle(engine);
         Identifier bundleXMLIdent = ident.extend("bundle.xml");
 
@@ -47,20 +49,25 @@ public class AssetUtils {
             if (file.equals(bundleXMLIdent)) continue;
 
             Identifier id = file.strip();
-            AssetHandle<?> handle = AssetHandle.ofFile(file);
+            AssetHandle<?> handle;
+            if (pipeline != null) {
+                handle = new PipelinedAssetHandle<>(pipeline, file);
+            } else {
+                handle = AssetHandle.ofFile(file);
+            }
             bundle.addAsset(id, handle);
         }
 
         return bundle;
     }
 
-    public static Bundle collectGlobalBundles(VKEngine engine) {
+    public static Bundle collectGlobalBundles(VKEngine engine, AssetPipeline pipeline) {
         Bundle globalBundle = new Bundle(engine);
 
         for (String namespace : engine.getAllNamespaces()) {
             Identifier globalBundleIdent = new Identifier(namespace, "assets/global");
             if (globalBundleIdent.existsFile()) {
-                Bundle thisOne = getBundle(engine, globalBundleIdent);
+                Bundle thisOne = getBundle(engine, globalBundleIdent, pipeline);
                 globalBundle.extendBundle(thisOne);
             }
         }
@@ -68,12 +75,12 @@ public class AssetUtils {
         return globalBundle;
     }
 
-    public static void collectBundles(VKEngine engine, VKEAssetManager manager) {
+    public static void collectBundles(VKEngine engine, VKEAssetManager manager, AssetPipeline pipeline) {
         for (String namespace : engine.getAllNamespaces()) {
             Identifier ident = new Identifier(namespace, "assets");
             for (Identifier dir : ident.walkDirectories(1)) {
                 if (dir.equals(new Identifier(namespace, "assets/global"))) continue;
-                Bundle bundle = getBundle(engine, dir);
+                Bundle bundle = getBundle(engine, dir, pipeline);
                 manager.addBundle(dir.strip(), bundle);
             }
         }
@@ -97,5 +104,4 @@ public class AssetUtils {
             }
         }
     }
-
 }

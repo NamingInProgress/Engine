@@ -1,0 +1,11 @@
+<assets>
+    <stage-filter uri="file://extension" query="json" op="equals">
+        <parse parser="com.vke.api.assets.pipeline.parsers.ConfigAssetParser"/>
+        <stage-filter uri="file://location/parent" query="language" op="equals">
+            <validate validator="com.vke.api.assets.pipeline.validators.ConfigValidator">
+                <arguments schema="vke:schema/test.schema.json"/>
+            </validate>
+            <parse parser="com.vke.api.assets.pipeline.parsers.TestParser"/>
+        </stage-filter>
+    </stage-filter>
+</assets>
