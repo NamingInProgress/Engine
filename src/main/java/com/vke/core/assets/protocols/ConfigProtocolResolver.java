@@ -13,6 +13,7 @@ import com.vke.core.assets.handles.ConfigAssetHandle;
 import com.vke.utils.Identifier;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class ConfigProtocolResolver implements ProtocolResolver<ConfigDocument> {
     @Override
@@ -21,6 +22,16 @@ public class ConfigProtocolResolver implements ProtocolResolver<ConfigDocument> 
         return switch (selector) {
             case "field" -> checkField(filter, stageElement);
             default -> throw AssetPipelineException.unknownSelector("meta", selector);
+        };
+    }
+
+    @Override
+    public String resolveUri(URI uri, StageElement stageElement) throws AssetPipelineException {
+        String selector = uri.getAuthority();
+        String path = StageFilter.getPathOfURI(uri);
+        return switch (selector) {
+            case "field" -> getField(path, stageElement);
+            default -> throw AssetPipelineException.unknownSelector("config", selector);
         };
     }
 
@@ -92,5 +103,38 @@ public class ConfigProtocolResolver implements ProtocolResolver<ConfigDocument> 
         String content = currentNode.asString();
         if (content == null) return false;
         return filter.applyForString(content);
+    }
+
+    private String getField(String path, StageElement element) throws AssetPipelineException {
+        ConfigDocument document = resolveData(element);
+        String[] pathSegments = path.split("/");
+        ConfigNode currentNode = document.getRoot();
+        for (int i = 0; i < pathSegments.length; i++) {
+            String segment = pathSegments[i];
+            if (currentNode instanceof ConfigObjectNode objNode) {
+                if (objNode.hasField(segment)) {
+                    currentNode = objNode.getNode(segment);
+                } else {
+                    noSuchField(path);
+                }
+            } else if (currentNode instanceof ConfigArrayNode arrNode) {
+                try {
+                    int arrayIndex = Integer.parseInt(segment);
+                    currentNode = arrNode.values()[arrayIndex];
+                } catch (Exception e) {
+                    noSuchField(path);
+                }
+            } else {
+                noSuchField(path);
+            }
+        }
+
+        String content = currentNode.asString();
+        if (content == null) noSuchField(path);
+        return content;
+    }
+
+    private void noSuchField(String path) throws AssetPipelineException {
+        throw new AssetPipelineException("Field does not exist! " + path);
     }
 }

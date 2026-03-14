@@ -138,6 +138,10 @@ public interface Iter<T> extends Iterable<T> {
         return new Cycle<>(this);
     }
 
+    default <U> Iter<U> cast(U... ignore) {
+        return new Cast<>(this, ignore);
+    }
+
     //term methods
 
     default void forEach(Consumer<? super T> f) {

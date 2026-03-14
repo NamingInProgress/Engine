@@ -8,6 +8,7 @@ import com.vke.api.assets.pipeline.apis.ProtocolResolver;
 import com.vke.utils.FileUtils;
 import com.vke.utils.Infallible;
 
+import java.net.URI;
 import java.nio.file.Path;
 
 public class FileProtocolResolver implements ProtocolResolver<Infallible> {
@@ -17,7 +18,20 @@ public class FileProtocolResolver implements ProtocolResolver<Infallible> {
         return switch (selector) {
             case "extension" -> checkExtension(filter, stageElement);
             case "name" -> checkName(filter, stageElement);
+            case "nickname" -> checkNickname(filter, stageElement);
             case "location" -> checkLocation(filter, stageElement);
+            default -> throw AssetPipelineException.unknownSelector("file", selector);
+        };
+    }
+
+    @Override
+    public String resolveUri(URI uri, StageElement stageElement) throws AssetPipelineException {
+        String selector = uri.getAuthority();
+        return switch (selector) {
+            case "extension" -> FileUtils.getExtension(stageElement.getPath());
+            case "name" -> FileUtils.getFileName(stageElement.getPath());
+            case "nickname" -> FileUtils.getFileNickname(stageElement.getPath());
+            case "location" -> throw new AssetPipelineException("Contact the dev team if you want this feature, i cant be asked rn.");
             default -> throw AssetPipelineException.unknownSelector("file", selector);
         };
     }
@@ -35,6 +49,11 @@ public class FileProtocolResolver implements ProtocolResolver<Infallible> {
     private boolean checkName(StageFilter filter, StageElement element) {
         String filename = FileUtils.getFileName(element.getPath());
         return filter.applyForString(filename);
+    }
+
+    private boolean checkNickname(StageFilter filter, StageElement element) {
+        String nickname = FileUtils.getFileNickname(element.getPath());
+        return filter.applyForString(nickname);
     }
 
     private boolean checkExtension(StageFilter filter, StageElement element) {

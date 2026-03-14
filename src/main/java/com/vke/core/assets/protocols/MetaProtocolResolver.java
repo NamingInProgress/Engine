@@ -8,6 +8,8 @@ import com.vke.api.assets.pipeline.StageElement;
 import com.vke.api.assets.pipeline.apis.ProtocolResolver;
 import com.vke.utils.Infallible;
 
+import java.net.URI;
+
 public class MetaProtocolResolver implements ProtocolResolver<Infallible> {
     private final VKEngine engine;
 
@@ -21,6 +23,16 @@ public class MetaProtocolResolver implements ProtocolResolver<Infallible> {
         return switch (selector) {
             case "os" -> checkOs(filter);
             case "build" -> checkBuild(filter);
+            default -> throw AssetPipelineException.unknownSelector("meta", selector);
+        };
+    }
+
+    @Override
+    public String resolveUri(URI uri, StageElement stageElement) throws AssetPipelineException {
+        String selector = uri.getAuthority();
+        return switch (selector) {
+            case "os" -> System.getProperty("os.name").toLowerCase();
+            case "build" -> engine.isDebugMode() ? "debug" : "release";
             default -> throw AssetPipelineException.unknownSelector("meta", selector);
         };
     }

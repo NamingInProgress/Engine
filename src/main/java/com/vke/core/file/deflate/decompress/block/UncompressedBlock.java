@@ -25,7 +25,6 @@ public class UncompressedBlock implements DeflateBlock {
         if (!initialized) {
             inputStream.alignToByte();
             length = BitStreamUtils.readLittleEndian16(inputStream);
-            System.out.println(length);
             int NLEN = BitStreamUtils.readLittleEndian16(inputStream);
 
             initialized = true;

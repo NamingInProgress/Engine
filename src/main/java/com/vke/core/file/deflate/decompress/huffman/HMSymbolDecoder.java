@@ -98,6 +98,7 @@ public class HMSymbolDecoder {
                 int nextBit = bitStream.readBits(1);
                 prefix = (prefix << 1) | nextBit;
             }
+            //System.out.println(BitUtils.intToBinStr(prefix) + " len " + maxUsedCodeLength);
         } else {
             int len = tried.codeLength();
             bitStream.readBits(len);

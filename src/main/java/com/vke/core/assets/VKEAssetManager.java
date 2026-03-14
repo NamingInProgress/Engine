@@ -30,11 +30,20 @@ public class VKEAssetManager extends Service implements AssetManager {
     private Bundle mGlobalBundleWhichImplementsAssetManager;
     private HashMap<Identifier, Bundle> mAllBundles;
 
+    private boolean ready;
+
     public VKEAssetManager(VKEngine engine) {
         super(Services.ASSET_MANAGER);
         this.mEngine = engine;
         this.mAllBundles = new HashMap<>();
         this.pipelineContext = new PipelineContext(engine);
+        this.ready = false;
+    }
+
+    private void checkReady() {
+        if (!ready) {
+            throw new AssetManagerNotInitializedException();
+        }
     }
 
     public void swapBundle(Identifier bundle) {
@@ -76,6 +85,7 @@ public class VKEAssetManager extends Service implements AssetManager {
         initPipeline();
         this.mGlobalBundleWhichImplementsAssetManager = AssetUtils.collectGlobalBundles(mEngine, pipeline);
         AssetUtils.collectBundles(mEngine, this, pipeline);
+        this.ready = true;
     }
 
     private void initPipeline() {
@@ -98,6 +108,7 @@ public class VKEAssetManager extends Service implements AssetManager {
 
     @Override
     public <T> AssetHandle<T> getAsset(Identifier id) {
+        checkReady();
         AssetHandle<T> tried = mLoadedBundle == null ? null : mLoadedBundle.getAsset(id);
         if (tried == null) {
             tried = mGlobalBundleWhichImplementsAssetManager.getAsset(id);

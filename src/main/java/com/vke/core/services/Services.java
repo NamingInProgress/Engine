@@ -1,6 +1,6 @@
 package com.vke.core.services;
 
-import com.vke.api.assets.language.LanguageManager;
+import com.vke.api.language.LanguageManager;
 import com.vke.core.assets.VKEAssetManager;
 import com.vke.core.event.EventBus;
 import com.vke.core.services.profiler.Profiler;

@@ -1,9 +1,0 @@
-{
-  "fields": [
-    {
-      "name": "hello",
-      "type": "string",
-      "required": true
-    }
-  ]
-}

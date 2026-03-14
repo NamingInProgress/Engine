@@ -25,9 +25,11 @@ public abstract class CompoundPipelineStage implements PipelineStage {
         }
     }
 
-    protected void processInnerPipeline(StageElement element) throws AssetPipelineException {
+    protected void processInnerPipeline(StageElement element, ExecutionTarget executionTarget) throws AssetPipelineException {
         for (PipelineStage stage : stages) {
-            stage.execute(element);
+            if (stage.executionTarget().isUsable(executionTarget)) {
+                stage.execute(element, executionTarget);
+            }
         }
     }
 }

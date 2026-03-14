@@ -4,5 +4,19 @@ import com.vke.api.assets.pipeline.AssetPipelineException;
 import com.vke.api.assets.pipeline.StageElement;
 
 public interface PipelineStage {
-    void execute(StageElement stageElement) throws AssetPipelineException;
+    void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetPipelineException;
+
+    default ExecutionTarget executionTarget() {
+        return ExecutionTarget.All;
+    }
+
+    enum ExecutionTarget {
+        All,
+        Main,
+        Pseudo;
+
+        public boolean isUsable(ExecutionTarget target) {
+            return this == ExecutionTarget.All || target == this;
+        }
+    }
 }

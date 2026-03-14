@@ -65,7 +65,7 @@ public class SlidingWindow {
      * @return
      */
     public long nextSymbol(int maxChainChecks, byte[] lookahead, int start, int length) {
-        if(false) return lookahead[start] & 0xFF;
+        if(true) return lookahead[start] & 0xFF;
         int maxLength = Math.min(length - start, 258);
         int hash = hash(prev2, prev1, lookahead[start]);
         int chainPart = head[hash];

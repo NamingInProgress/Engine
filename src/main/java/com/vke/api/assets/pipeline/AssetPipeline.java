@@ -14,8 +14,8 @@ public class AssetPipeline extends CompoundPipelineStage {
     }
 
     @Override
-    public void execute(StageElement stageElement) throws AssetPipelineException {
-        processInnerPipeline(stageElement);
+    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetPipelineException {
+        processInnerPipeline(stageElement, executionTarget);
     }
 
     public PipelineContext getContext() {

@@ -6,6 +6,7 @@ import com.vke.api.assets.pipeline.AssetPipeline;
 import com.vke.api.assets.pipeline.AssetPipelineException;
 import com.vke.api.assets.pipeline.PipelineContext;
 import com.vke.api.assets.pipeline.StageElement;
+import com.vke.api.assets.pipeline.stages.PipelineStage;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.*;
@@ -52,10 +53,22 @@ public class AssetUtils {
             AssetHandle<?> handle;
             if (pipeline != null) {
                 handle = new PipelinedAssetHandle<>(pipeline, file);
+                //TODO: to get the renamed identifier, i have to actually execute the pipeline. the issue
+                //is that exxecuting the pipeline would do all the heavy computation here which is not ideal
+                //instead make a pseudoExecute function of pipeline that will simulate a full pass. if a protocol
+                //actually requires the contents of smth, it will not be possible. so you cannot rename an asset to a field
+                //in the json for example.
+                try {
+                    StageElement element = new StageElement(file.toPath(), "plain", file);
+                    pipeline.execute(element, PipelineStage.ExecutionTarget.Pseudo);
+                    bundle.addAsset(element.getAssetName(), handle);
+                } catch (AssetPipelineException e) {
+                    engine.throwException(e, "AssetPipeline pseudoExecute");
+                }
             } else {
                 handle = AssetHandle.ofFile(file);
+                bundle.addAsset(id, handle);
             }
-            bundle.addAsset(id, handle);
         }
 
         return bundle;

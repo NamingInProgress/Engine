@@ -145,6 +145,9 @@ public class VKEngine {
         }
         return new Identifier(createInfo.applicationNamespace, pathOrIdent);
     }
+    public Identifier idForLocale(Locale locale) {
+        return id(locale.getLanguage());
+    }
     public String getAppNamespace() {
         return createInfo.applicationNamespace;
     }

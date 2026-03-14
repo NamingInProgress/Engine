@@ -16,13 +16,18 @@ public class ParseStage extends ExecutingStage<AssetParser> {
     }
 
     @Override
-    public void execute(StageElement stageElement) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetPipelineException {
         try {
             instance.processStageElement(stageElement, context);
         } catch (AssetPipelineException e) {
             String msg = String.format("There was an exception while using %s -> %s", executorClass, e);
             throw AssetPipelineException.inStage(STAGE, msg);
         }
+    }
+
+    @Override
+    public ExecutionTarget executionTarget() {
+        return ExecutionTarget.Main;
     }
 
     @Override

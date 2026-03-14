@@ -16,6 +16,7 @@ public interface AssetHandle<T> extends Disposable {
         Pipeline,
         Config,
         Plain,
+        Language,
         Unresolved
     }
 

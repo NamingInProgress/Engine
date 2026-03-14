@@ -5,6 +5,7 @@ import com.vke.api.assets.pipeline.AssetPipeline;
 import com.vke.api.assets.pipeline.AssetPipelineException;
 import com.vke.api.assets.pipeline.StageElement;
 import com.vke.api.assets.pipeline.apis.ProtocolResolver;
+import com.vke.api.assets.pipeline.stages.PipelineStage;
 import com.vke.core.VKEngine;
 import com.vke.utils.Identifier;
 
@@ -32,7 +33,7 @@ public class PipelinedAssetHandle<T> implements AssetHandle<T> {
 
         try {
             StageElement element = new StageElement(identifier.toPath(), "plain", identifier);
-            pipeline.execute(element);
+            pipeline.execute(element, PipelineStage.ExecutionTarget.Main);
             String protocol = element.getProtocol();
             ProtocolResolver<?> resolver = pipeline.getContext().getResolver(protocol);
             actual = (AssetHandle<T>) resolver.createHandle(element);

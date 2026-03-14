@@ -11,11 +11,17 @@ import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class PlainProtocolResolver implements ProtocolResolver<String> {
     @Override
     public boolean checkProtocolContent(StageFilter filter, StageElement stageElement) throws AssetPipelineException {
         return false;
+    }
+
+    @Override
+    public String resolveUri(URI uri, StageElement stageElement) throws AssetPipelineException {
+        throw new AssetPipelineException("Plain protocol doesnt support URI resolving!");
     }
 
     @Override

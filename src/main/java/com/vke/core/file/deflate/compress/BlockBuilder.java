@@ -93,8 +93,8 @@ public class BlockBuilder {
                 //MSB is not set so this is a literal symbol
                 byte byteLiteral = (byte) (lz77Symbol & 0xFF);
                 slidingWindow.processByte(byteLiteral);
-                lz77Output.add(new Lz77Symbol(true, byteLiteral, 0, 0));
-                litlenFreq[byteLiteral]++;
+                lz77Output.add(new Lz77Symbol(true, byteLiteral & 0xFF, 0, 0));
+                litlenFreq[byteLiteral & 0xFF]++;
                 symbolIndex++;
             }
         }
@@ -114,6 +114,7 @@ public class BlockBuilder {
         } else {
             dynamicIsTheWinner = fixedResult.fullBytes() > dynamicResult.fullBytes();
         }
+        dynamicIsTheWinner = false;
 
         boolean useUncompressed = false;
         if (dynamicIsTheWinner) {
@@ -121,13 +122,13 @@ public class BlockBuilder {
         } else {
             useUncompressed = uncompressedSize < fixedResult.fullBytes();
         }
+        useUncompressed = false;
 
         if (useUncompressed) {
             masterStream.setOrdering(BitOrdering.LSB_FIRST);
             writeBlockHeader(masterStream, 0, isFinalBlock);
             masterStream.alignToByte();
             int LEN = cursor;
-            System.out.println(LEN);
             int NLEN = ~LEN;
             masterStream.writeBits(LEN, 16);
             masterStream.writeBits(NLEN, 16);
@@ -176,13 +177,13 @@ public class BlockBuilder {
 
     public BlockResult buildDynamicBlock(ArrayList<Lz77Symbol> symbols, int[] litlenFreq, int[] distFreq) throws IOException {
         Code[] litlenCodes = HuffmanCodeGenerator.generateCodesFromFrequencies(litlenFreq);
-        //System.out.println("===== CODES LIT LEN =====");
+        System.out.println("===== CODES LIT LEN =====");
         for (Code c : litlenCodes) {
             if (c.codeLength() != 0) {
-                //System.out.println(c);
+                System.out.println(c);
             }
         }
-        //System.out.println("=================");
+        System.out.println("=================");
         Code[] distCodes = HuffmanCodeGenerator.generateCodesFromFrequencies(distFreq);
 
         ByteArrayOutputStream bao = new ByteArrayOutputStream(sizeThreshold / 2); //educated guess lol
@@ -289,7 +290,7 @@ public class BlockBuilder {
     private BlockResult buildBlockFromCodes(ArrayList<Lz77Symbol> symbols, Code[] literalLengthCodes, Code[] distanceCodes, BitOutputStream bitOutputStream, ByteArrayOutputStream bao) throws IOException {
         for (Lz77Symbol symbol : symbols) {
             if (symbol.isLiteral()) {
-                int value = symbol.literal();
+                int value = symbol.literal() & 0xFF;
                 Code literalCode = literalLengthCodes[value];
                 Code tried = literalCode;
                 //System.out.println("encoded symbol: " + tried.symbol() + ", as char: " + ((char) tried.symbol()) + ", using code: " + BitUtils.intToBinStr(tried.code()) + ", len: " + tried.codeLength());

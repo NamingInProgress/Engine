@@ -154,4 +154,11 @@ public class FileUtils {
         if (dot == -1) return null;
         return filename.substring(dot + 1);
     }
+
+    public static String getFileNickname(Path path) {
+        String filename = getFileName(path);
+        int dot = filename.lastIndexOf('.');
+        if (dot == -1) return null;
+        return filename.substring(0, dot);
+    }
 }

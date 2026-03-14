@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 public class StageFilter extends CompoundPipelineStage {
     public static final String STAGE = "stage-filter";
-    public static final String[] GLOBAL_PROTOCOLS = { "file", "meta" };
 
     private final PipelineContext context;
 
@@ -52,6 +51,10 @@ public class StageFilter extends CompoundPipelineStage {
     }
 
     public String getPath() {
+        return getPathOfURI(uri);
+    }
+
+    public static String getPathOfURI(URI uri) {
         String rawPath = uri.getPath();
         if (rawPath == null) return null;
         if (rawPath.startsWith("/")) {
@@ -73,21 +76,14 @@ public class StageFilter extends CompoundPipelineStage {
     }
 
     @Override
-    public void execute(StageElement stageElement) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget target) throws AssetPipelineException {
         String filterProtocol = getProtocol();
         boolean use;
-        if (Utils.arrayContains(GLOBAL_PROTOCOLS, filterProtocol)) {
-            //filter that works for every content type
-            ProtocolResolver<?> resolver = context.getGlobalResolver();
-            use = resolver.checkProtocolContent(this, stageElement);
-        } else {
-            //this filter is restricted to a specific content type
-            ProtocolResolver<?> resolver = context.getResolver(filterProtocol);
-            use = resolver.checkProtocolContent(this, stageElement);
-        }
+        ProtocolResolver<?> resolver = context.getResolver(filterProtocol);
+        use = resolver.checkProtocolContent(this, stageElement);
 
         if (use) {
-            processInnerPipeline(stageElement);
+            processInnerPipeline(stageElement, target);
         }
     }
 

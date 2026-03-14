@@ -25,8 +25,6 @@ public class AssetPipelineTest {
         manager.initialize();
 
         AssetHandle<ConfigDocument> testHandle = manager.getAsset("test.json");
-        AssetHandle<ConfigDocument> testHandle2 = manager.getAsset("test2.json");
         System.out.println(testHandle.acquire(engine));
-        System.out.println(testHandle2.acquire(engine));
     }
 }

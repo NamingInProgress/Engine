@@ -22,7 +22,7 @@ public class ValidateStage extends ExecutingStage<AssetValidator<? extends Throw
     }
 
     @Override
-    public void execute(StageElement stageElement) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget target) throws AssetPipelineException {
         try {
             Throwable error = instance.processStageElement(stageElement, context);
             if (error != null) {
@@ -33,5 +33,10 @@ public class ValidateStage extends ExecutingStage<AssetValidator<? extends Throw
             String msg = String.format("There was an exception while using %s -> %s", executorClass, e);
             throw AssetPipelineException.inStage(STAGE, msg);
         }
+    }
+
+    @Override
+    public ExecutionTarget executionTarget() {
+        return ExecutionTarget.Main;
     }
 }
