@@ -37,9 +37,4 @@ public class ConvertStage extends ParameterizedStage {
         }
         stageElement.setData(converter.performConversion(stageElement, arguments));
     }
-
-    @Override
-    public ExecutionTarget executionTarget() {
-        return ExecutionTarget.All;
-    }
 }

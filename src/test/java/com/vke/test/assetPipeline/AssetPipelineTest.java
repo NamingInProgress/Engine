@@ -3,6 +3,7 @@ package com.vke.test.assetPipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetManager;
 import com.vke.api.assets.r.R;
+import com.vke.core.assets.language.Language;
 import com.vke.core.assets.pipeline.AssetPipelineException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -25,7 +26,7 @@ public class AssetPipelineTest {
         manager.initialize();
 
         //AssetHandle<ConfigDocument> testHandle = manager.getAsset("test.json");
-        AssetHandle<ConfigDocument> testHandle = R.configs.get("language.en");
+        AssetHandle<Language> testHandle = R.languages.get("language.en");
         System.out.println(testHandle.acquire(engine));
     }
 }
