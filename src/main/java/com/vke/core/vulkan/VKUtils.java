@@ -4,8 +4,8 @@ import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.device.PhysicalDevice;
-import com.vke.utils.ColorStringBuilder;
-import com.vke.utils.Identifier;
+import com.vke.utils.console.ColorStringBuilder;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -20,7 +20,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 

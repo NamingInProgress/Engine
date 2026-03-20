@@ -1,6 +1,6 @@
 package com.vke.api.registry.registries;
 
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.util.*;
 

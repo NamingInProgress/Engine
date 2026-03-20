@@ -16,7 +16,7 @@ import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
-import com.vke.utils.AnsiColors;
+import com.vke.utils.console.AnsiColors;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 

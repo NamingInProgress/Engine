@@ -2,32 +2,24 @@ package com.vke.test;
 
 import com.vke.api.abstraction.descriptors.ShaderType;
 import com.vke.api.app.App;
-import com.vke.api.vulkan.shaders.ShaderProgram;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.shader.Shader;
 import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.core.window.Window;
-import com.vke.utils.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.spvc.Spv;
 import org.lwjgl.util.spvc.Spvc;
 import org.lwjgl.util.spvc.SpvcReflectedResource;
-import org.lwjgl.vulkan.KHRSpirv14;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryUtil.*;
-import static org.lwjgl.system.Pointer.POINTER_SIZE;
 
 public class ShaderReflectTest {
 

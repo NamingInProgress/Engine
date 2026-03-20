@@ -1,8 +1,8 @@
 package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.vke.utils.Pair;
-import com.vke.utils.fi.FaultyRunnable;
+import com.vke.utils.tuple.Pair;
+import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.iter.helpers.*;
 import org.jetbrains.annotations.NotNull;
 

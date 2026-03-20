@@ -1,8 +1,8 @@
 package com.vke.api.assets;
 
-import com.vke.api.assets.pipeline.PipelineContext;
-import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
+import com.vke.core.assets.pipeline.PipelineContext;
+import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
 
 public interface AssetManager extends Disposable {
     PipelineContext getPipelineContext();
@@ -12,9 +12,9 @@ public interface AssetManager extends Disposable {
     <T> AssetHandle<T> getAsset(Identifier id);
     <T> AssetHandle<T> getAsset(String path);
 
-    default AssetHandle.Type getTypeOfAsset(Identifier id) {
+    default String getAssetProtocol(Identifier id) {
         AssetHandle<?> handle = getAsset(id);
-        if (handle == null) return null;
-        return handle.getType();
+        if (handle == null) return Protocols.ANY;
+        return handle.getProtocol();
     }
 }

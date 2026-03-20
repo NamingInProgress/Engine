@@ -5,7 +5,7 @@ import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.GpuType;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

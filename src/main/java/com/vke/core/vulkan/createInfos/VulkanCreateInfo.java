@@ -2,7 +2,7 @@ package com.vke.core.vulkan.createInfos;
 
 import com.vke.api.app.Version;
 import com.vke.core.vulkan.Consts;
-import com.vke.utils.ObservableList;
+import com.vke.utils.collection.ObservableList;
 import org.lwjgl.vulkan.VK14;
 
 import java.util.ArrayList;

@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class TaskProcessor {
-    private VKEngine engine;
+    private final VKEngine engine;
     private final BlockingQueue<Task> tasks;
     private volatile boolean cancel;
     private Thread thread;

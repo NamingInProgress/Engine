@@ -6,7 +6,7 @@ import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;

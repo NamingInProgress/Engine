@@ -8,7 +8,7 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.config.schema.VkeSchemaLib;
 import com.vke.core.parsing.config.schema.elements.types.SchemaType;
 import com.vke.core.parsing.config.schema.elements.types.SchemaTypeReference;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;

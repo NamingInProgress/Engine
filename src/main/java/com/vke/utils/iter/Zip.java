@@ -1,6 +1,6 @@
 package com.vke.utils.iter;
 
-import com.vke.utils.Pair;
+import com.vke.utils.tuple.Pair;
 import com.vke.utils.iter.helpers.Option;
 import org.jetbrains.annotations.NotNull;
 

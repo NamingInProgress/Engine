@@ -1,8 +1,8 @@
 <assets>
     <stage-filter uri="file://extension" query="json" op="equals">
-        <parse parser="com.vke.api.assets.pipeline.parsers.ConfigAssetParser"/>
+        <convert to="config"/>
         <stage-filter uri="file://location/parent" query="language" op="equals">
-            <parse parser="com.vke.api.language.LanguageParser"/>
+            <convert to="lang"/>
             <rename>
                 <static-part value="language."/>
                 <uri-part uri="file://nickname"/>

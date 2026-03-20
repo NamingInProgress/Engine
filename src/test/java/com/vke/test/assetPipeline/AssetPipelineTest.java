@@ -2,8 +2,9 @@ package com.vke.test.assetPipeline;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetManager;
-import com.vke.api.assets.pipeline.AssetPipelineException;
-import com.vke.api.assets.pipeline.PipelineContext;
+import com.vke.api.assets.r.R;
+import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -21,10 +22,10 @@ public class AssetPipelineTest {
 
         AssetManager manager = engine.service(Services.ASSET_MANAGER);
         PipelineContext pipelineContext = manager.getPipelineContext();
-
         manager.initialize();
 
-        AssetHandle<ConfigDocument> testHandle = manager.getAsset("test.json");
+        //AssetHandle<ConfigDocument> testHandle = manager.getAsset("test.json");
+        AssetHandle<ConfigDocument> testHandle = R.configs.get("language.en");
         System.out.println(testHandle.acquire(engine));
     }
 }

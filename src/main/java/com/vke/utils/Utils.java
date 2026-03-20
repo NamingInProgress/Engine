@@ -1,6 +1,8 @@
 package com.vke.utils;
 
 import com.vke.api.utils.OSType;
+import com.vke.utils.functionalinterface.FaultySupplier;
+import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
 import org.lwjgl.system.MemoryUtil;
 
@@ -8,8 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +35,7 @@ public class Utils {
         return false;
     }
 
-    public static <T> boolean TsContain(T[] arr, T query) {
+    public static <T> boolean TsContain(T query, T... arr) {
         for (T t : arr) {
             if (t.equals(query)) {
                 return true;
@@ -214,5 +219,25 @@ public class Utils {
 
     public static double log(double x, double base) {
         return Math.log(x) / Math.log(base);
+    }
+
+    public static SegmentedPath p(String... thingies) {
+        return new SegmentedPath(thingies, "/");
+    }
+
+    public static <T, E extends Throwable, F extends Throwable> T chainExceptions(FaultySupplier<T, E> task, F... ignore) throws F {
+        try {
+            return task.get();
+        } catch (Throwable e) {
+            try {
+                @SuppressWarnings("unchecked")
+                Class<F> fClass = (Class<F>) ignore.getClass().getComponentType();
+                Constructor<F> c = fClass.getDeclaredConstructor(Throwable.class);
+                throw c.newInstance(e);
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 }

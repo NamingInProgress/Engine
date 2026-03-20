@@ -1,9 +1,9 @@
 package com.vke.core.services;
 
-import com.vke.api.language.LanguageManager;
+import com.vke.core.assets.language.LanguageManager;
 import com.vke.core.assets.VKEAssetManager;
 import com.vke.core.event.EventBus;
-import com.vke.core.services.profiler.Profiler;
+import com.vke.core.profiler.Profiler;
 import com.vke.core.vkz.Vkz;
 import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.core.vulkan.VulkanRenderer;

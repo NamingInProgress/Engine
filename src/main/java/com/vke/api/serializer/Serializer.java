@@ -1,8 +1,8 @@
 package com.vke.api.serializer;
 
 import com.vke.api.registry.VKERegistries;
-import com.vke.utils.exception.LoadException;
-import com.vke.utils.exception.SaveException;
+import com.vke.core.serializer.LoadException;
+import com.vke.core.serializer.SaveException;
 import com.vke.core.serializer.impl.defaults.DefaultSerializers;
 
 import static com.vke.core.VKEngine.REGISTRATE;

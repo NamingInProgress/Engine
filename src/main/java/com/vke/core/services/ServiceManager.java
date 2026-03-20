@@ -7,7 +7,7 @@ import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.VKEngine;
 import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
 import java.util.HashSet;

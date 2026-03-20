@@ -2,7 +2,7 @@ package com.vke.api.abstraction.data;
 
 import com.vke.api.abstraction.descriptors.CompareOp;
 import com.vke.api.abstraction.descriptors.Filter;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface Sampler extends Disposable {
 

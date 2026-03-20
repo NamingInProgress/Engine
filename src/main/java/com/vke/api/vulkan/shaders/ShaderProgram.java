@@ -4,8 +4,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.shader.Shader;
 import com.vke.core.vulkan.shader.ShaderCompiler;
-import com.vke.utils.Identifier;
-import com.vke.utils.Pair;
+import com.vke.utils.io.Identifier;
+import com.vke.utils.tuple.Pair;
 import com.vke.utils.Utils;
 
 import java.util.Arrays;

@@ -1,8 +1,8 @@
 package com.vke.api.assets;
 
 import com.vke.core.VKEngine;
-import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
 
 import java.util.HashMap;
 

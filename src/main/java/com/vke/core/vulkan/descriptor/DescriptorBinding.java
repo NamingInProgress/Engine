@@ -1,7 +1,5 @@
 package com.vke.core.vulkan.descriptor;
 
-import com.vke.api.abstraction.descriptors.texture.ImageAspect;
-import com.vke.api.abstraction.descriptors.texture.TextureType;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
@@ -10,10 +8,9 @@ import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.vulkan.texture.VulkanTextureView;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VK14;

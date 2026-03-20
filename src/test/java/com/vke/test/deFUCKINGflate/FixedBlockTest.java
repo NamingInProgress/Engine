@@ -4,8 +4,7 @@ import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.core.file.deflate.compress.DeflatingDevice;
 import com.vke.core.file.deflate.decompress.InflatingDevice;
 import com.vke.core.file.deflate.exc.InflatingException;
-import com.vke.utils.FileUtils;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,8 +13,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.zip.Deflater;
 
 public class FixedBlockTest {
     public static void main(String[] args) throws IOException, InflatingException, InterruptedException {

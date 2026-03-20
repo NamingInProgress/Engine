@@ -1,27 +1,20 @@
 package com.vke.test.app;
 
-import com.vke.api.abstraction.data.Texture;
-import com.vke.api.abstraction.descriptors.texture.ImageUsage;
-import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.VKEAssetManager;
-import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.premade.MeshBuffer;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
-import com.vke.core.vulkan.extent.Extent2D;
 import com.vke.core.vulkan.sampler.Samplers;
-import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.window.Window;
-import com.vke.utils.AppTimer;
-import com.vke.utils.Identifier;
+import com.vke.core.profiler.AppTimer;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -98,11 +91,12 @@ public class TestApp extends App {
         timer = new AppTimer();
 
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-        VKEAssetManager R = engine.service(Services.ASSET_MANAGER);
-        R.swapBundle(engine.id("scene1"));
+        VKEAssetManager assetManager = engine.service(Services.ASSET_MANAGER);
+        assetManager.initialize();
+        assetManager.swapBundle(engine.id("scene1"));
 
         try {
-            scaryVk = (VulkanTexture) R.getAsset(engine.id("scaryvulkan.png")).acquire(engine);
+            scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -8,7 +8,6 @@ import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.DeviceCapabilities;
 import com.vke.api.abstraction.descriptors.QueueType;
-import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.api.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
@@ -27,9 +26,7 @@ import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
-import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -38,7 +35,6 @@ import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
 
-import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 

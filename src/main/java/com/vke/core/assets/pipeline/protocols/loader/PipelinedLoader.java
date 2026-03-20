@@ -1,0 +1,27 @@
+package com.vke.core.assets.pipeline.protocols.loader;
+
+import com.vke.core.VKEngine;
+import com.vke.core.assets.pipeline.AssetPipeline;
+import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.pipeline.StageElement;
+import com.vke.core.assets.pipeline.apis.AssetData;
+import com.vke.core.assets.pipeline.apis.AssetProtocol;
+import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.utils.io.Identifier;
+
+public class PipelinedLoader implements AssetProtocol.Loader {
+    private final AssetPipeline pipeline;
+    private final String protocol;
+
+    public PipelinedLoader(AssetPipeline pipeline, String protocol) {
+        this.pipeline = pipeline;
+        this.protocol = protocol;
+    }
+
+    @Override
+    public AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        StageElement element = new StageElement(identifier.toPath(), new AssetData(protocol, identifier));
+        pipeline.execute(element, executionTarget);
+        return element.getAssetData();
+    }
+}

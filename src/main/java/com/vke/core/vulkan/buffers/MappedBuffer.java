@@ -5,7 +5,7 @@ import com.vke.core.VKEngine;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryUtil;
 
 public class MappedBuffer implements Disposable {

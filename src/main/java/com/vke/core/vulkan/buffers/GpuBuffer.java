@@ -4,7 +4,6 @@ import com.vke.api.abstraction.data.Buffer;
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
-import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;

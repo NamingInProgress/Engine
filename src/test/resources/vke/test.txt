@@ -5890,7 +5890,7 @@ Table of Contents
    PNG home page
 
       There is a World Wide Web home page for PNG at
-      <a href="http://quest.jpl.nasa.gov/PNG/">http://quest.jpl.nasa.gov/PNG/</a>.  This page is a central location
+      <a href="http://quest.jpl.nasa.gov/PNG/">http://quest.jpl.nasa.gov/PNG/</a>.  This page is a central segmentedPath
       for current information about PNG and PNG-related tools.
 
 <span class="h2"><a class="selflink" id="section-17" href="#section-17">17</a>. Appendix: Revision History</span>

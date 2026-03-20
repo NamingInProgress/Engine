@@ -1,6 +1,5 @@
 package com.vke.core.vulkan.texture;
 
-import com.vke.api.abstraction.data.Texture;
 import com.vke.api.vulkan.ImageLayout;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import org.lwjgl.system.MemoryStack;

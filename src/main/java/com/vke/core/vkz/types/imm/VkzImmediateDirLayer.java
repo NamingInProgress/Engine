@@ -8,8 +8,8 @@ import com.vke.api.vkz.VkzFileHandle;
 import com.vke.core.vkz.types.VkzArray;
 import com.vke.core.vkz.types.VkzEntry;
 import com.vke.core.vkz.types.VkzName;
-import com.vke.utils.exception.LoadException;
-import com.vke.utils.exception.SaveException;
+import com.vke.core.serializer.LoadException;
+import com.vke.core.serializer.SaveException;
 import com.vke.utils.iter.Iter;
 
 import java.util.Iterator;

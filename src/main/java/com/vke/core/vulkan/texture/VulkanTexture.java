@@ -20,7 +20,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferImageCopy;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class VulkanTexture implements Texture {

@@ -1,6 +1,6 @@
 package com.vke.api.file;
 
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

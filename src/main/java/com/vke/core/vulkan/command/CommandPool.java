@@ -3,7 +3,7 @@ package com.vke.core.vulkan.command;
 import com.vke.core.VKEngine;
 import com.vke.api.abstraction.descriptors.QueueType;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkCommandPoolCreateInfo;

@@ -4,12 +4,12 @@ import com.vke.api.abstraction.RenderDevice;
 import com.vke.api.abstraction.Renderer;
 import com.vke.api.abstraction.data.Texture;
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetUnavailableException;
+import com.vke.api.assets.Protocols;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.file.png.PngFile;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
@@ -24,8 +24,8 @@ public class PngTextureHandle implements AssetHandle<Texture> {
     }
 
     @Override
-    public Type getType() {
-        return Type.Texture;
+    public String getProtocol() {
+        return Protocols.PNG;
     }
 
     @Override

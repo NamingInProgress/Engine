@@ -10,8 +10,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services.Services;
 import com.vke.core.vkz.Vkz;
-import com.vke.utils.FileUtils;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.FileUtils;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 

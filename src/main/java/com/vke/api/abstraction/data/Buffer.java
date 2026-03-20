@@ -2,9 +2,7 @@ package com.vke.api.abstraction.data;
 
 import com.vke.api.abstraction.descriptors.buffer.BufferUsage;
 import com.vke.api.abstraction.descriptors.buffer.MemoryUsage;
-import com.vke.utils.Disposable;
-
-import java.nio.ByteBuffer;
+import com.vke.utils.io.Disposable;
 
 public interface Buffer extends Disposable {
 

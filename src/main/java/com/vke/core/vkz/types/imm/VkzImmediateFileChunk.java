@@ -6,13 +6,11 @@ import com.vke.api.serializer.Serializer;
 import com.vke.api.vkz.VkzEditor;
 import com.vke.api.vkz.VkzFileHandle;
 import com.vke.core.vkz.types.VkzName;
-import com.vke.utils.exception.LoadException;
-import com.vke.utils.exception.SaveException;
+import com.vke.core.serializer.LoadException;
+import com.vke.core.serializer.SaveException;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class VkzImmediateFileChunk implements VkzFileHandle {

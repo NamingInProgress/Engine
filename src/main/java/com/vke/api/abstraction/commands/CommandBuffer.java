@@ -7,7 +7,7 @@ import com.vke.api.abstraction.sync.Semaphore;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.api.abstraction.descriptors.QueueType;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface CommandBuffer extends Disposable {
 

@@ -1,6 +1,6 @@
 package com.vke.utils.iter;
 
-import com.vke.utils.fi.FaultyRunnable;
+import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.iter.helpers.Option;
 import org.jetbrains.annotations.NotNull;
 

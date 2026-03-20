@@ -13,8 +13,8 @@ import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.core.vulkan.descriptor.DescriptorType;
 import com.vke.core.vulkan.descriptor.wrapper.JsonDescriptorData;
 import com.vke.core.vulkan.shader.Shader;
-import com.vke.utils.Identifier;
-import com.vke.utils.Pair;
+import com.vke.utils.io.Identifier;
+import com.vke.utils.tuple.Pair;
 import com.vke.utils.Utils;
 
 import java.io.IOException;

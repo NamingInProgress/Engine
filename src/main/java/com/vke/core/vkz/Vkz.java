@@ -9,7 +9,7 @@ import com.vke.core.vkz.types.VkzName;
 import com.vke.core.vkz.types.imm.VkzImmediateDirLayer;
 import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 import com.vke.core.vkz.types.lo.VkzListOnlyArchive;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.collection.IterAble;
 
 import java.io.IOException;
@@ -19,8 +19,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Stream;
-
-import static com.vke.api.vkz.ArchiveType.*;
 
 public class Vkz extends Service {
 

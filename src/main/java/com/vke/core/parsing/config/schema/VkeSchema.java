@@ -13,10 +13,9 @@ import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaField;
 import com.vke.core.parsing.config.schema.elements.types.SchemaObjectType;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 

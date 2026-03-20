@@ -2,26 +2,23 @@ package com.vke.core.assets;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Bundle;
-import com.vke.api.assets.pipeline.AssetPipeline;
-import com.vke.api.assets.pipeline.AssetPipelineException;
-import com.vke.api.assets.pipeline.PipelineContext;
-import com.vke.api.assets.pipeline.StageElement;
-import com.vke.api.assets.pipeline.stages.PipelineStage;
+import com.vke.api.assets.Protocols;
+import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
+import com.vke.core.assets.pipeline.AssetPipeline;
+import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.pipeline.StageElement;
+import com.vke.core.assets.pipeline.apis.AssetData;
+import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.*;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.handles.PipelinedAssetHandle;
-import com.vke.core.assets.handles.primitives.BoolAssetHandle;
-import com.vke.core.assets.handles.primitives.NumberAssetHandle;
-import com.vke.core.assets.handles.primitives.StringAssetHandle;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
 
 public class AssetUtils {
 
@@ -52,15 +49,10 @@ public class AssetUtils {
             Identifier id = file.strip();
             AssetHandle<?> handle;
             if (pipeline != null) {
-                handle = new PipelinedAssetHandle<>(pipeline, file);
-                //TODO: to get the renamed identifier, i have to actually execute the pipeline. the issue
-                //is that exxecuting the pipeline would do all the heavy computation here which is not ideal
-                //instead make a pseudoExecute function of pipeline that will simulate a full pass. if a protocol
-                //actually requires the contents of smth, it will not be possible. so you cannot rename an asset to a field
-                //in the json for example.
                 try {
-                    StageElement element = new StageElement(file.toPath(), "plain", file);
+                    StageElement element = new StageElement(file.toPath(), AssetData.plain(file));
                     pipeline.execute(element, PipelineStage.ExecutionTarget.Pseudo);
+                    handle = pipeline.extractHandle(element);
                     bundle.addAsset(element.getAssetName(), handle);
                 } catch (AssetPipelineException e) {
                     engine.throwException(e, "AssetPipeline pseudoExecute");
@@ -110,9 +102,9 @@ public class AssetUtils {
             ConfigNode value = asset.values()[1];
 
             switch (asset.getNodeName()) {
-                case "bool" -> target.addAsset(id, new BoolAssetHandle(value.asBoolean()));
-                case "string" -> target.addAsset(id, new StringAssetHandle(value.asString()));
-                case "number" -> target.addAsset(id, new NumberAssetHandle(value.asNumber()));
+                case "bool" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_BOOL, value.asBoolean()));
+                case "string" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PLAIN, value.asString()));
+                case "number" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_NUMBER, value.asNumber()));
                 default -> throw new IllegalStateException("Unknown asset type: " + asset.getNodeName());
             }
         }

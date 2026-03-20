@@ -1,18 +1,18 @@
 package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.Protocols;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 
 import java.io.IOException;
 
 public class PipelineAssetHandle implements AssetHandle<RenderPipeline> {
-
     private RenderPipeline pipeline;
 
     @Override
-    public Type getType() {
-        return Type.Pipeline;
+    public String getProtocol() {
+        return Protocols.RENDERPIPELINE;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.vke.core.vulkan.swapchain;
 
 import com.vke.api.abstraction.IntEnum;
 import com.vke.api.abstraction.RenderDevice;
-import com.vke.api.abstraction.data.Texture;
 import com.vke.api.abstraction.descriptors.BackendType;
 import com.vke.api.abstraction.descriptors.texture.TextureFormat;
 import com.vke.api.abstraction.swapchain.Swapchain;

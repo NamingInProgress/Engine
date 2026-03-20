@@ -1,6 +1,6 @@
 package com.vke.utils.iter.helpers;
 
-import com.vke.utils.fi.FaultySupplier;
+import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
