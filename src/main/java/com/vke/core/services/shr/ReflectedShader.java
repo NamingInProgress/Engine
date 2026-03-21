@@ -90,6 +90,7 @@ public class ReflectedShader implements Disposable {
         return list;
     }
 
+    // TO
     public ArrayList<VertexAttributeResource> getVAOs() {
         if (resources.containsKey(ResourceType.VAO)) return getResource(ResourceType.VAO);
         SPVCDescriptorResource[] resources = getDescriptorResources(ResourceType.VAO);
@@ -108,10 +109,10 @@ public class ReflectedShader implements Disposable {
             member.matrixStride = resource.matrixStride;
             member.offset = Spvc.spvc_compiler_get_decoration(compiler, resource.id, Spv.SpvDecorationOffset);
 
-            var.entry = new Entry(member.name, 0, member.offset);
+            // var.entry = new Entry(member.name, 0, member.offset);
             discoverChildlessSadOrphanMemberWithPotentiallyComplexType(member);
-            var.entry.size = member.size;
-            var.entry.digestDiscoverableMember(member);
+            // var.entry.size = member.size;
+            // var.entry.digestDiscoverableMember(member);
 
             list.add(var);
         }
@@ -403,7 +404,7 @@ public class ReflectedShader implements Disposable {
 
     public static class BufferDescriptorResource extends DescriptorResource {
 
-        public Struct struct;
+        public StructType struct;
         public int baseTypeRaw;
         public com.vke.api.pipeline.BaseType baseType;
 
