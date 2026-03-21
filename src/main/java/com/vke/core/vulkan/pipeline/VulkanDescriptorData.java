@@ -1,14 +1,13 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.vke.api.pipeline.BaseType;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.DescriptorData;
-import com.vke.api.pipeline.Entry;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BaseNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BindingNode;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
 import com.vke.api.rendering.vulkan.descriptors.handles.*;
 import com.vke.api.rendering.vulkan.descriptors.handles.array.BufferArrayHandle;
@@ -114,7 +113,7 @@ public class VulkanDescriptorData extends DescriptorData {
         Binding.Type type;
         int descriptorArrayIndex = -1;
 
-        Entry.BaseType baseType;
+        BaseType baseType;
         long offset = 0;
     }
 

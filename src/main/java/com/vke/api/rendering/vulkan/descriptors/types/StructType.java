@@ -9,6 +9,7 @@ public class StructType extends TypeLayout {
     public static class Member {
         public String name;
         public long offset;
+        public long size;
         public TypeLayout type;
     }
 

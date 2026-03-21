@@ -2,7 +2,7 @@ package com.vke.api.rendering.vulkan.descriptors.handles.array;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -19,14 +19,14 @@ public class EntryArrayHandle extends ArrayUniformHandle {
 
     public final long totalSize;
 
-    public EntryArrayHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, int arraySize, long entrySize, long cpuAddress, long gpuAddress, long offset) {
+    public EntryArrayHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, int bufferIndex, long bufferSize, int arraySize, long entrySize, long cpuAddress, long gpuAddress, long offset) {
         super(setHandle, binding, bindingType, packingType, arraySize);
         this.cpuAddress = cpuAddress;
         this.gpuAddress = gpuAddress;
         this.entrySize = entrySize;
         this.offset = offset;
 
-        this.totalSize = arraySize * entrySize;
+        this.totalSize = bufferIndex * bufferSize + arraySize * entrySize;
     }
 
     public void write(Consumer<BufferSlice> consumer, int index) {

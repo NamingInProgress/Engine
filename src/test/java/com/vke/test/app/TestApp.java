@@ -134,7 +134,7 @@ public class TestApp extends App {
 
             //cmd.bindDescriptorSets(TestPipelines.IDK);
 
-            //cmd.setPushConstants(TestPipelines.IDK);
+            cmd.setPushConstants(TestPipelines.IDK);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 

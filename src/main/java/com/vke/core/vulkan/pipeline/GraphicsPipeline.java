@@ -10,7 +10,7 @@ import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.rendering.vulkan.pipeline.PushConstantsDefinition;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.descriptor.*;
 import com.vke.core.vulkan.sampler.VulkanSampler;

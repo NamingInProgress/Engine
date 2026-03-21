@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.DescriptorData;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;

@@ -1,7 +1,7 @@
 package com.vke.api.pipeline.handles;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 

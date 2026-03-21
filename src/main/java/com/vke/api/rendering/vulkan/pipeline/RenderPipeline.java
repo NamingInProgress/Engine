@@ -18,7 +18,7 @@ import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.pipeline.GraphicsPipeline;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.shader.VKShaderProgram;

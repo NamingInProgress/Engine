@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.buffers.premade;
+package com.vke.core.vulkan.buffers.premade.slice;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import org.joml.*;
@@ -8,11 +8,11 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class BufferSlice {
-    private final long bufferAddress;
-    private final long offset;
-    private final int length;
-    private final long writeAddress;
-    private final PackingType packing;
+    protected final long bufferAddress;
+    protected final long offset;
+    protected final int length;
+    protected final long writeAddress;
+    protected final PackingType packing;
 
     private int cursor;
 
@@ -62,24 +62,18 @@ public class BufferSlice {
     }
 
     public void putVec2(Vector2f v) {
-        putFloat(v.x);
-        putFloat(v.y);
+        putFloat2(v.x, v.y);
     }
 
     public void putVec3(Vector3f v) {
-        putFloat(v.x);
-        putFloat(v.y);
-        putFloat(v.z);
+        putFloat3(v.x, v.y, v.z);
     }
 
     public void putVec4(Vector4f v) {
-        putFloat(v.x);
-        putFloat(v.y);
-        putFloat(v.z);
-        putFloat(v.w);
+        putFloat4(v.x, v.y, v.z, v.w);
     }
 
-    public void pleaseBeSoKindAsToPutThisProvidedMatrixWithALayoutOfFourFloatingPointerIntegersSpecifiedByTheIEEESpecificationByFourFloatingPointerIntegersSpecifiedByTheIEEESpecificationSpecifiedInColumnMajorOrderingOrder(Matrix4f m) {
+    public void putMat4(Matrix4f m) {
         // column 0
         putFloat(m.m00());
         putFloat(m.m10());
@@ -105,7 +99,7 @@ public class BufferSlice {
         putFloat(m.m33());
     }
 
-    public void putMat3fColumnMajor(Matrix3f m) {
+    public void putMat3(Matrix3f m) {
         // column 0
         putFloat(m.m00());
         putFloat(m.m10());
@@ -130,7 +124,7 @@ public class BufferSlice {
         putFloat(m.m22());
     }
 
-    public void putMat2fColumnMajor(Matrix2f m) {
+    public void putMat2(Matrix2f m) {
         // column 0
         putFloat(m.m00());
         putFloat(m.m10());

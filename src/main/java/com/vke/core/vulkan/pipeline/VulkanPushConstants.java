@@ -6,6 +6,7 @@ import com.vke.core.vulkan.shader.VulkanShader;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 public class VulkanPushConstants extends PushConstantsData {
 
@@ -22,6 +23,8 @@ public class VulkanPushConstants extends PushConstantsData {
         this.pushConstants.put(pc.getName(), pc);
         return pc;
     }
+
+    public HashMap<String, PushConstant> getPushConstants() { return this.pushConstants; }
 
     @Override
     public void free() {

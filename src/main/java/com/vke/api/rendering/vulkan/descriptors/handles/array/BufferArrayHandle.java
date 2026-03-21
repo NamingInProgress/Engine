@@ -1,10 +1,8 @@
 package com.vke.api.rendering.vulkan.descriptors.handles.array;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.pipeline.DescriptorData;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import org.jetbrains.annotations.ApiStatus;
 

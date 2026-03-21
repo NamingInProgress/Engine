@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.descriptors.handles.parsing;
 
-import com.vke.api.pipeline.handles.parsing.node.*;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.*;
 
 public class HandleParser {
@@ -19,8 +18,8 @@ public class HandleParser {
         return master;
     }
 
-    public BindingNode parseFirst(HandleLexer lexer, HandleLexer.HandleToken currentToken) {
-        BindingNode n = new BindingNode((String) currentToken.value);
+    public EntryNode parseFirst(HandleLexer lexer, HandleLexer.HandleToken currentToken) {
+        EntryNode n = new EntryNode((String) currentToken.value);
         Node currentNode = n;
 
         outer:

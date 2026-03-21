@@ -1,7 +1,9 @@
 package com.vke.core.services.shr;
 
+import com.vke.api.pipeline.BaseType;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
+import com.vke.api.rendering.vulkan.descriptors.types.*;
 import com.vke.utils.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -58,10 +60,15 @@ public class ReflectedShader implements Disposable {
             bdr.binding = resource.binding;
             bdr.name = resource.name;
             if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
-                bdr.struct = generateStruct(resource);
+                try (MemoryStack stack = MemoryStack.stackPush()) {
+                    PointerBuffer pSize = stack.mallocPointer(1);
+                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
+                    Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
+                    bdr.struct = generateStruct(resource, pSize.get(0));
+                }
             }
             bdr.baseTypeRaw = resource.baseType;
-            bdr.baseType = Entry.BaseType.fromSpvc(resource.baseType);
+            bdr.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
 
             bdr.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.baseTypeId);
             bdr.arrayDim = new int[bdr.nArrayDim];
@@ -69,6 +76,13 @@ public class ReflectedShader implements Disposable {
                 bdr.arrayDim[i] = Spvc.spvc_type_get_array_dimension(resource.baseTypeId, i);
             }
             bdr.arrayStride = resource.arrayStride;
+            /**
+             *
+             * uniform a {
+             *      ....
+             * } UBO[a][b][c] -> a * b * c * stride = size
+             *
+             */
 
             list.add(bdr);
         }
@@ -105,12 +119,15 @@ public class ReflectedShader implements Disposable {
         return list;
     }
 
-    private Struct generateStruct(SPVCResource resource) {
-        Struct s = new Struct();
+    private StructType generateStruct(SPVCResource resource, long size) {
+        StructType s = new StructType();
+        s.name = resource.name;
+        s.size = size;
 
         long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
         int memberCount = Spvc.spvc_type_get_num_member_types(typeHandle);
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            DiscoverableMember[] members = new DiscoverableMember[memberCount];
             for (int i = 0; i < memberCount; i++) {
                 DiscoverableMember member = new DiscoverableMember();
                 member.parentBaseTypeId = resource.baseTypeId;
@@ -127,22 +144,81 @@ public class ReflectedShader implements Disposable {
                 member.offset = buf.get(0);
                 member.size = pSize.get(0);
 
-                Entry memberEntry = new Entry(member.name, member.size, member.offset);
+                members[i] = member;
+            }
 
-                discoverMemberWithPotentiallyComplexType(member);
-                memberEntry.digestDiscoverableMember(member);
-                s.entries.put(member.name, memberEntry);
+            for (int i = 0; i < memberCount; i++) {
+                long expectedSize;
+                if (i + 1 < memberCount) {
+                    expectedSize = members[i + 1].offset - members[i].offset;
+                } else {
+                    expectedSize = size - members[i].offset;
+                }
+
+                discoverMemberWithPotentiallyComplexType(members[i], expectedSize);
+                s.members.put(members[i].name, populateMember(members[i]));
             }
         }
 
         return s;
     }
 
+    public StructType.Member populateMember(DiscoverableMember discoverableMember) {
+        StructType.Member member = new StructType.Member();
+        member.name = discoverableMember.name;
+        member.offset = discoverableMember.offset;
+        member.size = discoverableMember.size;
+
+        BaseType type = BaseType.fromSpvc(discoverableMember.baseType);
+
+        TypeLayout baseTypeLayout;
+
+        if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
+            baseTypeLayout = new MatrixType();
+            ((MatrixType) baseTypeLayout).rows = discoverableMember.matrixRows;
+            ((MatrixType) baseTypeLayout).columns = discoverableMember.matrixColumns;
+            ((MatrixType) baseTypeLayout).stride = discoverableMember.matrixStride;
+        } else if (discoverableMember.struct != null) {
+            baseTypeLayout = discoverableMember.struct;
+        } else {
+            baseTypeLayout = new PrimitiveType();
+            ((PrimitiveType) baseTypeLayout).vecSize = discoverableMember.matrixRows > 1 ? discoverableMember.matrixRows : (Math.max(discoverableMember.matrixColumns, 1));
+            ((PrimitiveType) baseTypeLayout).scalarType = com.vke.api.rendering.vulkan.descriptors.BaseType.fromPipelineBaseType(type);
+        }
+
+        if (discoverableMember.nArrayDim > 1 || (discoverableMember.nArrayDim == 1 && discoverableMember.arrayDim[0] > 1)) {
+            member.type = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
+        } else {
+            member.type = baseTypeLayout;
+        }
+        return member;
+    }
+
+    public ArrayType compactArray(int[] arrayDim, long arrayStride, TypeLayout elementType) {
+        ArrayType result = new ArrayType();
+
+        int length = 1;
+        for (int d : arrayDim) {
+            if (d == -1) { // runtime-size array
+                length = -1;
+                break;
+            }
+            length *= d;
+        }
+
+        result.length = length;
+        result.stride = arrayStride;
+        result.elementType = elementType;
+        result.size = arrayStride * length;
+
+        return result;
+    }
+
     public static class DiscoverableMember {
         public int parentBaseTypeId;
         public int idx;
 
-        public int offset;
+        public long offset;
         public long size;
 
         // Common Data
@@ -163,10 +239,10 @@ public class ReflectedShader implements Disposable {
         public int matrixStride;
 
         // Struct Data
-        public Struct struct;
+        public StructType struct;
     }
 
-    private void discoverMemberWithPotentiallyComplexType(DiscoverableMember member) {
+    private void discoverMemberWithPotentiallyComplexType(DiscoverableMember member, long expectedSize) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             member.typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, member.id);
             member.baseType = Spvc.spvc_type_get_basetype(member.typeHandle);
@@ -183,9 +259,12 @@ public class ReflectedShader implements Disposable {
             member.matrixStride = buf.get(0);
             Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.parentBaseTypeId, member.idx, buf);
             member.arrayStride = buf.get(0);
+            if (expectedSize > member.size) {
+                member.size = expectedSize;
+            }
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
-                member.struct = generateStruct(resource);
+                member.struct = generateStruct(resource, member.size);
             }
         }
     }
@@ -209,7 +288,7 @@ public class ReflectedShader implements Disposable {
             member.matrixColumns = Spvc.spvc_type_get_columns(member.typeHandle);
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
-                member.struct = generateStruct(resource);
+                member.struct = generateStruct(resource, member.size);
             }
         }
     }
@@ -326,7 +405,7 @@ public class ReflectedShader implements Disposable {
 
         public Struct struct;
         public int baseTypeRaw;
-        public Entry.BaseType baseType;
+        public com.vke.api.pipeline.BaseType baseType;
 
         public int nArrayDim;
         public int[] arrayDim;

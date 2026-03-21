@@ -4,7 +4,7 @@ import com.vke.api.pipeline.Struct;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.core.VKEngine;
-import com.vke.core.vulkan.buffers.premade.BufferSlice;
+import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;

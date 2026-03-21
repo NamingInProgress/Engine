@@ -40,7 +40,7 @@ public class ShaderCompiler extends Service {
         this.engine = engine;
         this.compiler = Shaderc.shaderc_compiler_initialize();
         this.alloc = new AutoHeapAllocator();
-        this.vkz = engine.<Vkz>service(Services.VKZ);
+        this.vkz = engine.service(Services.VKZ);
 
         loadCacheFromArchive();
     }

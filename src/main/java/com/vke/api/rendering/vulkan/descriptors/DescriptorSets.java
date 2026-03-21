@@ -8,8 +8,8 @@ import com.vke.api.rendering.vulkan.descriptors.bindings.SamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
 import com.vke.api.rendering.vulkan.descriptors.handles.array.*;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BindingNode;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors.MOVEME.CompiledDescriptorSetLayout;
@@ -49,6 +49,7 @@ public class DescriptorSets implements Disposable {
     private final DescriptorAllocator allocator;
 
     private final HandleParser parser = new HandleParser();
+    private final LayoutResolver layoutResolver = new LayoutResolver();
     private final DescriptorWriter writer;
 
     public DescriptorSets(VKEngine engine, VulkanRenderDevice device, ArrayList<DescriptorSetLayout> layouts, DescriptorsInfo additionalInfo) {
@@ -81,72 +82,55 @@ public class DescriptorSets implements Disposable {
 
     @SuppressWarnings("unchecked")
     public <T extends UniformHandle> T createHandle(String name) {
-        BindingNode node = parser.parse(name).child;
+        EntryNode root = (EntryNode) parser.parse(name).child;
         DescriptorSet set = null;
         DescriptorBinding binding = null;
 
         for (DescriptorSet descriptorSet : sets) {
-            if (descriptorSet.bindings.containsKey(node.name)) {
+            if (descriptorSet.bindings.containsKey(root.name)) {
                 set = descriptorSet;
-                binding = descriptorSet.bindings.get(node.name);
+                binding = descriptorSet.bindings.get(root.name);
                 break;
             }
         }
 
-        if (set == null || binding == null) throw new IllegalStateException("Failed to find binding of name " + node.name);
+        if (set == null || binding == null) throw new IllegalStateException("Failed to find binding of name " + root.name);
 
-        boolean isDeep = node.child.child != null;
-        boolean hasIndex = node.child instanceof ArrayIndexNode;
+        boolean isDeep = root.child.child instanceof ArrayIndexNode || root.child instanceof EntryNode;
+        boolean hasIndex = root.child instanceof ArrayIndexNode;
         int descriptorCount = binding.layout.descriptorCount;
 
         if (!isDeep) {
             if (binding.layout.type.isBuffer()) {
-                return (T) resolveShallowBuffer((BufferBinding) binding, set, node, descriptorCount, hasIndex);
+                return (T) resolveShallowBuffer((BufferBinding) binding, set, root, descriptorCount, hasIndex);
             }
-            return (T) resolveShallowNonBuffer(binding, set, node, descriptorCount, hasIndex);
+            return (T) resolveShallowNonBuffer(binding, set, root, descriptorCount, hasIndex);
         }
 
         if (!binding.layout.type.isBuffer()) throw new IllegalStateException("Only Buffer type uniforms support deep access!");
 
-        return (T) resolveDeep((BufferBinding) binding, set, node);
+        return (T) resolveDeep((BufferBinding) binding, set, root);
     }
 
-    private UniformHandle resolveDeep(BufferBinding binding, DescriptorSet set, BindingNode ast) {
-        int descriptorIndex = ((ArrayIndexNode) ast.child).index;
+    private UniformHandle resolveDeep(BufferBinding binding, DescriptorSet set, EntryNode ast) {
+        boolean isChildArrayNode = ast.child instanceof ArrayIndexNode;
+        int descriptorIndex = isChildArrayNode ? ((ArrayIndexNode) ast.child).index : 0;
 
-        TypeLayout current = binding.layout.typeLayout;
-        long offset = 0;
+        Node node = ast.child instanceof ArrayIndexNode ? ast.child.child : ast.child;
 
-        Node node = ast.child.child;
-
-        while (node != null) {
-
-            if (node instanceof EntryNode entry) {
-                StructType.Member m = ((StructType) current).members.get(entry.name);
-
-                offset += m.offset;
-                current = m.type;
-            } else if (node instanceof ArrayIndexNode arr) {
-                ArrayType arrType = ((ArrayType) current);
-
-                offset += arr.index * arrType.stride;
-                current = arrType.elementType;
-            }
-
-            node = node.child;
-        }
+        LayoutResolver.LayoutResolution res = layoutResolver.resolveLayoutPath(binding.layout.typeLayout, (EntryNode) node);
 
         BindingLayout layout = binding.layout;
         long cpuAddress = binding.buffer.getMappedAddress();
         long gpuAddress = binding.buffer.getGpuBuffer().getBuffer();
 
-        if (current instanceof ArrayType)
-            return new EntryArrayHandle(set.handle, layout.binding, layout.type, layout.packingType, ((ArrayType) current).length, ((ArrayType) current).stride, cpuAddress, gpuAddress, offset);
+        if (res.finalType() instanceof ArrayType)
+            return new EntryArrayHandle(set.handle, layout.binding, layout.type, layout.packingType, descriptorIndex, binding.singleBufferSize, ((ArrayType) res.finalType()).length, ((ArrayType) res.finalType()).stride, cpuAddress, gpuAddress, res.offset());
 
-        return new EntryHandle(set.handle, layout.binding, layout.type, layout.packingType, descriptorIndex, (int) current.size, cpuAddress, gpuAddress, offset); // I really fucking hope this is correct
+        return new EntryHandle(set.handle, layout.binding, layout.type, layout.packingType, descriptorIndex, binding.singleBufferSize, (int) res.finalType().size, cpuAddress, gpuAddress, res.offset()); // I really fucking hope this is correct
     }
 
-    private UniformHandle resolveShallowBuffer(BufferBinding binding, DescriptorSet set, BindingNode node, int descriptorCount, boolean hasIndex) {
+    private UniformHandle resolveShallowBuffer(BufferBinding binding, DescriptorSet set, EntryNode node, int descriptorCount, boolean hasIndex) {
         BindingLayout layout = binding.layout;
         if (descriptorCount > 1) {
             if (!hasIndex) {
@@ -160,7 +144,7 @@ public class DescriptorSets implements Disposable {
         }
     }
 
-    private UniformHandle resolveShallowNonBuffer(DescriptorBinding binding, DescriptorSet set, BindingNode node, int descriptorCount, boolean hasIndex) {
+    private UniformHandle resolveShallowNonBuffer(DescriptorBinding binding, DescriptorSet set, EntryNode node, int descriptorCount, boolean hasIndex) {
         BindingLayout layout = binding.layout;
         if (descriptorCount > 1) {
             if (!hasIndex) {
@@ -194,6 +178,7 @@ public class DescriptorSets implements Disposable {
         };
     }
 
+    public List<CompiledDescriptorSetLayout> getCompiledLayouts() { return this.compiledLayouts; }
 
     public void update(UniformHandle... uniforms) {
         for (UniformHandle uniform : uniforms) {

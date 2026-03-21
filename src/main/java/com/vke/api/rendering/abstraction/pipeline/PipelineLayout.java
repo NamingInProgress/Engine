@@ -5,8 +5,6 @@ import com.vke.utils.Disposable;
 
 public interface PipelineLayout extends Disposable {
 
-    DescriptorData getDescriptors();
-
     int pushConstantSize();
     int descriptorCount();
 
