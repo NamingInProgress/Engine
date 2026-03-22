@@ -153,4 +153,8 @@ public class VKEngine extends Context {
     public VKEngine getEngine() {
         return this;
     }
+
+    public Context createNewContext(String namespace) {
+        return new ModuleContext(Namespace.of(namespace), this);
+    }
 }

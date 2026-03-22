@@ -4,10 +4,12 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.BundleLoadingCallback;
 import com.vke.api.assets.r.R;
 import com.vke.api.window.WindowCreateInfo;
+import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.manager.VKEAssetManager;
 import com.vke.core.services.Services;
+import com.vke.core.vulkan.VulkanRenderer;
 
 import java.io.IOException;
 
@@ -19,33 +21,20 @@ public class AssetManagerTest {
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         VKEngine engine = new VKEngine(createInfo);
+        Context lolCtx = engine.createNewContext("lol");
 
-        VKEAssetManager manager = engine.service(Services.ASSET_MANAGER);
-        manager.registerLoadCallback(new BundleLoadingCallback() {
-            @Override
-            public void onAssetStartLoad(AssetDesc desc) {
-                String msg = String.format("[%d/%d] Loading asset %s...", desc.position(), desc.totalAmount(), desc.name().toString());
-                System.out.println(msg);
-            }
+        VKEAssetManager vkeManager = engine.service(Services.ASSET_MANAGER);
+        VKEAssetManager lolManager = lolCtx.service("asm");
 
-            @Override
-            public void onAssetEndLoad(AssetDesc desc) {
-                System.out.println("Loading complete!");
-            }
+        vkeManager.initialize();
+        lolManager.initialize();
 
-            @Override
-            public void onAssetException(AssetDesc desc, Throwable exception) {
-                engine.throwException(exception, desc.name().toString());
-            }
-        });
+        vkeManager.swapBundle("scene1");
 
-        manager.initialize();
+        AssetHandle<String> greeting = lolManager.getAsset("vke:greeting");
+        AssetHandle<String> string = lolManager.getAsset("string");
 
-        manager.swapBundle("scene1");
-
-        System.out.println(manager.getAsset("aNum").get());
-
-        AssetHandle<String> test = R.strings.get("something");
-        System.out.println(test.acquire(engine));
+        System.out.println(greeting.acquire(engine));
+        System.out.println(string.acquire(engine));
     }
 }
