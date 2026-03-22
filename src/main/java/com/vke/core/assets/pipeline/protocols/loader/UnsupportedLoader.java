@@ -1,5 +1,6 @@
 package com.vke.core.assets.pipeline.protocols.loader;
 
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.AssetPipelineException;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -15,7 +16,7 @@ public class UnsupportedLoader implements AssetProtocol.Loader {
     }
 
     @Override
-    public AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+    public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
         throw new AssetPipelineException(errorMessage);
     }
 }

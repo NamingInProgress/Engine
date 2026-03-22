@@ -2,6 +2,7 @@ package com.vke.core.assets.pipeline.apis;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.utils.ProtocolAssetHandle;
 import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
@@ -38,7 +39,7 @@ public interface AssetProtocol<T> {
     }
 
     interface Loader {
-        AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException;
+        AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException;
     }
 
     class Router {

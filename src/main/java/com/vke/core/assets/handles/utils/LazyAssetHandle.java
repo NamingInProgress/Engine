@@ -3,6 +3,7 @@ package com.vke.core.assets.handles.utils;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetManager;
 import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.utils.io.Identifier;
@@ -27,20 +28,20 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
     }
 
     @Override
-    public T acquire(VKEngine engine) throws IOException {
+    public T acquire(Context context) throws IOException {
         if (cache != null) {
             if (cache.isAvailable()) {
                 return cache.get();
             }
-            return cache.acquire(engine);
+            return cache.acquire(context);
         }
         if ("\0".equals(identifier.getNamespace())) {
-            identifier = engine.id(identifier.getPath());
+            identifier = context.id(identifier.getPath());
         }
-        AssetManager manager = engine.service(Services.ASSET_MANAGER);
+        AssetManager manager = context.service(Services.ASSET_MANAGER);
         AssetHandle<T> assetHandle = manager.getAsset(identifier);
         this.cache = assetHandle;
-        return assetHandle.acquire(engine);
+        return assetHandle.acquire(context);
     }
 
     @Override

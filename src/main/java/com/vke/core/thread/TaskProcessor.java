@@ -16,10 +16,16 @@ public class TaskProcessor {
     public TaskProcessor(VKEngine engine) {
         this.engine = engine;
         this.tasks = new LinkedBlockingQueue<>();
-        employ();
+        employ("TaskProcessor");
     }
 
-    private void employ() {
+    public TaskProcessor(VKEngine engine, String threadName) {
+        this.engine = engine;
+        this.tasks = new LinkedBlockingQueue<>();
+        employ(threadName);
+    }
+
+    private void employ(String name) {
         thread = new Thread(() -> {
             while (!cancel) {
                 try {
@@ -29,7 +35,7 @@ public class TaskProcessor {
                     }
                 } catch (InterruptedException ignore) {}
             }
-        });
+        }, name);
         thread.start();
     }
 

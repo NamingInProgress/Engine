@@ -1,5 +1,6 @@
 package com.vke.core.assets.language;
 
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 
 public class StaticString implements Str {
@@ -10,7 +11,7 @@ public class StaticString implements Str {
     }
 
     @Override
-    public String getContents(VKEngine engine) {
+    public String getContents(Context context) {
         return content;
     }
 }

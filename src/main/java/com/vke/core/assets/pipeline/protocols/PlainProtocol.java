@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.AssetPipelineException;
 import com.vke.core.assets.pipeline.Op;
@@ -48,7 +49,7 @@ public class PlainProtocol implements AssetProtocol<String> {
 
     public static class PlainProtocolLoader implements Loader {
         @Override
-        public AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
             return AssetData.plain(Utils.chainExceptions(() -> Utils.readStringFromInputStream(identifier.asInputStream())));
         }
     }

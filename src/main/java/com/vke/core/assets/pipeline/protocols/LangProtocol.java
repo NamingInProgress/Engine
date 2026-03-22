@@ -2,6 +2,7 @@ package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.language.Language;
 import com.vke.core.assets.language.LanguageParser;
@@ -41,8 +42,8 @@ public class LangProtocol implements AssetProtocol<Language> {
 
     public static class LangProtocolLoader implements Loader {
         @Override
-        public AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
-            ConfigDocument document = new ConfigProtocol.ConfigProtocolLoader().load(engine, identifier, executionTarget).getDataAs();
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+            ConfigDocument document = new ConfigProtocol.ConfigProtocolLoader().load(context, identifier, executionTarget).getDataAs();
             return AssetData.lang(LanguageParser.parseFromConfig(document));
         }
     }

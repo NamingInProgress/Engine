@@ -40,6 +40,13 @@ public class Identifier {
         }
     }
 
+    public static Identifier ofSafe(String literal, String backupNamespace) {
+        if (literal.indexOf(':') >= 0) {
+            return Identifier.of(literal);
+        }
+        return new Identifier(backupNamespace, literal);
+    }
+
     public Identifier extend(String additionalPath) {
         return new Identifier(this.namespace, this.path + "/" + additionalPath);
     }

@@ -5,6 +5,7 @@ import com.vke.api.abstraction.Renderer;
 import com.vke.api.abstraction.data.Texture;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
@@ -29,11 +30,11 @@ public class PngTextureHandle implements AssetHandle<Texture> {
     }
 
     @Override
-    public Texture acquire(VKEngine engine) throws IOException {
+    public Texture acquire(Context context) throws IOException {
         if (texture != null) return texture;
 
-        EngineCreateInfo.RendererType rendererType = engine.rendererType();
-        Renderer renderer = engine.service(rendererType.serviceName);
+        EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
+        Renderer renderer = context.service(rendererType.serviceName);
         RenderDevice device = renderer.getDevice();
         PngFile pngFile = new PngFile(id.asInputStream());
         Pixels pixels = pngFile.getOutput();

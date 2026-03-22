@@ -1,6 +1,7 @@
 package com.vke.core.assets.handles.utils;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class ResolvedAssetHandle<T> implements AssetHandle<T> {
     }
 
     @Override
-    public T acquire(VKEngine engine) throws IOException {
+    public T acquire(Context context) throws IOException {
         return data;
     }
 

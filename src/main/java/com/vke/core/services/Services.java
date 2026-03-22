@@ -1,12 +1,13 @@
 package com.vke.core.services;
 
-import com.vke.core.assets.language.LanguageManager;
-import com.vke.core.assets.VKEAssetManager;
+import com.vke.core.assets.language.manager.LanguageManagerService;
+import com.vke.core.assets.manager.VKEAssetManagerService;
 import com.vke.core.event.EventBus;
 import com.vke.core.profiler.Profiler;
+import com.vke.core.scene.SceneManager;
 import com.vke.core.vkz.Vkz;
-import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.shader.ShaderCompiler;
 
 import static com.vke.api.registry.VKERegistries.SERVICES;
 
@@ -19,15 +20,17 @@ public class Services {
     public static final String ASSET_MANAGER = "asm";
     public static final String VKZ = "vkz";
     public static final String LANGUAGE_MANAGER = "lan";
+    public static final String SCENE_MANAGER = "scn";
 
     public static void init() {
         SERVICES.register(VULKAN_RENDERER, (ctx) -> new VulkanRenderer(ctx.engine(), ctx.engineCreateInfo()));
         SERVICES.register(SHADER_COMPILER, (ctx) -> new ShaderCompiler(ctx.engine()));
         SERVICES.register(PROFILER, (_) -> new Profiler());
         SERVICES.register(EVENT_BUS, (ctx) -> new EventBus(ctx.engine()));
-        SERVICES.register(ASSET_MANAGER, (ctx) -> new VKEAssetManager(ctx.engine()));
+        SERVICES.register(ASSET_MANAGER, (ctx) -> new VKEAssetManagerService(ctx.engine()));
         SERVICES.register(VKZ, (_) -> new Vkz());
-        SERVICES.register(LANGUAGE_MANAGER, (ctx) -> new LanguageManager(ctx.engine()));
+        SERVICES.register(LANGUAGE_MANAGER, (ctx) -> new LanguageManagerService(ctx.engine()));
+        SERVICES.register(SCENE_MANAGER, (ctx) -> new SceneManager(ctx.engine()));
     }
 
 }

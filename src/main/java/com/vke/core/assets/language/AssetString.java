@@ -2,6 +2,7 @@ package com.vke.core.assets.language;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.utils.io.Identifier;
 
@@ -16,15 +17,15 @@ public class AssetString implements Str {
     }
 
     @Override
-    public String getContents(VKEngine engine) {
+    public String getContents(Context context) {
         if (handle == null) {
             handle = R.strings.get(identifier);
         }
 
         try {
-            return handle.isAvailable() ? handle.get() : handle.acquire(engine);
+            return handle.isAvailable() ? handle.get() : handle.acquire(context);
         } catch (IOException e) {
-            engine.throwException(e, "getContents of " + identifier);
+            context.throwException(e, "getContents of " + identifier);
             return null;
         }
     }

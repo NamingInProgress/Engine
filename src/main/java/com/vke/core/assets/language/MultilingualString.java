@@ -1,6 +1,9 @@
 package com.vke.core.assets.language;
 
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.language.manager.LanguageManager;
+import com.vke.core.assets.language.manager.LanguageManagerService;
 import com.vke.core.services.Services;
 import com.vke.utils.io.SegmentedPath;
 
@@ -16,9 +19,9 @@ public class MultilingualString implements Str {
     }
 
     @Override
-    public String getContents(VKEngine engine) {
+    public String getContents(Context context) {
         if (languageManager == null) {
-            languageManager = engine.service(Services.LANGUAGE_MANAGER);
+            languageManager = context.service(Services.LANGUAGE_MANAGER);
         }
 
         if (targetVersion != languageManager.getVersion()) {

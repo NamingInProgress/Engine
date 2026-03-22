@@ -4,7 +4,7 @@ import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
-public interface AssetManager extends Disposable {
+public interface AssetManager {
     PipelineContext getPipelineContext();
 
     void initialize();

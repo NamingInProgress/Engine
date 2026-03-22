@@ -5,6 +5,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.AssetPipelineException;
 import com.vke.core.assets.pipeline.Op;
@@ -75,7 +76,7 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
 
     public static class ConfigProtocolLoader implements Loader {
         @Override
-        public AssetData load(VKEngine engine, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
             return Utils.chainExceptions(() -> AssetData.config(ConfigDocument.parseIdentifier(identifier)));
         }
     }

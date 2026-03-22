@@ -4,7 +4,7 @@ import com.vke.api.app.App;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.VKEAssetManager;
+import com.vke.core.assets.manager.VKEAssetManager;
 import com.vke.core.vulkan.buffers.premade.MeshBuffer;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -93,7 +93,7 @@ public class TestApp extends App {
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
         VKEAssetManager assetManager = engine.service(Services.ASSET_MANAGER);
         assetManager.initialize();
-        assetManager.swapBundle(engine.id("scene1"));
+        assetManager.swapBundle("scene1");
 
         try {
             scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);

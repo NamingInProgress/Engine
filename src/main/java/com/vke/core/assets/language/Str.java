@@ -1,12 +1,13 @@
 package com.vke.core.assets.language;
 
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
 
 public interface Str {
-    String getContents(VKEngine engine);
+    String getContents(Context context);
 
     default Iter<Character> chars(VKEngine engine) {
         String s = getContents(engine);

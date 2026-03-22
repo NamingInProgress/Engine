@@ -1,18 +1,21 @@
 package com.vke.api.assets;
 
-import com.vke.core.VKEngine;
+import com.vke.core.Context;
+import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public final class Bundle implements Disposable {
-    private final VKEngine engine;
+    private final Context context;
 
     private final HashMap<Identifier, AssetHandle<?>> assets = new HashMap<>();
 
-    public Bundle(VKEngine engine) {
-        this.engine = engine;
+    public Bundle(Context context) {
+        this.context = context;
     }
 
     public void extendBundle(Bundle other) {
@@ -23,6 +26,25 @@ public final class Bundle implements Disposable {
         assets.put(identifier, handle);
     }
 
+    public void preloadAll(BundleLoadingCallback callback) {
+        int position = 1;
+        int amount = assets.size();
+        for (Map.Entry<Identifier, AssetHandle<?>> entry : assets.entrySet()) {
+            AssetHandle<?> handle = entry.getValue();
+            Identifier name = entry.getKey();
+            BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount);
+
+            try {
+                callback.onAssetStartLoad(desc);
+                handle.acquire(context);
+                callback.onAssetEndLoad(desc);
+                context.getEngine().EVENT_BUS.fire(new AssetLoadEvent(desc));
+            } catch (IOException e) {
+                callback.onAssetException(desc, e);
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public <T> AssetHandle<T> getAsset(Identifier id) {
         return (AssetHandle<T>) assets.get(id);
@@ -30,7 +52,7 @@ public final class Bundle implements Disposable {
 
     @SuppressWarnings("unchecked")
     public <T> AssetHandle<T> getAsset(String name) {
-        return (AssetHandle<T>) assets.get(engine.id(name));
+        return (AssetHandle<T>) assets.get(context.id(name));
     }
 
     @Override

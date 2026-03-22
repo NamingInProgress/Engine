@@ -3,6 +3,7 @@ package com.vke.core.assets.handles;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Protocols;
 import com.vke.api.vulkan.pipeline.RenderPipeline;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class PipelineAssetHandle implements AssetHandle<RenderPipeline> {
     }
 
     @Override
-    public RenderPipeline acquire(VKEngine engine) throws IOException {
+    public RenderPipeline acquire(Context context) throws IOException {
         return null;
     }
 
