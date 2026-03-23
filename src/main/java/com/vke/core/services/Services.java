@@ -4,7 +4,7 @@ import com.vke.core.assets.language.manager.LanguageManagerService;
 import com.vke.core.assets.manager.VKEAssetManagerService;
 import com.vke.core.event.EventBus;
 import com.vke.core.profiler.Profiler;
-import com.vke.core.scene.SceneManager;
+import com.vke.core.scene.manager.SceneManagerService;
 import com.vke.core.vkz.Vkz;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.shader.ShaderCompiler;
@@ -30,7 +30,7 @@ public class Services {
         SERVICES.register(ASSET_MANAGER, (ctx) -> new VKEAssetManagerService(ctx.engine()));
         SERVICES.register(VKZ, (_) -> new Vkz());
         SERVICES.register(LANGUAGE_MANAGER, (ctx) -> new LanguageManagerService(ctx.engine()));
-        SERVICES.register(SCENE_MANAGER, (ctx) -> new SceneManager(ctx.engine()));
+        SERVICES.register(SCENE_MANAGER, (ctx) -> new SceneManagerService(ctx.engine()));
     }
 
 }

@@ -2,8 +2,10 @@ package com.vke.api.assets;
 
 import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
+import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ public final class Bundle implements Disposable {
         assets.put(identifier, handle);
     }
 
-    public void preloadAll(BundleLoadingCallback callback) {
+    public void preloadAll(@Nullable BundleLoadingCallback callback) {
         int position = 1;
         int amount = assets.size();
         for (Map.Entry<Identifier, AssetHandle<?>> entry : assets.entrySet()) {
@@ -35,12 +37,18 @@ public final class Bundle implements Disposable {
             BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount);
 
             try {
-                callback.onAssetStartLoad(desc);
-                handle.acquire(context);
-                callback.onAssetEndLoad(desc);
+                if (callback != null) {
+                    callback.onAssetStartLoad(desc);
+                    handle.acquire(context);
+                    callback.onAssetEndLoad(desc);
+                } else {
+                    handle.acquire(context);
+                }
                 context.getEngine().EVENT_BUS.fire(new AssetLoadEvent(desc));
             } catch (IOException e) {
-                callback.onAssetException(desc, e);
+                if (callback != null) {
+                    callback.onAssetException(desc, e);
+                }
             }
         }
     }

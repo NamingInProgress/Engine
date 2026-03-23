@@ -1,5 +1,5 @@
-<scene parent="vke:loading">
-    <class name="com.vke.core.scene.MainScene"/>
+<scene>
+    <class name="com.vke.test.scene.MainScene"/>
     <bundles>
         <bundle name="scene1"/>
     </bundles>

@@ -1,22 +1,23 @@
 package com.vke.api.scene;
 
-import com.vke.core.VKEngine;
+import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
 public abstract class Scene implements Disposable {
     private final Identifier name;
-    protected final VKEngine engine;
+    protected final Context context;
 
-    protected Scene(Identifier name, VKEngine engine) {
+    public Scene(Identifier name, Context context) {
         this.name = name;
-        this.engine = engine;
+        this.context = context;
     }
 
     public Identifier getName() {
         return name;
     }
 
-    public abstract void init();
-    public abstract void draw();
+    public abstract void onLoad();
+
+    public abstract void onUnload();
 }
