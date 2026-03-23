@@ -3,10 +3,9 @@ package com.vke.core.assets.pipeline.apis;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.utils.ProtocolAssetHandle;
 import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
@@ -19,7 +18,7 @@ import java.util.HashMap;
 
 public interface AssetProtocol<T> {
     String getProtocolName();
-    AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException;
+    AssetData getField(AssetData data, AssetUri uri) throws AssetException;
     Loader getLoader();
     boolean applies(AssetData a, AssetData b, Op op);
 
@@ -39,7 +38,7 @@ public interface AssetProtocol<T> {
     }
 
     interface Loader {
-        AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException;
+        AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException;
     }
 
     class Router {
@@ -63,7 +62,7 @@ public interface AssetProtocol<T> {
             return null;
         }
 
-        public AssetData getDataAtSafe(SegmentedPath path, StageElement element) throws AssetPipelineException {
+        public AssetData getDataAtSafe(SegmentedPath path, StageElement element) throws AssetException {
             AssetData probably = getDataAt(path, element);
             if (probably == null) {
                 StringBuilder msgBuilder = new StringBuilder("Cannot apply selector ");
@@ -75,7 +74,7 @@ public interface AssetProtocol<T> {
                 for (SegmentedPath p : paths.keySet()) {
                     msgBuilder.append('\t').append(p).append(System.lineSeparator());
                 }
-                throw new AssetPipelineException(msgBuilder.toString());
+                throw new AssetException(msgBuilder.toString());
             }
             return probably;
         }

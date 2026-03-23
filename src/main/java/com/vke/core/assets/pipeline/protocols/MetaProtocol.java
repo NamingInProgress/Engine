@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -29,7 +29,7 @@ public class MetaProtocol implements AssetProtocol<Infallible> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException {
+    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
         return null;
     }
 

@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.stages;
 
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
@@ -13,21 +13,21 @@ public class ConvertStage extends ParameterizedStage {
     private final PipelineContext context;
     private final String toName;
 
-    public ConvertStage(ConfigNode node, PipelineContext context) throws AssetPipelineException {
+    public ConvertStage(ConfigNode node, PipelineContext context) throws AssetException {
         super(node);
         this.context = context;
         this.toName = node.getString("to");
     }
 
     @Override
-    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetException {
         if (executionTarget == ExecutionTarget.Pseudo) {
             stageElement.setData(stageElement.getAssetData().reinterpret(toName));
             return;
         }
         String fromName = stageElement.getProtocol();
         AssetConverter converter = context.getConverter(fromName, toName);
-        if (converter == null) throw new AssetPipelineException("There is no converter from '%s' to '%s'!".formatted(fromName, toName));
+        if (converter == null) throw new AssetException("There is no converter from '%s' to '%s'!".formatted(fromName, toName));
         if (!stageElement.getAssetData().isResolved()) {
             //now we have to resolve the asset actually
             AssetProtocol<?> protocol = context.getProtocol(fromName);

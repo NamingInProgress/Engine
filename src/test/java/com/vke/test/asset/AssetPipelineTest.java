@@ -4,7 +4,7 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetManager;
 import com.vke.api.assets.r.R;
 import com.vke.core.assets.language.Language;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -14,7 +14,7 @@ import com.vke.core.services.Services;
 import java.io.IOException;
 
 public class AssetPipelineTest {
-    public static void main(String[] args) throws AssetPipelineException, IOException {
+    public static void main(String[] args) throws AssetException, IOException {
         EngineCreateInfo createInfo = new EngineCreateInfo("idfk", "vke");
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");

@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -21,7 +21,7 @@ public class PlainPathConverter implements AssetConverter {
     }
 
     @Override
-    public AssetData performConversion(StageElement input, ConfigArrayNode arguments) throws AssetPipelineException {
+    public AssetData performConversion(StageElement input, ConfigArrayNode arguments) throws AssetException {
         return AssetData.path(Paths.get(input.getAssetData().getDataAs()));
     }
 }

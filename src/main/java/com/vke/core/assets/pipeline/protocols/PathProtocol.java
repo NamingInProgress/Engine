@@ -1,9 +1,8 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
-import com.vke.core.assets.pipeline.StageFilter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -19,8 +18,8 @@ public class PathProtocol implements AssetProtocol<Path> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException {
-        throw AssetPipelineException.unknownSelector(getProtocolName(), uri.getSelector());
+    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+        throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 
     @Override

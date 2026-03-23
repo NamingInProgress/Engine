@@ -1,6 +1,6 @@
 package com.vke.core.assets.pipeline.stages;
 
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
@@ -15,7 +15,7 @@ public class RenameStage implements PipelineStage {
     public static final String STAGE = "rename";
     private final ArrayList<RenamePart> parts;
 
-    public RenameStage(ConfigNode node, PipelineContext context) throws AssetPipelineException {
+    public RenameStage(ConfigNode node, PipelineContext context) throws AssetException {
         ConfigArrayNode partNodesNode = node.asArray();
         ConfigNode[] partNodes = partNodesNode.values();
         parts = new ArrayList<>(partNodes.length);
@@ -30,16 +30,16 @@ public class RenameStage implements PipelineStage {
                         AssetProtocol<?> protocol = context.getProtocol(uri.getProtocol());
                         parts.add(new UriPart(uri, protocol));
                     } catch (IllegalArgumentException e) {
-                        throw AssetPipelineException.illegalURI(STAGE, nodeContent, e.getMessage());
+                        throw AssetException.illegalURI(STAGE, nodeContent, e.getMessage());
                     }
                 }
-                default -> throw new AssetPipelineException("Illegal rename part " + partName + "!");
+                default -> throw new AssetException("Illegal rename part " + partName + "!");
             }
         }
     }
 
     @Override
-    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetException {
         StringBuilder nameBuilder = new StringBuilder();
         for (RenamePart part : parts) {
             String p = part.applyForElement(stageElement);
@@ -54,7 +54,7 @@ public class RenameStage implements PipelineStage {
     }
 
     private static abstract sealed class RenamePart permits StaticPart, UriPart {
-        protected abstract String applyForElement(StageElement element) throws AssetPipelineException;
+        protected abstract String applyForElement(StageElement element) throws AssetException;
     }
 
     private static non-sealed class StaticPart extends RenamePart {
@@ -65,7 +65,7 @@ public class RenameStage implements PipelineStage {
         }
 
         @Override
-        protected String applyForElement(StageElement element) throws AssetPipelineException {
+        protected String applyForElement(StageElement element) throws AssetException {
             return staticString;
         }
     }
@@ -80,7 +80,7 @@ public class RenameStage implements PipelineStage {
         }
 
         @Override
-        protected String applyForElement(StageElement element) throws AssetPipelineException {
+        protected String applyForElement(StageElement element) throws AssetException {
             return protocol.getField(element.getAssetData(uri.getProtocol()), uri).getData().toString();
         }
     }

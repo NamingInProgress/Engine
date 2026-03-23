@@ -6,23 +6,19 @@ import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
 import com.vke.core.assets.pipeline.AssetPipeline;
-import com.vke.core.assets.pipeline.AssetPipelineException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.*;
-import com.vke.core.VKEngine;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BundleCollector {
@@ -55,7 +51,7 @@ public class BundleCollector {
                 pipeline.execute(element, PipelineStage.ExecutionTarget.Pseudo);
                 AssetHandle<?> handle = pipeline.extractHandle(element);
                 bundle.addAsset(element.getAssetName(), handle);
-            } catch (AssetPipelineException e) {
+            } catch (AssetException e) {
                 context.throwException(e, "AssetPipeline pseudoExecute");
             }
         }

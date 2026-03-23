@@ -2,8 +2,7 @@ package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
@@ -22,8 +21,8 @@ public class PlainProtocol implements AssetProtocol<String> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException {
-        throw AssetPipelineException.unknownSelector(getProtocolName(), uri.getSelector());
+    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+        throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 
     @Override
@@ -49,7 +48,7 @@ public class PlainProtocol implements AssetProtocol<String> {
 
     public static class PlainProtocolLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             return AssetData.plain(Utils.chainExceptions(() -> Utils.readStringFromInputStream(identifier.asInputStream())));
         }
     }

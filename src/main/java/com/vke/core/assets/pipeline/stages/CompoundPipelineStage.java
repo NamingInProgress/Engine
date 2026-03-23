@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.stages;
 
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.utils.Utils;
@@ -13,7 +13,7 @@ import java.util.List;
 public abstract class CompoundPipelineStage implements PipelineStage {
     protected final List<PipelineStage> stages;
 
-    public CompoundPipelineStage(ConfigArrayNode node, PipelineContext factories, String... usedFields) throws AssetPipelineException {
+    public CompoundPipelineStage(ConfigArrayNode node, PipelineContext factories, String... usedFields) throws AssetException {
         stages = new ArrayList<>();
         ConfigNode[] values = node.values();
         for (ConfigNode value : values) {
@@ -25,7 +25,7 @@ public abstract class CompoundPipelineStage implements PipelineStage {
         }
     }
 
-    protected void processInnerPipeline(StageElement element, ExecutionTarget executionTarget) throws AssetPipelineException {
+    protected void processInnerPipeline(StageElement element, ExecutionTarget executionTarget) throws AssetException {
         for (PipelineStage stage : stages) {
             if (stage.executionTarget().isUsable(executionTarget)) {
                 stage.execute(element, executionTarget);

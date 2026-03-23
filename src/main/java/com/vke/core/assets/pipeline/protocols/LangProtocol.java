@@ -3,10 +3,9 @@ package com.vke.core.assets.pipeline.protocols;
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 import com.vke.core.assets.language.Language;
 import com.vke.core.assets.language.LanguageParser;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
@@ -21,12 +20,12 @@ public class LangProtocol implements AssetProtocol<Language> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException {
+    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
         if (uri.getSelector().equals("key")) {
             Language language = data.getDataAs();
             return AssetData.plain(language.find(uri.getPath()));
         } else {
-            throw new AssetPipelineException("Illegal selector for protocol 'lang': only 'key' is allowed!");
+            throw new AssetException("Illegal selector for protocol 'lang': only 'key' is allowed!");
         }
     }
 
@@ -42,7 +41,7 @@ public class LangProtocol implements AssetProtocol<Language> {
 
     public static class LangProtocolLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             ConfigDocument document = new ConfigProtocol.ConfigProtocolLoader().load(context, identifier, executionTarget).getDataAs();
             return AssetData.lang(LanguageParser.parseFromConfig(document));
         }

@@ -6,8 +6,7 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
@@ -24,15 +23,15 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetPipelineException {
+    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
         if (uri.getSelector().equals("field")) {
             return AssetData.plain(getField(uri.getPath(), data.getDataAs()));
         } else {
-            throw new AssetPipelineException("Illegal selector for protocol 'config': only 'field' is allowed!");
+            throw new AssetException("Illegal selector for protocol 'config': only 'field' is allowed!");
         }
     }
 
-    private String getField(SegmentedPath path, ConfigDocument document) throws AssetPipelineException {
+    private String getField(SegmentedPath path, ConfigDocument document) throws AssetException {
         String[] pathSegments = path.getParts();
         ConfigNode currentNode = document.getRoot();
         for (int i = 0; i < pathSegments.length; i++) {
@@ -60,8 +59,8 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
         return content;
     }
 
-    private void noSuchField(SegmentedPath path) throws AssetPipelineException {
-        throw new AssetPipelineException("Field does not exist! " + path);
+    private void noSuchField(SegmentedPath path) throws AssetException {
+        throw new AssetException("Field does not exist! " + path);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
 
     public static class ConfigProtocolLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             return Utils.chainExceptions(() -> AssetData.config(ConfigDocument.parseIdentifier(identifier)));
         }
     }

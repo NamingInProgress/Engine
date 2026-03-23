@@ -12,6 +12,8 @@ public interface AssetManager {
     <T> AssetHandle<T> getAsset(Identifier id);
     <T> AssetHandle<T> getAsset(String path);
 
+    AssetTransaction beginTransaction();
+
     default String getAssetProtocol(Identifier id) {
         AssetHandle<?> handle = getAsset(id);
         if (handle == null) return Protocols.ANY;

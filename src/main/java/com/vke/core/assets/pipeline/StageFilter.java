@@ -3,6 +3,7 @@ package com.vke.core.assets.pipeline;
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.EmptyConfigArray;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -21,7 +22,7 @@ public class StageFilter extends CompoundPipelineStage {
     private final Op op;
     private final String query;
 
-    public StageFilter(ConfigNode node, PipelineContext context) throws AssetPipelineException {
+    public StageFilter(ConfigNode node, PipelineContext context) throws AssetException {
         super(node.asArray(), context, "uri", "op", "query");
         this.context = context;
         String uriString = node.getString("uri");
@@ -31,7 +32,7 @@ public class StageFilter extends CompoundPipelineStage {
         try {
             this.uri = new AssetUri(URI.create(uriString));
         } catch (IllegalArgumentException e) {
-            throw AssetPipelineException.illegalURI(STAGE, uriString, e.getMessage());
+            throw AssetException.illegalURI(STAGE, uriString, e.getMessage());
         }
         this.op = Op.valueOf(opStr.toUpperCase());
         this.query = query;
@@ -62,7 +63,7 @@ public class StageFilter extends CompoundPipelineStage {
     }
 
     @Override
-    public void execute(StageElement stageElement, ExecutionTarget target) throws AssetPipelineException {
+    public void execute(StageElement stageElement, ExecutionTarget target) throws AssetException {
         String dataProtocolName = getProtocol();
         AssetProtocol<?> dataProtocol = context.getProtocol(dataProtocolName);
         AssetData data = dataProtocol.getField(stageElement.getAssetData(dataProtocolName), uri);
@@ -91,7 +92,7 @@ public class StageFilter extends CompoundPipelineStage {
             }
             converter = context.getConverter(dataProtocolName, queryProtocolName);
             if (converter == null) {
-                throw new AssetPipelineException("Unable to convert between '%s' and '%s'! At least one way must be possible for a filter to work.".formatted(dataProtocolName, queryProtocolName));
+                throw new AssetException("Unable to convert between '%s' and '%s'! At least one way must be possible for a filter to work.".formatted(dataProtocolName, queryProtocolName));
             }
             //data --> query
             AssetData query2 = converter.performConversion(dataElement, new EmptyConfigArray());

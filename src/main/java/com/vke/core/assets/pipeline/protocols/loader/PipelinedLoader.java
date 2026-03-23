@@ -1,9 +1,8 @@
 package com.vke.core.assets.pipeline.protocols.loader;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.AssetPipeline;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
@@ -20,7 +19,7 @@ public class PipelinedLoader implements AssetProtocol.Loader {
     }
 
     @Override
-    public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetPipelineException {
+    public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
         StageElement element = new StageElement(identifier.toPath(), new AssetData(protocol, identifier));
         pipeline.execute(element, executionTarget);
         return element.getAssetData();

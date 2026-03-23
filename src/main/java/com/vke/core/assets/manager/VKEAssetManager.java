@@ -1,16 +1,13 @@
 package com.vke.core.assets.manager;
 
-import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetManager;
-import com.vke.api.assets.Bundle;
-import com.vke.api.assets.BundleLoadingCallback;
+import com.vke.api.assets.*;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.Context;
 import com.vke.core.assets.BundleCollector;
 import com.vke.core.assets.pipeline.AssetPipeline;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.utils.Utils;
@@ -37,7 +34,7 @@ public class VKEAssetManager implements AssetManager {
     public void initialize() {
         initPipeline();
         if (pipeline == null) {
-            context.throwException(new AssetPipelineException("No assets.xml specified!"), "Init AssetManager");
+            context.throwException(new AssetException("No assets.xml specified!"), "Init AssetManager");
         }
         Bundle globalBundle = BundleCollector.collectGlobalBundle(context, pipeline);
         base.globalBundle.extendBundle(globalBundle);
@@ -74,16 +71,13 @@ public class VKEAssetManager implements AssetManager {
         return base.getAsset(context.id(path));
     }
 
+    @Override
+    public AssetTransaction beginTransaction() {
+        return null;
+    }
+
     public String getAssetProtocol(String id) {
         return getAssetProtocol(context.id(id));
-    }
-
-    public void swapBundle(String name) {
-        base.swapBundle(name);
-    }
-
-    public void unloadBundle() {
-        base.unloadBundle();
     }
 
     public void registerLoadCallback(BundleLoadingCallback callback) {

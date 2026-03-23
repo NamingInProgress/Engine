@@ -1,8 +1,7 @@
 package com.vke.core.assets.handles.utils;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.assets.pipeline.AssetPipelineException;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
@@ -26,7 +25,7 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
         try {
             AssetData data = protocolLoader.load(context, identifier, PipelineStage.ExecutionTarget.All);
             return data.getDataAs();
-        } catch (AssetPipelineException e) {
+        } catch (AssetException e) {
             throw new IOException(e);
         }
     }

@@ -1,5 +1,6 @@
 package com.vke.core.assets.pipeline;
 
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
@@ -55,16 +56,16 @@ public class PipelineContext {
         second.put(converter.to(), converter);
     }
 
-    public PipelineStage produceStage(String stageName, ConfigNode node) throws AssetPipelineException {
+    public PipelineStage produceStage(String stageName, ConfigNode node) throws AssetException {
         StageFactory fac = registryRegistry.get(stageName);
-        if (fac == null) throw AssetPipelineException.unknownStage(stageName);
+        if (fac == null) throw AssetException.unknownStage(stageName);
         return fac.produce(node, this);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> AssetProtocol<T> getProtocol(String protocol) throws AssetPipelineException {
+    public <T> AssetProtocol<T> getProtocol(String protocol) throws AssetException {
         AssetProtocol<?> res = protocolRegistry.get(protocol);
-        if (res == null) throw AssetPipelineException.unknownProtocol(protocol);
+        if (res == null) throw AssetException.unknownProtocol(protocol);
         return (AssetProtocol<T>) res;
     }
 
