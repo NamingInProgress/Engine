@@ -93,7 +93,6 @@ public class TestApp extends App {
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
         VKEAssetManager assetManager = engine.service(Services.ASSET_MANAGER);
         assetManager.initialize();
-        assetManager.swapBundle("scene1");
 
         try {
             scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);

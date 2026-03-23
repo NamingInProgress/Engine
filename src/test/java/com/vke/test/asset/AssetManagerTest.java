@@ -1,21 +1,21 @@
 package com.vke.test.asset;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.BundleLoadingCallback;
+import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.r.R;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.manager.VKEAssetManager;
 import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
 
 import java.io.IOException;
 
 public class AssetManagerTest {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, AssetException {
         EngineCreateInfo createInfo = new EngineCreateInfo("idfk", "vke");
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
@@ -29,12 +29,14 @@ public class AssetManagerTest {
         vkeManager.initialize();
         lolManager.initialize();
 
-        vkeManager.swapBundle("scene1");
+        BundleExchange exchange = vkeManager.beginExchange();
+        exchange.load("scene1");
+        exchange.commit();
 
-        AssetHandle<String> greeting = lolManager.getAsset("vke:greeting");
-        AssetHandle<String> string = lolManager.getAsset("string");
+        AssetHandle<String> greeting1 = lolManager.getAsset("vke:something");
+        AssetHandle<String> greeting2 = R.strings.get("lol:something2");
 
-        System.out.println(greeting.acquire(engine));
-        System.out.println(string.acquire(engine));
+        System.out.println(greeting1.acquire(engine));
+        System.out.println(greeting2.acquire(engine));
     }
 }

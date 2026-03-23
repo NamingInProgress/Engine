@@ -14,9 +14,5 @@ public abstract class LoadingScene extends Scene implements BundleLoadingCallbac
         this.assetManager = context.service(Services.ASSET_MANAGER);
     }
 
-    public void loadBundle(String bundleName) {
-        assetManager.registerLoadCallback(this);
-        assetManager.swapBundle(bundleName);
-        assetManager.removeLoadCallback(this);
-    }
+
 }

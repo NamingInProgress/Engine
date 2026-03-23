@@ -4,7 +4,7 @@ import com.vke.core.assets.AssetException;
 
 import java.util.Collection;
 
-public interface AssetTransaction {
+public interface BundleExchange {
     void load(String bundle);
     void loadAll(Collection<String> bundles);
 

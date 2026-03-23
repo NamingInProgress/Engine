@@ -1,6 +1,7 @@
 package com.vke.core.scene.manager;
 
 import com.vke.api.scene.Scene;
+import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
 import com.vke.utils.io.Identifier;
 
@@ -18,11 +19,11 @@ public class SceneManager {
         base.registerScenes(sceneDirectory, context);
     }
 
-    public void setScene(Identifier name) {
+    public void setScene(Identifier name) throws SceneException {
         base.setScene(name);
     }
 
-    public void setScene(String name) {
+    public void setScene(String name) throws SceneException {
         base.setScene(context.id(name));
     }
 

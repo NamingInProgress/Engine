@@ -40,7 +40,7 @@ public class VKEAssetManager implements AssetManager {
         base.globalBundle.extendBundle(globalBundle);
 
         Map<String, Bundle> bundleMap = BundleCollector.collectBundles(context, pipeline);
-        base.allBundles.putAll(bundleMap);
+        base.mergeBundles(bundleMap);
     }
 
     private void initPipeline() {
@@ -72,8 +72,8 @@ public class VKEAssetManager implements AssetManager {
     }
 
     @Override
-    public AssetTransaction beginTransaction() {
-        return null;
+    public BundleExchange beginExchange() {
+        return base.beginExchange();
     }
 
     public String getAssetProtocol(String id) {
