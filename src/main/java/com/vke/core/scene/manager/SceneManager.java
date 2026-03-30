@@ -1,11 +1,14 @@
 package com.vke.core.scene.manager;
 
+import com.vke.api.assets.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
+import com.vke.core.services.Services;
 import com.vke.utils.io.Identifier;
 
 public class SceneManager {
+    private boolean init;
     private final Context context;
     private final SceneManagerService base;
 
@@ -15,6 +18,10 @@ public class SceneManager {
     }
 
     public void initialize() {
+        if (init) return;
+        init = true;
+        AssetManager manager = context.service(Services.ASSET_MANAGER);
+        manager.initialize();
         Identifier sceneDirectory = context.id("scenes/");
         base.registerScenes(sceneDirectory, context);
     }

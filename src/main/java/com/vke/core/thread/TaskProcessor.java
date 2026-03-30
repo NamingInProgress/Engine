@@ -29,10 +29,8 @@ public class TaskProcessor {
         thread = new Thread(() -> {
             while (!cancel) {
                 try {
-                    Task next = tasks.poll(100, TimeUnit.MILLISECONDS);
-                    if (next != null) {
-                        next.work();
-                    }
+                    Task next = tasks.take();
+                    next.work();
                 } catch (InterruptedException ignore) {}
             }
         }, name);
@@ -41,11 +39,12 @@ public class TaskProcessor {
 
     public void free() {
         cancel = true;
+        //wake up thread to allow for join to take effect
+        thread.interrupt();
         try {
             thread.join();
         } catch (InterruptedException e) {
-            Logger logger = engine.getLogger();
-            logger.warn("Tried to free TaskProcessor, but got interrupted", e);
+            engine.getLogger().warn("Interrupted while stopping TaskProcessor", e);
         }
     }
 

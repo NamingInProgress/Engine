@@ -1,0 +1,3 @@
+<scene>
+    <class name="com.vke.core.scene.loading.DefaultVkeLoadingScene"/>
+</scene>

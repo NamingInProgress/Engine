@@ -1,8 +1,10 @@
 package com.vke.utils.iter.helpers;
 
+import com.vke.utils.Utils;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -136,5 +138,22 @@ public class Option<T> {
     @Override
     public int hashCode() {
         return isSome() ? Objects.hashCode(value) : 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T unwrapOrDefault(T... ignore) {
+        if (isSome()) return value;
+
+        Class<T> clazz = (Class<T>) ignore.getClass().getComponentType();
+        if (clazz == byte.class || clazz == Byte.class) return (T) (Byte) (byte) 0;
+        if (clazz == short.class || clazz == Short.class) return (T) (Short) (short) 0;
+        if (clazz == int.class || clazz == Integer.class) return (T) (Integer) 0;
+        if (clazz == long.class || clazz == Long.class) return (T) (Long) 0L;
+        if (clazz == float.class || clazz == Float.class) return (T) (Float) 0f;
+        if (clazz == double.class || clazz == Double.class) return (T) (Double) 0d;
+        if (clazz == char.class || clazz == Character.class) return (T) (Character) '\0';
+        if (clazz == boolean.class || clazz == Boolean.class) return (T) (Boolean) false;
+        if (clazz == String.class) return (T) "";
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package com.vke.test.scene;
 
 import com.vke.api.scene.SceneException;
 import com.vke.api.window.WindowCreateInfo;
+import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.manager.SceneManager;
@@ -17,6 +18,10 @@ public class SceneTest {
 
         SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
         sceneManager.initialize();
+
+        Context lolContext = engine.createNewContext("lol");
+        SceneManager lolSceneManager = lolContext.service(Services.SCENE_MANAGER);
+        lolSceneManager.initialize();
         sceneManager.setScene("main");
     }
 }

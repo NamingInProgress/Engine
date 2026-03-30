@@ -16,6 +16,7 @@ import com.vke.utils.io.Identifier;
 import java.util.Map;
 
 public class VKEAssetManager implements AssetManager {
+    private boolean init;
     private final VKEAssetManagerService base;
     private final Context context;
     private AssetPipeline pipeline;
@@ -32,6 +33,8 @@ public class VKEAssetManager implements AssetManager {
 
     @Override
     public void initialize() {
+        if (init) return;
+        init = true;
         initPipeline();
         if (pipeline == null) {
             context.throwException(new AssetException("No assets.xml specified!"), "Init AssetManager");

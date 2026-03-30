@@ -1,18 +1,49 @@
 package com.vke.api.scene;
 
+import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.BundleLoadingCallback;
 import com.vke.core.Context;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.manager.VKEAssetManager;
+import com.vke.core.scene.loading.DefaultVkeLoadingScene;
 import com.vke.core.services.Services;
 import com.vke.utils.io.Identifier;
 
 public abstract class LoadingScene extends Scene implements BundleLoadingCallback {
     protected final VKEAssetManager assetManager;
+    private Runnable onComplete;
 
-    protected LoadingScene(Identifier name, Context context) {
+    public LoadingScene(Identifier name, Context context) {
         super(name, context);
         this.assetManager = context.service(Services.ASSET_MANAGER);
     }
 
+    public static LoadingScene defaultVke() {
+        return DefaultVkeLoadingScene.getInstance();
+    }
 
+    @Override
+    public final LoadingScene getLoadingScene() {
+        throw new UnsupportedOperationException("LoadingScenes cannot have a loading scene lol!");
+    }
+
+    @Override
+    public final void setLoadingScene(LoadingScene loadingScene) {
+        throw new UnsupportedOperationException("LoadingScenes cannot have a loading scene lol!");
+    }
+
+    public void loadBundles(java.util.List<String> bundleNames, Runnable onComplete) throws AssetException {
+        onLoad();
+        this.onComplete = onComplete;
+        assetManager.registerLoadCallback(this);
+        BundleExchange exchange = assetManager.beginExchange();
+        exchange.loadAll(bundleNames);
+        exchange.commit();
+    }
+
+    protected void completeLoading() {
+        onUnload();
+        assetManager.removeLoadCallback(this);
+        if (onComplete != null) onComplete.run();
+    }
 }

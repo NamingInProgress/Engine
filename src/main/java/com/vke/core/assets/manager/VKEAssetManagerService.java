@@ -1,8 +1,8 @@
 package com.vke.core.assets.manager;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.Bundle;
+import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.BundleLoadingCallback;
 import com.vke.api.services.ScopedService;
 import com.vke.core.Context;
@@ -15,10 +15,8 @@ import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
     private final VKEngine engine;
@@ -69,6 +67,13 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
 
             for (Bundle removedBundle : removed.values()) {
                 removedBundle.free();
+            }
+
+            for (Bundle bundle : loadedBundles.values()) {
+                loadingThread.addTask(() -> {
+                    bundle.preloadAll(loadingCallbacks);
+                    loadingCallbacks.onLoadingComplete();
+                });
             }
         }
     }
