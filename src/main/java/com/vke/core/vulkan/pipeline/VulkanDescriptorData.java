@@ -63,7 +63,7 @@ public class VulkanDescriptorData extends DescriptorData {
 
                 set.bindings.put(i.getAndIncrement(), new BufferBinding(bufferBinding, stages, buffer.getMappedAddress(), buffer.getGpuBuffer().getBuffer(), bufferBinding.descriptorCount, totalSize));
             } else {
-                set.bindings.put(i.getAndIncrement(), new ImageBinding(binding, stages, ((ImageBinding) binding).descriptorCount));
+                set.bindings.put(i.getAndIncrement(), new ImageBinding(binding, stages, binding.descriptorCount));
             }
         });
 

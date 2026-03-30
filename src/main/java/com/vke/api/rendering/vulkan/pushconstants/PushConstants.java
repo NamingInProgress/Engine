@@ -45,6 +45,8 @@ public class PushConstants implements Disposable {
         return new PushConstantHandle(pipelineLayoutHandle, MemoryUtil.memAddress(data), res.finalType().size, res.offset());
     }
 
+    public PushConstantLayout getLayout() { return this.layout; }
+
     @Override
     public void free() {
         alloc.close();

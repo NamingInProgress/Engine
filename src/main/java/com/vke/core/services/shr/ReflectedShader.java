@@ -90,7 +90,7 @@ public class ReflectedShader implements Disposable {
         return list;
     }
 
-    // TO
+    // TODO: ts outdated as shit lmao
     public ArrayList<VertexAttributeResource> getVAOs() {
         if (resources.containsKey(ResourceType.VAO)) return getResource(ResourceType.VAO);
         SPVCDescriptorResource[] resources = getDescriptorResources(ResourceType.VAO);
