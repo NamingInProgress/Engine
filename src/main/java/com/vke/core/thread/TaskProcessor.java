@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class TaskProcessor {
-    private VKEngine engine;
+    private final VKEngine engine;
     private final BlockingQueue<Task> tasks;
     private volatile boolean cancel;
     private Thread thread;
@@ -16,30 +16,35 @@ public class TaskProcessor {
     public TaskProcessor(VKEngine engine) {
         this.engine = engine;
         this.tasks = new LinkedBlockingQueue<>();
-        employ();
+        employ("TaskProcessor");
     }
 
-    private void employ() {
+    public TaskProcessor(VKEngine engine, String threadName) {
+        this.engine = engine;
+        this.tasks = new LinkedBlockingQueue<>();
+        employ(threadName);
+    }
+
+    private void employ(String name) {
         thread = new Thread(() -> {
             while (!cancel) {
                 try {
-                    Task next = tasks.poll(100, TimeUnit.MILLISECONDS);
-                    if (next != null) {
-                        next.work();
-                    }
+                    Task next = tasks.take();
+                    next.work();
                 } catch (InterruptedException ignore) {}
             }
-        });
+        }, name);
         thread.start();
     }
 
     public void free() {
         cancel = true;
+        //wake up thread to allow for join to take effect
+        thread.interrupt();
         try {
             thread.join();
         } catch (InterruptedException e) {
-            Logger logger = engine.getLogger();
-            logger.warn("Tried to free TaskProcessor, but got interrupted", e);
+            engine.getLogger().warn("Interrupted while stopping TaskProcessor", e);
         }
     }
 

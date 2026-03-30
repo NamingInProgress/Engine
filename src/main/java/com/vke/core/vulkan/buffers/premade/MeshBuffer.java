@@ -7,7 +7,7 @@ import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferDeviceAddressInfo;

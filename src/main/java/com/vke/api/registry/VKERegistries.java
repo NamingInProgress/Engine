@@ -2,7 +2,7 @@ package com.vke.api.registry;
 
 import com.vke.api.registry.registries.*;
 import com.vke.api.serializer.Serializer;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.vke.core.vkz;
 
 import com.vke.api.serializer.Saver;
-import com.vke.utils.exception.SaveException;
+import com.vke.core.serializer.SaveException;
 
 import java.io.*;
 

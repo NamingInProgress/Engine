@@ -2,11 +2,11 @@ package com.vke.core.vulkan.descriptor;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.vke.api.rendering.abstraction.IntEnum;
-import com.vke.api.pipeline.fucvk.DescriptorData;
+import com.vke.api.abstraction.IntEnum;
+import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.core.vulkan.shader.VulkanShader;
+import com.vke.core.vulkan.shader.Shader;
 import com.vke.utils.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Struct;
@@ -76,7 +76,7 @@ public class DescriptorSetLayout implements Disposable {
             bindings = new ArrayList<>();
         }
 
-        private Builder addBinding(int index, DescriptorType type, VulkanShader.Stages shaderStageFlags) {
+        private Builder addBinding(int index, DescriptorType type, Shader.Stages shaderStageFlags) {
             VkDescriptorSetLayoutBinding b = VkDescriptorSetLayoutBinding.calloc();
             b.binding(index);
             b.descriptorCount(1); // TODO: vchange when adding arrays

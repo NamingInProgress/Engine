@@ -2,7 +2,7 @@ package com.vke.api.rendering.abstraction.data;
 
 import com.vke.api.rendering.abstraction.enums.CompareOp;
 import com.vke.api.rendering.abstraction.enums.Filter;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface Sampler extends Disposable {
 

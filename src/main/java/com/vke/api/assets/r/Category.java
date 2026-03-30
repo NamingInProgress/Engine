@@ -1,7 +1,8 @@
 package com.vke.api.assets.r;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.utils.Identifier;
+import com.vke.core.assets.handles.utils.LazyAssetHandle;
+import com.vke.utils.io.Identifier;
 
 import java.util.HashMap;
 
@@ -15,9 +16,9 @@ public class Category<T> {
         return entry;
     }
 
-    public AssetHandle<T> get(String rawIdentifier) {
+    public AssetHandle<T> get(String name) {
         //dont use the cache here cuz the namespace could vary i think
-        Identifier identifier = new Identifier("\0", rawIdentifier);
+        Identifier identifier = new Identifier("\0", name);
         return new LazyAssetHandle<>(identifier);
     }
 }

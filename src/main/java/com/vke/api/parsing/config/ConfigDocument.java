@@ -6,6 +6,10 @@ import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
+import com.vke.utils.io.Identifier;
+import com.vke.utils.Utils;
+
+import java.io.IOException;
 
 public interface ConfigDocument {
     String getName();
@@ -36,5 +40,20 @@ public interface ConfigDocument {
 
     default ConfigArrayNode getArray(String... path) {
         return (ConfigArrayNode) resolve(path);
+    }
+
+    static ConfigDocument parseIdentifier(Identifier identifier) throws IOException {
+        String filename = identifier.strip().getPath();
+        ConfigParser parser = ConfigParser.forFileType(filename);
+        if (parser == null) {
+            throw new IOException("No suitable parser found for " + filename);
+        }
+        char[] source = Utils.readCharsFromInputStream(identifier.asInputStream());
+        parser.setSource(source);
+        try {
+            return parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
+        } catch (ConfigParser.ConfigParseException e) {
+            throw new IOException(e);
+        }
     }
 }

@@ -8,37 +8,31 @@ import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
-import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.ServiceManager;
-import com.vke.core.services.profiler.DummyProfiler;
-import com.vke.core.services.profiler.Profiler;
+import com.vke.core.profiler.DummyProfiler;
+import com.vke.core.profiler.Profiler;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.services.Services;
 import com.vke.core.window.Window;
-import com.vke.utils.AnsiColors;
-import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
-import com.vke.utils.Infallible;
+import com.vke.utils.console.AnsiColors;
+import com.vke.utils.io.Identifier;
+import com.vke.api.app.Namespace;
 import com.vke.utils.iter.Iter;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
-public class VKEngine {
-
+public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
     public static Profiler profiler;
 
-    private final Logger logger;
     private final Logger soutLogger;
 
-    private final ServiceCreateContext scc;
     private final EngineCreateInfo createInfo;
     private final ServiceManager serviceManager;
 
@@ -49,25 +43,23 @@ public class VKEngine {
     private final List<String> namespaces;
 
     public VKEngine(EngineCreateInfo createInfo) {
+        super(Namespace.of(VKE_NAMESPACE));
+
         if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
 
         this.createInfo = createInfo;
         this.namespaces = new ArrayList<>() {{ add(VKE_NAMESPACE);
             if (!getAppNamespace().equals(VKE_NAMESPACE)) add(VKE_NAMESPACE);
         }};
-        this.logger = LoggerFactory.get(VKEngine.class.getName());
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
-        this.scc = new ServiceCreateContext(this, createInfo);
+
+        ServiceCreateContext scc = new ServiceCreateContext(this, createInfo);
         this.serviceManager = new ServiceManager(scc);
 
         SOUT.redirect(soutLogger);
 
         profiler = new DummyProfiler();
         EVENT_BUS = service(Services.EVENT_BUS);
-    }
-
-    public <T extends Service> T service(String key) {
-        return this.serviceManager.service(key);
     }
 
     public void start(App app) {
@@ -113,11 +105,6 @@ public class VKEngine {
         free();
     }
 
-    public @NotNull Infallible throwException(Throwable e, String where) {
-        logger.fatal("Fatal exception at %s", where);
-        throw new RuntimeException(e);
-    }
-
     private void free() {
         EVENT_BUS.fire(new AppLifecycleEvents.PreFree(app));
         app.free();
@@ -130,20 +117,17 @@ public class VKEngine {
     public Window getWindow() {
         return this.window;
     }
-    public Logger getLogger() {
-        return logger;
-    }
+
     public App getApp() {
         return app;
     }
+
     public Version getAppVersion() {
         return createInfo.applicationVersion;
     }
-    public Identifier id(String pathOrIdent) {
-        if (pathOrIdent.indexOf(':') >= 0) {
-            return Identifier.of(pathOrIdent);
-        }
-        return new Identifier(createInfo.applicationNamespace, pathOrIdent);
+
+    public Identifier idForLocale(Locale locale) {
+        return id(locale.getLanguage());
     }
     public String getAppNamespace() {
         return createInfo.applicationNamespace;
@@ -151,8 +135,12 @@ public class VKEngine {
 
     public boolean isDebugMode() { return !this.createInfo.releaseMode; }
 
-    public Iter<String> getAllNamespaces() {
+    public Iter<String> getAllNamespacesStr() {
         return Iter.of(namespaces);
+    }
+
+    public Iter<Namespace> getAllNamespaces() {
+        return getAllNamespacesStr().map(Namespace::of);
     }
 
     public EngineCreateInfo.RendererType rendererType() {
@@ -160,4 +148,13 @@ public class VKEngine {
     }
 
     public ServiceManager getServiceManager() { return this.serviceManager; }
+
+    @Override
+    public VKEngine getEngine() {
+        return this;
+    }
+
+    public Context createNewContext(String namespace) {
+        return new ModuleContext(Namespace.of(namespace), this);
+    }
 }

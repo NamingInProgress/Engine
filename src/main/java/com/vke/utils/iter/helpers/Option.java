@@ -1,17 +1,19 @@
 package com.vke.utils.iter.helpers;
 
-import com.vke.utils.fi.FaultyFunction;
-import com.vke.utils.fi.FaultySupplier;
+import com.vke.utils.Utils;
+import com.vke.utils.functionalinterface.FaultySupplier;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Option<T> {
-    private final T value;
-    private final boolean some;
+    private T value;
+    private boolean some;
 
     private Option(T value, boolean some) {
         this.value = value;
@@ -31,16 +33,14 @@ public class Option<T> {
         return Option.none();
     }
 
-    public static <T> Option<T> useIfNotNull(T nullableValue) {
-        if (nullableValue == null) {
-            return Option.none();
-        }
-        return Option.some(nullableValue);
+    public static <T> Option<T> useIfNotNull(@Nullable T nullable) {
+        if (nullable == null) return Option.none();
+        return Option.some(nullable);
     }
 
-    public static <T> Option<T> useIfNotFaulty(FaultySupplier<T, ? extends Throwable> faultySupplier) {
+    public static <T> Option<T> useIfNotFaulty(FaultySupplier<T, ? extends Throwable> value) {
         try {
-            return Option.some(faultySupplier.get());
+            return Option.some(value.get());
         } catch (Throwable _) {
             return Option.none();
         }
@@ -74,42 +74,6 @@ public class Option<T> {
         return value;
     }
 
-    @SuppressWarnings("unchecked")
-    public T unwrapOrDefault(T... ignore) {
-        if (isSome()) return value;
-
-        Class<?> c = ignore.getClass().getComponentType();
-        if (c == Byte.class) {
-            return (T) (Byte) (byte) 0;
-        }
-        if (c == Short.class) {
-            return (T) (Short) (short) 0;
-        }
-        if (c == Integer.class) {
-            return (T) (Integer) 0;
-        }
-        if (c == Long.class) {
-            return (T) (Long) 0L;
-        }
-        if (c == Float.class) {
-            return (T) (Float) 0f;
-        }
-        if (c == Double.class) {
-            return (T) (Double) 0D;
-        }
-        if (c == Boolean.class) {
-            return (T) (Boolean) false;
-        }
-        if (c == Character.class) {
-            return (T) (Character) '\0';
-        }
-        if (c == String.class) {
-            return (T) "";
-        }
-
-        return null;
-    }
-
     public void inspect(Consumer<T> inspector) {
         if (isSome()) inspector.accept(value);
     }
@@ -129,8 +93,67 @@ public class Option<T> {
         return mapper.apply(value);
     }
 
+    @SuppressWarnings("unchecked")
+    public <O, R> Option<R> flatMap(Function<O, R> mapper) {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        if (t instanceof Option<?> unknown) {
+            Option<O> opt = (Option<O>) unknown;
+            if (opt.isNone()) return Option.none();
+            O o = opt.unwrap();
+            return Option.some(mapper.apply(o));
+        }
+        return Option.none();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <R> Option<R> flatten() {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        if (t instanceof Option<?> unknown) {
+            Option<R> opt = (Option<R>) unknown;
+            return opt.flatten();
+        }
+        return Option.some((R) t);
+    }
+
+    public Option<T> take() {
+        if (isNone()) return Option.none();
+        T t = unwrap();
+        value = null;
+        some = false;
+        return Option.some(t);
+    }
+
     public Optional<T> asOptional() {
         if (isNone()) return Optional.empty();
         return Optional.ofNullable(value);
+    }
+
+    @Override
+    public String toString() {
+        return isSome() ? "Some(" + value + ")" : "None";
+    }
+
+    @Override
+    public int hashCode() {
+        return isSome() ? Objects.hashCode(value) : 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T unwrapOrDefault(T... ignore) {
+        if (isSome()) return value;
+
+        Class<T> clazz = (Class<T>) ignore.getClass().getComponentType();
+        if (clazz == byte.class || clazz == Byte.class) return (T) (Byte) (byte) 0;
+        if (clazz == short.class || clazz == Short.class) return (T) (Short) (short) 0;
+        if (clazz == int.class || clazz == Integer.class) return (T) (Integer) 0;
+        if (clazz == long.class || clazz == Long.class) return (T) (Long) 0L;
+        if (clazz == float.class || clazz == Float.class) return (T) (Float) 0f;
+        if (clazz == double.class || clazz == Double.class) return (T) (Double) 0d;
+        if (clazz == char.class || clazz == Character.class) return (T) (Character) '\0';
+        if (clazz == boolean.class || clazz == Boolean.class) return (T) (Boolean) false;
+        if (clazz == String.class) return (T) "";
+        return null;
     }
 }

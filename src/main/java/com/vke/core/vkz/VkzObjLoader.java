@@ -1,7 +1,7 @@
 package com.vke.core.vkz;
 
 import com.vke.api.serializer.Loader;
-import com.vke.utils.exception.LoadException;
+import com.vke.core.serializer.LoadException;
 
 import java.io.IOException;
 import java.io.InputStream;

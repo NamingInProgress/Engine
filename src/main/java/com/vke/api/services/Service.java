@@ -1,7 +1,7 @@
 package com.vke.api.services;
 
 import java.util.List;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public abstract class Service implements Disposable {
     private boolean hasBeenFreed;

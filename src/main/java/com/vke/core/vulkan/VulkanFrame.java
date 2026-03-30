@@ -8,7 +8,7 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.jetbrains.annotations.Nullable;
 
 public class VulkanFrame implements Disposable {

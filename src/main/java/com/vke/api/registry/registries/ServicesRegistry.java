@@ -3,7 +3,7 @@ package com.vke.api.registry.registries;
 import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
 import com.vke.api.services.ServiceProvider;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 public class ServicesRegistry extends VKERegistry.String<Service> {
 

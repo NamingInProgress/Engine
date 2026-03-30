@@ -1,6 +1,6 @@
 package com.vke.core.file.io.bit;
 
-import com.vke.core.file.deflate.BitUtils;
+import com.vke.core.file.deflate.decompress.BitUtils;
 
 import java.io.IOException;
 import java.util.LinkedList;

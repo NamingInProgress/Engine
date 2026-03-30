@@ -1,10 +1,10 @@
 package com.vke.core.file.gzip;
 
-import com.vke.core.file.deflate.BitUtils;
-import com.vke.core.file.deflate.InflatingDevice;
-import com.vke.core.file.deflate.check.Crc32;
+import com.vke.core.file.deflate.decompress.BitUtils;
+import com.vke.core.file.deflate.decompress.InflatingDevice;
+import com.vke.core.file.deflate.decompress.check.Crc32;
 import com.vke.core.file.deflate.exc.InflatingException;
-import com.vke.core.file.io.bit.BitInputStream;
+import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
 import com.vke.core.file.utils.HBFDecodeSource;

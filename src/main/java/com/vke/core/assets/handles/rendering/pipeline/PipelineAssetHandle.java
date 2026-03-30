@@ -1,6 +1,8 @@
 package com.vke.core.assets.handles.rendering.pipeline;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 
@@ -11,12 +13,12 @@ public class PipelineAssetHandle implements AssetHandle<RenderPipeline> {
     private RenderPipeline pipeline;
 
     @Override
-    public Type getType() {
-        return Type.Pipeline;
+    public String getProtocol() {
+        return Protocols.RENDERPIPELINE;
     }
 
     @Override
-    public RenderPipeline acquire(VKEngine engine) throws IOException {
+    public RenderPipeline acquire(Context context) throws IOException {
         return null;
     }
 

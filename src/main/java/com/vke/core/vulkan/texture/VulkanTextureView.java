@@ -2,7 +2,7 @@ package com.vke.core.vulkan.texture;
 
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

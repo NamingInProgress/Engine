@@ -5,7 +5,7 @@ import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.core.vulkan.extent.Extent3D;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface Texture extends Disposable {
 

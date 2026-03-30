@@ -1,6 +1,6 @@
 package com.vke.api.rendering.abstraction.sync;
 
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface Fence extends Disposable {
 

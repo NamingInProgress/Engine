@@ -1,8 +1,8 @@
 package com.vke.test;
 
-import com.vke.core.services.profiler.Profiler;
-import com.vke.core.services.profiler.ProfilerPrinter;
-import com.vke.utils.AnsiColors;
+import com.vke.core.profiler.Profiler;
+import com.vke.core.profiler.ProfilerPrinter;
+import com.vke.utils.console.AnsiColors;
 
 public class ProfilerTest {
 

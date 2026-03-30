@@ -3,7 +3,7 @@ package com.vke.test.app;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 public class TestPipelines {
 

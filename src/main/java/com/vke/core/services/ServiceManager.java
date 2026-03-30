@@ -4,10 +4,11 @@ import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
+import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,7 +33,7 @@ public class ServiceManager implements Disposable {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Service> T service(String key) {
+    public <T> T service(String key) {
         Service s = VKERegistries.SERVICES.get(key, scc);
         if (s == null) {
             logger.error("Tried to access service \"%s\", but it wasn't registered!", key);

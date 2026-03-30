@@ -11,13 +11,15 @@ import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.parsing.config.xml.XmlParser;
+import com.vke.core.vulkan.descriptor.DescriptorType;
 import com.vke.core.vulkan.descriptor.wrapper.JsonDescriptorData;
-import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.utils.Identifier;
-import com.vke.utils.Pair;
+import com.vke.core.vulkan.shader.Shader;
+import com.vke.utils.io.Identifier;
+import com.vke.utils.tuple.Pair;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -136,12 +138,12 @@ public abstract class DescriptorData {
     public static abstract class Binding {
 
         protected Type type;
-        protected VulkanShader.Stages stages;
+        protected Shader.Stages stages;
+        protected String name;
         protected Struct struct;
 
         public Entry getEntry(String name) {
-            return null;
-            //return struct.byName(name);
+            return struct.byName(name);
         }
 
         public enum Type {
@@ -166,8 +168,83 @@ public abstract class DescriptorData {
         }
 
         public Type getType() { return this.type; }
+        public String getName() { return name; }
         public Struct getStruct() { return struct; }
-        public VulkanShader.Stages getStages() { return this.stages; }
+        public Shader.Stages getStages() { return this.stages; }
+    }
+
+    public static abstract class Struct {
+
+        protected final ArrayList<Entry> entries = new ArrayList<>();
+        protected final ObjectLongHashMap<Entry> precedings = new ObjectLongHashMap<>();
+
+        public ArrayList<Entry> getEntries() {
+            return this.entries;
+        }
+
+        public Entry byName(String name) {
+            return entries.stream().filter(c -> c.name.equals(name)).findFirst().orElse(null);
+        }
+
+        public long preceding(String name) {
+            return preceding(byName(name));
+        }
+        
+        public long preceding(Entry e) {
+            if (precedings.containsKey(e)) return precedings.get(e);
+
+            int idx = entries.indexOf(e);
+            
+            long count = 0;
+            for (int i = 0; i < idx; i++) {
+                count += entries.get(i).getSize();
+            }
+
+            precedings.put(e, count);
+            
+            return count;
+        }
+
+        public int sizeof() { return entries.stream().mapToInt(Entry::getSize).sum(); }
+
+    }
+
+    public static abstract class Entry {
+
+        protected String name;
+        protected Type type;
+        protected boolean auto;
+
+        public int getSize() { return type.bytes(); }
+
+        public enum Type {
+
+            MAT4("mat4", 64),
+            FLOAT("float", 4),
+            FLOAT2("float2", 8),
+            FLOAT3("float3", 12),
+            FLOAT4("float4", 16),
+            SAMPLER2D("sampler2D", 0),
+            IMAGE2D("image2D", 0);
+
+            private final String name;
+            private final int bytes;
+
+            Type(String name, int bytes) {
+                this.name = name;
+                this.bytes = bytes;
+            }
+
+            public String getName() { return this.name; }
+
+            public int bytes() { return bytes; }
+
+            public static Type fromString(String name) {
+                return Arrays.stream(Type.values()).filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+            }
+
+        }
+
     }
 
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="Big5" ?>
+<bundle>
+    <assets>
+        <string name="something2">Something 2</string>
+    </assets>
+</bundle>

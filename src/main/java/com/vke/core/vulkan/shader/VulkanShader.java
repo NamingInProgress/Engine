@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;

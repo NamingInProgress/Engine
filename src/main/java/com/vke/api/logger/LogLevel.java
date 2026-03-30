@@ -1,7 +1,6 @@
 package com.vke.api.logger;
 
-import com.vke.utils.AnsiColors;
-import com.vke.utils.ColorStringBuilder;
+import com.vke.utils.console.AnsiColors;
 import org.lwjgl.vulkan.EXTDebugUtils;
 
 public enum LogLevel {

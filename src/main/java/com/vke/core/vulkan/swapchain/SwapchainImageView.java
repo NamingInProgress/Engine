@@ -5,7 +5,7 @@ import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.texture.VKTextureUtil;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

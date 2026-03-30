@@ -9,7 +9,7 @@ import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK14;

@@ -3,7 +3,7 @@ package com.vke.api.registry.registries;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 public class PipelinesRegistry extends VKERegistry.ID<RenderPipeline> {
 

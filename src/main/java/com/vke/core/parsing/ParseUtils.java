@@ -1,8 +1,6 @@
 package com.vke.core.parsing;
 
-import com.vke.utils.fi.FaultySupplier;
-
-import java.util.function.Supplier;
+import com.vke.utils.functionalinterface.FaultySupplier;
 
 public class ParseUtils {
     public static <E extends Throwable> char escape(char c, FaultySupplier<Character, E> nextChar) throws E {

@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="Big5" ?>
 <bundle>
     <assets>
-        <bool name="hello">true</bool>
         <string name="something">Something</string>
-        <number name="aNum">3.14159</number>
     </assets>
-    <descriptions>
-        <desc for="test.png">
-            <mipmap value="4"/>
-        </desc>
-    </descriptions>
 </bundle>

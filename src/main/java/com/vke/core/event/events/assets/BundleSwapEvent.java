@@ -5,7 +5,7 @@ import com.vke.api.event.Event;
 
 public class BundleSwapEvent extends Event {
 
-    private final Bundle pre, post;
+    public final Bundle pre, post;
 
     public BundleSwapEvent(Bundle preSwap, Bundle postSwap) {
         this.pre = preSwap;

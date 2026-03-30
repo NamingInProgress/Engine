@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "lang": "de"
+  },
+  "content": {
+    "greeting": {
+      "bob": "Hallo bob",
+      "max": "hallo max"
+    },
+    "person": "ich habe keine ahnung person",
+    "culture": {
+      "food": "Schnitzel"
+    }
+  }
+}

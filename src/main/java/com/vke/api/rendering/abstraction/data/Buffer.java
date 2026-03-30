@@ -2,7 +2,7 @@ package com.vke.api.rendering.abstraction.data;
 
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface Buffer extends Disposable {
 

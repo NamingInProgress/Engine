@@ -3,7 +3,7 @@ package com.vke.core.parsing.config.schema.elements.types;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.core.file.deflate.BitUtils;
+import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaElement;

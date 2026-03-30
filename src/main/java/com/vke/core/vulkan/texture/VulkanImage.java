@@ -10,7 +10,7 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;

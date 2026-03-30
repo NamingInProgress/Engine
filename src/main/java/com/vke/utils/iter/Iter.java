@@ -1,8 +1,8 @@
 package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.vke.utils.Pair;
-import com.vke.utils.fi.FaultyRunnable;
+import com.vke.utils.tuple.Pair;
+import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.iter.helpers.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +35,7 @@ public interface Iter<T> extends Iterable<T> {
     static <T> Iter<T> of(Iterable<T> iterable) {
         return new OfIterator<>(iterable.iterator());
     }
+
 
     @SafeVarargs //i have no clue what this does
     static <T> Iter<T> of(T... array) {
@@ -137,6 +138,10 @@ public interface Iter<T> extends Iterable<T> {
         return new Cycle<>(this);
     }
 
+    default <U> Iter<U> cast(U... ignore) {
+        return new Cast<>(this, ignore);
+    }
+
     //term methods
 
     default void forEach(Consumer<? super T> f) {
@@ -180,6 +185,10 @@ public interface Iter<T> extends Iterable<T> {
         List<T> out = new ArrayList<>();
         forEach(out::add);
         return out;
+    }
+
+    default T[] toArray(T... templateDoNotUse) {
+        return collectToList().toArray(templateDoNotUse);
     }
 
     default Stream<T> intoStream() {

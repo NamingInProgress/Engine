@@ -3,7 +3,7 @@ package com.vke.api.registry;
 import com.vke.api.serializer.Serializer;
 import com.vke.api.services.ServiceProvider;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 public class VKERegistrate {
 

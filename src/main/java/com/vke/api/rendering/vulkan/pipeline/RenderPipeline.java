@@ -24,7 +24,7 @@ import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.system.MemoryStack;

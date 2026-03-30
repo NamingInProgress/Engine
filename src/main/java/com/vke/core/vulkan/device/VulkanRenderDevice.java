@@ -30,7 +30,6 @@ import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.utils.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -38,8 +37,8 @@ import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
+import com.vke.utils.io.Identifier;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;

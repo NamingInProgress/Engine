@@ -1,6 +1,6 @@
 package com.vke.api.assets;
 
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 public class AssetUnavailableException extends Exception {
     public AssetUnavailableException() {

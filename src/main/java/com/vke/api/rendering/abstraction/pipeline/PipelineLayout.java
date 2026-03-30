@@ -1,7 +1,6 @@
 package com.vke.api.rendering.abstraction.pipeline;
 
-import com.vke.api.pipeline.fucvk.DescriptorData;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 public interface PipelineLayout extends Disposable {
 

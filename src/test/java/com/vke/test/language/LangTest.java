@@ -1,0 +1,34 @@
+package com.vke.test.language;
+
+import com.vke.api.assets.AssetManager;
+import com.vke.core.assets.language.manager.LanguageManagerService;
+import com.vke.core.assets.language.Str;
+import com.vke.api.window.WindowCreateInfo;
+import com.vke.core.EngineCreateInfo;
+import com.vke.core.VKEngine;
+import com.vke.core.services.Services;
+import com.vke.utils.io.SegmentedPath;
+
+import java.io.IOException;
+
+public class LangTest {
+    public static void main(String[] args) throws IOException {
+        EngineCreateInfo createInfo = new EngineCreateInfo("idfk", "vke");
+        createInfo.releaseMode = false;
+        createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
+        VKEngine engine = new VKEngine(createInfo);
+
+        AssetManager manager = engine.service(Services.ASSET_MANAGER);
+        manager.initialize();
+
+        LanguageManagerService languageManager = engine.service(Services.LANGUAGE_MANAGER);
+
+        Str str = Str.MULTILINGUAL(new SegmentedPath("culture.food"));
+
+        languageManager.changeLanguage(engine.id("language.en"));
+        System.out.println(str.getContents(engine));
+
+        languageManager.changeLanguage(engine.id("language.de"));
+        System.out.println(str.getContents(engine));
+    }
+}

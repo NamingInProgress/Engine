@@ -1,6 +1,6 @@
 package com.vke.api.event;
 
-import com.vke.utils.AbstractSingleValueGetterSetterClass;
+import com.vke.utils.types.AbstractSingleValueGetterSetterClass;
 
 public abstract class CancellableEvent extends AbstractSingleValueGetterSetterClass<Boolean> {
 

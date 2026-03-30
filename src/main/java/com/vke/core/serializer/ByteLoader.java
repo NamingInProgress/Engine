@@ -1,7 +1,6 @@
 package com.vke.core.serializer;
 
 import com.vke.api.serializer.Loader;
-import com.vke.utils.exception.LoadException;
 
 public class ByteLoader implements Loader {
     private final byte[] data;

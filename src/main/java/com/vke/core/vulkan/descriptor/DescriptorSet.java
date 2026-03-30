@@ -6,7 +6,7 @@ import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;

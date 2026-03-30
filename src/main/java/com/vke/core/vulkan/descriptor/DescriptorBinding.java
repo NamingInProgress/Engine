@@ -9,9 +9,10 @@ import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.vulkan.texture.VulkanTextureView;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VK14;
@@ -127,10 +128,10 @@ public abstract class DescriptorBinding implements Disposable {
 
         private final MappedBuffer buffer;
         private final long size;
-        private final Struct struct;
+        private final DescriptorData.Struct struct;
 
         // Assumes size is byte aligned size
-        public BufferBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type, Struct struct, long size) {
+        public BufferBinding(VKEngine engine, VulkanRenderDevice device, DescriptorType type, DescriptorData.Struct struct, long size) {
             super(engine, device, type);
             this.struct = struct;
             
@@ -141,9 +142,9 @@ public abstract class DescriptorBinding implements Disposable {
         }
 
         public void write(String name, Consumer<BufferSlice> consumer) {
-            //Entry entry = struct.byName(name);
-            //long preceding = struct.offsetOf(entry);
-            //consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
+            DescriptorData.Entry entry = struct.byName(name);
+            long preceding = struct.preceding(entry);
+            consumer.accept(new BufferSlice(buffer, preceding, entry.getSize()));
         }
 
         public <T extends StructBuffer<?, ?>> T getBindingInfo(MemoryStack stack) {
