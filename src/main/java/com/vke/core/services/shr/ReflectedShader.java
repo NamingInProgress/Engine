@@ -4,7 +4,7 @@ import com.vke.api.pipeline.BaseType;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.spvc.Spv;
@@ -90,7 +90,6 @@ public class ReflectedShader implements Disposable {
         return list;
     }
 
-    // TODO: ts outdated as shit lmao
     public ArrayList<VertexAttributeResource> getVAOs() {
         if (resources.containsKey(ResourceType.VAO)) return getResource(ResourceType.VAO);
         SPVCDescriptorResource[] resources = getDescriptorResources(ResourceType.VAO);
@@ -102,17 +101,12 @@ public class ReflectedShader implements Disposable {
             var.location = resource.location;
             var.name = resource.name;
 
-            DiscoverableMember member = new DiscoverableMember();
-            member.name = resource.name;
-            member.id = resource.id;
-            member.arrayStride = resource.arrayStride;
-            member.matrixStride = resource.matrixStride;
-            member.offset = Spvc.spvc_compiler_get_decoration(compiler, resource.id, Spv.SpvDecorationOffset);
-
-            // var.entry = new Entry(member.name, 0, member.offset);
-            discoverChildlessSadOrphanMemberWithPotentiallyComplexType(member);
-            // var.entry.size = member.size;
-            // var.entry.digestDiscoverableMember(member);
+            int bit_width = Spvc.spvc_type_get_bit_width(resource.typeHandle);
+            int rows = Spvc.spvc_type_get_vector_size(resource.typeHandle);
+            int cols = Spvc.spvc_type_get_columns(resource.typeHandle);
+            
+            var.size = (bit_width / 8) * rows * cols;
+            var.baseType = BaseType.fromSpvc(resource.baseType);
 
             list.add(var);
         }
@@ -264,7 +258,7 @@ public class ReflectedShader implements Disposable {
                 member.size = expectedSize;
             }
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
-                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
+                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType, member.typeHandle);
                 member.struct = generateStruct(resource, member.size);
             }
         }
@@ -288,7 +282,7 @@ public class ReflectedShader implements Disposable {
             member.matrixRows = Spvc.spvc_type_get_vector_size(member.typeHandle);
             member.matrixColumns = Spvc.spvc_type_get_columns(member.typeHandle);
             if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
-                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType);
+                SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType, member.typeHandle);
                 member.struct = generateStruct(resource, member.size);
             }
         }
@@ -313,6 +307,7 @@ public class ReflectedShader implements Disposable {
                     resource.baseTypeId,
                     resource.typeId,
                     resource.baseType,
+                    resource.typeHandle,
                     set,
                     binding,
                     location,
@@ -343,7 +338,7 @@ public class ReflectedShader implements Disposable {
             for (SpvcReflectedResource res : resourcesBuffer) {
                 long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.id());
                 int baseType = Spvc.spvc_type_get_basetype(typeHandle);
-                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType);
+                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
             }
 
             resourcesBuffer.free();
@@ -363,13 +358,15 @@ public class ReflectedShader implements Disposable {
         public int baseTypeId;
         public int typeId;
         public int baseType;
+        public long typeHandle;
 
-        public SPVCResource(String name, int id, int baseTypeId, int typeId, int baseType) {
+        public SPVCResource(String name, int id, int baseTypeId, int typeId, int baseType, long typeHandle) {
             this.name = name;
             this.id = id;
             this.baseTypeId = baseTypeId;
             this.typeId = typeId;
             this.baseType = baseType;
+            this.typeHandle = typeHandle;
         }
     }
 
@@ -379,8 +376,8 @@ public class ReflectedShader implements Disposable {
         public int location;
         public int arrayStride, matrixStride;
 
-        public SPVCDescriptorResource(String name, int id, int baseTypeId, int typeId, int baseType, int set, int binding, int location, int arrayStride, int matrixStride) {
-            super(name, id, baseTypeId, typeId, baseType);
+        public SPVCDescriptorResource(String name, int id, int baseTypeId, int typeId, int baseType, long typeHandle, int set, int binding, int location, int arrayStride, int matrixStride) {
+            super(name, id, baseTypeId, typeId, baseType, typeHandle);
             this.set = set;
             this.binding = binding;
             this.location = location;
@@ -416,7 +413,8 @@ public class ReflectedShader implements Disposable {
 
     public static class VertexAttributeResource extends Resource {
         public int location;
-        public Entry entry;
+        public int size;
+        public BaseType baseType;
     }
 
     public enum ResourceType {

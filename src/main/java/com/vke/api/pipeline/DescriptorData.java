@@ -4,7 +4,7 @@ import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.api.rendering.abstraction.IntEnum;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import com.vke.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

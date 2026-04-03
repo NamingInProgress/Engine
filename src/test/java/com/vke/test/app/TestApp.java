@@ -1,6 +1,9 @@
 package com.vke.test.app;
 
 import com.vke.api.app.App;
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.rendering.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
@@ -69,6 +72,10 @@ public class TestApp extends App {
 
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
         mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
+
+        AssetHandle<GraphicsPipeline> h = R.pipelines.get("myPipeline");
+        PCHandle handle = h.resolve("pushconstant", "asdsad");
+
 
         TestPipelines.STH.setUniform("fColor", (slice) -> {
             slice.write((buf) -> {

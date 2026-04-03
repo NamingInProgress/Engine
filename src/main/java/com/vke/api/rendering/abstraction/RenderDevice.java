@@ -11,9 +11,9 @@ import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.file.png.Pixels;
-import com.vke.utils.Disposable;
-import com.vke.utils.Identifier;
-import com.vke.utils.Pair;
+import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
+import com.vke.utils.tuple.Pair;
 
 import java.io.IOException;
 import java.util.Map;

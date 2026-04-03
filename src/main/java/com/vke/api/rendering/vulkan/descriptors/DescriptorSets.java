@@ -28,7 +28,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
 import java.util.HashMap;

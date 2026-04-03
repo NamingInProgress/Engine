@@ -124,6 +124,7 @@ public class GraphicsPipeline implements Disposable {
                         .srcColorBlendFactor(colorAttachmentInfo.getSrcBlendFactor().getVkHandle())
                         .dstColorBlendFactor(colorAttachmentInfo.getDstBlendFactor().getVkHandle())
                         .srcAlphaBlendFactor(colorAttachmentInfo.getSrcAlphaBlendFactor().getVkHandle())
+
                         .dstAlphaBlendFactor(colorAttachmentInfo.getDstAlphaBlendFactor().getVkHandle())
                         .colorBlendOp(colorAttachmentInfo.getColorBlendOperation().getVkHandle())
                         .alphaBlendOp(colorAttachmentInfo.getAlphaBlendOperation().getVkHandle());

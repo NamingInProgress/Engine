@@ -11,7 +11,7 @@ import com.vke.api.parsing.config.node.*;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.assets.handles.rendering.shader.ShaderProgramAssetHandle;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.vulkan.VK14;
 
@@ -27,30 +27,30 @@ public class PipelineData {
     // pipeline fields here
 
     // Dynamic State
-    private ArrayList<RenderPipeline.DynamicState> dynamicStates = new ArrayList<>(List.of(RenderPipeline.DynamicState.VIEWPORT, RenderPipeline.DynamicState.SCISSOR));
+    public ArrayList<RenderPipeline.DynamicState> dynamicStates = new ArrayList<>(List.of(RenderPipeline.DynamicState.VIEWPORT, RenderPipeline.DynamicState.SCISSOR));
 
     // Input Assembly
-    private boolean primitiveRestartEnable = false;
-    private RenderPipeline.Topology topology;
+    public boolean primitiveRestartEnable = false;
+    public RenderPipeline.Topology topology;
 
     // Raster Info
-    private RenderPipeline.PolygonMode polygonMode = RenderPipeline.PolygonMode.FILL;
-    private RenderPipeline.CullMode cullMode = RenderPipeline.CullMode.BACK;
-    private RenderPipeline.WindingOrder windingOrder = RenderPipeline.WindingOrder.COUNTERCLOCKWISE;
-    private float lineWidth = 1.0f;
-    private boolean depthBiasEnable = false;
-    private float depthBiasConstFactor = 0.0f;
-    private float depthBiasClamp = 0.0f;
-    private float depthBiasSlopeFactor = 0.0f;
+    public RenderPipeline.PolygonMode polygonMode = RenderPipeline.PolygonMode.FILL;
+    public RenderPipeline.CullMode cullMode = RenderPipeline.CullMode.BACK;
+    public RenderPipeline.WindingOrder windingOrder = RenderPipeline.WindingOrder.COUNTERCLOCKWISE;
+    public float lineWidth = 1.0f;
+    public boolean depthBiasEnable = false;
+    public float depthBiasConstFactor = 0.0f;
+    public float depthBiasClamp = 0.0f;
+    public float depthBiasSlopeFactor = 0.0f;
 
     // Attachments
-    private boolean stencilAttachment = false;
-    private ArrayList<AttachmentInfo> attachments;
-    private float[] blendConstants = new float[]{ 0, 0, 0, 0 };
-    private boolean autoRegisterDynamicStates = false;
+    public boolean stencilAttachment = false;
+    public ArrayList<AttachmentInfo> attachments;
+    public float[] blendConstants = new float[]{ 0, 0, 0, 0 };
+    public boolean autoRegisterDynamicStates = false;
 
     // Shader
-    private AssetHandle<ShaderProgram> shaders;
+    public AssetHandle<ShaderProgram> shaders;
 
     private static final String
             DYNAMIC_STATES_ARRAY_NAME = "dynamicStates",
@@ -179,13 +179,27 @@ public class PipelineData {
         if (arrNodeOpt.isNone()) return attachments;
         ConfigArrayNode arrNode = arrNodeOpt.unwrap();
 
+        for (ConfigNode value : arrNode.values()) {
+            ConfigObjectNode attachmentData  = value.asObject();
+
+            Option<String> typeOpt = attachmentData.getStringOption("type");
+            if (typeOpt.isNone()) throw new IllegalStateException("Missing type in attachment definition!");
+
+            switch (typeOpt.unwrap()) {
+                case "COLOR" -> attachments.add(new ColorAttachmentInfo(attachmentData));
+                case "DEPTH" -> attachments.add(new DepthAttachmentInfo(attachmentData));
+                case "STENCIL" -> attachments.add(new StencilAttachmentInfo(attachmentData));
+
+            }
+        }
+
         return attachments;
     }
 
     public static abstract class AttachmentInfo {
         public AttachmentType type;
 
-        public abstract AttachmentInfo fromConfigNode(ConfigObjectNode c);
+        public AttachmentInfo(ConfigObjectNode c) {}
     }
 
     public static class ColorAttachmentInfo extends AttachmentInfo {
@@ -200,38 +214,35 @@ public class PipelineData {
                 ALPHA_BLEND_OPERATION_NAME = "alphaBlendOperation",
                 TEXTURE_FORMAT_NAME = "format";
 
-        int colorWriteMask = VK14.VK_COLOR_COMPONENT_R_BIT | VK14.VK_COLOR_COMPONENT_G_BIT | VK14.VK_COLOR_COMPONENT_B_BIT | VK14.VK_COLOR_COMPONENT_A_BIT;
-        boolean blendEnable = true;
-        RenderPipeline.BlendFactor srcBlendFactor = RenderPipeline.BlendFactor.SRC_ALPHA;
-        RenderPipeline.BlendFactor dstBlendFactor = RenderPipeline.BlendFactor.ONE_MINUS_SRC_ALPHA;
-        RenderPipeline.BlendFactor srcAlphaBlendFactor = RenderPipeline.BlendFactor.ONE;
-        RenderPipeline.BlendFactor dstAlphaBlendFactor = RenderPipeline.BlendFactor.ONE_MINUS_SRC_ALPHA;
-        RenderPipeline.BlendOperation colorBlendOperation = RenderPipeline.BlendOperation.ADD;
-        RenderPipeline.BlendOperation alphaBlendOperation = RenderPipeline.BlendOperation.ADD;
-        TextureFormat format = TextureFormat.BGRA8_SRGB;
+        public int colorWriteMask = VK14.VK_COLOR_COMPONENT_R_BIT | VK14.VK_COLOR_COMPONENT_G_BIT | VK14.VK_COLOR_COMPONENT_B_BIT | VK14.VK_COLOR_COMPONENT_A_BIT;
+        public boolean blendEnable = true;
+        public RenderPipeline.BlendFactor srcBlendFactor = RenderPipeline.BlendFactor.SRC_ALPHA;
+        public RenderPipeline.BlendFactor dstBlendFactor = RenderPipeline.BlendFactor.ONE_MINUS_SRC_ALPHA;
+        public RenderPipeline.BlendFactor srcAlphaBlendFactor = RenderPipeline.BlendFactor.ONE;
+        public RenderPipeline.BlendFactor dstAlphaBlendFactor = RenderPipeline.BlendFactor.ONE_MINUS_SRC_ALPHA;
+        public RenderPipeline.BlendOperation colorBlendOperation = RenderPipeline.BlendOperation.ADD;
+        public RenderPipeline.BlendOperation alphaBlendOperation = RenderPipeline.BlendOperation.ADD;
+        public TextureFormat format = TextureFormat.BGRA8_SRGB;
 
-        @Override
-        public ColorAttachmentInfo fromConfigNode(ConfigObjectNode c) {
-            ColorAttachmentInfo cai = new ColorAttachmentInfo();
+        public ColorAttachmentInfo(ConfigObjectNode c) {
+            super(c);
 
             Option<ConfigArrayNode> colorWriteMaskArrayOpt = c.getArrayOption(COLOR_WRITE_MASK_ARRAY_NAME);
             if (colorWriteMaskArrayOpt.isSome())
-                cai.colorWriteMask = Arrays.stream(colorWriteMaskArrayOpt.unwrap().values())
+                this.colorWriteMask = Arrays.stream(colorWriteMaskArrayOpt.unwrap().values())
                         .mapToInt((sth) -> (int) sth.asNumber()).reduce(0, (a, b) -> a | b);
 
-            cai.blendEnable = c.getBooleanOption(BLEND_ENABLE_NAME).unwrapOr(blendEnable);
+            this.blendEnable = c.getBooleanOption(BLEND_ENABLE_NAME).unwrapOr(blendEnable);
 
-            cai.srcBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(SRC_BLEND_FACTOR_NAME)).unwrapOr(srcBlendFactor);
-            cai.dstBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(DST_BLEND_FACTOR_NAME)).unwrapOr(dstBlendFactor);
-            cai.srcAlphaBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(SRC_ALPHA_BLEND_FACTOR_NAME)).unwrapOr(srcAlphaBlendFactor);
-            cai.dstAlphaBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(DST_ALPHA_BLEND_FACTOR_NAME)).unwrapOr(dstAlphaBlendFactor);
+            this.srcBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(SRC_BLEND_FACTOR_NAME)).unwrapOr(srcBlendFactor);
+            this.dstBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(DST_BLEND_FACTOR_NAME)).unwrapOr(dstBlendFactor);
+            this.srcAlphaBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(SRC_ALPHA_BLEND_FACTOR_NAME)).unwrapOr(srcAlphaBlendFactor);
+            this.dstAlphaBlendFactor = RenderPipeline.BlendFactor.valueOfOption(c.getString(DST_ALPHA_BLEND_FACTOR_NAME)).unwrapOr(dstAlphaBlendFactor);
 
-            cai.colorBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(COLOR_BLEND_OPERATION_NAME)).unwrapOr(colorBlendOperation);
-            cai.alphaBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(ALPHA_BLEND_OPERATION_NAME)).unwrapOr(alphaBlendOperation);
+            this.colorBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(COLOR_BLEND_OPERATION_NAME)).unwrapOr(colorBlendOperation);
+            this.alphaBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(ALPHA_BLEND_OPERATION_NAME)).unwrapOr(alphaBlendOperation);
 
-            cai.format = TextureFormat.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(format);
-
-            return cai;
+            this.format = TextureFormat.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(format);
         }
     }
 
@@ -246,15 +257,12 @@ public class PipelineData {
         public boolean depthWriteEnable = true;
         public CompareOp depthCompareOp = CompareOp.LEQUAL;
 
-        @Override
-        public AttachmentInfo fromConfigNode(ConfigObjectNode c) {
-            DepthAttachmentInfo dai = new DepthAttachmentInfo();
+        public DepthAttachmentInfo(ConfigObjectNode c) {
+            super(c);
 
-            dai.depthTestEnable = c.getBooleanOption(DEPTH_TEST_ENABLE_NAME).unwrapOr(depthTestEnable);
-            dai.depthWriteEnable = c.getBooleanOption(DEPTH_WRITE_ENABLE_NAME).unwrapOr(depthWriteEnable);
-            dai.depthCompareOp = CompareOp.valueOfOption(c.getString(DEPTH_COMPARE_OP_NAME)).unwrapOr(depthCompareOp);
-
-            return dai;
+            this.depthTestEnable = c.getBooleanOption(DEPTH_TEST_ENABLE_NAME).unwrapOr(depthTestEnable);
+            this.depthWriteEnable = c.getBooleanOption(DEPTH_WRITE_ENABLE_NAME).unwrapOr(depthWriteEnable);
+            this.depthCompareOp = CompareOp.valueOfOption(c.getString(DEPTH_COMPARE_OP_NAME)).unwrapOr(depthCompareOp);
         }
     }
 
@@ -277,15 +285,12 @@ public class PipelineData {
         RenderPipeline.StencilOpState frontStencilOp = new RenderPipeline.StencilOpState();
         RenderPipeline.StencilOpState backStencilOp = new RenderPipeline.StencilOpState();
 
-        @Override
-        public AttachmentInfo fromConfigNode(ConfigObjectNode c) {
-            StencilAttachmentInfo sai = new StencilAttachmentInfo();
+        public StencilAttachmentInfo(ConfigObjectNode c) {
+            super(c);
 
-            sai.stencilTestEnable = c.getBooleanOption(STENCIL_TEST_ENABLE_NAME).unwrapOr(stencilTestEnable);
-            sai.frontStencilOp = getOpState(frontStencilOp, c.getObject(FRONT_STENCIL_OP_NAME));
-            sai.backStencilOp = getOpState(backStencilOp, c.getObject(BACK_STENCIL_OP_NAME));
-
-            return sai;
+            this.stencilTestEnable = c.getBooleanOption(STENCIL_TEST_ENABLE_NAME).unwrapOr(stencilTestEnable);
+            this.frontStencilOp = getOpState(frontStencilOp, c.getObject(FRONT_STENCIL_OP_NAME));
+            this.backStencilOp = getOpState(backStencilOp, c.getObject(BACK_STENCIL_OP_NAME));
         }
 
         private static RenderPipeline.StencilOpState getOpState(RenderPipeline.StencilOpState defaultState, ConfigObjectNode c) {

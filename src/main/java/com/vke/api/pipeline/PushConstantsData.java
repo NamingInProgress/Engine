@@ -3,7 +3,7 @@ package com.vke.api.pipeline;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.pipeline.handles.PushConstantHandle;
 import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 
 import java.util.HashMap;
 

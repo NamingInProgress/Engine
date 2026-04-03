@@ -6,7 +6,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.rendering.RenderingAssetHandle;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.file.png.PngFile;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

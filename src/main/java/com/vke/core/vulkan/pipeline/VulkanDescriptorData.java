@@ -21,8 +21,8 @@ import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.utils.Disposable;
-import com.vke.utils.Pair;
+import com.vke.utils.io.Disposable;
+import com.vke.utils.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

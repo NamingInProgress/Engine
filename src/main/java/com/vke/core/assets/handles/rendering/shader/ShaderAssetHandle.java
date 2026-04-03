@@ -5,7 +5,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.rendering.RenderingAssetHandle;
-import com.vke.utils.Identifier;
+import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

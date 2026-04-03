@@ -4,7 +4,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;

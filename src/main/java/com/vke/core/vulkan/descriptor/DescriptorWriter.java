@@ -5,7 +5,7 @@ import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VK14;

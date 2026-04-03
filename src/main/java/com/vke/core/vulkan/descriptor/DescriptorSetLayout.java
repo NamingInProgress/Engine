@@ -7,7 +7,7 @@ import com.vke.api.vulkan.descriptors.DescriptorData;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.shader.Shader;
-import com.vke.utils.Disposable;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Struct;
 import org.lwjgl.vulkan.VK14;
