@@ -3,6 +3,7 @@ package com.vke.core.file.deflate.decompress.huffman;
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
+import com.vke.utils.Utils;
 
 import java.io.IOException;
 
@@ -15,11 +16,14 @@ public class HMSymbolDecoder {
     private final Code[] codes;
     private final CodeLookupTable lowerTable;
     private final CodeLookupTable upperTable;
+    private final HuffmanBinaryTree tree;
     private final int maxUsedCodeLength;
     
     public HMSymbolDecoder(int[] codeLengths) {
         this.codeLengths = codeLengths;
         this.codes = createCodesFromLengths(codeLengths);
+
+        this.tree = new HuffmanBinaryTree(codes);
 
         //in theory, the smaller lower table will fit into the cpu L1 cache and is much much faster than
         //the bigger upper table
@@ -83,21 +87,28 @@ public class HMSymbolDecoder {
             //instead of reconstructing the large tree, we can simply read 1 bit
             //at a time and keep track of them in a prefix int and check if any symbol matches.
             //this is super slow, but these long codes are super rare
-            bitStream.setOrdering(BitOrdering.LSB_FIRST);
-            int prefix = bitStream.readBits(1);
-            outer:
-            for (int i = 1; i <= maxUsedCodeLength; i++) {
-                for (Code sc : codes) {
-                    //if (true) break;
-                    if (sc.codeLength() == 0) continue;
-                    if (sc.codeLength() == i && sc.code() == prefix) {
-                        tried = sc;
-                        break outer;
-                    }
-                }
-                int nextBit = bitStream.readBits(1);
-                prefix = (prefix << 1) | nextBit;
-            }
+
+            //NO we are not going to do that i have my cool binary int tree now which is much much faster and MUCH MUCH COOLER
+            int symbol = tree.walk(nextBits);
+            int actualLength = codeLengths[symbol];
+            bitStream.readBits(actualLength);
+            return symbol;
+
+            //bitStream.setOrdering(BitOrdering.LSB_FIRST);
+            //int prefix = bitStream.readBits(1);
+            //outer:
+            //for (int i = 1; i <= maxUsedCodeLength; i++) {
+            //    for (Code sc : codes) {
+            //        //if (true) break;
+            //        if (sc.codeLength() == 0) continue;
+            //        if (sc.codeLength() == i && sc.code() == prefix) {
+            //            tried = sc;
+            //            break outer;
+            //        }
+            //    }
+            //    int nextBit = bitStream.readBits(1);
+            //    prefix = (prefix << 1) | nextBit;
+            //}
             //System.out.println(BitUtils.intToBinStr(prefix) + " len " + maxUsedCodeLength);
         } else {
             int len = tried.codeLength();
