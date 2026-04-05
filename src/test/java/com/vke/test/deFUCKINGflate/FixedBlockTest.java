@@ -12,10 +12,7 @@ import com.vke.utils.Colors;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;

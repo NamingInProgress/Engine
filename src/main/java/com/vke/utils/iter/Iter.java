@@ -9,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -122,6 +119,26 @@ public interface Iter<T> extends Iterable<T> {
         return chain(Iter.of(other));
     }
 
+    default Iter<T> fairMerge(Iter<T> other) {
+        return new FairMerge<>(this, other);
+    }
+
+    default Iter<T> fairMerge(Iterable<T> other) {
+        return fairMerge(Iter.of(other));
+    }
+
+    default Iter<T> fairMerge(Iterator<T> other) {
+        return fairMerge(Iter.of(other));
+    }
+
+    default Iter<T> fairMerge(Stream<T> other) {
+        return fairMerge(Iter.of(other));
+    }
+
+    default Iter<T> fairMerge(T... other) {
+        return fairMerge(Iter.of(other));
+    }
+
     default Iter<ObjectCursor<T>> enumerate() {
         return new Enumerate<>(this);
     }
@@ -140,6 +157,14 @@ public interface Iter<T> extends Iterable<T> {
 
     default <U> Iter<U> cast(U... ignore) {
         return new Cast<>(this, ignore);
+    }
+
+    default <D> Iter<Pair<T, D>> zipData(Function<T, D> extractor) {
+        return new ZipData<>(this, extractor);
+    }
+
+    default <U> Iter<U> mapMore(BiConsumer<T, Consumer<U>> factory) {
+        return new MapMore<>(this, factory);
     }
 
     //term methods

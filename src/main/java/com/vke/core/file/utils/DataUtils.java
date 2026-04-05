@@ -39,6 +39,20 @@ public class DataUtils {
         return abcd(d, c, b, a);
     }
 
+    public static long readU64LittleEndian(InputStream stream) throws IOException {
+        int a = stream.read();
+        int b = stream.read();
+        int c = stream.read();
+        int d = stream.read();
+        int e = stream.read();
+        int f = stream.read();
+        int g = stream.read();
+        int h = stream.read();
+        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (e == -1 || f == -1 || g == -1 || h == -1) return -1;
+        return ((long) abcd(d, c, b, a) << 32L) | abcd(e, f, g, h);
+    }
+
     public static int readU16BigEndian(InputStream stream) throws IOException {
         int a = stream.read();
         int b = stream.read();
@@ -53,6 +67,20 @@ public class DataUtils {
         int d = stream.read();
         if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
         return dcba(d, c, b, a);
+    }
+
+    public static long readU64BigEndian(InputStream stream) throws IOException {
+        int a = stream.read();
+        int b = stream.read();
+        int c = stream.read();
+        int d = stream.read();
+        int e = stream.read();
+        int f = stream.read();
+        int g = stream.read();
+        int h = stream.read();
+        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (e == -1 || f == -1 || g == -1 || h == -1) return -1;
+        return ((long) dcba(d, c, b, a) << 32L) | dcba(h, g, f, e);
     }
 
     public static void writeU8(OutputStream stream, int u8) throws IOException {
@@ -71,6 +99,17 @@ public class DataUtils {
         stream.write((value >> 24) & 0xFF);
     }
 
+    public static void writeU64LittleEndian(OutputStream stream, long value) throws IOException {
+        stream.write((int)(value) & 0xFF);
+        stream.write((int)(value >> 8) & 0xFF);
+        stream.write((int)(value >> 16) & 0xFF);
+        stream.write((int)(value >> 24) & 0xFF);
+        stream.write((int)(value >> 32) & 0xFF);
+        stream.write((int)(value >> 40) & 0xFF);
+        stream.write((int)(value >> 48) & 0xFF);
+        stream.write((int)(value >> 56) & 0xFF);
+    }
+
     public static void writeU16BigEndian(OutputStream stream, int value) throws IOException {
         stream.write((value >> 8) & 0xFF);
         stream.write(value & 0xFF);
@@ -81,6 +120,17 @@ public class DataUtils {
         stream.write((value >> 16) & 0xFF);
         stream.write((value >> 8) & 0xFF);
         stream.write(value & 0xFF);
+    }
+
+    public static void writeU64BigEndian(OutputStream stream, long value) throws IOException {
+        stream.write((int)(value >> 56) & 0xFF);
+        stream.write((int)(value >> 48) & 0xFF);
+        stream.write((int)(value >> 40) & 0xFF);
+        stream.write((int)(value >> 32) & 0xFF);
+        stream.write((int)(value >> 24) & 0xFF);
+        stream.write((int)(value >> 16) & 0xFF);
+        stream.write((int)(value >> 8) & 0xFF);
+        stream.write((int)(value) & 0xFF);
     }
 
     public static long unsign32(int size) {
