@@ -17,6 +17,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.services.Services;
+import com.vke.core.services.shr.ShaderReflector;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
@@ -25,6 +27,7 @@ import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
@@ -225,10 +228,21 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
         GeneralBuffer buffer = VKUtils.readInputStreamToVulkanAndClose(identifier.asInputStream());
-        ByteBuffer data = buffer.getData();
-        VulkanShader shader = new VulkanShader(engine, logicalDevice, data, shaderType);
-        buffer.free();
-        return shader;
+        ByteBuffer sourceCode = buffer.getData();
+        try {
+            ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
+                    .compileGlslToSpirV(sourceCode, shaderType, identifier);
+
+            VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType);
+
+            // Only caches the IR and caches the reflected shader so the performance cost is negligible.
+            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(identifier, spirv);
+
+            buffer.free();
+            return shader;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

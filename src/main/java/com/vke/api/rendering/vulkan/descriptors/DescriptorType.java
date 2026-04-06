@@ -1,5 +1,6 @@
 package com.vke.api.rendering.vulkan.descriptors;
 
+import com.vke.api.pipeline.BaseType;
 import com.vke.api.rendering.abstraction.IntEnum;
 import org.lwjgl.vulkan.KHRAccelerationStructure;
 import org.lwjgl.vulkan.VK14;
@@ -31,6 +32,12 @@ public enum DescriptorType implements IntEnum {
 
     public boolean isBuffer() {
         return this == UNIFORM_BUFFER || this == UNIFORM_BUFFER_DYNAMIC || this == STORAGE_BUFFER || this == STORAGE_BUFFER_DYNAMIC;
+    }
+
+    public static DescriptorType fromBaseType(BaseType bt, boolean isDynamic) {
+        switch (bt) {
+            case Struct ->
+        }
     }
 
 }

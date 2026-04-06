@@ -1,11 +1,12 @@
-package com.vke.core.assets.pipeline.protocols;
+package com.vke.core.assets.pipeline.protocols.shader;
 
 import com.vke.api.assets.Protocols;
-import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.parsing.config.ConfigParser;
-import com.vke.api.pipeline.PipelineData;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.Context;
+import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -15,10 +16,11 @@ import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
-public class RenderPipelineProtocol implements AssetProtocol<GraphicsPipeline> {
+public class VertexShaderProtocol implements AssetProtocol<Shader> {
+
     @Override
     public String getProtocolName() {
-        return Protocols.RENDERPIPELINE;
+        return Protocols.VERTSHADER;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class RenderPipelineProtocol implements AssetProtocol<GraphicsPipeline> {
 
     @Override
     public Loader getLoader() {
-        return new RenderPipelineLoader();
+        return new VertexShaderLoader();
     }
 
     @Override
@@ -36,15 +38,18 @@ public class RenderPipelineProtocol implements AssetProtocol<GraphicsPipeline> {
         return false;
     }
 
-    public static class RenderPipelineLoader implements Loader {
-
+    public static class VertexShaderLoader implements Loader {
         @Override
         public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
-            return Utils.chainExceptions(() -> {
-                PipelineData data = PipelineData.fromConfig(ConfigDocument.parseIdentifier(identifier));
+            if (!executionTarget.isUsable(PipelineStage.ExecutionTarget.Main)) return null;
 
-                return null;
-            });
+            EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
+            Renderer renderer = context.service(rendererType.serviceName);
+            RenderDevice device = renderer.getDevice();
+
+            return Utils.chainExceptions(() ->
+                    new AssetData(Protocols.VERTSHADER, device.createShader(identifier, ShaderType.VERTEX))
+            );
         }
     }
 }

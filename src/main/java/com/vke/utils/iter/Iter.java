@@ -1,6 +1,7 @@
 package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.tuple.Pair;
 import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.iter.helpers.*;
@@ -44,6 +45,10 @@ public interface Iter<T> extends Iterable<T> {
 
     default <U> Iter<U> map(Function<T, U> f) {
         return new Map<>(this, f);
+    }
+
+    default <U, E extends Throwable> Iter<U> faultyMap(FaultyFunction<T, U, E> f) {
+        return new FaultyMap<>(this, f);
     }
 
     default Iter<T> filter(Predicate<T> p) {

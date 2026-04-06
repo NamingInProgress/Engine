@@ -1,28 +1,31 @@
 package com.vke.api.pipeline;
 
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.api.rendering.abstraction.enums.CompareOp;
-import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
-import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
-import com.vke.core.assets.handles.rendering.shader.ShaderProgramAssetHandle;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
+import com.vke.utils.tuple.Pair;
 import org.lwjgl.vulkan.VK14;
 
 import java.util.*;
 
 public class PipelineData {
 
+    // WARNING! THESE FIELDS ARE RESOLVED ONLY DURING PIPELINE CREATION, WHICH MEANS THEY WILL NOT BE AVAILABLE BEFOREHAND!
     private ArrayList<DescriptorSetLayout> descriptorLayouts;
-    private DescriptorsInfo additionalDescriptorInfo;
+    public DescriptorsInfo additionalDescriptorInfo;
     private PushConstantsData pushConstantsData;
-    private VertexLayoutData vertexLayoutData;
+    public VertexLayoutData vertexLayoutData;
 
     // pipeline fields here
 
@@ -44,13 +47,14 @@ public class PipelineData {
     public float depthBiasSlopeFactor = 0.0f;
 
     // Attachments
-    public boolean stencilAttachment = false;
-    public ArrayList<AttachmentInfo> attachments;
+    public ArrayList<ColorAttachmentInfo> colorAttachments;
+    public DepthAttachmentInfo depthAttachment;
+    public StencilAttachmentInfo stencilAttachment;
     public float[] blendConstants = new float[]{ 0, 0, 0, 0 };
     public boolean autoRegisterDynamicStates = false;
 
     // Shader
-    public AssetHandle<ShaderProgram> shaders;
+    public ShaderProgram shaders;
 
     private static final String
             DYNAMIC_STATES_ARRAY_NAME = "dynamicStates",
@@ -65,7 +69,6 @@ public class PipelineData {
             DEPTH_BIAS_CLAMP_NAME = "depthBiasClamp",
             DEPTH_BIAS_SLOPE_FAC_NAME = "depthBiasSlopeFactor",
             ATTACHMENTS_ARRAY_NAME = "attachments",
-            HAS_STENCIL_ATTACHMENT_NAME = "stencilAttachment",
             AUTO_REGISTER_DYNAMIC_STATES_NAME = "autoRegisterDynamicStates",
             SHADERS_ARRAY_NAME = "shaders",
             BLEND_CONSTANTS_NAME = "blendConstants",
@@ -94,11 +97,12 @@ public class PipelineData {
         pd.depthBiasConstFactor = root.getNumberOption(DEPTH_BIAS_CONST_FAC_NAME).unwrapOr(pd.depthBiasConstFactor);
         pd.depthBiasClamp = root.getNumberOption(DEPTH_BIAS_CLAMP_NAME).unwrapOr(pd.depthBiasClamp);
         pd.depthBiasSlopeFactor = root.getNumberOption(DEPTH_BIAS_SLOPE_FAC_NAME).unwrapOr(pd.depthBiasSlopeFactor);
-        pd.stencilAttachment = root.getBooleanOption(HAS_STENCIL_ATTACHMENT_NAME).unwrapOr(pd.stencilAttachment);
         pd.autoRegisterDynamicStates = root.getBooleanOption(AUTO_REGISTER_DYNAMIC_STATES_NAME).unwrapOr(pd.autoRegisterDynamicStates);
         pd.blendConstants = float4OrDefault(root, BLEND_CONSTANTS_NAME, pd.blendConstants);
         pd.shaders = shaders(root);
-        pd.attachments = attachments(root);
+        pd.colorAttachments = colorAttachments(root);
+        pd.depthAttachment = depthAttachment(root);
+        pd.stencilAttachment = stencilAttachment(root);
         pd.additionalDescriptorInfo = descriptorsInfo(root);
         return pd;
     }
@@ -133,17 +137,20 @@ public class PipelineData {
         return thingies;
     }
 
-    private static AssetHandle<ShaderProgram> shaders(ConfigNode parent) {
+    private static ShaderProgram shaders(ConfigNode parent) {
         Option<ConfigArrayNode> arrNodeOpt = parent.getArrayOption(SHADERS_ARRAY_NAME);
         if (arrNodeOpt.isNone()) return null;
         ConfigArrayNode arrNode = arrNodeOpt.unwrap();
-        Map<ShaderType, Identifier> shaderSources = new HashMap<>();
-        for(ConfigNode node : arrNode.values()) {
-            ShaderType type = ShaderType.fromString(node.getString(SHADERS_ARRAY_TYPE_NAME));
+        ConfigNode[] values = arrNode.values();
+
+        AssetHandle<Shader>[] shaders = new AssetHandle[values.length];
+        Identifier[] idents = new Identifier[values.length];
+        for (int i = 0; i < values.length; i++) {
+            ConfigNode node = values[i];
             Identifier identifier = Identifier.of(node.getString(SHADERS_ARRAY_IDENTIFIER_NAME));
-            shaderSources.put(type, identifier);
+            shaders[i] = R.shaders.get(identifier);
         }
-        return new ShaderProgramAssetHandle(shaderSources);
+        return new ShaderProgram(shaders, idents);
     }
 
     public static DescriptorsInfo descriptorsInfo(ConfigNode parent) {
@@ -173,33 +180,55 @@ public class PipelineData {
         return di;
     }
 
-    public static ArrayList<AttachmentInfo> attachments(ConfigNode parent) {
-        ArrayList<AttachmentInfo> attachments = new ArrayList<>();
+    public static Iter<Pair<ConfigObjectNode, String>> iterAttachments(ConfigNode parent) {
         Option<ConfigArrayNode> arrNodeOpt = parent.getArrayOption(ATTACHMENTS_ARRAY_NAME);
-        if (arrNodeOpt.isNone()) return attachments;
+        if (arrNodeOpt.isNone()) return Iter.of();
         ConfigArrayNode arrNode = arrNodeOpt.unwrap();
+        return Iter.of(Arrays.stream(arrNode.values()).map((node) -> new Pair<>(node.asObject(),
+                node.getStringOption("type")
+                        .unwrapOrPanic(new RuntimeException("Missing type in attachment definition!")))));
+    }
 
-        for (ConfigNode value : arrNode.values()) {
-            ConfigObjectNode attachmentData  = value.asObject();
+    public static ArrayList<ColorAttachmentInfo> colorAttachments(ConfigNode parent) {
+        ArrayList<ColorAttachmentInfo> attachments = new ArrayList<>();
 
-            Option<String> typeOpt = attachmentData.getStringOption("type");
-            if (typeOpt.isNone()) throw new IllegalStateException("Missing type in attachment definition!");
-
-            switch (typeOpt.unwrap()) {
-                case "COLOR" -> attachments.add(new ColorAttachmentInfo(attachmentData));
-                case "DEPTH" -> attachments.add(new DepthAttachmentInfo(attachmentData));
-                case "STENCIL" -> attachments.add(new StencilAttachmentInfo(attachmentData));
-
+        for (Pair<ConfigObjectNode, String> attachmentData : iterAttachments(parent)) {
+            if (attachmentData.v2.equals("COLOR")) {
+                attachments.add(new ColorAttachmentInfo(attachmentData.v1));
             }
         }
 
         return attachments;
     }
 
-    public static abstract class AttachmentInfo {
-        public AttachmentType type;
+    public static DepthAttachmentInfo depthAttachment(ConfigNode parent) {
+        for (Pair<ConfigObjectNode, String> attachmentData : iterAttachments(parent)) {
+            if (attachmentData.v2.equals("DEPTH")) {
+                return new DepthAttachmentInfo(attachmentData.v1);
+            }
+        }
+        return null;
+    }
 
-        public AttachmentInfo(ConfigObjectNode c) {}
+    public static StencilAttachmentInfo stencilAttachment(ConfigNode parent) {
+        for (Pair<ConfigObjectNode, String> attachmentData : iterAttachments(parent)) {
+            if (attachmentData.v2.equals("STENCIL")) {
+                return new StencilAttachmentInfo(attachmentData.v1);
+            }
+        }
+        return null;
+    }
+
+    public static abstract class AttachmentInfo {
+        public static final String
+                TEXTURE_FORMAT_NAME = "format";
+
+        public AttachmentType type;
+        public TextureFormat format;
+
+        public AttachmentInfo(ConfigObjectNode c, TextureFormat defaultFormat) {
+            this.format = TextureFormat.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(defaultFormat);
+        }
     }
 
     public static class ColorAttachmentInfo extends AttachmentInfo {
@@ -211,8 +240,7 @@ public class PipelineData {
                 SRC_ALPHA_BLEND_FACTOR_NAME = "srcAlphaBlendFactor",
                 DST_ALPHA_BLEND_FACTOR_NAME = "dstAlphaBlendFactor",
                 COLOR_BLEND_OPERATION_NAME = "colorBlendOperation",
-                ALPHA_BLEND_OPERATION_NAME = "alphaBlendOperation",
-                TEXTURE_FORMAT_NAME = "format";
+                ALPHA_BLEND_OPERATION_NAME = "alphaBlendOperation";
 
         public int colorWriteMask = VK14.VK_COLOR_COMPONENT_R_BIT | VK14.VK_COLOR_COMPONENT_G_BIT | VK14.VK_COLOR_COMPONENT_B_BIT | VK14.VK_COLOR_COMPONENT_A_BIT;
         public boolean blendEnable = true;
@@ -222,10 +250,9 @@ public class PipelineData {
         public RenderPipeline.BlendFactor dstAlphaBlendFactor = RenderPipeline.BlendFactor.ONE_MINUS_SRC_ALPHA;
         public RenderPipeline.BlendOperation colorBlendOperation = RenderPipeline.BlendOperation.ADD;
         public RenderPipeline.BlendOperation alphaBlendOperation = RenderPipeline.BlendOperation.ADD;
-        public TextureFormat format = TextureFormat.BGRA8_SRGB;
 
         public ColorAttachmentInfo(ConfigObjectNode c) {
-            super(c);
+            super(c, TextureFormat.BGRA8_SRGB);
 
             Option<ConfigArrayNode> colorWriteMaskArrayOpt = c.getArrayOption(COLOR_WRITE_MASK_ARRAY_NAME);
             if (colorWriteMaskArrayOpt.isSome())
@@ -241,8 +268,6 @@ public class PipelineData {
 
             this.colorBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(COLOR_BLEND_OPERATION_NAME)).unwrapOr(colorBlendOperation);
             this.alphaBlendOperation = RenderPipeline.BlendOperation.valueOfOption(c.getString(ALPHA_BLEND_OPERATION_NAME)).unwrapOr(alphaBlendOperation);
-
-            this.format = TextureFormat.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(format);
         }
     }
 
@@ -258,7 +283,7 @@ public class PipelineData {
         public CompareOp depthCompareOp = CompareOp.LEQUAL;
 
         public DepthAttachmentInfo(ConfigObjectNode c) {
-            super(c);
+            super(c, TextureFormat.DEPTH16);
 
             this.depthTestEnable = c.getBooleanOption(DEPTH_TEST_ENABLE_NAME).unwrapOr(depthTestEnable);
             this.depthWriteEnable = c.getBooleanOption(DEPTH_WRITE_ENABLE_NAME).unwrapOr(depthWriteEnable);
@@ -281,12 +306,12 @@ public class PipelineData {
                 WRITE_MASK_NAME = "writeMask",
                 REFERENCE_NAME = "reference";
 
-        boolean stencilTestEnable = false;
-        RenderPipeline.StencilOpState frontStencilOp = new RenderPipeline.StencilOpState();
-        RenderPipeline.StencilOpState backStencilOp = new RenderPipeline.StencilOpState();
+        public boolean stencilTestEnable = false;
+        public RenderPipeline.StencilOpState frontStencilOp = new RenderPipeline.StencilOpState();
+        public RenderPipeline.StencilOpState backStencilOp = new RenderPipeline.StencilOpState();
 
         public StencilAttachmentInfo(ConfigObjectNode c) {
-            super(c);
+            super(c, TextureFormat.STENCIL8);
 
             this.stencilTestEnable = c.getBooleanOption(STENCIL_TEST_ENABLE_NAME).unwrapOr(stencilTestEnable);
             this.frontStencilOp = getOpState(frontStencilOp, c.getObject(FRONT_STENCIL_OP_NAME));
@@ -310,7 +335,6 @@ public class PipelineData {
             return new RenderPipeline.StencilOpState(failOp, passOp, depthFailOp, compareOp,
                                             compareMask, writeMask, reference);
         }
-
     }
 
     public enum AttachmentType {

@@ -27,7 +27,9 @@ public class ConvertStage extends ParameterizedStage {
         }
         String fromName = stageElement.getProtocol();
         AssetConverter converter = context.getConverter(fromName, toName);
-        if (converter == null) throw new AssetException("There is no converter from '%s' to '%s'!".formatted(fromName, toName));
+        if (converter == null) {
+            stageElement.setData(stageElement.getAssetData().reinterpret(toName));
+        };
         if (!stageElement.getAssetData().isResolved()) {
             //now we have to resolve the asset actually
             AssetProtocol<?> protocol = context.getProtocol(fromName);

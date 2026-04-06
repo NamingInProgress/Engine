@@ -23,7 +23,7 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "vke:shaders/test.vsh"
+      "src": "vke:shaders/hello.vsh"
     },
     {
       "type": "frag",

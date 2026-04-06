@@ -1,11 +1,15 @@
 package com.vke.core.vulkan.shader;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.core.Context;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.io.Disposable;
+import com.vke.utils.iter.Iter;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 
+import java.io.IOException;
 import java.util.HashSet;
 
 public class VKShaderProgram implements Disposable {
@@ -25,6 +29,10 @@ public class VKShaderProgram implements Disposable {
         }
 
         this.shaders = shaders;
+    }
+
+    public static VKShaderProgram asVkShaderProgram(Context context, ShaderProgram sp) {
+        return new VKShaderProgram(Iter.of(sp.getShaders()).faultyMap(ah -> ah.acquire(context)).<VulkanShader>cast().toArray());
     }
 
     public VkPipelineShaderStageCreateInfo[] getShaderCreateInfos() {

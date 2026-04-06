@@ -1,6 +1,7 @@
 package com.vke.utils.iter.helpers;
 
 import com.vke.utils.Utils;
+import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,11 +75,26 @@ public class Option<T> {
         return value;
     }
 
+    public T unwrapOrThrow(Throwable t) throws Throwable {
+        if (isNone()) throw t;
+        return value;
+    }
+
+    public T unwrapOrPanic(Throwable t) {
+        if (isNone()) throw new RuntimeException(t);
+        return value;
+    }
+
     public void inspect(Consumer<T> inspector) {
         if (isSome()) inspector.accept(value);
     }
 
     public <R> Option<R> map(Function<T, R> mapper) {
+        if (isNone()) return Option.none();
+        return Option.some(mapper.apply(value));
+    }
+
+    public <R, E extends Throwable> Option<R> faultyMap(FaultyFunction<T, R, E> mapper) throws E {
         if (isNone()) return Option.none();
         return Option.some(mapper.apply(value));
     }

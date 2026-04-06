@@ -47,6 +47,14 @@ public class ReflectedShader implements Disposable {
         return (ArrayList<T>) resources.get(type);
     }
 
+    public HashMap<ResourceType, ArrayList<BufferDescriptorResource>> getDescriptors() {
+
+    }
+
+    public ArrayList<BufferDescriptorResource> getDescriptorsForType(ResourceType type) {
+
+    }
+
     public ArrayList<BufferDescriptorResource> getUBOs() {
         if (resources.containsKey(ResourceType.UBO)) return getResource(ResourceType.UBO);
 

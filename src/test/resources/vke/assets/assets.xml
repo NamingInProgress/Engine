@@ -9,4 +9,16 @@
             </rename>
         </stage-filter>
     </stage-filter>
+    <stage-filter uri="file://extension" query="frag|fsh" op="matches">
+        <convert to="fragshader"/>
+        <rename>
+            <uri-part uri="file://location"/>
+        </rename>
+    </stage-filter>
+    <stage-filter uri="file://extension" query="vert|vsh" op="matches">
+        <convert to="vertshader"/>
+        <rename>
+            <uri-part uri="file://location"/>
+        </rename>
+    </stage-filter>
 </assets>

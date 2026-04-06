@@ -46,13 +46,20 @@ public class ShaderCompiler extends Service {
     }
 
     public ByteBuffer compileGlslToSpirV(byte[] shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
+        return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind.getShadercHandle(), fileName);
+    }
+
+    public ByteBuffer compileGlslToSpirV(ByteBuffer shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
         return this.compileGlslToSpirV(shader, kind.getShadercHandle(), fileName);
     }
 
     public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @NotNull Identifier fileName) throws Exception {
+        return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind, fileName);
+    }
+
+    public ByteBuffer compileGlslToSpirV(ByteBuffer source, int kind, @NotNull Identifier fileName) throws Exception {
         if (CACHE.containsKey(fileName.toSpecialVkzFormatCuzItsBad())) return CACHE.get(fileName.toSpecialVkzFormatCuzItsBad());
 
-        ByteBuffer source = alloc.bytes(shader).getHeapObject();
         long options = Shaderc.shaderc_compile_options_initialize();
         long result = Shaderc.shaderc_compile_into_spv(compiler, source, kind, bytes(alloc, fileName.toSpecialVkzFormatCuzItsBad()), bytes(alloc, "main"), options);
         Shaderc.shaderc_compile_options_release(options);

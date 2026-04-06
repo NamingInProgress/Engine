@@ -7,6 +7,7 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.Services;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -47,6 +48,10 @@ public class ShaderReflector extends Service {
         ReflectedShader s = new ReflectedShader(spvcContext, spirv);
         CACHE.put(id, s);
         return s;
+    }
+
+    public Option<ReflectedShader> get(Identifier id) {
+        return Option.useIfNotNull(CACHE.get(id));
     }
 
     @Override

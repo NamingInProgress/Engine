@@ -36,7 +36,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
         return LAYOUT_CACHE.get(cap);
     }
 
-    public VulkanPipelineLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
+    private VulkanPipelineLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
         this.engine = engine;
         this.device = device;
         this.pushConstants = pc;
@@ -81,8 +81,11 @@ public class VulkanPipelineLayout implements PipelineLayout {
         return descriptorSets.getCompiledLayouts().size();
     }
 
+    public long getHandle() { return this.handle; }
+
     @Override
     public void free() {
+        // destroy descriptors and stuff
         VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
     }
 

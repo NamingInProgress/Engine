@@ -5,6 +5,8 @@ import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
 import com.vke.core.assets.pipeline.protocols.*;
+import com.vke.core.assets.pipeline.protocols.shader.FragmentShaderProtocol;
+import com.vke.core.assets.pipeline.protocols.shader.VertexShaderProtocol;
 import com.vke.core.assets.pipeline.stages.ConvertStage;
 import com.vke.core.assets.pipeline.stages.RenameStage;
 import com.vke.api.parsing.config.node.ConfigNode;
@@ -31,6 +33,8 @@ public class PipelineContext {
         registerProtocol(new PlainProtocol());
         registerProtocol(new ConfigProtocol());
         registerProtocol(new LangProtocol());
+        registerProtocol(new FragmentShaderProtocol());
+        registerProtocol(new VertexShaderProtocol());
 
         //register engine default stages
         registerStage(ConvertStage.STAGE, ConvertStage::new);
