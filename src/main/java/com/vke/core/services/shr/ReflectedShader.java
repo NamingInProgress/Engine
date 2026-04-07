@@ -1,8 +1,6 @@
 package com.vke.core.services.shr;
 
 import com.vke.api.pipeline.BaseType;
-import com.vke.api.pipeline.Entry;
-import com.vke.api.pipeline.Struct;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
@@ -74,7 +72,7 @@ public class ReflectedShader implements Disposable {
             if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                     PointerBuffer pSize = stack.mallocPointer(1);
-                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
+                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     res.struct = generateStruct(resource, pSize.get(0));
                     res.size = (int) pSize.get(0);
@@ -90,7 +88,7 @@ public class ReflectedShader implements Disposable {
         }
 
         this.resources.put(ResourceType.PUSH_CONSTANT, list);
-        return list.get(0);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     public ArrayList<DescriptorResource> getDescriptorsForType(ResourceType type) {
@@ -108,7 +106,7 @@ public class ReflectedShader implements Disposable {
             if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                     PointerBuffer pSize = stack.mallocPointer(1);
-                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
+                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     descriptorResource.struct = generateStruct(resource, pSize.get(0));
                 }
@@ -116,10 +114,10 @@ public class ReflectedShader implements Disposable {
             descriptorResource.baseTypeRaw = resource.baseType;
             descriptorResource.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
 
-            descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.baseTypeId);
+            descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.typeHandle);
             descriptorResource.arrayDim = new int[descriptorResource.nArrayDim];
             for (int i = 0; i < descriptorResource.nArrayDim; i++) {
-                descriptorResource.arrayDim[i] = Spvc.spvc_type_get_array_dimension(resource.baseTypeId, i);
+                descriptorResource.arrayDim[i] = Spvc.spvc_type_get_array_dimension(resource.typeHandle, i);
             }
             descriptorResource.arrayStride = resource.arrayStride;
             /**
@@ -167,7 +165,7 @@ public class ReflectedShader implements Disposable {
         s.name = resource.name;
         s.size = size;
 
-        long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
+        long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
         int memberCount = Spvc.spvc_type_get_num_member_types(typeHandle);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             DiscoverableMember[] members = new DiscoverableMember[memberCount];
@@ -236,6 +234,9 @@ public class ReflectedShader implements Disposable {
         } else {
             member.type = baseTypeLayout;
         }
+
+        baseTypeLayout.size = discoverableMember.size;
+
         return member;
     }
 
@@ -301,9 +302,9 @@ public class ReflectedShader implements Disposable {
             member.matrixRows = Spvc.spvc_type_get_vector_size(member.typeHandle);
             member.matrixColumns = Spvc.spvc_type_get_columns(member.typeHandle);
             IntBuffer buf = stack.callocInt(1);
-            Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.parentBaseTypeId, member.idx, buf);
+            Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
             member.matrixStride = buf.get(0);
-            Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.parentBaseTypeId, member.idx, buf);
+            Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.typeHandle, member.idx, buf);
             member.arrayStride = buf.get(0);
             if (expectedSize > member.size) {
                 member.size = expectedSize;
@@ -384,16 +385,16 @@ public class ReflectedShader implements Disposable {
 
             int resourceCount = (int) pResourceCount.get(0);
             SPVCResource[] arr = new SPVCResource[resourceCount];
-            SpvcReflectedResource.Buffer resourcesBuffer = SpvcReflectedResource.create(pResourceList.get(0), resourceCount);
 
+            if (resourceCount == 0) return arr;
+
+            SpvcReflectedResource.Buffer resourcesBuffer = SpvcReflectedResource.create(pResourceList.get(0), resourceCount);
             int i = 0;
             for (SpvcReflectedResource res : resourcesBuffer) {
-                long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.id());
+                long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.type_id());
                 int baseType = Spvc.spvc_type_get_basetype(typeHandle);
                 arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
             }
-
-            resourcesBuffer.free();
 
             return arr;
         }

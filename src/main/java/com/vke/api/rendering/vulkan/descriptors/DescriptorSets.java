@@ -100,7 +100,7 @@ public class DescriptorSets implements Disposable {
 
         if (set == null || binding == null) throw new IllegalStateException("Failed to find binding of name " + root.name);
 
-        boolean isDeep = root.child.child instanceof ArrayIndexNode || root.child instanceof EntryNode;
+        boolean isDeep = (root.child != null && root.child.child instanceof ArrayIndexNode) || root.child instanceof EntryNode;
         boolean hasIndex = root.child instanceof ArrayIndexNode;
         int descriptorCount = binding.layout.descriptorCount;
 

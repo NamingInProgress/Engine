@@ -37,6 +37,7 @@ import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -233,18 +234,19 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
-        GeneralBuffer buffer = VKUtils.readInputStreamToVulkanAndClose(identifier.asInputStream());
-        ByteBuffer sourceCode = buffer.getData();
+        //GeneralBuffer buffer = VKUtils.readInputStreamToVulkanAndClose(identifier.asInputStream());
+        byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
+
         try {
             ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
-                    .compileGlslToSpirV(sourceCode, shaderType, identifier);
+                    .compileGlslToSpirV(bytes, shaderType, identifier);
 
             VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType);
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
             engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(identifier, spirv);
 
-            buffer.free();
+            //buffer.free();
             return shader;
         } catch (Exception e) {
             throw new RuntimeException(e);

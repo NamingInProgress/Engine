@@ -61,6 +61,13 @@ public class ShaderCompiler extends Service {
         if (CACHE.containsKey(fileName.toSpecialVkzFormatCuzItsBad())) return CACHE.get(fileName.toSpecialVkzFormatCuzItsBad());
 
         long options = Shaderc.shaderc_compile_options_initialize();
+
+        Shaderc.shaderc_compile_options_set_target_env(options, Shaderc.shaderc_target_env_vulkan, Shaderc.shaderc_env_version_vulkan_1_4);
+        Shaderc.shaderc_compile_options_set_target_spirv(options, Shaderc.shaderc_spirv_version_1_4);
+        Shaderc.shaderc_compile_options_set_source_language(
+                options,
+                Shaderc.shaderc_source_language_glsl
+        );
         long result = Shaderc.shaderc_compile_into_spv(compiler, source, kind, bytes(alloc, fileName.toSpecialVkzFormatCuzItsBad()), bytes(alloc, "main"), options);
         Shaderc.shaderc_compile_options_release(options);
         int status = Shaderc.shaderc_result_get_compilation_status(result);

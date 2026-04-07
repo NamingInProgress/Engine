@@ -12,7 +12,6 @@ import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.core.vulkan.pipeline.RenderPipelines;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
@@ -66,7 +65,6 @@ public class VulkanRenderer extends Service implements Renderer {
             imagePresentInFlight[i] = VulkanSemaphore.createSemaphore(engine, device.getLogicalDevice());
         }
 
-        RenderPipelines.init();
         Samplers.init(device);
 
         VKERegistries.PIPELINES.makeVkPipelines(engine, device);

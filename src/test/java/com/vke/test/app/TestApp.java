@@ -106,7 +106,8 @@ public class TestApp extends App {
         assetManager.initialize();
 
         try {
-            scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);
+            //scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);
+            scaryVk = (VulkanTexture) R.textures.get(engine.id("scaryvulkan.png")).acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

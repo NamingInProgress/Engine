@@ -29,6 +29,7 @@ public class ConvertStage extends ParameterizedStage {
         AssetConverter converter = context.getConverter(fromName, toName);
         if (converter == null) {
             stageElement.setData(stageElement.getAssetData().reinterpret(toName));
+            return;
         };
         if (!stageElement.getAssetData().isResolved()) {
             //now we have to resolve the asset actually

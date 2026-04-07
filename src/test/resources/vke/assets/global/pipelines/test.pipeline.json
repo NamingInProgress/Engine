@@ -23,11 +23,11 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "vke:shaders/hello.vsh"
+      "src": "vert.idk"
     },
     {
       "type": "frag",
-      "src": "vke:shaders/test.fsh"
+      "src": "frag.idk"
     }
   ],
   "dynamicBuffers": [ "UBO" ],

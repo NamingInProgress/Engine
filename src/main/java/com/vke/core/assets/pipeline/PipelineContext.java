@@ -36,6 +36,7 @@ public class PipelineContext {
         registerProtocol(new FragmentShaderProtocol());
         registerProtocol(new VertexShaderProtocol());
         registerProtocol(new RenderPipelineProtocol());
+        registerProtocol(new PngTextureProtocol());
 
         //register engine default stages
         registerStage(ConvertStage.STAGE, ConvertStage::new);
@@ -44,7 +45,6 @@ public class PipelineContext {
 
         //register converters
         registerConverter(new PlainPathConverter());
-        registerConverter(new PlainConfigConverter());
         registerConverter(new ConfigLangConverter());
     }
 

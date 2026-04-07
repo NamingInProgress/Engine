@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class StructType extends TypeLayout {
 
-    public HashMap<String, Member> members;
+    public HashMap<String, Member> members = new HashMap<>();
 
     public static class Member {
         public String name;

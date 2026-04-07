@@ -11,6 +11,7 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
+import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
@@ -22,10 +23,9 @@ import java.util.*;
 public class PipelineData {
 
     // WARNING! THESE FIELDS ARE RESOLVED ONLY DURING PIPELINE CREATION, WHICH MEANS THEY WILL NOT BE AVAILABLE BEFOREHAND!
-    private ArrayList<DescriptorSetLayout> descriptorLayouts;
     public DescriptorsInfo additionalDescriptorInfo;
-    private PushConstantsData pushConstantsData;
     public VertexLayoutData vertexLayoutData;
+    public VKShaderProgram compiledShaders;
 
     // pipeline fields here
 
@@ -149,6 +149,7 @@ public class PipelineData {
             ConfigNode node = values[i];
             Identifier identifier = Identifier.of(node.getString(SHADERS_ARRAY_IDENTIFIER_NAME));
             shaders[i] = R.shaders.get(identifier);
+            idents[i] = identifier;
         }
         return new ShaderProgram(shaders, idents);
     }

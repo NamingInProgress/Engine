@@ -8,17 +8,25 @@
                 <uri-part uri="file://nickname"/>
             </rename>
         </stage-filter>
+        <stage-filter uri="file://name" query="pipeline" op="matches">
+            <convert to="pipeline"/>
+        </stage-filter>
     </stage-filter>
     <stage-filter uri="file://extension" query="frag|fsh" op="matches">
         <convert to="fragshader"/>
         <rename>
-            <uri-part uri="file://location"/>
+            <static-part value="frag."/>
+            <uri-part uri="file://nickname"/>
         </rename>
     </stage-filter>
     <stage-filter uri="file://extension" query="vert|vsh" op="matches">
         <convert to="vertshader"/>
         <rename>
-            <uri-part uri="file://location"/>
+            <static-part value="vert."/>
+            <uri-part uri="file://nickname"/>
         </rename>
+    </stage-filter>
+    <stage-filter uri="file://extension" query="png" op="equals">
+        <convert to="png"/>
     </stage-filter>
 </assets>

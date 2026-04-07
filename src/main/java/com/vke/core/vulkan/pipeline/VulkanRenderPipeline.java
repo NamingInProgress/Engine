@@ -49,6 +49,8 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         this.context = context;
         this.device = device;
 
+        data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
+
         var shaders = getReflectedShaders(data);
         DescriptorSets ds = createDescriptorSets(data, shaders);
         PushConstants pc = createPushConstants(data, shaders);
@@ -106,13 +108,17 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
     }
 
     private ArrayList<ReflectedShader> getReflectedShaders(PipelineData data) {
-        Identifier[] shaders = data.shaders.getIdentifiers();
+        //Identifier[] shaders = data.shaders.getIdentifiers();
+        Identifier[] shaders = new Identifier[]{ Identifier.of("vke:assets/global/shaders/idk.vsh"), Identifier.of("vke:assets/global/shaders/idk.fsh") };
         ShaderReflector refl = context.service(Services.SHADER_REFLECTION);
         ArrayList<ReflectedShader> reflectedShaders = new ArrayList<>();
 
         for (Identifier shader : shaders) {
             Option<ReflectedShader> shaderOpt = refl.get(shader);
-            if (shaderOpt.isNone()) throw new IllegalStateException("Requested reflected shader but none was found! This error should not happen");
+            if (shaderOpt.isNone()) {
+                System.out.println(shader);
+                throw new IllegalStateException("Requested reflected shader but none was found! This error should not happen");
+            }
             reflectedShaders.add(shaderOpt.unwrap());
         }
 
@@ -176,30 +182,34 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
     }
 
     private VkPipelineVertexInputStateCreateInfo getVertexInputs(MemoryStack stack, VertexLayoutData data) {
-        int offset = 0;
-        int amt = data.getAttributeTypes().size();
-        VkVertexInputAttributeDescription.Buffer viadb = VkVertexInputAttributeDescription.calloc(amt, stack);
-        int i = 0;
-        for (VertexLayoutData.Attribute attr : data.getAttributeTypes()) {
-            viadb.get(i)
-                    .location(i)
-                    .binding(0)
-                    .offset(offset)
-                    .format(attr.getFormat().getVkHandle())
-            ; //This semicolon wants to have its own line
-            offset += attr.getByteStride();
-            i++;
-        }
-
-        VkVertexInputBindingDescription.Buffer bindingDesc = VkVertexInputBindingDescription.calloc(1, stack);
-        bindingDesc.get(0)
-                .binding(0)
-                .stride(offset)
-                .inputRate(VK14.VK_VERTEX_INPUT_RATE_VERTEX);
+        // TODO: unfuck
+//        int offset = 0;
+//        int amt = data.getAttributeTypes().size();
+//        VkVertexInputAttributeDescription.Buffer viadb = VkVertexInputAttributeDescription.calloc(amt, stack);
+//        int i = 0;
+//        for (VertexLayoutData.Attribute attr : data.getAttributeTypes()) {
+//            viadb.get(i)
+//                    .location(i)
+//                    .binding(0)
+//                    .offset(offset)
+//                    .format(attr.getFormat().getVkHandle())
+//            ; //This semicolon wants to have its own line
+//            offset += attr.getByteStride();
+//            i++;
+//        }
+//
+//        VkVertexInputBindingDescription.Buffer bindingDesc = VkVertexInputBindingDescription.calloc(1, stack);
+//        bindingDesc.get(0)
+//                .binding(0)
+//                .stride(offset)
+//                .inputRate(VK14.VK_VERTEX_INPUT_RATE_VERTEX);
+//
+//        return VkPipelineVertexInputStateCreateInfo.calloc(stack)
+//                .pVertexAttributeDescriptions(viadb)
+//                .pVertexBindingDescriptions(bindingDesc)
+//                .sType$Default();
 
         return VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                .pVertexAttributeDescriptions(viadb)
-                .pVertexBindingDescriptions(bindingDesc)
                 .sType$Default();
     }
 
@@ -308,9 +318,7 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         VkPipelineShaderStageCreateInfo.Buffer stages =
                 VkPipelineShaderStageCreateInfo.calloc(data.shaders.getShaderCount(), stack);
 
-        VKShaderProgram sp = VKShaderProgram.asVkShaderProgram(context, data.shaders);
-
-        VkPipelineShaderStageCreateInfo[] shaderStageCreateInfos = sp.getShaderCreateInfos();
+        VkPipelineShaderStageCreateInfo[] shaderStageCreateInfos = data.compiledShaders.getShaderCreateInfos();
 
         for (int i = 0; i < shaderStageCreateInfos.length; i++) {
             VkPipelineShaderStageCreateInfo stage = shaderStageCreateInfos[i];

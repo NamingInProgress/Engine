@@ -1,48 +1,28 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.CompareOp;
 import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
-import com.vke.api.parsing.config.ConfigParser;
-import com.vke.api.parsing.config.schema.SchemaMismatchException;
-import com.vke.api.pipeline.Entry;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.registry.builders.VKERegistrar;
-import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.abstraction.IntEnum;
-import com.vke.core.vulkan.createInfos.PipelineCreateInfo;
-import com.vke.api.pipeline.fucvk.DescriptorData;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
-import com.vke.core.vulkan.pipeline.GraphicsPipeline;
-import com.vke.core.vulkan.shader.VulkanShader;
-import com.vke.core.vulkan.shader.VKShaderProgram;
-import com.vke.core.services.Services;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Identifier;
-import com.vke.utils.Utils;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkStencilOpState;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class RenderPipeline implements com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline {
 
     private final RenderPipelineBuilder builder;
-
-    private GraphicsPipeline graphicsPipeline;
-
-    private VKShaderProgram shader;
 
     private RenderPipeline(RenderPipelineBuilder builder) {
         this.builder = builder;
@@ -50,139 +30,6 @@ public class RenderPipeline implements com.vke.api.rendering.abstraction.pipelin
 
     // setup separate depth and stencil objects (abstract attachment info)
     public void setupGraphicsPipeline(VKEngine engine, VulkanRenderDevice device) {
-        if (graphicsPipeline != null) {
-            log(LogLevel.WARN, "Remaking graphics pipeline from RenderPipeline, is this a bug?");
-        }
-
-        PipelineCreateInfo pipelineCreateInfo = new PipelineCreateInfo();
-        pipelineCreateInfo.device = device;
-        pipelineCreateInfo.engine = engine;
-        pipelineCreateInfo.name = builder.getId();
-
-        int depthFormat = VK14.VK_FORMAT_UNDEFINED;
-        int stencilFormat = VK14.VK_FORMAT_UNDEFINED;
-
-        if (builder.depthStencilAttachment != null) {
-            if (builder.autoRegisterDynamicStates)
-                builder.dynamicStates.add(DynamicState.DEPTH_WRITE);
-            if (builder.stencilAttachment) {
-                if (builder.autoRegisterDynamicStates) {
-                    builder.dynamicStates.addAll(List.of(DynamicState.STENCIL_COMPARE_MASK,
-                            DynamicState.STENCIL_WRITE_MASK,
-                            DynamicState.STENCIL_REFERENCE));
-                }
-                depthFormat = VK14.VK_FORMAT_D32_SFLOAT_S8_UINT;
-                stencilFormat = depthFormat;
-            } else {
-                depthFormat = VK14.VK_FORMAT_D32_SFLOAT;
-            }
-        } else {
-            if (builder.stencilAttachment) {
-                engine.throwException(new IllegalStateException("Tried to make a pipeline with a stencil attachment but no depth attachment!"), "Render Pipeline");
-            }
-        }
-
-        VulkanShader[] shaders = new VulkanShader[0];
-        try {
-            shaders = (VulkanShader[]) builder.shader.getShaderArray(engine, device.getLogicalDevice(), engine.service(Services.SHADER_COMPILER));
-        } catch (Exception e) {
-            engine.throwException(e, "Render Pipeline -> Shader Creation");
-        }
-        shader = new VKShaderProgram(shaders);
-
-        DescriptorData descriptorData = null;
-        if (builder.descriptorLayout != null){
-            String[] layoutFileName = builder.descriptorLayout.getPath().split("\\.");
-            try {
-                descriptorData = DescriptorData.fromFileWithExtension(layoutFileName[layoutFileName.length - 1], builder.descriptorLayout);
-            } catch (IOException | ConfigParser.ConfigParseException | SchemaMismatchException e) {
-                engine.throwException(e, "Render Pipeline");
-            }
-        }
-
-        GraphicsPipeline.PipelineSettingsInfo pipelineSettingsInfo =
-                new GraphicsPipeline.PipelineSettingsInfo(
-                        // Dynamic State
-                        Utils.asIntArray(builder.dynamicStates, DynamicState::getVkHandle),
-
-                        // Input Assembly
-                        builder.primitiveRestartEnable,
-                        builder.topology.getVkHandle(),
-
-                        // Raster Info
-                        builder.polygonMode.getVkHandle(),
-                        builder.cullMode.getVkHandle(),
-                        builder.windingOrder.getVkHandle(),
-                        builder.lineWidth,
-                        builder.depthBiasEnable,
-                        builder.depthBiasConstFactor,
-                        builder.depthBiasClamp,
-                        builder.depthBiasSlopeFactor,
-
-                        // Attachments
-                        builder.colorAttachments,
-                        builder.depthStencilAttachment,
-                        depthFormat,
-                        stencilFormat,
-                        builder.blendConstants,
-
-                        // Shaders
-                        shader,
-                        builder.pushConstants,
-                        descriptorData
-                );
-
-        graphicsPipeline = new GraphicsPipeline(pipelineCreateInfo, pipelineSettingsInfo);
-    }
-
-    public GraphicsPipeline getGraphicsPipeline() {
-        if (graphicsPipeline == null) {
-            log(LogLevel.FATAL, "Tried to access internal graphics pipeline without calling RenderPipeline#setupGraphicsPipeline first!");
-            log(LogLevel.FATAL, "RenderPipeline.graphicsPipeline is null! Was the pipeline registered?");
-            throw new IllegalStateException("GraphicsPipeline is null! RenderPipeline#getGraphicsPipeline");
-        }
-        return graphicsPipeline;
-    }
-
-    public Set<DynamicState> dynamicStates() {
-        if (graphicsPipeline == null) log(LogLevel.WARN, "Accessed dynamic states while graphics pipeline was not built yet which can change the dynamic states enabled!");
-        return Set.copyOf(builder.dynamicStates);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends PushConstantsDefinition> T getPushConstant(String key) {
-        return (T) getGraphicsPipeline().getPipelineLayout().getPushConst(key);
-    }
-
-    public Entry getDescriptorEntry(String key) {
-        return getGraphicsPipeline().getDescriptorData().getEntry(key);
-    }
-
-    public void setUniform(String key, Consumer<BufferSlice> runnable) {
-        getGraphicsPipeline().setUniform(key, runnable);
-    }
-
-    public void setSampler(String key, Sampler sampler, Texture tex) {
-        getGraphicsPipeline().setSampler(key, sampler, tex);
-    }
-
-    public void setImage(String key, long imageView) {
-        getGraphicsPipeline().setImage(key, imageView);
-    }
-
-    public void setImage(String key, long imageView, ImageLayout layout) {
-        getGraphicsPipeline().setImage(key, imageView, layout);
-    }
-
-    @Override
-    public PipelineLayout layout() {
-        return getGraphicsPipeline().layout();
-    }
-
-    @Override
-    public void free() {
-        if (shader != null) shader.free();
-        if (graphicsPipeline != null) graphicsPipeline.free();
     }
 
     /**  Logger  **/
@@ -203,6 +50,16 @@ public class RenderPipeline implements com.vke.api.rendering.abstraction.pipelin
                 if (level.ordinal() > LogLevel.WARN.ordinal()) LOG.log(level, message);
             }
         }
+    }
+
+    @Override
+    public PipelineLayout layout() {
+        return null;
+    }
+
+    @Override
+    public void free() {
+
     }
 
     public static final class RenderPipelineBuilder extends VKERegistrar<Identifier, RenderPipeline> {

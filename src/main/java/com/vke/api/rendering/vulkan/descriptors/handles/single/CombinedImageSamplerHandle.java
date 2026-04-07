@@ -3,12 +3,9 @@ package com.vke.api.rendering.vulkan.descriptors.handles.single;
 import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.pipeline.DescriptorData;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors.handles.array.CombinedImageSamplerArrayHandle;
-import com.vke.core.vulkan.descriptor.DescriptorWriter;
 
 public class CombinedImageSamplerHandle extends CombinedImageSamplerArrayHandle {
 
