@@ -4,8 +4,11 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.pipeline.PipelineData;
+import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.core.Context;
+import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -40,10 +43,16 @@ public class RenderPipelineProtocol implements AssetProtocol<GraphicsPipeline> {
 
         @Override
         public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
+            if (!executionTarget.isUsable(PipelineStage.ExecutionTarget.Main)) return null;
+
             return Utils.chainExceptions(() -> {
                 PipelineData data = PipelineData.fromConfig(ConfigDocument.parseIdentifier(identifier));
 
-                return null;
+                EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
+                Renderer renderer = context.service(rendererType.serviceName);
+                RenderDevice device = renderer.getDevice();
+
+                return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
             });
         }
     }

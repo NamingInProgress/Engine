@@ -35,6 +35,7 @@ public class PipelineContext {
         registerProtocol(new LangProtocol());
         registerProtocol(new FragmentShaderProtocol());
         registerProtocol(new VertexShaderProtocol());
+        registerProtocol(new RenderPipelineProtocol());
 
         //register engine default stages
         registerStage(ConvertStage.STAGE, ConvertStage::new);

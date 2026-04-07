@@ -43,6 +43,14 @@ public class BufferSlice {
         cursor += 4;
     }
 
+    public void putLong(long l) {
+        if (cursor + 8 > length) throw new IndexOutOfBoundsException(
+                "BufferSlice overflow: " + cursor + " / " + length
+        );
+        MemoryUtil.memPutLong(writeAddress + cursor, l);
+        cursor += 8;
+    }
+
     public void putFloat2(float a, float b) {
         putFloat(a);
         putFloat(b);

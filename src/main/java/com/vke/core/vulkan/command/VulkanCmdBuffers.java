@@ -7,15 +7,14 @@ import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.rendering.vulkan.ImageLayout;
-import com.vke.api.rendering.vulkan.pipeline.PushConstantsDefinition;
-import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.descriptor.DescriptorSet;
 import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.core.vulkan.pipeline.PipelineLayout;
+import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.swapchain.SwapchainImageView;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import org.lwjgl.PointerBuffer;
@@ -145,19 +144,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    @Deprecated
-    public RenderPipeline cast(AssetHandle<? extends GraphicsPipeline> pipeline) {
+    private VulkanRenderPipeline getRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline) {
         try {
-            return ((RenderPipeline) pipeline.acquire(engine));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Deprecated
-    public RenderPipeline castU(AssetHandle<? extends Pipeline> pipeline) {
-        try {
-            return ((RenderPipeline) pipeline.acquire(engine));
+            return (VulkanRenderPipeline) pipeline.acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -166,7 +155,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void bindRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline) {
         VK14.vkCmdBindPipeline(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, cast(pipeline).getGraphicsPipeline().getHandle());
+                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, getRenderPipeline(pipeline).getHandle());
     }
 
     @Override
@@ -179,33 +168,31 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void setPushConstants(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            PipelineLayout layout = (PipelineLayout) castU(pipeline).layout();
-            layout.getPushConstants().forEach((k, v) -> {
-                int size = v.getSize(PushConstantsDefinition.ALIGN);
-                AlignedByteBuffer buf = new AlignedByteBuffer(stack.calloc(size), PushConstantsDefinition.ALIGN);
-                VK14.vkCmdPushConstants(this.getBuffer(),
-                        layout.getHandle(),
-                        v.getAplicableStages().getVkHandle(),
-                        v.getOffset(),
-                        v.getBytes(buf));
-            });
+            // TODO: Fix this for compute pipelines
+            VulkanPipelineLayout layout = (VulkanPipelineLayout) getRenderPipeline((AssetHandle<? extends GraphicsPipeline>) pipeline).layout();
+
+            VK14.vkCmdPushConstants(this.getBuffer(),
+                    layout.getHandle(),
+                    VK14.VK_SHADER_STAGE_ALL, // FIX THIS
+                    0,
+                    layout.pushConstants().getData()
+            );
         }
     }
 
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            VulkanRenderPipeline p = getRenderPipeline((AssetHandle<? extends GraphicsPipeline>) pipeline);
+            VulkanPipelineLayout l = p.layout();
+
             LongBuffer sets = stack.longs(
-                    ((RenderPipeline) pipeline)
-                            .getGraphicsPipeline()
-                            .getDescriptorSets()
-                            .stream()
-                            .mapToLong(DescriptorSet::getHandle)
-                            .toArray());
+                    l.descriptors().getDescriptorSetHandles()
+            );
 
             VK14.vkCmdBindDescriptorSets(this.getBuffer(),
                     VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    ((PipelineLayout) castU(pipeline).layout()).getHandle(),
+                    l.getHandle(),
                     0, sets, null);
         }
     }

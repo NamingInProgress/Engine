@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 public interface Vertex {
 
     int getByteStride();
-    void putSelf(ByteSink buf);
+    //void putSelf(ByteSink buf);
+    void putSelf(ByteBuffer buf);
 
 }

@@ -6,6 +6,7 @@ import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
+import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
@@ -44,14 +45,16 @@ public class VulkanRenderer extends Service implements Renderer {
 
     // Engine infos
     private final VKEngine engine;
+    private final Context context;
     private final EngineCreateInfo engineCreateInfo;
 
-    public VulkanRenderer(VKEngine engine, EngineCreateInfo createInfo) {
+    public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.VULKAN_RENDERER);
         this.FRAMES_IN_FLIGHT = createInfo.vulkanCreateInfo.framesInFlight;
-        this.engine = engine;
+        this.engine = context.getEngine();
+        this.context = context;
         this.engineCreateInfo = createInfo;
-        this.device = new VulkanRenderDevice(engine, createInfo);
+        this.device = new VulkanRenderDevice(context, createInfo);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
         this.frames = device.createFrames(swapchain);

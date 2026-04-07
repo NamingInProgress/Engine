@@ -68,6 +68,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
             }
 
             this.handle = pLayout.get(0);
+            this.pushConstants.setHandle(this.handle);
         }
     }
 
@@ -83,10 +84,20 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     public long getHandle() { return this.handle; }
 
+    public DescriptorSets descriptors() {
+        return descriptorSets;
+    }
+
+    public PushConstants pushConstants() {
+        return pushConstants;
+    }
+
     @Override
     public void free() {
         // destroy descriptors and stuff
         VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
+        descriptorSets.free();
+        pushConstants.free();
     }
 
     public record LayoutCapabilities() {}

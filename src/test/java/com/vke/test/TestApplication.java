@@ -9,7 +9,6 @@ import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.test.app.TestApp;
-import com.vke.test.app.TestPipelines;
 
 import java.io.IOException;
 
@@ -30,7 +29,6 @@ public class TestApplication {
         //createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
-        TestPipelines.init();
         VKEngine engine = new VKEngine(createInfo);
         if (renderdoc.get()) Thread.sleep(5000);
 

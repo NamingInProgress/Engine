@@ -4,6 +4,7 @@ import com.vke.api.pipeline.BaseType;
 import com.vke.api.pipeline.Entry;
 import com.vke.api.pipeline.Struct;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
+import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -15,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ReflectedShader implements Disposable {
 
@@ -22,7 +24,7 @@ public class ReflectedShader implements Disposable {
     private final long context;
     private final long compiler;
 
-    private final HashMap<ResourceType, ArrayList<Resource>> resources = new HashMap<>();
+    private final HashMap<ResourceType, ArrayList<? extends Resource>> resources = new HashMap<>();
 
     public ReflectedShader(long context, ByteBuffer spirv) {
         this.spv = spirv;
@@ -47,43 +49,79 @@ public class ReflectedShader implements Disposable {
         return (ArrayList<T>) resources.get(type);
     }
 
-    public HashMap<ResourceType, ArrayList<BufferDescriptorResource>> getDescriptors() {
+    public HashMap<ResourceType, ArrayList<DescriptorResource>> getDescriptors() {
+        HashMap<ResourceType, ArrayList<DescriptorResource>> map = new HashMap<>();
+        List.of(ResourceType.UBO,
+                ResourceType.SSBO,
+                ResourceType.SAMPLED_IMAGE,
+                ResourceType.STORAGE_IMAGE,
+                ResourceType.SEPARATE_IMAGE,
+                ResourceType.SEPARATE_SAMPLER).forEach(resourceType -> map.put(resourceType, getDescriptorsForType(resourceType)));
 
+        return map;
     }
 
-    public ArrayList<BufferDescriptorResource> getDescriptorsForType(ResourceType type) {
+    public PushConstantsResource getPushConstants() {
+        if (resources.containsKey(ResourceType.PUSH_CONSTANT)) return (PushConstantsResource) getResource(ResourceType.PUSH_CONSTANT).get(0);
 
-    }
+        SPVCResource[] resources = getResourcesForType(ResourceType.PUSH_CONSTANT);
+        ArrayList<PushConstantsResource> list = new ArrayList<>();
 
-    public ArrayList<BufferDescriptorResource> getUBOs() {
-        if (resources.containsKey(ResourceType.UBO)) return getResource(ResourceType.UBO);
+        for (SPVCResource resource : resources) {
+            PushConstantsResource res = new PushConstantsResource();
 
-        SPVCDescriptorResource[] resources = getDescriptorResources(ResourceType.UBO);
-        ArrayList<BufferDescriptorResource> list = new ArrayList<>();
-
-        for (SPVCDescriptorResource resource : resources) {
-            BufferDescriptorResource bdr = new BufferDescriptorResource();
-
-            bdr.set = resource.set;
-            bdr.binding = resource.binding;
-            bdr.name = resource.name;
+            res.name = resource.name;
             if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                     PointerBuffer pSize = stack.mallocPointer(1);
                     long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
-                    bdr.struct = generateStruct(resource, pSize.get(0));
+                    res.struct = generateStruct(resource, pSize.get(0));
+                    res.size = (int) pSize.get(0);
+                }
+            } else {
+                LoggerFactory.get("SPIR-V Reflect").error("Found PushConstants block that is not a struct");
+            }
+
+            res.baseTypeRaw = resource.baseType;
+            res.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
+            
+            list.add(res);
+        }
+
+        this.resources.put(ResourceType.PUSH_CONSTANT, list);
+        return list.get(0);
+    }
+
+    public ArrayList<DescriptorResource> getDescriptorsForType(ResourceType type) {
+        if (resources.containsKey(type)) return getResource(type);
+
+        SPVCDescriptorResource[] resources = getDescriptorResources(type);
+        ArrayList<DescriptorResource> list = new ArrayList<>();
+
+        for (SPVCDescriptorResource resource : resources) {
+            DescriptorResource descriptorResource = new DescriptorResource();
+
+            descriptorResource.set = resource.set;
+            descriptorResource.binding = resource.binding;
+            descriptorResource.name = resource.name;
+            if (resource.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
+                try (MemoryStack stack = MemoryStack.stackPush()) {
+                    PointerBuffer pSize = stack.mallocPointer(1);
+                    long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.baseTypeId);
+                    Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
+                    descriptorResource.struct = generateStruct(resource, pSize.get(0));
                 }
             }
-            bdr.baseTypeRaw = resource.baseType;
-            bdr.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
+            descriptorResource.baseTypeRaw = resource.baseType;
+            descriptorResource.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
 
-            bdr.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.baseTypeId);
-            bdr.arrayDim = new int[bdr.nArrayDim];
-            for (int i = 0; i < bdr.nArrayDim; i++) {
-                bdr.arrayDim[i] = Spvc.spvc_type_get_array_dimension(resource.baseTypeId, i);
+            descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.baseTypeId);
+            descriptorResource.arrayDim = new int[descriptorResource.nArrayDim];
+            for (int i = 0; i < descriptorResource.nArrayDim; i++) {
+                descriptorResource.arrayDim[i] = Spvc.spvc_type_get_array_dimension(resource.baseTypeId, i);
             }
-            bdr.arrayStride = resource.arrayStride;
+            descriptorResource.arrayStride = resource.arrayStride;
             /**
              *
              * uniform a {
@@ -92,9 +130,10 @@ public class ReflectedShader implements Disposable {
              *
              */
 
-            list.add(bdr);
+            list.add(descriptorResource);
         }
 
+        this.resources.put(type, list);
         return list;
     }
 
@@ -119,6 +158,7 @@ public class ReflectedShader implements Disposable {
             list.add(var);
         }
 
+        this.resources.put(ResourceType.VAO, list);
         return list;
     }
 
@@ -176,7 +216,9 @@ public class ReflectedShader implements Disposable {
 
         TypeLayout baseTypeLayout;
 
-        if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
+        if (discoverableMember.isPointer) {
+            baseTypeLayout = new PointerType();
+        } else if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
             baseTypeLayout = new MatrixType();
             ((MatrixType) baseTypeLayout).rows = discoverableMember.matrixRows;
             ((MatrixType) baseTypeLayout).columns = discoverableMember.matrixColumns;
@@ -230,6 +272,7 @@ public class ReflectedShader implements Disposable {
         public long typeHandle;
         public int baseType;
         public int baseTypeId;
+        public boolean isPointer;
 
         // Array Data
         public int nArrayDim;
@@ -265,7 +308,8 @@ public class ReflectedShader implements Disposable {
             if (expectedSize > member.size) {
                 member.size = expectedSize;
             }
-            if (member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
+            member.isPointer = Spvc.spvc_type_get_storage_class(member.typeHandle) == Spv.SpvStorageClassPhysicalStorageBufferEXT;
+            if (!member.isPointer && member.baseType == Spvc.SPVC_BASETYPE_STRUCT) {
                 SPVCResource resource = new SPVCResource(member.name, member.id, member.baseType, member.baseTypeId, member.baseType, member.typeHandle);
                 member.struct = generateStruct(resource, member.size);
             }
@@ -401,21 +445,26 @@ public class ReflectedShader implements Disposable {
 
     }
 
-    public abstract static class DescriptorResource extends Resource {
+    public static class DescriptorResource extends Resource {
 
         public int set, binding;
 
-    }
-
-    public static class BufferDescriptorResource extends DescriptorResource {
+        public int nArrayDim;
+        public int[] arrayDim;
+        public int arrayStride;
 
         public StructType struct;
         public int baseTypeRaw;
         public com.vke.api.pipeline.BaseType baseType;
 
-        public int nArrayDim;
-        public int[] arrayDim;
-        public int arrayStride;
+    }
+
+    public static class PushConstantsResource extends Resource {
+
+        public StructType struct;
+        public int baseTypeRaw;
+        public com.vke.api.pipeline.BaseType baseType;
+        public int size;
 
     }
 
@@ -427,8 +476,19 @@ public class ReflectedShader implements Disposable {
 
     public enum ResourceType {
 
+        UNKNOWN(Spvc.SPVC_RESOURCE_TYPE_UNKNOWN),
         UBO(Spvc.SPVC_RESOURCE_TYPE_UNIFORM_BUFFER),
-        VAO(Spvc.SPVC_RESOURCE_TYPE_STAGE_INPUT);
+        SSBO(Spvc.SPVC_RESOURCE_TYPE_STORAGE_BUFFER),
+        VAO(Spvc.SPVC_RESOURCE_TYPE_STAGE_INPUT),
+        STORAGE_IMAGE(Spvc.SPVC_RESOURCE_TYPE_STORAGE_IMAGE),
+        SAMPLED_IMAGE(Spvc.SPVC_RESOURCE_TYPE_SAMPLED_IMAGE),
+        ATOMIC_COUNTER(Spvc.SPVC_RESOURCE_TYPE_ATOMIC_COUNTER),
+        PUSH_CONSTANT(Spvc.SPVC_RESOURCE_TYPE_PUSH_CONSTANT),
+        SEPARATE_IMAGE(Spvc.SPVC_RESOURCE_TYPE_SEPARATE_IMAGE),
+        SEPARATE_SAMPLER(Spvc.SPVC_RESOURCE_TYPE_SEPARATE_SAMPLERS),
+        ACCELERATION_STRUCTURE(Spvc.SPVC_RESOURCE_TYPE_ACCELERATION_STRUCTURE),
+        RAY_QUERY(Spvc.SPVC_RESOURCE_TYPE_RAY_QUERY),
+        RECORD_BUFFER(Spvc.SPVC_RESOURCE_TYPE_SHADER_RECORD_BUFFER);
 
         private final int spvc;
 

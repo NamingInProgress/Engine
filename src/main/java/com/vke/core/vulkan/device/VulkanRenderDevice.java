@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.device;
 
+import com.vke.api.pipeline.PipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.Buffer;
@@ -9,9 +10,11 @@ import com.vke.api.rendering.abstraction.enums.BackendType;
 import com.vke.api.rendering.abstraction.enums.DeviceCapabilities;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
+import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
@@ -26,6 +29,7 @@ import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.shader.ShaderCompiler;
 import com.vke.core.vulkan.shader.VulkanShader;
@@ -69,13 +73,15 @@ public class VulkanRenderDevice implements RenderDevice {
     private final EngineCreateInfo engineCreateInfo;
     private final VulkanCreateInfo vulkanCreateInfo;
     private final VKEngine engine;
+    private final Context context;
 
     private final AutoHeapAllocator alloc;
 
     private final Logger logger;
 
-    public VulkanRenderDevice(VKEngine engine, EngineCreateInfo engineCreateInfo) {
-        this.engine = engine;
+    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo) {
+        this.engine = context.getEngine();
+        this.context = context;
         this.engineCreateInfo = engineCreateInfo;
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
@@ -286,6 +292,11 @@ public class VulkanRenderDevice implements RenderDevice {
                 logger.warn("Failed to submit queue!");
             }
         }
+    }
+
+    @Override
+    public VulkanRenderPipeline createRenderPipeline(PipelineData data) {
+        return new VulkanRenderPipeline(context, this, data);
     }
 
     @Override

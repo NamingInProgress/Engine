@@ -1,13 +1,20 @@
 package com.vke.core.vulkan.pipeline;
 
+import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.api.pipeline.PipelineData;
 import com.vke.api.pipeline.VertexLayoutData;
+import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
+import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
+import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
+import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.services.Services;
@@ -17,6 +24,7 @@ import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -24,7 +32,9 @@ import org.lwjgl.vulkan.*;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class VulkanRenderPipeline implements GraphicsPipeline {
 
@@ -39,7 +49,9 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         this.context = context;
         this.device = device;
 
-        fillShaderData(data);
+        var shaders = getReflectedShaders(data);
+        DescriptorSets ds = createDescriptorSets(data, shaders);
+        PushConstants pc = createPushConstants(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VKEngine engine = context.getEngine();
@@ -55,10 +67,10 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
             var renderInfo = getRenderingInfo(stack, data, colorAttachmentFormats);
             var shaderStages = getShaderStages(stack, data);
             var viewportInfo = getViewportInfo(stack);
-            this.layout = getPipelineLayout(stack, data);
+            this.layout = getPipelineLayout(context.getEngine(), device, pc, ds);
 
-            VkGraphicsPipelineCreateInfo.Buffer pipelineCreateInfo = VkGraphicsPipelineCreateInfo.calloc(1, stack)
-                    .get(0)
+            VkGraphicsPipelineCreateInfo.Buffer pipelineCreateInfo = VkGraphicsPipelineCreateInfo.calloc(1, stack);
+            pipelineCreateInfo.get(0)
                     .sType$Default()
                     .pNext(renderInfo)
                     .pStages(shaderStages)
@@ -85,7 +97,15 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         }
     }
 
-    private void fillShaderData(PipelineData data) {
+    public <T extends UniformHandle> T resolveUniform(String path) {
+        return this.layout.descriptors().resolve(path);
+    }
+
+    public PushConstantHandle resolvePushConstant(String path) {
+        return this.layout.pushConstants().resolve(path);
+    }
+
+    private ArrayList<ReflectedShader> getReflectedShaders(PipelineData data) {
         Identifier[] shaders = data.shaders.getIdentifiers();
         ShaderReflector refl = context.service(Services.SHADER_REFLECTION);
         ArrayList<ReflectedShader> reflectedShaders = new ArrayList<>();
@@ -96,26 +116,56 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
             reflectedShaders.add(shaderOpt.unwrap());
         }
 
-        fillDescriptors(data, reflectedShaders);
+        return reflectedShaders;
     }
 
-    private void fillDescriptors(PipelineData data, ArrayList<ReflectedShader> shaders) {
-        ArrayList<DescriptorSetLayout> layouts = new ArrayList<>();
+    private DescriptorSets createDescriptorSets(PipelineData data, ArrayList<ReflectedShader> shaders) {
+        HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
         for (ReflectedShader shader : shaders) {
-            var ubos = shader.getUBOs();
+            var reflectedDescriptors = shader.getDescriptors();
 
-            HashMap<Integer, DescriptorSetLayout> descriptors = new HashMap<>();
-            for (ReflectedShader.BufferDescriptorResource ubo : ubos) {
-                if (!descriptors.containsKey(ubo.set)) descriptors.put(ubo.set, new DescriptorSetLayout());
+            for (ArrayList<ReflectedShader.DescriptorResource> value : reflectedDescriptors.values()) {
+                for (ReflectedShader.DescriptorResource resource : value) {
+                    if (!sets.containsKey(resource.set)) sets.put(resource.set, new DescriptorSetLayout());
+                }
             }
 
-            for (ReflectedShader.BufferDescriptorResource ubo : ubos) {
-                descriptors.get(ubo.set).bindings.add(new BindingLayout());
+            for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
+                for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
+                    DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
+
+                    BindingLayout binding = new BindingLayout();
+                    binding.name = resource.name;
+                    binding.set = resource.set;
+                    binding.binding = resource.binding;
+                    binding.descriptorCount = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
+                    binding.isDynamic = data.additionalDescriptorInfo.dynamicBuffers.contains(resource.name);
+                    binding.type = DescriptorType.fromBaseType(entry.getKey(), binding.isDynamic);
+
+                    binding.typeLayout = resource.struct;
+                    binding.packingType = PackingType.fromDescriptorType(binding.type);
+
+                    descriptor.bindings.add(binding);
+                }
             }
         }
 
-        DescriptorSets descriptors = new DescriptorSets(context.getEngine(), device, layouts, data.additionalDescriptorInfo);
+        return new DescriptorSets(context.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), data.additionalDescriptorInfo);
+    }
+
+    private PushConstants createPushConstants(PipelineData data, ArrayList<ReflectedShader> shaders) {
+        PushConstantLayout layout = null;
+        for (ReflectedShader shader : shaders) {
+            ReflectedShader.PushConstantsResource pc = shader.getPushConstants();
+            if (pc == null) continue;
+
+            layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
+        }
+
+        if (layout == null) layout = new PushConstantLayout("", 0, 0, null, PackingType.STD140);
+
+        return new PushConstants(layout);
     }
 
     //region Pipeline Setup
@@ -245,7 +295,7 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         return attachmentFormats;
     }
 
-    public VkPipelineRenderingCreateInfo getRenderingInfo(MemoryStack stack, PipelineData data, IntBuffer attachmentFormats) {
+    private VkPipelineRenderingCreateInfo getRenderingInfo(MemoryStack stack, PipelineData data, IntBuffer attachmentFormats) {
         return VkPipelineRenderingCreateInfo.calloc(stack)
                 .sType$Default()
                 .colorAttachmentCount(data.colorAttachments.size())
@@ -254,7 +304,7 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
                 .stencilAttachmentFormat(data.stencilAttachment.format.getVkHandle());
     }
 
-    public VkPipelineShaderStageCreateInfo.Buffer getShaderStages(MemoryStack stack, PipelineData data) {
+    private VkPipelineShaderStageCreateInfo.Buffer getShaderStages(MemoryStack stack, PipelineData data) {
         VkPipelineShaderStageCreateInfo.Buffer stages =
                 VkPipelineShaderStageCreateInfo.calloc(data.shaders.getShaderCount(), stack);
 
@@ -273,21 +323,24 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         return stages;
     }
 
-    public VkPipelineViewportStateCreateInfo getViewportInfo(MemoryStack stack) {
+    private VkPipelineViewportStateCreateInfo getViewportInfo(MemoryStack stack) {
         return VkPipelineViewportStateCreateInfo.calloc(stack)
                 .sType$Default()
                 .viewportCount(1)
                 .scissorCount(1);
     }
 
-    public VulkanPipelineLayout getPipelineLayout(VKEngine engine, VulkanRenderDevice device, MemoryStack stack, PipelineData data) {
-        // TODO: FIX THIS
-        return VulkanPipelineLayout.getLayout(engine, device, null, null);
+    private VulkanPipelineLayout getPipelineLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
+        return VulkanPipelineLayout.getLayout(engine, device, pc, ds);
     }
     //endregion
 
+    public long getHandle() {
+        return this.handle;
+    }
+
     @Override
-    public PipelineLayout layout() {
+    public VulkanPipelineLayout layout() {
         return layout;
     }
 

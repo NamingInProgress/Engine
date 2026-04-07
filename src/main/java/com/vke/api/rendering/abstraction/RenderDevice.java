@@ -1,5 +1,6 @@
 package com.vke.api.rendering.abstraction;
 
+import com.vke.api.pipeline.PipelineData;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.Buffer;
 import com.vke.api.rendering.abstraction.data.Sampler;
@@ -7,6 +8,7 @@ import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.BackendType;
 import com.vke.api.rendering.abstraction.enums.DeviceCapabilities;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.vulkan.shaders.ShaderProgram;
@@ -37,7 +39,7 @@ public interface RenderDevice extends Disposable {
     default ShaderProgram createShaders(Map<ShaderType, Identifier> shaders)    {   return new ShaderProgram(shaders);           }
 
     /** PIPELINE **/
-    //GraphicsPipeline createRenderPipeline(RenderPipeline builder);
+    GraphicsPipeline createRenderPipeline(PipelineData data);
     //ComputePipeline createComputePipeline();
 
     /** COMMAND BUFFERS **/

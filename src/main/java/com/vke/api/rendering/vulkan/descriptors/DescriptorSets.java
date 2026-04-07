@@ -70,6 +70,10 @@ public class DescriptorSets implements Disposable {
         }
     }
 
+    public long[] getDescriptorSetHandles() {
+        return this.compiledLayouts.stream().mapToLong(CompiledDescriptorSetLayout::getHandle).toArray();
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends UniformHandle> T resolve(String name) {
         if (HANDLE_CACHE.containsKey(name)) return (T) HANDLE_CACHE.get(name);

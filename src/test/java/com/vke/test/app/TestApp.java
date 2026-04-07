@@ -4,6 +4,9 @@ import com.vke.api.app.App;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.vulkan.buffer.ByteSink;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
+import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.api.rendering.vulkan.buffer.Vertex;
 import com.vke.core.VKEngine;
@@ -14,6 +17,7 @@ import com.vke.core.vulkan.Viewport;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.window.Window;
@@ -73,27 +77,27 @@ public class TestApp extends App {
         mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
         mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
 
-        AssetHandle<GraphicsPipeline> h = R.pipelines.get("myPipeline");
-        PCHandle handle = h.resolve("pushconstant", "asdsad");
+
+        //PCHandle handle = h.resolve("pushconstant", "asdsad");
 
 
-        TestPipelines.STH.setUniform("fColor", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(1);
-                buf.putFloat(0);
-                buf.putFloat(0);
-                buf.putFloat(1);
-            });
-        });
-
-        TestPipelines.STH.setUniform("sColor", (slice) -> {
-            slice.write((buf) -> {
-                buf.putFloat(0);
-                buf.putFloat(0);
-                buf.putFloat(1);
-                buf.putFloat(1);
-            });
-        });
+//        TestPipelines.STH.setUniform("fColor", (slice) -> {
+//            slice.write((buf) -> {
+//                buf.putFloat(1);
+//                buf.putFloat(0);
+//                buf.putFloat(0);
+//                buf.putFloat(1);
+//            });
+//        });
+//
+//        TestPipelines.STH.setUniform("sColor", (slice) -> {
+//            slice.write((buf) -> {
+//                buf.putFloat(0);
+//                buf.putFloat(0);
+//                buf.putFloat(1);
+//                buf.putFloat(1);
+//            });
+//        });
 
         timer = new AppTimer();
 
@@ -109,9 +113,26 @@ public class TestApp extends App {
 
         //scaryVk = renderer.getDevice().createTexture(new Identifier("scaryvulkan.png"), Texture.TextureDesc.albedo2D(1920, 1080));
         //VKUtils.setDebugName(renderer.getDevice().getLogicalDevice(), "SCARY_VULKAN", scaryVk.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+        VulkanRenderPipeline pipeline;
+        try {
+            pipeline = (VulkanRenderPipeline) IDK.acquire(engine);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        TestPipelines.IDK.setSampler("tex", Samplers.LINEAR, scaryVk);
+        CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
+        sampl.set(scaryVk, Samplers.LINEAR);
+
+        vertexBufferPointer = pipeline.resolvePushConstant("vertexBuffer");
+        matrixHandle = pipeline.resolvePushConstant("world");
+
+    //"tex", Samplers.LINEAR, scaryVk);
     }
+
+    PushConstantHandle vertexBufferPointer;
+    PushConstantHandle matrixHandle;
+
+    AssetHandle<GraphicsPipeline> IDK = R.pipelines.get("test.pipeline.json");
 
     @Override
     public void onDraw(Window window, VulkanRenderer.FrameData fd) {
@@ -122,7 +143,7 @@ public class TestApp extends App {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = fd.frame().getBuffers();
-            //cmd.bindRenderPipeline(TestPipelines.IDK);
+            cmd.bindRenderPipeline(IDK);
 
             Scissor sc = new Scissor(0, 0, width, height);
             Viewport wp = new Viewport(0, 0, width, height);
@@ -133,15 +154,18 @@ public class TestApp extends App {
             Matrix4f mat = new Matrix4f();
             mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
 
-            TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
-            pc.setVerticesPtr(mesh.verticesDeviceAddress());
-            pc.setMat(mat);
+            vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
+            matrixHandle.write(buf -> buf.putMat4(mat));
+            //TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
+            //pc.setVerticesPtr(mesh.verticesDeviceAddress());
+            //pc.setMat(mat);
+
 
             // Set sampler (outside of render loop tho)
 
-            //cmd.bindDescriptorSets(TestPipelines.IDK);
+            cmd.bindDescriptorSets(IDK);
 
-            //cmd.setPushConstants(TestPipelines.IDK);
+            cmd.setPushConstants(IDK);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
@@ -151,21 +175,21 @@ public class TestApp extends App {
             // 2nd draw:
             //cmd.bindRenderPipeline(TestPipelines.STH);
 
-            ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
-
-            TestPipelines.STH.setUniform("time", (slice) -> {
-                slice.write((buf) -> {
-                    buf.putFloat(System.currentTimeMillis() % 1000);
-                });
-            });
+//            ((SthPushConstant) TestPipelines.STH.getPushConstant("vertexBufferPtr")).setVerticesPtr(mesh2.verticesDeviceAddress());
+//
+//            TestPipelines.STH.setUniform("time", (slice) -> {
+//                slice.write((buf) -> {
+//                    buf.putFloat(System.currentTimeMillis() % 1000);
+//                });
+//            });
 
             //cmd.bindDescriptorSets(TestPipelines.STH);
 
             //cmd.setPushConstants(TestPipelines.STH);
 
-            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
-
-            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
+//            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+//
+//            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
         }
 
         if (timer.onFrameComplete(AppTimer.DEFAULT_TEST_INTERVAL_BEING_THE_DURATION_OF_9192631770_PERIODS_OF_THE_RADIATION_CORRESPONDING_TO_THE_TRANSITION_BETWEEN_THE_TWO_HYPERFINE_LEVELS_OF_THE_GROUND_STATE_OF_THE_CAESIUM_133_ATOM_EXPRESSED_IN_MILLISECONDS)) {
@@ -206,6 +230,7 @@ public class TestApp extends App {
         public int getByteStride() {
             return Float.BYTES * 12;
         }
+
 
         @Override
         public void putSelf(ByteBuffer buf) {
