@@ -5,6 +5,7 @@ import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
 public class BufferSlice {
@@ -22,16 +23,6 @@ public class BufferSlice {
         this.length = length;
         this.writeAddress = bufferAddress + offset;
         this.packing = packingType;
-    }
-
-    public void write(Consumer<ByteBuffer> consumer) {
-        ByteBuffer slice = MemoryUtil.memCalloc(length);
-        long address = MemoryUtil.memAddress(slice);
-        consumer.accept(slice);
-
-        MemoryUtil.memCopy(address, bufferAddress + offset, length);
-
-        MemoryUtil.memFree(slice);
     }
 
     public void putFloat(float f) {
@@ -82,68 +73,61 @@ public class BufferSlice {
     }
 
     public void putMat4(Matrix4f m) {
-        // column 0
         putFloat(m.m00());
-        putFloat(m.m10());
-        putFloat(m.m20());
-        putFloat(m.m30());
-
-        // column 1
         putFloat(m.m01());
-        putFloat(m.m11());
-        putFloat(m.m21());
-        putFloat(m.m31());
-
-        // column 2
         putFloat(m.m02());
-        putFloat(m.m12());
-        putFloat(m.m22());
-        putFloat(m.m32());
-
-        // column 3
         putFloat(m.m03());
+
+        // Column 1
+        putFloat(m.m10());
+        putFloat(m.m11());
+        putFloat(m.m12());
         putFloat(m.m13());
+
+        // Column 2
+        putFloat(m.m20());
+        putFloat(m.m21());
+        putFloat(m.m22());
         putFloat(m.m23());
+
+        // Column 3
+        putFloat(m.m30());
+        putFloat(m.m31());
+        putFloat(m.m32());
         putFloat(m.m33());
     }
 
     public void putMat3(Matrix3f m) {
         // column 0
         putFloat(m.m00());
-        putFloat(m.m10());
-        putFloat(m.m20());
+        putFloat(m.m01());
+        putFloat(m.m02());
 
         if (packing == PackingType.STD140) {
             putFloat(0.0f);
         }
 
         // column 1
-        putFloat(m.m01());
+        putFloat(m.m10());
         putFloat(m.m11());
-        putFloat(m.m21());
+        putFloat(m.m12());
 
         if (packing == PackingType.STD140) {
             putFloat(0.0f);
         }
 
         // column 2
-        putFloat(m.m02());
-        putFloat(m.m12());
+        putFloat(m.m20());
+        putFloat(m.m21());
         putFloat(m.m22());
     }
 
     public void putMat2(Matrix2f m) {
         // column 0
         putFloat(m.m00());
-        putFloat(m.m10());
-
-        if (packing == PackingType.STD140) {
-            putFloat(0.0f);
-            putFloat(0.0f);
-        }
-
-        // column 1
         putFloat(m.m01());
+        // column 1
+        putFloat(m.m10());
         putFloat(m.m11());
     }
 

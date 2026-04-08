@@ -9,11 +9,11 @@
     {
       "type": "DEPTH",
       "depth_op": "LEQUAL",
-      "format": "DEPTH32F"
+      "format": "DEPTH32F_STENCIL8"
     },
     {
       "type": "STENCIL",
-      "format": "STENCIL8"
+      "format": "DEPTH32F_STENCIL8"
     },
     {
       "type": "DEPTH_STENCIL",

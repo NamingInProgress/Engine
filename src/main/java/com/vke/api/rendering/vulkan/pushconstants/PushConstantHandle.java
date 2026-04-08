@@ -2,7 +2,6 @@ package com.vke.api.rendering.vulkan.pushconstants;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
-import com.vke.core.vulkan.buffers.premade.slice.PushConstantBufferSlice;
 
 import java.util.function.Consumer;
 
@@ -21,7 +20,7 @@ public class PushConstantHandle {
     }
 
     public void write(Consumer<BufferSlice> consumer) {
-        BufferSlice slice = new PushConstantBufferSlice(bufferAddress, offset, (int) size, PackingType.STD430);
+        BufferSlice slice = new BufferSlice(bufferAddress, offset, (int) size, PackingType.STD140);
         consumer.accept(slice);
     }
 

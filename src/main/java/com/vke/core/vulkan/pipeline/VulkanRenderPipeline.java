@@ -107,6 +107,12 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         return this.layout.pushConstants().resolve(path);
     }
 
+    public void updateUniforms(UniformHandle... uniforms) {
+        this.layout.descriptors().update(uniforms);
+    }
+
+
+
     private ArrayList<ReflectedShader> getReflectedShaders(PipelineData data) {
         //Identifier[] shaders = data.shaders.getIdentifiers();
         Identifier[] shaders = new Identifier[]{ Identifier.of("vke:assets/global/shaders/idk.vsh"), Identifier.of("vke:assets/global/shaders/idk.fsh") };

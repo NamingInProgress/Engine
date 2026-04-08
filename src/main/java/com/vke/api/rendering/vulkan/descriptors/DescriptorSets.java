@@ -71,7 +71,7 @@ public class DescriptorSets implements Disposable {
     }
 
     public long[] getDescriptorSetHandles() {
-        return this.compiledLayouts.stream().mapToLong(CompiledDescriptorSetLayout::getHandle).toArray();
+        return this.sets.stream().mapToLong(DescriptorSet::getHandle).toArray();
     }
 
     @SuppressWarnings("unchecked")

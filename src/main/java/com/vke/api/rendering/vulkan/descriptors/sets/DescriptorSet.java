@@ -98,6 +98,8 @@ public class DescriptorSet {
         return 0;
     }
 
+    public long getHandle() { return this.handle; }
+
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {

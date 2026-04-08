@@ -49,6 +49,11 @@ public class TestApp extends App {
                 new VertexFormatTexture(255, 255, -50, 0, 0, 1, 1f, 1, 1),
                 new VertexFormatTexture(0, 255, -50, 1, 1, 0, 1f, 0, 1)
 
+//                new VertexFormatTexture(-1, 1, 0, 1, 0, 0, 1f, 0, 0),
+//                new VertexFormatTexture(1, 1, 0, 0, 1, 0, 1f, 1, 0),
+//                new VertexFormatTexture(-1, -1, 0, 0, 0, 1, 1f, 1, 1),
+//                new VertexFormatTexture(1, -1, 0, 1, 1, 0, 1f, 0, 1)
+
                 //new VertexFormat(-0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
                 //new VertexFormat(0.5f, -0.5f, 0.5f, 1, 0, 0, 0.5f),
                 //new VertexFormat(0, 0.5f, 0.5f, 1, 0, 0, 0.5f),
@@ -123,6 +128,7 @@ public class TestApp extends App {
 
         CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
         sampl.set(scaryVk, Samplers.LINEAR);
+        pipeline.updateUniforms(sampl);
 
         vertexBufferPointer = pipeline.resolvePushConstant("vertexBuffer");
         matrixHandle = pipeline.resolvePushConstant("world");
@@ -157,6 +163,9 @@ public class TestApp extends App {
 
             vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
             matrixHandle.write(buf -> buf.putMat4(mat));
+
+            //System.out.println(mat);
+
             //TestPushConstant pc = TestPipelines.IDK.getPushConstant("vertexBufferPtr");
             //pc.setVerticesPtr(mesh.verticesDeviceAddress());
             //pc.setMat(mat);

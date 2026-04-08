@@ -26,7 +26,7 @@ public class TestApplication {
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
         EngineCreateInfo createInfo = new EngineCreateInfo("idfk", "vke");
-        //createInfo.releaseMode = false;
+        createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("My Window");
 
         VKEngine engine = new VKEngine(createInfo);

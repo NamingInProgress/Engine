@@ -46,15 +46,19 @@ public class VulkanPipelineLayout implements PipelineLayout {
             VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType$Default();
 
-            VkPushConstantRange.Buffer pushConstantsBuffer = VkPushConstantRange.calloc((int) pc.getLayout().size, stack);
+            VkPushConstantRange.Buffer pushConstantsBuffer = VkPushConstantRange.calloc(1, stack);
+            pushConstantsBuffer.get(0)
+                    .offset(0)
+                    .size((int) pc.getLayout().size)
+                    .stageFlags(VK14.VK_SHADER_STAGE_ALL);
 
-            AtomicInteger pushConstantsCounter = new AtomicInteger(0);
-            PushConstantLayoutBuilder.build(pc.getLayout().typeLayout).forEach((pcf) -> {
-                pushConstantsBuffer.get(pushConstantsCounter.getAndIncrement())
-                        .offset((int) pcf.offset)
-                        .size((int) pcf.size)
-                        .stageFlags(VK14.VK_SHADER_STAGE_ALL);
-            });
+//            AtomicInteger pushConstantsCounter = new AtomicInteger(0);
+//            PushConstantLayoutBuilder.build(pc.getLayout().typeLayout).forEach((pcf) -> {
+//                pushConstantsBuffer.get(pushConstantsCounter.getAndIncrement())
+//                        .offset((int) pcf.offset)
+//                        .size((int) pcf.size)
+//                        .stageFlags(VK14.VK_SHADER_STAGE_ALL);
+//            });
 
             LongBuffer pDescriptors = stack.longs(ds.getCompiledLayouts().stream().mapToLong(CompiledDescriptorSetLayout::getHandle).toArray());
 

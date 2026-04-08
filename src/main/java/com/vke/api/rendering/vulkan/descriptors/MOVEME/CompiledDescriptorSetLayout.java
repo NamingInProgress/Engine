@@ -31,7 +31,8 @@ public class CompiledDescriptorSetLayout implements Disposable {
                 buf.get(i)
                         .binding(binding.binding)
                         .descriptorCount(binding.descriptorCount)
-                        .descriptorType(binding.type.getVkHandle());
+                        .descriptorType(binding.type.getVkHandle())
+                        .stageFlags(VK14.VK_SHADER_STAGE_ALL);
             }
 
             VkDescriptorSetLayoutCreateInfo createInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack)
