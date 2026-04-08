@@ -70,4 +70,17 @@ public class BitUtils {
             builder.append(bit);
         }
     }
+
+    public static String byteToBinStr(byte b, boolean reverse) {
+        int i = b;
+        if (reverse) {
+            i = Integer.reverse(i) >>> (32 - 8);
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int j = 8 - 1; j >= 0; j--) {
+            int bit = ((1 << j) & i) >>> j;
+            builder.append(bit);
+        }
+        return builder.toString();
+    }
 }

@@ -83,11 +83,20 @@ public class HuffmanCodeGenerator {
                 //code 18 for 11-138 times
                 int remaining = repeat;
                 while (remaining > 0) {
-                    int extraBits = Math.min(remaining, 138) - 11;
+                    if (remaining < 11) {
+                        //no such short sequences
+                        //also i dont give a shit that this can be made more efficient by using code 17
+                        for (int i = 0; i < remaining; i++) {
+                            emitSingle(out, frequencies, 0);
+                        }
+                        break;
+                    }
+                    int use = Math.min(remaining, 138);
+                    int extraBits = use - 11;
                     out.add(new CodeLengthCode(18, -1, -1, extraBits));
                     frequencies[18]++;
 
-                    remaining -= 138;
+                    remaining -= use;
                 }
             } else {
                 //booooring 0s here as well
@@ -97,16 +106,25 @@ public class HuffmanCodeGenerator {
             }
         } else {
             if (repeat >= 3) {
-                //emit cool repeat code
+                //emit cool repeat code for 3-6 times
                 if (repeat > 6) {
                     //do it multiple times
                     int remaining = repeat;
                     while (remaining > 0) {
-                        int extraBits = Math.min(remaining, 6) - 3;
+                        if (remaining < 3) {
+                            //we cant emit a sequence for such short repeats, so singles
+                            for (int i = 0; i < remaining; i++) {
+                                emitSingle(out, frequencies, length);
+                            }
+                            break;
+                        }
+                        int use = Math.min(remaining, 6);
+                        int extraBits = use - 3;
+
                         out.add(new CodeLengthCode(16, -1, -1, extraBits));
                         frequencies[16]++;
 
-                        remaining -= 6;
+                        remaining -= use;
                     }
                 } else {
                     //once is enough
