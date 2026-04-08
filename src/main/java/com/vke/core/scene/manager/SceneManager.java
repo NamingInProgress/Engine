@@ -37,4 +37,11 @@ public class SceneManager {
     public Scene getCurrentScene() {
         return base.getCurrentScene();
     }
+
+    public void callDrawLoop() {
+        Scene s = getCurrentScene();
+        if (s != null) {
+            s.drawLoop();
+        }
+    }
 }

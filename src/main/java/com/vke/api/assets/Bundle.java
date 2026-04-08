@@ -5,6 +5,7 @@ import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -66,5 +67,9 @@ public final class Bundle implements Disposable {
     @Override
     public void free() {
         assets.values().forEach(Disposable::free);
+    }
+
+    public Iter<AssetHandle<?>> allAssets() {
+        return Iter.of(assets.values());
     }
 }

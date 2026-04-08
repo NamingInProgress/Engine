@@ -21,6 +21,8 @@ public abstract class Scene implements Disposable {
 
     public abstract void onLoad();
 
+    public abstract void drawLoop();
+
     public abstract void onUnload();
 
     public LoadingScene getLoadingScene() {

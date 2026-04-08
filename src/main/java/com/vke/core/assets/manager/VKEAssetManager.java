@@ -12,6 +12,7 @@ import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 
 import java.util.Map;
 
@@ -72,6 +73,16 @@ public class VKEAssetManager implements AssetManager {
     @Override
     public <T> AssetHandle<T> getAsset(String path) {
         return base.getAsset(context.id(path));
+    }
+
+    @Override
+    public Iter<AssetHandle<?>> allAssets() {
+        return base.allAssets();
+    }
+
+    @Override
+    public Iter<AssetHandle<?>> allCurrentlyLoadedAssets() {
+        return base.allCurrentlyLoadedAssets();
     }
 
     @Override
