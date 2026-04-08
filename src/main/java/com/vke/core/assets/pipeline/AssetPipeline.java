@@ -7,6 +7,7 @@ import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.protocols.loader.PipelinedLoader;
 import com.vke.core.assets.pipeline.stages.CompoundPipelineStage;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
+import com.vke.utils.io.Identifier;
 
 public class AssetPipeline extends CompoundPipelineStage {
     private final PipelineContext context;
@@ -29,6 +30,7 @@ public class AssetPipeline extends CompoundPipelineStage {
         //assets always start as PLAIN
         String protocolName = Protocols.PLAIN;
         AssetProtocol<?> protocol = context.getProtocol(protocolName);
-        return protocol.createAssetHandle(stageElement.getAssetData(), new PipelinedLoader(this, protocolName));
+        Identifier assetName = stageElement.getAssetName();
+        return protocol.createAssetHandle(stageElement.getAssetData(), assetName, new PipelinedLoader(this, protocolName));
     }
 }

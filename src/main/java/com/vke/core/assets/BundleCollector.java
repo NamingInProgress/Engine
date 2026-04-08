@@ -93,9 +93,9 @@ public class BundleCollector {
             ConfigNode value = asset.values()[1];
 
             switch (asset.getNodeName()) {
-                case "bool" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_BOOL, value.asBoolean()));
-                case "string" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PLAIN, value.asString()));
-                case "number" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_NUMBER, value.asNumber()));
+                case "bool" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_BOOL, value.asBoolean(), id));
+                case "string" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PLAIN, value.asString(), id));
+                case "number" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_NUMBER, value.asNumber(), id));
                 default -> throw new IllegalStateException("Unknown asset type: " + asset.getNodeName());
             }
         }

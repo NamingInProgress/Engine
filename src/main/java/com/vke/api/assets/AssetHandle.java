@@ -1,8 +1,6 @@
 package com.vke.api.assets;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.assets.handles.tex.PngTextureHandle;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
@@ -24,4 +22,6 @@ public interface AssetHandle<T> extends Disposable {
     T get();
 
     boolean isAvailable();
+
+    Identifier getAssetName();
 }
