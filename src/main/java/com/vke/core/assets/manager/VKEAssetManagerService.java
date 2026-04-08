@@ -13,6 +13,7 @@ import com.vke.core.services.Services;
 import com.vke.core.thread.TaskProcessor;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -129,5 +130,21 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
                 existing.extendBundle(bundle);
             }
         });
+    }
+
+    Iter<AssetHandle<?>> allAssets() {
+        Iter<AssetHandle<?>> all = globalBundle.allAssets();
+        for (Bundle b : allBundles.values()) {
+            all = all.chain(b.allAssets());
+        }
+        return all;
+    }
+
+    Iter<AssetHandle<?>> allCurrentlyLoadedAssets() {
+        Iter<AssetHandle<?>> all = globalBundle.allAssets();
+        for (Bundle b : loadedBundles.values()) {
+            all = all.chain(b.allAssets());
+        }
+        return all;
     }
 }

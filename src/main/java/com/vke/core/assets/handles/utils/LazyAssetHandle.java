@@ -56,6 +56,11 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
     }
 
     @Override
+    public Identifier getAssetName() {
+        return identifier;
+    }
+
+    @Override
     public void free() {
         if (cache != null) {
             cache.free();

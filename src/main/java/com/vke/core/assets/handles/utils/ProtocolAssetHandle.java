@@ -13,11 +13,13 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
     private final String protocol;
     private final Identifier identifier;
     private final AssetProtocol.Loader protocolLoader;
+    private final Identifier assetName;
 
-    public ProtocolAssetHandle(String protocol, Identifier identifier, AssetProtocol.Loader protocolLoader) {
+    public ProtocolAssetHandle(String protocol, Identifier identifier, AssetProtocol.Loader protocolLoader, Identifier assetName) {
         this.protocol = protocol;
         this.identifier = identifier;
         this.protocolLoader = protocolLoader;
+        this.assetName = assetName;
     }
 
     @Override
@@ -33,6 +35,11 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
     @Override
     public String getProtocol() {
         return protocol;
+    }
+
+    @Override
+    public Identifier getAssetName() {
+        return assetName;
     }
 
     @Override

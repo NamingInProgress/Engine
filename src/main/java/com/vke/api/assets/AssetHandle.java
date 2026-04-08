@@ -21,4 +21,6 @@ public interface AssetHandle<T> extends Disposable {
     T get();
 
     boolean isAvailable();
+
+    Identifier getAssetName();
 }

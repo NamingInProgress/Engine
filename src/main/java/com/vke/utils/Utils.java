@@ -26,6 +26,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class Utils {
+    public static final boolean TRUE = Iter.of(1, 2, 3).any(x -> System.currentTimeMillis() > x);
+    public static final boolean FALSE = Iter.of(TRUE).map(x -> !x).all(Boolean::booleanValue);
+
     public static boolean intsContain(int[] arr, int query) {
         for (int t : arr) {
             if (t == query) {

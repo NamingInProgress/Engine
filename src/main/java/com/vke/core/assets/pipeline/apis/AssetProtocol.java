@@ -22,11 +22,11 @@ public interface AssetProtocol<T> {
     Loader getLoader();
     boolean applies(AssetData a, AssetData b, Op op);
 
-    default AssetHandle<T> createAssetHandle(AssetData data, @Nullable Loader loader) {
+    default AssetHandle<T> createAssetHandle(AssetData data, Identifier assetName, @Nullable Loader loader) {
         if (data.isResolved()) {
-            return new ResolvedAssetHandle<>(getProtocolName(), data.getDataAs());
+            return new ResolvedAssetHandle<>(getProtocolName(), data.getDataAs(), assetName);
         } else {
-            return new ProtocolAssetHandle<>(Protocols.PLAIN, data.getUnresolved(), loader != null ? loader : getLoader());
+            return new ProtocolAssetHandle<>(Protocols.PLAIN, data.getUnresolved(), loader != null ? loader : getLoader(), assetName);
         }
     }
 

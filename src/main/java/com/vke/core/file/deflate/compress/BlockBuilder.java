@@ -114,7 +114,6 @@ public class BlockBuilder {
         } else {
             dynamicIsTheWinner = fixedResult.fullBytes() > dynamicResult.fullBytes();
         }
-        dynamicIsTheWinner = false;
 
         boolean useUncompressed = false;
         if (dynamicIsTheWinner) {
@@ -122,7 +121,6 @@ public class BlockBuilder {
         } else {
             useUncompressed = uncompressedSize < fixedResult.fullBytes();
         }
-        useUncompressed = false;
 
         if (useUncompressed) {
             masterStream.setOrdering(BitOrdering.LSB_FIRST);
@@ -177,13 +175,13 @@ public class BlockBuilder {
 
     public BlockResult buildDynamicBlock(ArrayList<Lz77Symbol> symbols, int[] litlenFreq, int[] distFreq) throws IOException {
         Code[] litlenCodes = HuffmanCodeGenerator.generateCodesFromFrequencies(litlenFreq);
-        System.out.println("===== CODES LIT LEN =====");
-        for (Code c : litlenCodes) {
-            if (c.codeLength() != 0) {
-                System.out.println(c);
-            }
-        }
-        System.out.println("=================");
+        //System.out.println("===== CODES LIT LEN =====");
+        //for (Code c : litlenCodes) {
+        //    if (c.codeLength() != 0) {
+        //        System.out.println(c);
+        //    }
+        //}
+        //System.out.println("=================");
         Code[] distCodes = HuffmanCodeGenerator.generateCodesFromFrequencies(distFreq);
 
         ByteArrayOutputStream bao = new ByteArrayOutputStream(sizeThreshold / 2); //educated guess lol
@@ -204,9 +202,16 @@ public class BlockBuilder {
         int HLIT = litCount - 257;
 
         int distCount = distanceCodeLengths.length;
+        if (distCount < 1) distCount = 1;
         while (distCount >= 1 && distanceCodeLengths[distCount - 1] == 0) {
             distCount--;
         }
+
+        if (distCount == 0) {
+            distCount = 1;
+            distanceCodeLengths[0] = 1;
+        }
+
         //System.out.println("HDIST = " + distCount);
         int HDIST = distCount - 1;
 
@@ -232,6 +237,7 @@ public class BlockBuilder {
         while (hclenCount >= 4 && codeLenCodeLengths[order[hclenCount - 1]] == 0) {
             hclenCount--;
         }
+
         //System.out.println("HCLEN = " + hclenCount);
         int HCLEN = hclenCount - 4;
 
@@ -257,17 +263,29 @@ public class BlockBuilder {
             switch (c.symbol()) {
                 case 16 -> {
                     bitOutputStream.writeBits(c.extraBits(), 2);
-                    symCounter += c.extraBits() + 3;
+                    int repeat = c.extraBits() + 3;
+                    //System.out.println("[ENC] -> repeat prev x" + repeat + ", extra=" + BitUtils.intToBinStr(repeat - 3));
+
+                    symCounter += repeat;
                 }
                 case 17 -> {
                     bitOutputStream.writeBits(c.extraBits(), 3);
-                    symCounter += c.extraBits() + 3;
+                    int repeat = c.extraBits() + 3;
+
+                    //System.out.println("[ENC] -> repeat zero(17) x" + repeat);
+
+                    symCounter += repeat;
                 }
                 case 18 -> {
                     bitOutputStream.writeBits(c.extraBits(), 7);
-                    symCounter += c.extraBits() + 11;
+                    int repeat = c.extraBits() + 11;
+
+                    //System.out.println("[ENC] -> repeat zero(18) x" + repeat);
+
+                    symCounter += repeat;
                 }
                 default -> {
+                    //System.out.println("[ENC] -> literal length " + c.symbol());
                     symCounter += 1;
                 }
             }
@@ -276,10 +294,8 @@ public class BlockBuilder {
 
         //System.out.println("ALL:");
         //System.out.println(Arrays.toString(combinedLengths));
-
         //System.out.println("LIT LEN CODES:");
         //System.out.println(Arrays.toString(litLenCodeLengths));
-
         //System.out.println("DIST CODES:");
         //System.out.println(Arrays.toString(distanceCodeLengths));
 
