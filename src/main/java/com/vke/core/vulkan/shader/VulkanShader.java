@@ -18,9 +18,11 @@ public class VulkanShader implements Shader {
     private final ShaderType type;
     private final long handle;
     private final LogicalDevice device;
+    private final long id;
 
-    public VulkanShader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, ShaderType type) {
+    public VulkanShader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, ShaderType type, long id) {
         this.device = device;
+        this.id = id;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkShaderModuleCreateInfo shaderCreateInfo = VkShaderModuleCreateInfo.calloc(stack)
                     .sType$Default()
@@ -39,6 +41,8 @@ public class VulkanShader implements Shader {
     }
 
     public long getHandle() { return this.handle; }
+
+    public long getShaderID() { return this.id; }
 
     @Override
     public ShaderType type() {

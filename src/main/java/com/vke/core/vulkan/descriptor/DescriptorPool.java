@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors.MOVEME;
+package com.vke.core.vulkan.descriptor;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;

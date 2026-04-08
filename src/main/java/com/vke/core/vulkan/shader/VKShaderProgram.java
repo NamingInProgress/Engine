@@ -35,6 +35,10 @@ public class VKShaderProgram implements Disposable {
         return new VKShaderProgram(Iter.of(sp.getShaders()).faultyMap(ah -> ah.acquire(context)).<VulkanShader>cast().toArray());
     }
 
+    public VulkanShader[] getShaders() {
+        return shaders;
+    }
+
     public VkPipelineShaderStageCreateInfo[] getShaderCreateInfos() {
         VkPipelineShaderStageCreateInfo[] infos = new VkPipelineShaderStageCreateInfo[shaders.length];
         for (int i = 0; i < shaders.length; i++) {

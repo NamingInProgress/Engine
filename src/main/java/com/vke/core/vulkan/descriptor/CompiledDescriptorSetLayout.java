@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors.MOVEME;
+package com.vke.core.vulkan.descriptor;
 
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;

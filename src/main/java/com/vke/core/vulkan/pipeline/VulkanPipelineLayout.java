@@ -2,12 +2,11 @@ package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.MOVEME.CompiledDescriptorSetLayout;
-import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
-import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayoutBuilder;
+import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.utils.Utils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
@@ -15,7 +14,6 @@ import org.lwjgl.vulkan.VkPushConstantRange;
 
 import java.nio.LongBuffer;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class VulkanPipelineLayout implements PipelineLayout {
 
@@ -30,6 +28,8 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final DescriptorSets descriptorSets;
 
     public static VulkanPipelineLayout getLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
+        if (Utils.TRUE) return new VulkanPipelineLayout(engine, device, pc, ds);
+
         LayoutCapabilities cap = new LayoutCapabilities();
         if (LAYOUT_CACHE.containsKey(cap)) return LAYOUT_CACHE.get(cap);
         LAYOUT_CACHE.put(cap, new VulkanPipelineLayout(engine, device, pc, ds));
@@ -51,14 +51,6 @@ public class VulkanPipelineLayout implements PipelineLayout {
                     .offset(0)
                     .size((int) pc.getLayout().size)
                     .stageFlags(VK14.VK_SHADER_STAGE_ALL);
-
-//            AtomicInteger pushConstantsCounter = new AtomicInteger(0);
-//            PushConstantLayoutBuilder.build(pc.getLayout().typeLayout).forEach((pcf) -> {
-//                pushConstantsBuffer.get(pushConstantsCounter.getAndIncrement())
-//                        .offset((int) pcf.offset)
-//                        .size((int) pcf.size)
-//                        .stageFlags(VK14.VK_SHADER_STAGE_ALL);
-//            });
 
             LongBuffer pDescriptors = stack.longs(ds.getCompiledLayouts().stream().mapToLong(CompiledDescriptorSetLayout::getHandle).toArray());
 

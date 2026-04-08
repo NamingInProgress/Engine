@@ -23,7 +23,7 @@ public class ShaderReflector extends Service {
 
     private final long spvcContext;
 
-    private final HashMap<Identifier, ReflectedShader> CACHE = new HashMap<>();
+    private final HashMap<Long, ReflectedShader> CACHE = new HashMap<>();
 
     public ShaderReflector(VKEngine engine) {
         super(Services.SHADER_REFLECTION);
@@ -43,14 +43,14 @@ public class ShaderReflector extends Service {
         }
     }
 
-    public ReflectedShader reflect(Identifier id, ByteBuffer spirv) {
+    public ReflectedShader reflect(long id, ByteBuffer spirv) {
         if (CACHE.containsKey(id)) return CACHE.get(id);
         ReflectedShader s = new ReflectedShader(spvcContext, spirv);
         CACHE.put(id, s);
         return s;
     }
 
-    public Option<ReflectedShader> get(Identifier id) {
+    public Option<ReflectedShader> get(long id) {
         return Option.useIfNotNull(CACHE.get(id));
     }
 

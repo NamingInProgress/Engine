@@ -79,9 +79,72 @@ public class TestApp extends App {
                 new VertexFormat(0f, -0.5f, 0.5f, 0, 0, 1, 0.5f)
         };
 
-        mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
-        mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
+        CubeVertexFormat[] vf = new CubeVertexFormat[]{
 
+                // Front (red)
+                new CubeVertexFormat(-25, -25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat( 25, -25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat(-25,  25,  25, 1, 0, 0, 0.5f),
+
+                // Back (green)
+                new CubeVertexFormat( 25, -25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat(-25, -25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 0, 1, 0, 0.5f),
+
+                // Left (blue)
+                new CubeVertexFormat(-25, -25, -25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25, -25,  25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25,  25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 0, 0, 1, 0.5f),
+
+                // Right (yellow)
+                new CubeVertexFormat( 25, -25,  25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25, -25, -25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 1, 0, 0.5f),
+
+                // Top (magenta)
+                new CubeVertexFormat(-25,  25,  25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 1, 0, 1, 0.5f),
+
+                // Bottom (cyan)
+                new CubeVertexFormat(-25, -25, -25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat( 25, -25, -25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat( 25, -25,  25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat(-25, -25,  25, 0, 1, 1, 0.5f),
+        };
+
+        mesh = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vertices, new int[]{0, 1, 2, 2, 3, 0});
+        //mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), verts, new int[]{0, 1, 2, 3, 4, 5});
+        mesh2 = MeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vf, new int[]{
+                // Front
+                0, 1, 2,
+                2, 3, 0,
+
+                // Back
+                4, 5, 6,
+                6, 7, 4,
+
+                // Left
+                8, 9, 10,
+                10, 11, 8,
+
+                // Right
+                12, 13, 14,
+                14, 15, 12,
+
+                // Top
+                16, 17, 18,
+                18, 19, 16,
+
+                // Bottom
+                20, 21, 22,
+                22, 23, 20
+        });
 
         //PCHandle handle = h.resolve("pushconstant", "asdsad");
 
@@ -120,8 +183,10 @@ public class TestApp extends App {
         //scaryVk = renderer.getDevice().createTexture(new Identifier("scaryvulkan.png"), Texture.TextureDesc.albedo2D(1920, 1080));
         //VKUtils.setDebugName(renderer.getDevice().getLogicalDevice(), "SCARY_VULKAN", scaryVk.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
         VulkanRenderPipeline pipeline;
+        VulkanRenderPipeline cubePipeline;
         try {
             pipeline = (VulkanRenderPipeline) IDK.acquire(engine);
+            cubePipeline = (VulkanRenderPipeline) CUBE.acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -133,13 +198,22 @@ public class TestApp extends App {
         vertexBufferPointer = pipeline.resolvePushConstant("vertexBuffer");
         matrixHandle = pipeline.resolvePushConstant("world");
 
+        cubeVertexBufferPointer = cubePipeline.resolvePushConstant("vertexBuffer");
+        projMatrixHandle = cubePipeline.resolvePushConstant("world");
+        transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
+
     //"tex", Samplers.LINEAR, scaryVk);
     }
 
     PushConstantHandle vertexBufferPointer;
     PushConstantHandle matrixHandle;
 
+    PushConstantHandle cubeVertexBufferPointer;
+    PushConstantHandle projMatrixHandle;
+    PushConstantHandle transformMatrixHandle;
+
     AssetHandle<GraphicsPipeline> IDK = R.pipelines.get("test.pipeline.json");
+    AssetHandle<GraphicsPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline.json");
 
     @Override
     public void onDraw(Window window, VulkanRenderer.FrameData fd) {
@@ -159,7 +233,7 @@ public class TestApp extends App {
             cmd.setScissor(sc);
 
             Matrix4f mat = new Matrix4f();
-            mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 100, true);
+            mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
 
             vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
             matrixHandle.write(buf -> buf.putMat4(mat));
@@ -181,6 +255,34 @@ public class TestApp extends App {
 
             VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
 
+            // 2nd draw:
+            cmd.bindRenderPipeline(CUBE);
+
+
+            Matrix4f model = new Matrix4f();
+
+// time in seconds (you need to supply this)
+            float time = (System.nanoTime() / 1_000_000_000.0f);
+
+// rotation speed (radians per second)
+            float speed = 1.0f;
+
+// build transform
+            model.identity()
+                    .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
+                    .scale(5, 5, 5)
+                    .rotateXYZ(time * speed, time * speed, time * speed);
+
+            cubeVertexBufferPointer.write(buf -> buf.putLong(mesh2.verticesDeviceAddress()));
+            projMatrixHandle.write(buf -> buf.putMat4(mat));
+            transformMatrixHandle.write(buf -> buf.putMat4(model));
+
+            //cmd.bindDescriptorSets(CUBE);
+            cmd.setPushConstants(CUBE);
+
+            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+
+            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
 
             // 2nd draw:
             //cmd.bindRenderPipeline(TestPipelines.STH);
@@ -278,4 +380,32 @@ public class TestApp extends App {
             abb.float4(r, g, b, a);
         }
     }
+
+    private static class CubeVertexFormat implements Vertex {
+        private final float x, y, z;
+        private final float r, g, b, a;
+
+        public CubeVertexFormat(float x, float y, float z, float r, float g, float b, float a) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        @Override
+        public int getByteStride() {
+            return Float.BYTES * 8;
+        }
+
+        @Override
+        public void putSelf(ByteBuffer buf) {
+            AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
+            abb.float3(x, y, z);
+            abb.float4(r, g, b, a);
+        }
+    }
+
 }

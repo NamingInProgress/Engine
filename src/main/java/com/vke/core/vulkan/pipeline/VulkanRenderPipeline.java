@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.pipeline.PipelineData;
 import com.vke.api.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
@@ -11,7 +12,6 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
-import com.vke.api.rendering.vulkan.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
@@ -22,6 +22,7 @@ import com.vke.core.services.shr.ReflectedShader;
 import com.vke.core.services.shr.ShaderReflector;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
+import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VulkanRenderPipeline implements GraphicsPipeline {
 
@@ -51,13 +53,13 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
 
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
 
-        var shaders = getReflectedShaders(data);
+        var shaders = getReflectedShaders(data.compiledShaders);
         DescriptorSets ds = createDescriptorSets(data, shaders);
         PushConstants pc = createPushConstants(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VKEngine engine = context.getEngine();
-            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(RenderPipeline.DynamicState::getVkHandle).toArray());
+            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(PipelineData.DynamicState::getVkHandle).toArray());
             var vertexInputs = getVertexInputs(stack, data.vertexLayoutData);
             var rasterInfo = getRasterInfo(stack, data);
             var inputAssemblyInfo = getInputAssemblyInfo(stack, data);
@@ -113,16 +115,13 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
 
 
 
-    private ArrayList<ReflectedShader> getReflectedShaders(PipelineData data) {
-        //Identifier[] shaders = data.shaders.getIdentifiers();
-        Identifier[] shaders = new Identifier[]{ Identifier.of("vke:assets/global/shaders/idk.vsh"), Identifier.of("vke:assets/global/shaders/idk.fsh") };
+    private ArrayList<ReflectedShader> getReflectedShaders(VKShaderProgram program) {
         ShaderReflector refl = context.service(Services.SHADER_REFLECTION);
         ArrayList<ReflectedShader> reflectedShaders = new ArrayList<>();
 
-        for (Identifier shader : shaders) {
-            Option<ReflectedShader> shaderOpt = refl.get(shader);
+        for (Long id : Iter.of(program.getShaders()).map(VulkanShader::getShaderID)) {
+            Option<ReflectedShader> shaderOpt = refl.get(id);
             if (shaderOpt.isNone()) {
-                System.out.println(shader);
                 throw new IllegalStateException("Requested reflected shader but none was found! This error should not happen");
             }
             reflectedShaders.add(shaderOpt.unwrap());
@@ -316,8 +315,8 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
                 .sType$Default()
                 .colorAttachmentCount(data.colorAttachments.size())
                 .pColorAttachmentFormats(attachmentFormats)
-                .depthAttachmentFormat(data.depthAttachment.format.getVkHandle())
-                .stencilAttachmentFormat(data.stencilAttachment.format.getVkHandle());
+                .depthAttachmentFormat(data.depthAttachment == null ? 0 : data.depthAttachment.format.getVkHandle())
+                .stencilAttachmentFormat(data.stencilAttachment == null ? 0 : data.stencilAttachment.format.getVkHandle());
     }
 
     private VkPipelineShaderStageCreateInfo.Buffer getShaderStages(MemoryStack stack, PipelineData data) {

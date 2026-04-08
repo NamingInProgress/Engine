@@ -1,0 +1,23 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "attachments": [
+    {
+      "type": "COLOR",
+      "blendEnable": true
+    },
+    {
+      "type": "DEPTH"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/cube.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/cube.fsh"
+    }
+  ]
+}

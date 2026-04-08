@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VulkanRenderDevice implements RenderDevice {
 
@@ -61,6 +62,8 @@ public class VulkanRenderDevice implements RenderDevice {
         LoggerFactory.get("VK-Debug").log(LogLevel.fromVkMessageSeverity(severity), "%s: %s".formatted(VKUtils.getDebugMessageType(type), data.pMessageString()));
         return VK14.VK_FALSE;
     };
+
+    private static final AtomicLong SHADER_ID = new AtomicLong();
 
     private VkInstance instance;
     private PhysicalDevice physicalDevice;
@@ -241,10 +244,11 @@ public class VulkanRenderDevice implements RenderDevice {
             ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
                     .compileGlslToSpirV(bytes, shaderType, identifier);
 
-            VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType);
+            VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType, SHADER_ID.get());
+            logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
-            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(identifier, spirv);
+            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv);
 
             //buffer.free();
             return shader;

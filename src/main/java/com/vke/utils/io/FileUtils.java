@@ -148,6 +148,18 @@ public class FileUtils {
         return path.getName(path.getNameCount() + index - 1).toString();
     }
 
+    public static String getSubpath(Path path, int startIdx) {
+        return FileUtils.toNormalPath(path.subpath(startIdx, path.getNameCount()).toString());
+    }
+
+    public static String toNormalPath(Path path) {
+        return path.toString().replace('\\', '/');
+    }
+
+    public static String toNormalPath(String path) {
+        return path.replace('\\', '/');
+    }
+
     public record WalkedFile(String name, boolean isFile) {}
 
     public static String getFileName(Path path) {

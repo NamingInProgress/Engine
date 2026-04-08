@@ -23,6 +23,7 @@ public class FileProtocol implements AssetProtocol<Infallible> {
         router.addPath(Utils.p("location"), this::getLocation);
         router.addPath(Utils.p("location", "parent"), this::getLocationParent);
         router.addPath(Utils.p("location", "namespace"), this::getLocationNamespace);
+        router.addPath(Utils.p("location", "bundle"), this::getBundleRelativeLocation);
     }
 
     @Override
@@ -67,5 +68,9 @@ public class FileProtocol implements AssetProtocol<Infallible> {
 
     private AssetData getLocationNamespace(StageElement element) {
         return AssetData.plain(FileUtils.getComponent(element.getPath(), 0));
+    }
+
+    private AssetData getBundleRelativeLocation(StageElement element) {
+        return AssetData.plain(FileUtils.getSubpath(element.getPath().normalize(), 3));
     }
 }

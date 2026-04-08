@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors.MOVEME;
+package com.vke.core.vulkan.descriptor;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
@@ -42,7 +42,7 @@ public class DescriptorAllocator implements Disposable {
 
     @Override
     public void free() {
-
+        this.pool.free();
     }
 
 }

@@ -1,5 +1,7 @@
 package com.vke.core.vulkan;
 
+import com.vke.api.assets.AssetManager;
+import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -17,11 +19,13 @@ import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
@@ -66,8 +70,6 @@ public class VulkanRenderer extends Service implements Renderer {
         }
 
         Samplers.init(device);
-
-        VKERegistries.PIPELINES.makeVkPipelines(engine, device);
     }
 
     public FrameData startFrame() {
@@ -173,7 +175,7 @@ public class VulkanRenderer extends Service implements Renderer {
     public void free() {
         Samplers.NEAREST.free();
         Samplers.LINEAR.free();
-        VKERegistries.PIPELINES.freeVkPipelines();
+        // Pipelines get freed by the asset manager
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
         this.immediateFrame.free();

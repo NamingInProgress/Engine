@@ -15,15 +15,13 @@
     <stage-filter uri="file://extension" query="frag|fsh" op="matches">
         <convert to="fragshader"/>
         <rename>
-            <static-part value="frag."/>
-            <uri-part uri="file://nickname"/>
+            <uri-part uri="file://location/bundle"/>
         </rename>
     </stage-filter>
     <stage-filter uri="file://extension" query="vert|vsh" op="matches">
         <convert to="vertshader"/>
         <rename>
-            <static-part value="vert."/>
-            <uri-part uri="file://nickname"/>
+            <uri-part uri="file://location/bundle"/>
         </rename>
     </stage-filter>
     <stage-filter uri="file://extension" query="png" op="equals">

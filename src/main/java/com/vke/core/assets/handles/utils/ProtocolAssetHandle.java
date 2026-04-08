@@ -5,6 +5,7 @@ import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
 
     @Override
     public void free() {
+        if (get() != null && get() instanceof Disposable d) d.free();
         setCache(null);
     }
 }

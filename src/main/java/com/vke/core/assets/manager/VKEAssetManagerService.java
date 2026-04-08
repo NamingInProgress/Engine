@@ -106,7 +106,7 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
     @Override
     public void free() {
         globalBundle.free();
-        allBundles.values().forEach(Disposable::free);
+        loadedBundles.values().forEach(Disposable::free);
 
         synchronized (loadedBundlesLock) {
             loadingThread.free();
