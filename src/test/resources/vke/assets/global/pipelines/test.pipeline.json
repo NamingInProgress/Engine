@@ -14,10 +14,6 @@
     {
       "type": "STENCIL",
       "format": "DEPTH32F_STENCIL8"
-    },
-    {
-      "type": "DEPTH_STENCIL",
-      "format": "DEPTH32F_STENCIL8"
     }
   ],
   "shaders": [

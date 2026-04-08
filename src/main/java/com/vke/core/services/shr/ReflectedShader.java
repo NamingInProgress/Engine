@@ -301,11 +301,18 @@ public class ReflectedShader implements Disposable {
             }
             member.matrixRows = Spvc.spvc_type_get_vector_size(member.typeHandle);
             member.matrixColumns = Spvc.spvc_type_get_columns(member.typeHandle);
+
             IntBuffer buf = stack.callocInt(1);
-            Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
-            member.matrixStride = buf.get(0);
-            Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.typeHandle, member.idx, buf);
-            member.arrayStride = buf.get(0);
+
+            if (member.matrixRows > 1 || member.matrixColumns > 1) {
+                Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
+                member.matrixStride = buf.get(0);
+            }
+
+            if (member.nArrayDim != 0) {
+                Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.typeHandle, member.idx, buf);
+                member.arrayStride = buf.get(0);
+            }
             if (expectedSize > member.size) {
                 member.size = expectedSize;
             }

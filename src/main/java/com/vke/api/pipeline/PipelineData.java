@@ -56,6 +56,8 @@ public class PipelineData {
     // Shader
     public ShaderProgram shaders;
 
+    private Map<AttachmentType, ArrayList<? extends AttachmentInfo>> cachedAttachmentTypes;
+
     private static final String
             DYNAMIC_STATES_ARRAY_NAME = "dynamicStates",
             PRIMITVE_RESTART_ENABLE_NAME = "primitiveRestartEnable",
@@ -181,25 +183,34 @@ public class PipelineData {
         return di;
     }
 
-    public static Iter<Pair<ConfigObjectNode, String>> iterAttachments(ConfigNode parent) {
+    public static Iter<ConfigObjectNode> iterAttachments(AttachmentType type, ConfigNode parent) {
         Option<ConfigArrayNode> arrNodeOpt = parent.getArrayOption(ATTACHMENTS_ARRAY_NAME);
         if (arrNodeOpt.isNone()) return Iter.of();
         ConfigArrayNode arrNode = arrNodeOpt.unwrap();
-        return Iter.of(Arrays.stream(arrNode.values()).map((node) -> new Pair<>(node.asObject(),
-                node.getStringOption("type")
-                        .unwrapOrPanic(new RuntimeException("Missing type in attachment definition!")))));
+        return Iter.of(Arrays.stream(arrNode.values()).map((node) -> new Pair<>(
+                AttachmentType.valueOfOption(node.getStringOption("type")
+                        .unwrapOrPanic(new RuntimeException("Missing type in attachment definition!")))
+                        .unwrapOrPanic(new RuntimeException("Unknown type in attachment definition!")),
+                node.asObject()
+                )))
+                .filter((p) -> p.v1 == type)
+                .map(p -> p.v2);
     }
 
     public static ArrayList<ColorAttachmentInfo> colorAttachments(ConfigNode parent) {
         ArrayList<ColorAttachmentInfo> attachments = new ArrayList<>();
 
-        for (Pair<ConfigObjectNode, String> attachmentData : iterAttachments(parent)) {
-            if (attachmentData.v2.equals("COLOR")) {
-                attachments.add(new ColorAttachmentInfo(attachmentData.v1));
-            }
+        for (ConfigObjectNode node : iterAttachments(AttachmentType.COLOR, parent)) {
+            attachments.add(new ColorAttachmentInfo(node));
         }
 
         return attachments;
+    }
+
+    public static Pair<DepthAttachmentInfo, StencilAttachmentInfo> verifyDepthAndStencilAttachments(Iter<ConfigObjectNode> depth, Iter<ConfigObjectNode> stencil) {
+        if (depth.next().isSome() || stencil.next().isSome()) throw new IllegalStateException("Multipled depth or stencil attachments not allowed!");
+
+
     }
 
     public static DepthAttachmentInfo depthAttachment(ConfigNode parent) {
@@ -343,6 +354,10 @@ public class PipelineData {
         DEPTH,
         STENCIL,
         DEPTH_STENCIL
+
+        public static Option<AttachmentType> valueOfOption(String name) {
+            return Option.useIfNotFaulty(() -> AttachmentType.valueOf(name));
+        }
     }
 
 }
