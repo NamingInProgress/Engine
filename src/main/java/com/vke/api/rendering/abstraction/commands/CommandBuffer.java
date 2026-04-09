@@ -2,7 +2,7 @@ package com.vke.api.rendering.abstraction.commands;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.sync.Fence;
 import com.vke.api.rendering.abstraction.sync.Semaphore;
@@ -60,7 +60,7 @@ public interface CommandBuffer extends Disposable {
     void end();
     void reset();
 
-    void bindRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline);
+    void bindRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline);
     void bindComputePipeline(AssetHandle<? extends ComputePipeline> pipeline);
 
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);

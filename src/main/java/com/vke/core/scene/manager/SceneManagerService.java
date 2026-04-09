@@ -95,6 +95,7 @@ public class SceneManagerService extends ScopedService<SceneManager> {
 
         if (currentlyLoadedScene != null) {
             currentlyLoadedScene.onUnload();
+            currentlyLoadedScene.free();
         }
 
         LoadingScene loadingScene = scene.getLoadingScene();
@@ -126,7 +127,10 @@ public class SceneManagerService extends ScopedService<SceneManager> {
 
     @Override
     public void free() {
-
+        if (currentlyLoadedScene != null) {
+            currentlyLoadedScene.onUnload();
+            currentlyLoadedScene.free();
+        }
     }
 
     private boolean isSceneFile(Identifier identifier) {

@@ -1,12 +1,11 @@
 package com.vke.core.vulkan.pipeline;
 
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.vke.api.assets.AssetHandle;
-import com.vke.api.pipeline.PipelineData;
-import com.vke.api.pipeline.VertexLayoutData;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.vulkan.pipeline.PipelineData;
+import com.vke.api.rendering.vulkan.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
@@ -24,7 +23,6 @@ import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.system.MemoryStack;
@@ -32,13 +30,9 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.*;
 
-public class VulkanRenderPipeline implements GraphicsPipeline {
+public class VulkanRenderPipeline implements RenderPipeline {
 
     private final Context context;
     private final VulkanRenderDevice device;
@@ -56,6 +50,7 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         var shaders = getReflectedShaders(data.compiledShaders);
         DescriptorSets ds = createDescriptorSets(data, shaders);
         PushConstants pc = createPushConstants(data, shaders);
+        data.vertexLayoutData = createVertexLayouts(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VKEngine engine = context.getEngine();
@@ -179,6 +174,21 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
         return new PushConstants(layout);
     }
 
+    private VertexLayoutData createVertexLayouts(PipelineData data, ArrayList<ReflectedShader> shaders) {
+        ArrayList<VertexLayoutData.Attribute> attribs = new ArrayList<>();
+
+        for (ReflectedShader shader : shaders) {
+            if (shader.getShaderType() == ShaderType.FRAGMENT) continue;
+            var vaos = shader.getVAOs();
+
+            vaos.forEach(resource -> attribs.add(
+                    new VertexLayoutData.Attribute(resource.stride, Format.fromBaseType(resource.baseType, resource.vecSize))
+            ));
+        }
+
+        return new VertexLayoutData(attribs);
+    }
+
     //region Pipeline Setup
     private VkPipelineDynamicStateCreateInfo getDynamicStates(MemoryStack stack, int[] states) {
         return VkPipelineDynamicStateCreateInfo.calloc(stack)
@@ -187,34 +197,33 @@ public class VulkanRenderPipeline implements GraphicsPipeline {
     }
 
     private VkPipelineVertexInputStateCreateInfo getVertexInputs(MemoryStack stack, VertexLayoutData data) {
-        // TODO: unfuck
-//        int offset = 0;
-//        int amt = data.getAttributeTypes().size();
-//        VkVertexInputAttributeDescription.Buffer viadb = VkVertexInputAttributeDescription.calloc(amt, stack);
-//        int i = 0;
-//        for (VertexLayoutData.Attribute attr : data.getAttributeTypes()) {
-//            viadb.get(i)
-//                    .location(i)
-//                    .binding(0)
-//                    .offset(offset)
-//                    .format(attr.getFormat().getVkHandle())
-//            ; //This semicolon wants to have its own line
-//            offset += attr.getByteStride();
-//            i++;
-//        }
-//
-//        VkVertexInputBindingDescription.Buffer bindingDesc = VkVertexInputBindingDescription.calloc(1, stack);
-//        bindingDesc.get(0)
-//                .binding(0)
-//                .stride(offset)
-//                .inputRate(VK14.VK_VERTEX_INPUT_RATE_VERTEX);
-//
-//        return VkPipelineVertexInputStateCreateInfo.calloc(stack)
-//                .pVertexAttributeDescriptions(viadb)
-//                .pVertexBindingDescriptions(bindingDesc)
-//                .sType$Default();
+        int offset = 0;
+        int amt = data.getAttributeTypes().size();
+
+        if (amt == 0) return VkPipelineVertexInputStateCreateInfo.calloc(stack).sType$Default();
+
+        VkVertexInputAttributeDescription.Buffer viadb = VkVertexInputAttributeDescription.calloc(amt, stack);
+        int i = 0;
+        for (VertexLayoutData.Attribute attr : data.getAttributeTypes()) {
+            viadb.get(i)
+                    .location(i)
+                    .binding(0)
+                    .offset(offset)
+                    .format(attr.getFormat().getVkHandle())
+            ; //This semicolon wants to have its own line
+            offset += attr.getByteStride();
+            i++;
+        }
+
+        VkVertexInputBindingDescription.Buffer bindingDesc = VkVertexInputBindingDescription.calloc(1, stack);
+        bindingDesc.get(0)
+                .binding(0)
+                .stride(offset)
+                .inputRate(VK14.VK_VERTEX_INPUT_RATE_VERTEX);
 
         return VkPipelineVertexInputStateCreateInfo.calloc(stack)
+                .pVertexAttributeDescriptions(viadb)
+                .pVertexBindingDescriptions(bindingDesc)
                 .sType$Default();
     }
 

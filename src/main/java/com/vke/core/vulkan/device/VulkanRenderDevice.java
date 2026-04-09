@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.device;
 
-import com.vke.api.pipeline.PipelineData;
+import com.vke.api.rendering.vulkan.pipeline.PipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.Buffer;
@@ -10,7 +10,6 @@ import com.vke.api.rendering.abstraction.enums.BackendType;
 import com.vke.api.rendering.abstraction.enums.DeviceCapabilities;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
@@ -24,7 +23,6 @@ import com.vke.core.services.Services;
 import com.vke.core.services.shr.ShaderReflector;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
-import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
@@ -248,7 +246,7 @@ public class VulkanRenderDevice implements RenderDevice {
             logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
-            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv);
+            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv, shaderType);
 
             //buffer.free();
             return shader;

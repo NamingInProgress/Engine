@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.descriptors;
 
-import com.vke.api.pipeline.BaseType;
 import com.vke.api.rendering.abstraction.IntEnum;
 import com.vke.core.services.shr.ReflectedShader;
 import org.lwjgl.vulkan.KHRAccelerationStructure;

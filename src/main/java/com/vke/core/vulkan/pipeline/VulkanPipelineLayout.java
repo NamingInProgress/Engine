@@ -28,6 +28,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final DescriptorSets descriptorSets;
 
     public static VulkanPipelineLayout getLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
+        // TODO: Fix this making a new pipeline layout (This is technically fine but it is recommended to reuse)
         if (Utils.TRUE) return new VulkanPipelineLayout(engine, device, pc, ds);
 
         LayoutCapabilities cap = new LayoutCapabilities();

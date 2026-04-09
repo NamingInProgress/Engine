@@ -2,8 +2,10 @@ package com.vke.core.vulkan.swapchain;
 
 import com.vke.api.rendering.abstraction.IntEnum;
 import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.BackendType;
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.abstraction.sync.Semaphore;
 import com.vke.core.VKEngine;
@@ -14,6 +16,8 @@ import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTextureView;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -33,12 +37,15 @@ public class VulkanSwapchain implements Swapchain {
 
     private VkExtent2D extent;
 
-    private TextureFormat format;
+    private Format format;
     private boolean vsync;
     private long surface;
 
-    private final ArrayList<SwapchainImage> images = new ArrayList<>();
-    private final ArrayList<SwapchainImageView> imageViews = new ArrayList<>();
+    private final ArrayList<SwapchainImage> colorImages = new ArrayList<>();
+    private final ArrayList<SwapchainImageView> colorImageViews = new ArrayList<>();
+
+    private final ArrayList<VulkanImage> depthImages = new ArrayList<>();
+    private final ArrayList<VulkanTextureView> depthImageViews = new ArrayList<>();
 
     private int currentImageIndex;
 
@@ -129,7 +136,7 @@ public class VulkanSwapchain implements Swapchain {
             info.pQueueFamilyIndices(queueIndex);
         }
 
-        this.format = IntEnum.fromInt(TextureFormat.values(), pickedFormat.format());
+        this.format = IntEnum.fromInt(Format.values(), pickedFormat.format());
         this.extent = extent2D;
 
         return info;
@@ -151,6 +158,7 @@ public class VulkanSwapchain implements Swapchain {
     }
 
     private void createImages(MemoryStack stack, LogicalDevice device) {
+        // COLOR
         IntBuffer count = stack.mallocInt(1);
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, null);
 
@@ -158,7 +166,7 @@ public class VulkanSwapchain implements Swapchain {
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, images);
 
         for (int i = 0; i < count.get(0); i++) {
-            this.images.add(new SwapchainImage(images.get(i)));
+            this.colorImages.add(new SwapchainImage(images.get(i)));
         }
 
         VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
@@ -175,15 +183,25 @@ public class VulkanSwapchain implements Swapchain {
                 .sType$Default();
 
         for (int i = 0; i < count.get(0); i++) {
-            SwapchainImage image = this.images.get(i);
+            SwapchainImage image = this.colorImages.get(i);
             VkImageViewCreateInfo info = SwapchainUtils.copyImageViewCreateInfo(baseInfo);
             info.image(image.getHandle());
             try {
                 SwapchainImageView view = new SwapchainImageView(image, device, info);
-                this.imageViews.add(view);
+                this.colorImageViews.add(view);
             } catch (Throwable t) {
                 engine.throwException(t, "SwapchainImageView@VulkanImpl");
             }
+        }
+
+        // DEPTH
+        for (int i = 0; i < count.get(0); i++) {
+            VulkanImage depthImage = new VulkanImage(this.device,
+                    Texture.TextureDesc.depthAttachment2D(extent.width(), extent.height(), Format.DEPTH32F),
+                    new MemoryUsage(MemoryUsage.Bits.GPU_ONLY));
+
+            this.depthImages.add(depthImage);
+            this.depthImageViews.add(depthImage.getView());
         }
     }
 
@@ -198,7 +216,7 @@ public class VulkanSwapchain implements Swapchain {
     }
 
     @Override
-    public TextureFormat format() {
+    public Format format() {
         return this.format;
     }
 
@@ -223,7 +241,15 @@ public class VulkanSwapchain implements Swapchain {
     }
 
     public SwapchainImageView getImageView(int index) {
-        return imageViews.get(index);
+        return colorImageViews.get(index);
+    }
+
+    public VulkanTextureView getDepthView(int index) {
+        return depthImageViews.get(index);
+    }
+
+    public VulkanImage getDepthImage(int index) {
+        return depthImages.get(index);
     }
 
     @Override
@@ -265,12 +291,15 @@ public class VulkanSwapchain implements Swapchain {
     public void destroy() {
         this.device.waitIdle();
         KHRSwapchain.vkDestroySwapchainKHR(device.getLogicalDevice().getDevice(), this.swapchain, null);
-        this.imageViews.forEach(SwapchainImageView::free);
-        this.images.clear();
-        this.imageViews.clear();
+        this.colorImageViews.forEach(SwapchainImageView::free);
+        this.colorImages.clear();
+        this.colorImageViews.clear();
+        this.depthImages.forEach(VulkanImage::free);
+        this.depthImages.clear();
+        this.depthImageViews.clear();
     }
 
-    public int getImageCount() { return this.images.size(); }
+    public int getImageCount() { return this.colorImages.size(); }
 
     @Override
     public void free() {

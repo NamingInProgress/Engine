@@ -3,7 +3,7 @@ package com.vke.core.vulkan.texture;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
@@ -25,7 +25,7 @@ public class VulkanImage implements Disposable {
     private final long allocation;
 
     protected final Extent3D extent;
-    protected final TextureFormat format;
+    protected final Format format;
     protected final TextureType type;
     protected ImageLayout layout;
     protected final int mipLevels, arrayLayers;
@@ -102,7 +102,7 @@ public class VulkanImage implements Disposable {
         return this.layout;
     }
 
-    public TextureFormat getFormat() { return this.format; }
+    public Format getFormat() { return this.format; }
 
     public TextureType getType() {
         return type;

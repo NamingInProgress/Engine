@@ -50,6 +50,18 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
         return cache.get();
     }
 
+    public T assume(Context context) {
+        if (cache == null) {
+            try {
+                acquire(context);
+            } catch (IOException e) {
+                //assumption only :)
+                throw new RuntimeException(e);
+            }
+        }
+        return cache.get();
+    }
+
     @Override
     public boolean isAvailable() {
         return cache != null;

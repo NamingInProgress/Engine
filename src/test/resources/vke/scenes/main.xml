@@ -1,7 +1,6 @@
 <scene>
-    <class name="com.vke.test.scene.MainScene"/>
-    <loading-scene name="lol:lol_loading"/>
+    <class name="com.vke.test.rendering.MainScene"/>
     <bundles>
-        <bundle name="scene1"/>
+        <bundle name="main"/>
     </bundles>
 </scene>

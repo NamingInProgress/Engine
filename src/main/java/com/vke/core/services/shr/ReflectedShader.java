@@ -1,6 +1,7 @@
 package com.vke.core.services.shr;
 
-import com.vke.api.pipeline.BaseType;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.vulkan.pipeline.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
@@ -21,12 +22,14 @@ public class ReflectedShader implements Disposable {
     private final ByteBuffer spv;
     private final long context;
     private final long compiler;
+    private final ShaderType shaderType;
 
     private final HashMap<ResourceType, ArrayList<? extends Resource>> resources = new HashMap<>();
 
-    public ReflectedShader(long context, ByteBuffer spirv) {
+    public ReflectedShader(long context, ByteBuffer spirv, ShaderType shaderType) {
         this.spv = spirv;
         this.context = context;
+        this.shaderType = shaderType;
 
         IntBuffer iSpirv = spirv.asIntBuffer();
 
@@ -40,6 +43,10 @@ public class ReflectedShader implements Disposable {
 
             this.compiler = pCompiler.get(0);
         }
+    }
+
+    public ShaderType getShaderType() {
+        return shaderType;
     }
 
     @SuppressWarnings("unchecked")
@@ -82,7 +89,7 @@ public class ReflectedShader implements Disposable {
             }
 
             res.baseTypeRaw = resource.baseType;
-            res.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
+            res.baseType = BaseType.fromSpvc(resource.baseType);
             
             list.add(res);
         }
@@ -112,7 +119,7 @@ public class ReflectedShader implements Disposable {
                 }
             }
             descriptorResource.baseTypeRaw = resource.baseType;
-            descriptorResource.baseType = com.vke.api.pipeline.BaseType.fromSpvc(resource.baseType);
+            descriptorResource.baseType = BaseType.fromSpvc(resource.baseType);
 
             descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.typeHandle);
             descriptorResource.arrayDim = new int[descriptorResource.nArrayDim];
@@ -148,9 +155,9 @@ public class ReflectedShader implements Disposable {
 
             int bit_width = Spvc.spvc_type_get_bit_width(resource.typeHandle);
             int rows = Spvc.spvc_type_get_vector_size(resource.typeHandle);
-            int cols = Spvc.spvc_type_get_columns(resource.typeHandle);
             
-            var.size = (bit_width / 8) * rows * cols;
+            var.stride = (bit_width / 8) * rows;
+            var.vecSize = rows;
             var.baseType = BaseType.fromSpvc(resource.baseType);
 
             list.add(var);
@@ -463,7 +470,7 @@ public class ReflectedShader implements Disposable {
 
         public StructType struct;
         public int baseTypeRaw;
-        public com.vke.api.pipeline.BaseType baseType;
+        public BaseType baseType;
 
     }
 
@@ -471,15 +478,16 @@ public class ReflectedShader implements Disposable {
 
         public StructType struct;
         public int baseTypeRaw;
-        public com.vke.api.pipeline.BaseType baseType;
+        public BaseType baseType;
         public int size;
 
     }
 
     public static class VertexAttributeResource extends Resource {
         public int location;
-        public int size;
+        public int stride;
         public BaseType baseType;
+        public int vecSize;
     }
 
     public enum ResourceType {

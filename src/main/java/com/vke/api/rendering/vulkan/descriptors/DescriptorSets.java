@@ -60,6 +60,12 @@ public class DescriptorSets implements Disposable {
         // Beautiful O(n^2) one liner
         layouts.forEach(setLayout -> setLayout.bindings.forEach(bindingLayout -> counts.addTo(bindingLayout.type, 1)));
 
+        if (layouts.isEmpty()) {
+            compiledLayouts = new ArrayList<>();
+            allocator = null;
+            return;
+        }
+
         this.allocator = new DescriptorAllocator(engine, device, counts, layouts.size());
         compiledLayouts = layouts.stream().map(dsl -> new CompiledDescriptorSetLayout(engine, device, dsl)).toList();
 
@@ -197,6 +203,6 @@ public class DescriptorSets implements Disposable {
     @Override
     public void free() {
         compiledLayouts.forEach(CompiledDescriptorSetLayout::free);
-        this.allocator.free();
+        if (this.allocator != null) this.allocator.free();
     }
 }

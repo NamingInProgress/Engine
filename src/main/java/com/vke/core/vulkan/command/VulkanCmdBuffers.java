@@ -2,7 +2,7 @@ package com.vke.core.vulkan.command;
 
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
@@ -15,6 +15,8 @@ import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.swapchain.SwapchainImageView;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
+import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTextureView;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -68,8 +70,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
             VK14.vkBeginCommandBuffer(this.vk, beginInfo);
 
-            SwapchainImageView currentImage = swapchain.getImageView(swapchain.currentImageIndex());
-            currentImage.transitionLayout(
+            SwapchainImageView currentColorImage = swapchain.getImageView(swapchain.currentImageIndex());
+            currentColorImage.transitionLayout(
                     this,
                     ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
                     0,
@@ -78,17 +80,36 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT
             );
 
+            VulkanTextureView currentDepthImageView = swapchain.getDepthView(swapchain.currentImageIndex());
+            VulkanImage currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
+            currentDepthImage.transitionLayout(
+                    this,
+                    ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                    0,
+                    VK14.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK14.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                    VK14.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK14.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT
+            );
+
             VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
                     .float32(0, 0.2f).float32(1, 0.3f).float32(2, 0.3f).float32(3, 1.0f));
 
             VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(1, stack);
             buffer.get(0)
                     .sType$Default()
-                    .imageView(currentImage.getHandle())
+                    .imageView(currentColorImage.getHandle())
                     .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
                     .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
                     .clearValue(clearColor);
+
+            VkRenderingAttachmentInfo depth = VkRenderingAttachmentInfo.calloc(stack)
+                    .sType$Default()
+                    .imageView(currentDepthImageView.getHandle())
+                    .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
+                    .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
+                    .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
+                    .clearValue((v) -> v.depthStencil().depth(1.0f));
 
 
             VkRect2D area = VkRect2D.calloc(stack);
@@ -99,7 +120,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .sType$Default()
                     .layerCount(1)
                     .renderArea(area)
-                    .pColorAttachments(buffer);
+                    .pColorAttachments(buffer)
+                    .pDepthAttachment(depth);
 
             VK14.vkCmdBeginRendering(vk, info);
         }
@@ -142,7 +164,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    private VulkanRenderPipeline getRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline) {
+    private VulkanRenderPipeline getRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline) {
         try {
             return (VulkanRenderPipeline) pipeline.acquire(engine);
         } catch (IOException e) {
@@ -151,7 +173,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     }
 
     @Override
-    public void bindRenderPipeline(AssetHandle<? extends GraphicsPipeline> pipeline) {
+    public void bindRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline) {
         VK14.vkCmdBindPipeline(this.getBuffer(),
                 VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, getRenderPipeline(pipeline).getHandle());
     }
@@ -167,7 +189,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     public void setPushConstants(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             // TODO: Fix this for compute pipelines
-            VulkanPipelineLayout layout = (VulkanPipelineLayout) getRenderPipeline((AssetHandle<? extends GraphicsPipeline>) pipeline).layout();
+            VulkanPipelineLayout layout = (VulkanPipelineLayout) getRenderPipeline((AssetHandle<? extends RenderPipeline>) pipeline).layout();
 
             VK14.vkCmdPushConstants(this.getBuffer(),
                     layout.getHandle(),
@@ -181,7 +203,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanRenderPipeline p = getRenderPipeline((AssetHandle<? extends GraphicsPipeline>) pipeline);
+            VulkanRenderPipeline p = getRenderPipeline((AssetHandle<? extends RenderPipeline>) pipeline);
             VulkanPipelineLayout l = p.layout();
 
             LongBuffer sets = stack.longs(

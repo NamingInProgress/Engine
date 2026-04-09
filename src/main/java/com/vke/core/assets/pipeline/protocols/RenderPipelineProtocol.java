@@ -2,11 +2,10 @@ package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.parsing.config.ConfigParser;
-import com.vke.api.pipeline.PipelineData;
+import com.vke.api.rendering.vulkan.pipeline.PipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
@@ -18,7 +17,7 @@ import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
-public class RenderPipelineProtocol implements AssetProtocol<GraphicsPipeline> {
+public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
     @Override
     public String getProtocolName() {
         return Protocols.RENDERPIPELINE;

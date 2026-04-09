@@ -7,7 +7,7 @@ public enum BaseType {
     BOOL,
     DOUBLE;
 
-    public static BaseType fromPipelineBaseType(com.vke.api.pipeline.BaseType pipelineBaseType) {
+    public static BaseType fromPipelineBaseType(com.vke.api.rendering.vulkan.pipeline.BaseType pipelineBaseType) {
         return switch (pipelineBaseType) {
             case F16, F32 -> FLOAT;
             case I8, I16, I32, I64 -> INT;

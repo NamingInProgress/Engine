@@ -1,6 +1,8 @@
 package com.vke.api.scene;
 
 import com.vke.core.Context;
+import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.window.Window;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
@@ -21,7 +23,7 @@ public abstract class Scene implements Disposable {
 
     public abstract void onLoad();
 
-    public void drawLoop() {}
+    public void drawLoop(Window window, VulkanRenderer.FrameData fd) {}
 
     public abstract void onUnload();
 

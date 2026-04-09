@@ -5,16 +5,21 @@
     {
       "type": "COLOR",
       "blendEnable": true
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F",
+      "depthCompareOperation": "LESS"
     }
   ],
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/cube.vsh"
+      "src": "shaders/cube_vt.vsh"
     },
     {
       "type": "frag",
-      "src": "shaders/cube.fsh"
+      "src": "shaders/cube_vt.fsh"
     }
   ]
 }

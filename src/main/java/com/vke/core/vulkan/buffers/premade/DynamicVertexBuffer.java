@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.rendering.vulkan.buffer.Vertex;
+import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
 
 public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
@@ -19,14 +19,14 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     public void putVertex(T vertex) {
         ensureSpace(1);
         elementCount++;
-        vertex.putSelf(data);
+        vertex.putSelf(null);
     }
 
     public void putVertices(T... vertices) {
         ensureSpace(vertices.length);
         elementCount += vertices.length;
         for (T vertex : vertices) {
-            vertex.putSelf(data);
+            vertex.putSelf(null);
         }
     }
 

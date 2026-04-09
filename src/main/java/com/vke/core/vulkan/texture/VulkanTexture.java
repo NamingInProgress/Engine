@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.data.Buffer;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.VKEngine;
@@ -118,7 +118,7 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public TextureFormat format() {
+    public Format format() {
         return image.getFormat();
     }
 

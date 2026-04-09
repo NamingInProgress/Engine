@@ -1,4 +1,4 @@
-package com.vke.api.pipeline;
+package com.vke.api.rendering.vulkan.pipeline;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.IntEnum;
@@ -6,7 +6,7 @@ import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.api.rendering.abstraction.enums.CompareOp;
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
@@ -240,10 +240,10 @@ public class PipelineData {
                 TEXTURE_FORMAT_NAME = "format";
 
         public AttachmentType type;
-        public TextureFormat format;
+        public Format format;
 
-        public AttachmentInfo(ConfigObjectNode c, TextureFormat defaultFormat) {
-            this.format = TextureFormat.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(defaultFormat);
+        public AttachmentInfo(ConfigObjectNode c, Format defaultFormat) {
+            this.format = Format.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(defaultFormat);
         }
     }
 
@@ -268,7 +268,7 @@ public class PipelineData {
         public BlendOperation alphaBlendOperation = BlendOperation.ADD;
 
         public ColorAttachmentInfo(ConfigObjectNode c) {
-            super(c, TextureFormat.BGRA8_SRGB);
+            super(c, Format.BGRA8_SRGB);
 
             Option<ConfigArrayNode> colorWriteMaskArrayOpt = c.getArrayOption(COLOR_WRITE_MASK_ARRAY_NAME);
             if (colorWriteMaskArrayOpt.isSome())
@@ -299,7 +299,7 @@ public class PipelineData {
         public CompareOp depthCompareOp = CompareOp.LEQUAL;
 
         public DepthAttachmentInfo(ConfigObjectNode c) {
-            super(c, TextureFormat.DEPTH16);
+            super(c, Format.DEPTH16);
 
             this.depthTestEnable = c.getBooleanOption(DEPTH_TEST_ENABLE_NAME).unwrapOr(depthTestEnable);
             this.depthWriteEnable = c.getBooleanOption(DEPTH_WRITE_ENABLE_NAME).unwrapOr(depthWriteEnable);
@@ -327,7 +327,7 @@ public class PipelineData {
         public StencilOpState backStencilOp = new StencilOpState();
 
         public StencilAttachmentInfo(ConfigObjectNode c) {
-            super(c, TextureFormat.STENCIL8);
+            super(c, Format.STENCIL8);
 
             this.stencilTestEnable = c.getBooleanOption(STENCIL_TEST_ENABLE_NAME).unwrapOr(stencilTestEnable);
             this.frontStencilOp = getOpState(frontStencilOp, c.getObject(FRONT_STENCIL_OP_NAME));

@@ -2,7 +2,7 @@ package com.vke.api.rendering.abstraction.data;
 
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
@@ -14,7 +14,7 @@ public interface Texture extends Disposable {
         public int width, height, depth = 1;
         public int mipLevels = 1;
         public TextureType type;
-        public TextureFormat format;
+        public Format format;
         public ImageAspect aspect = new ImageAspect(ImageAspect.Bits.COLOR);
 
         public ImageUsage usage;
@@ -23,7 +23,7 @@ public interface Texture extends Disposable {
             return new Extent3D(width, height, depth);
         }
 
-        public static TextureDesc tex2D(int width, int height, TextureFormat format) {
+        public static TextureDesc tex2D(int width, int height, Format format) {
             TextureDesc d = new TextureDesc();
             d.width = width;
             d.height = height;
@@ -35,7 +35,7 @@ public interface Texture extends Disposable {
             return d;
         }
 
-        public static TextureDesc colorAttachment2D(int width, int height, TextureFormat format) {
+        public static TextureDesc colorAttachment2D(int width, int height, Format format) {
             TextureDesc d = new TextureDesc();
             d.width = width;
             d.height = height;
@@ -46,7 +46,7 @@ public interface Texture extends Disposable {
             return d;
         }
 
-        public static TextureDesc dsAttachment2D(int width, int height, TextureFormat format) {
+        public static TextureDesc depthStencilAttachment2D(int width, int height, Format format) {
             TextureDesc d = new TextureDesc();
             d.width = width;
             d.height = height;
@@ -58,7 +58,19 @@ public interface Texture extends Disposable {
             return d;
         }
 
-        public static TextureDesc cube(int size, TextureFormat format) {
+        public static TextureDesc depthAttachment2D(int width, int height, Format format) {
+            TextureDesc d = new TextureDesc();
+            d.width = width;
+            d.height = height;
+            d.type = TextureType.TEX_2D;
+            d.format = format;
+            d.mipLevels = 1;
+            d.aspect = new ImageAspect(ImageAspect.Bits.DEPTH);
+            d.usage = new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.DEPTH_STENCIL_ATTACHMENT_BIT);
+            return d;
+        }
+
+        public static TextureDesc cube(int size, Format format) {
             TextureDesc d = new TextureDesc();
             d.width = size;
             d.height = size;
@@ -70,7 +82,7 @@ public interface Texture extends Disposable {
             return d;
         }
 
-        public static TextureDesc storage2D(int width, int height, TextureFormat format) {
+        public static TextureDesc storage2D(int width, int height, Format format) {
             TextureDesc d = new TextureDesc();
             d.width = width;
             d.height = height;
@@ -82,19 +94,19 @@ public interface Texture extends Disposable {
         }
 
         public static TextureDesc albedo2D(int w, int h) {
-            return tex2D(w, h, TextureFormat.RGBA8_SRGB);
+            return tex2D(w, h, Format.RGBA8_SRGB);
         }
 
         public static TextureDesc normal2D(int w, int h) {
-            return tex2D(w, h, TextureFormat.RGBA8);
+            return tex2D(w, h, Format.RGBA8);
         }
 
         public static TextureDesc hdrColor2D(int w, int h) {
-            return colorAttachment2D(w, h, TextureFormat.RGBA16F);
+            return colorAttachment2D(w, h, Format.RGBA16F);
         }
 
         public static TextureDesc shadowMap2D(int w, int h) {
-            return dsAttachment2D(w, h, TextureFormat.DEPTH32F);
+            return depthStencilAttachment2D(w, h, Format.DEPTH32F);
         }
 
     }
@@ -107,7 +119,7 @@ public interface Texture extends Disposable {
     int arrayLayers();
 
     TextureType type();
-    TextureFormat format();
+    Format format();
 
     long getHandle();
 

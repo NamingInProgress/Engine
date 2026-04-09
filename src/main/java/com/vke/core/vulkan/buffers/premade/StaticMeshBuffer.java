@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.rendering.vulkan.buffer.Vertex;
+import com.vke.api.draw.Mesh;
+import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
@@ -15,20 +16,24 @@ import org.lwjgl.vulkan.VkDevice;
 
 import java.util.Arrays;
 
-public class MeshBuffer implements Disposable {
+public class StaticMeshBuffer implements Disposable {
     private StagedBuffer vertices;
     private StagedBuffer indices;
     private long verticesDeviceAddress;
 
-    private MeshBuffer() {}
+    private StaticMeshBuffer() {}
 
-    public static <T extends Vertex> MeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh) {
+        return uploadOnce(engine, renderer, mesh.getVertices(), mesh.getIndices());
+    }
+
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
         if (vertices.length == 0) {
             engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VulkanRenderDevice d = renderer.getDevice();
-            MeshBuffer self = new MeshBuffer();
+            StaticMeshBuffer self = new StaticMeshBuffer();
 
             T template = vertices[0];
 
@@ -37,7 +42,8 @@ public class MeshBuffer implements Disposable {
             BufferUsage vertexBufUsage = new BufferUsage(
                     BufferUsage.Bits.SSBO,
                     BufferUsage.Bits.TRANSFER_DST,
-                    BufferUsage.Bits.SHADER_DEVICE_ADDRESS
+                    BufferUsage.Bits.SHADER_DEVICE_ADDRESS,
+                    BufferUsage.Bits.VBO
             );
             MemoryUsage vertexMemUsage = new MemoryUsage(
                     MemoryUsage.Bits.GPU_ONLY

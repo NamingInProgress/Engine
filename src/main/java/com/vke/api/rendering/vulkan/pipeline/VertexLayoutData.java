@@ -1,6 +1,6 @@
-package com.vke.api.pipeline;
+package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.enums.texture.TextureFormat;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ public class VertexLayoutData {
 
     public static class Attribute {
         private final int byteStride;
-        private final TextureFormat format;
+        private final Format format;
 
-        public Attribute(int byteStride, TextureFormat format) {
+        public Attribute(int byteStride, Format format) {
             this.byteStride = byteStride;
             this.format = format;
         }
@@ -28,7 +28,7 @@ public class VertexLayoutData {
             return byteStride;
         }
 
-        public TextureFormat getFormat() {
+        public Format getFormat() {
             return format;
         }
     }
