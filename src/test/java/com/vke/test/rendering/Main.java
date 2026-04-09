@@ -12,6 +12,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
         createInfo.releaseMode = false;
+        //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);

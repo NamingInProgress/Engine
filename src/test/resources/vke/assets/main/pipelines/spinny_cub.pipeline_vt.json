@@ -1,6 +1,6 @@
 {
   "topology": "TRIANGLES",
-  "cullMode": "NONE",
+  "cullMode": "BACK",
   "attachments": [
     {
       "type": "COLOR",
@@ -9,7 +9,8 @@
     {
       "type": "DEPTH",
       "format": "DEPTH32F",
-      "depthCompareOperation": "LESS"
+      "depthCompareOperation": "LESS",
+      "depthTestEnable": true
     }
   ],
   "shaders": [

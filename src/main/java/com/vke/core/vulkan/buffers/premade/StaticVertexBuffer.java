@@ -3,17 +3,19 @@ package com.vke.core.vulkan.buffers.premade;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.utils.AlignedByteBuffer;
+import com.vke.core.rendering.bytesenik.AlignedBBSink;
 import com.vke.core.rendering.bytesenik.ByteBufferSink;
 
 import java.util.List;
 
 public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T template;
-    private VertexByteSink sink;
+    private final boolean align16;
 
-    public StaticVertexBuffer(T template, List<T> vertices) {
+    public StaticVertexBuffer(T template, List<T> vertices, boolean align16) {
         super(vertices.size(), template.getByteStride());
-        this.sink = new ByteBufferSink(data);
+        this.align16 = align16;
 
         this.template = template;
 
@@ -22,6 +24,11 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
             elementCount++;
         }
         data.flip();
+    }
+
+    @Override
+    protected VertexByteSink generateSink() {
+        return align16 ? new AlignedBBSink(new AlignedByteBuffer(data, 16)) : new ByteBufferSink(data);
     }
 
     private void putVertex(T v) {

@@ -287,7 +287,6 @@ public class PipelineData {
         }
     }
 
-    // So for pipeline you can just combine them and then when starting the command buffers that's when you separate the images
     public static class DepthAttachmentInfo extends AttachmentInfo {
         public static final String
                 DEPTH_TEST_ENABLE_NAME = "depthTestEnable",

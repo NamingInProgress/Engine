@@ -2,6 +2,7 @@ package com.vke.core.vulkan.buffers.premade;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
+import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 
 public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T template;
@@ -33,5 +34,10 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     @Override
     public int getByteStride() {
         return template.getByteStride();
+    }
+
+    @Override
+    protected VertexByteSink generateSink() {
+        return null;
     }
 }

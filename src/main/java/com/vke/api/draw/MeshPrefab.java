@@ -1,7 +1,5 @@
 package com.vke.api.draw;
 
-import java.util.function.Function;
-
 public class MeshPrefab {
     private final float[][] positions;
     private final float[][] normals;

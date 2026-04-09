@@ -7,13 +7,16 @@ import java.nio.ByteOrder;
 
 public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
+    protected VertexByteSink sink;
 
     public VertexBuffer(int baseVertexCount) {
         super(baseVertexCount);
+        this.sink = generateSink();
     }
 
     public VertexBuffer(int baseVertexCount, int stride) {
         super(baseVertexCount, stride);
+        this.sink = generateSink();
     }
 
     @Override
@@ -26,6 +29,7 @@ public abstract class VertexBuffer extends CpuBuffer {
     protected void realloc(int newSize) {
         data = MemoryUtil.memRealloc(data, newSize);
         data.order(ByteOrder.LITTLE_ENDIAN);
+        this.sink = generateSink();
     }
 
     public ByteBuffer getData() {
@@ -33,6 +37,8 @@ public abstract class VertexBuffer extends CpuBuffer {
     }
 
     public abstract int getByteStride();
+
+    protected abstract VertexByteSink generateSink();
 
     public static int t_float() {
         return 4;

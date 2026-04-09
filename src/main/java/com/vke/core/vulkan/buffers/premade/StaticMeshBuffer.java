@@ -24,10 +24,18 @@ public class StaticMeshBuffer implements Disposable {
     private StaticMeshBuffer() {}
 
     public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh) {
-        return uploadOnce(engine, renderer, mesh.getVertices(), mesh.getIndices());
+        return StaticMeshBuffer.uploadOnce(engine, renderer, mesh, false);
     }
 
     public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
+        return StaticMeshBuffer.uploadOnce(engine, renderer, vertices, indices, false);
+    }
+
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh, boolean align16) {
+        return uploadOnce(engine, renderer, mesh.getVertices(), mesh.getIndices(), align16);
+    }
+
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices, boolean align16) {
         if (vertices.length == 0) {
             engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }
@@ -37,7 +45,7 @@ public class StaticMeshBuffer implements Disposable {
 
             T template = vertices[0];
 
-            StaticVertexBuffer<T> vbo = new StaticVertexBuffer<>(template, Arrays.asList(vertices));
+            StaticVertexBuffer<T> vbo = new StaticVertexBuffer<>(template, Arrays.asList(vertices), align16);
 
             BufferUsage vertexBufUsage = new BufferUsage(
                     BufferUsage.Bits.SSBO,

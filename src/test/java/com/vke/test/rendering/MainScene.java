@@ -56,7 +56,7 @@ public class MainScene extends Scene {
         };
 
         mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), context.service(Services.VULKAN_RENDERER),
-                Meshes.CUBE.toMesh(((prefabVertex, faceID) -> new CubeVertexFormat(
+                Meshes.TEST.toMesh(((prefabVertex, faceID) -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
@@ -83,7 +83,8 @@ public class MainScene extends Scene {
             cmd.setScissor(sc);
 
             Matrix4f mat = new Matrix4f();
-            mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
+            //mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
+            mat.setPerspective((float) Math.toRadians(90), (float) 800 / 600, 0.1f, 1000, true);
 
             cmd.bindRenderPipeline(CUBE);
 
@@ -94,12 +95,20 @@ public class MainScene extends Scene {
 
             float speed = 1.0f;
 
+//            model.identity()
+//                    .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
+//                    .scale((float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
+//                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
+//                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))))
+//                    .rotateXYZ(time * speed, time * speed, time * speed);
+
+
             model.identity()
-                    .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
-                    .scale((float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
-                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
-                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))))
-                    .rotateXYZ(time * speed, time * speed, time * speed);
+                    .translate(200.0f, -250.0f, -550)
+                    .scale(200, 200, 200)
+                    .rotateY(time * speed);
+                    //.rotateX(45)
+                    ;//.rotateY(90);
 
             projMatrixHandle.write(buf -> buf.putMat4(mat));
             transformMatrixHandle.write(buf -> buf.putMat4(model));
