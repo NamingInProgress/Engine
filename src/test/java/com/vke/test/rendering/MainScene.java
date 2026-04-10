@@ -1,6 +1,7 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.draw.MeshPrefab;
 import com.vke.api.draw.Meshes;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -9,6 +10,8 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
+import com.vke.core.file.obj.ObjException;
+import com.vke.core.file.obj.ObjFile;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -21,6 +24,8 @@ import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
+
+import java.io.IOException;
 
 public class MainScene extends Scene {
 
@@ -43,25 +48,30 @@ public class MainScene extends Scene {
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
 
-        float[][] colorMap = new float[][]{
-                new float[]{ 1, 0, 0, 1f },
-                new float[]{ 0, 1, 0, 1f },
-                new float[]{ 0, 0, 1, 1f },
-                new float[]{ 1, 1, 0, 1f },
-                new float[]{ 1, 0, 1, 1f },
-                new float[]{ 0, 1, 1, 1f },
-        };
+        MeshPrefab prefab;
+        try {
+            ObjFile objFile = new ObjFile(context.id("bear.obj").asInputStream());
+            prefab = objFile.toMeshPrefab();
+        } catch (ObjException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        float[] color = {1, 1, 1, 1};
 
         mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), context.service(Services.VULKAN_RENDERER),
-                Meshes.CUBE.toMesh(((prefabVertex, faceID) -> new CubeVertexFormat(
+                prefab.toMesh((prefabVertex -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
 
-                        colorMap[faceID][0],
-                        colorMap[faceID][1],
-                        colorMap[faceID][2],
-                        colorMap[faceID][3]))));
+                        prefabVertex.normal()[0],
+                        prefabVertex.normal()[1],
+                        prefabVertex.normal()[2],
+
+                        color[0],
+                        color[1],
+                        color[2],
+                        color[3]))));
     }
 
     @Override
@@ -100,11 +110,11 @@ public class MainScene extends Scene {
 //                    .rotateXYZ(time * speed, time * speed, time * speed);
 
 
+            float scale = 10;
             model.identity()
                     .translate(200.0f, -250.0f, -550)
-                    .scale(200, 200, 200)
-                    //.rotateZ(time * speed);
-                    .rotateXYZ(time * speed, time * speed, time * speed);
+                    .scale(scale, scale, scale)
+                    .rotateY(time * speed);
                     //.rotateX(45)
                     ;//.rotateY(90);
 
@@ -132,12 +142,16 @@ public class MainScene extends Scene {
     public static class CubeVertexFormat implements Vertex {
 
         private float x, y, z;
+        private float nx, ny, nz;
         private float r, g, b, a;
 
-        public CubeVertexFormat(float x, float y, float z, float r, float g, float b, float a) {
+        public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a) {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.nx = nx;
+            this.ny = ny;
+            this.nz = nz;
             this.r = r;
             this.g = g;
             this.b = b;
@@ -146,12 +160,13 @@ public class MainScene extends Scene {
 
         @Override
         public int getByteStride() {
-            return 28;
+            return 4*10;
         }
 
         @Override
         public void putSelf(VertexByteSink buf) {
             buf.float3(x, y, z);
+            buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);
         }
     }
