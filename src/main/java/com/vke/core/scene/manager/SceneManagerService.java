@@ -51,13 +51,15 @@ public class SceneManagerService extends ScopedService<SceneManager> {
             Scene instance = createInstance(actualSceneClass, thisName, context);
 
             Identifier loadingSceneName = sceneXML.loadingScene;
-            if (loadingSceneName != null) {
-                SceneEntry tried = sceneRegistry.get(loadingSceneName);
-                if (tried == null) {
-                    awaitingDependencies.put(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
-                } else {
-                    instance.setLoadingScene((LoadingScene) tried.scene);
-                }
+            if (loadingSceneName == null && !(instance instanceof LoadingScene)) {
+                loadingSceneName = new Identifier(VKEngine.VKE_NAMESPACE, "default_loading");
+            }
+
+            SceneEntry tried = sceneRegistry.get(loadingSceneName);
+            if (tried == null) {
+                awaitingDependencies.put(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
+            } else {
+                instance.setLoadingScene((LoadingScene) tried.scene);
             }
 
             AwaitingDependency awaitingDependency = awaitingDependencies.get(thisName);
