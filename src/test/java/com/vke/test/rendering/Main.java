@@ -1,12 +1,10 @@
 package com.vke.test.rendering;
 
-import com.vke.api.scene.SceneException;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.SceneApp;
-import com.vke.core.services.Services;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {

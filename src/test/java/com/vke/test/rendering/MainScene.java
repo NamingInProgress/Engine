@@ -1,6 +1,5 @@
 package com.vke.test.rendering;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Meshes;
 import com.vke.api.draw.Vertex;
@@ -22,8 +21,6 @@ import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
-
-import java.io.IOException;
 
 public class MainScene extends Scene {
 
@@ -56,7 +53,7 @@ public class MainScene extends Scene {
         };
 
         mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), context.service(Services.VULKAN_RENDERER),
-                Meshes.TEST.toMesh(((prefabVertex, faceID) -> new CubeVertexFormat(
+                Meshes.CUBE.toMesh(((prefabVertex, faceID) -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
@@ -106,7 +103,7 @@ public class MainScene extends Scene {
             model.identity()
                     .translate(200.0f, -250.0f, -550)
                     .scale(200, 200, 200)
-                    .rotateY(time * speed);
+                    .rotateXYZ(time * speed, time * speed, time * speed);
                     //.rotateX(45)
                     ;//.rotateY(90);
 

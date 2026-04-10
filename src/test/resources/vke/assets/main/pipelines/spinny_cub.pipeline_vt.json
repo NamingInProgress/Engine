@@ -1,6 +1,7 @@
 {
   "topology": "TRIANGLES",
-  "cullMode": "BACK",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
   "attachments": [
     {
       "type": "COLOR",
