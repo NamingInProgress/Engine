@@ -11,7 +11,7 @@ import com.vke.core.services.Services;
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");
 

@@ -1,11 +1,11 @@
 package com.vke.core.file.utils;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.utils.iter.Iter;
+import com.vke.utils.iter.helpers.Option;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -135,5 +135,27 @@ public class DataUtils {
             if (current == -1) throw new EOFException();
         }
         return new String(bytes.toArray(), StandardCharsets.UTF_8);
+    }
+
+    public static Iter<String> readerLines(Reader reader) {
+        return new LineReader(reader);
+    }
+
+    private static class LineReader implements Iter<String> {
+        private final BufferedReader reader;
+
+        private LineReader(Reader reader) {
+            this.reader = new BufferedReader(reader);
+        }
+
+        @Override
+        public @NotNull Option<String> next() {
+            try {
+                String line = reader.readLine();
+                return line == null ? Option.none() : Option.some(line);
+            } catch (IOException e) {
+                return Option.none();
+            }
+        }
     }
 }
