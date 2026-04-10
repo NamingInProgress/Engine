@@ -6,7 +6,7 @@ import com.vke.utils.io.Disposable;
 
 public interface Buffer extends Disposable {
 
-    record Description(long size, BufferUsage usage, MemoryUsage memUsage) {}
+    record Description(long size, BufferUsage usage, MemoryUsage memUsage, int... flags) {}
 
     long size();
     BufferUsage usage();

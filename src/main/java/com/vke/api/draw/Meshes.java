@@ -31,12 +31,12 @@ public class Meshes {
                     5, 5
             },
             new int[] { // indices (12 triangles)
-                    0, 1, 2,  2, 3, 0, // back
+                    2, 1, 0,  0, 3, 2, // back
                     4, 5, 6,  6, 7, 4, // front
-                    0, 3, 7,  7, 4, 0, // left
-                    1, 5, 6,  6, 2, 1, // right
+                    7, 3, 0,  0, 4, 7, // left
+                    6, 5, 1,  1, 2, 6, // right
                     0, 1, 5,  5, 4, 0, // bottom
-                    3, 2, 6,  6, 7, 3  // top
+                    6, 2, 3,  3, 7, 6  // top
             }
     );
 

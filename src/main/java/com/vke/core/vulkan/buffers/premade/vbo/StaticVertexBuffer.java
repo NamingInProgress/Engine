@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.buffers.premade;
+package com.vke.core.vulkan.buffers.premade.vbo;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;

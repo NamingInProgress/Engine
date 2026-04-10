@@ -9,19 +9,20 @@ import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryUtil;
 
 public class MappedBuffer implements Disposable {
-    private final GpuBuffer gpuBuffer;
-    private final long mappedAddress;
-    private final long size;
+    protected final GpuBuffer gpuBuffer;
+    protected final long mappedAddress;
+    protected final long size;
 
     public MappedBuffer(
             VKEngine engine,
             VulkanRenderDevice device,
             long size,
-            BufferUsage usage
+            BufferUsage usage,
+            int... flags
     ) {
         this.size = size;
 
-        this.gpuBuffer = device.createBuffer(new Buffer.Description(size, usage, MemoryUsage.Bits.CPU_TO_GPU.into()));
+        this.gpuBuffer = device.createBuffer(new Buffer.Description(size, usage, MemoryUsage.Bits.AUTO_PREFER_HOST.into(), flags));
 
         this.mappedAddress = gpuBuffer.getInfo().pMappedData();
 

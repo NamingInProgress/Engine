@@ -171,6 +171,8 @@ public class VulkanRenderer extends Service implements Renderer {
         return this.device;
     }
 
+    public int getFramesInFlight() { return this.FRAMES_IN_FLIGHT; }
+
     @Override
     public void free() {
         Samplers.NEAREST.free();

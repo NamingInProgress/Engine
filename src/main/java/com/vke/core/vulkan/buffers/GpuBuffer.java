@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.utils.iter.Iter;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;
@@ -15,6 +16,7 @@ import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkDevice;
 
 import java.nio.LongBuffer;
+import java.util.Arrays;
 
 public class GpuBuffer implements Buffer {
     private static final String HERE = "Buffer@VulkanImpl/GPUBuffer";
@@ -29,10 +31,10 @@ public class GpuBuffer implements Buffer {
     private final MemoryUsage memUsage;
 
     public GpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
-        this(engine, device, info.size(), info.usage(), info.memUsage());
+        this(engine, device, info.size(), info.usage(), info.memUsage(), info.flags());
     }
 
-    private GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage) {
+    private GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage, int... flags) {
         this.size = size;
         this.usage = usageFlags;
         this.memUsage = memoryUsage;
@@ -46,7 +48,7 @@ public class GpuBuffer implements Buffer {
 
             VmaAllocationCreateInfo allocationCreateInfo = VmaAllocationCreateInfo.calloc(stack)
                     .usage(memoryUsage.getVkHandle())
-                    .flags(Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT);
+                    .flags(Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT | Arrays.stream(flags).reduce(0, (a, b) -> a | b));
 
             LongBuffer pBuffer = stack.mallocLong(1);
             PointerBuffer pAllocation = stack.mallocPointer(1);

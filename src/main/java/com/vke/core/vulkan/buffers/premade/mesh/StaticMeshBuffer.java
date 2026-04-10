@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.buffers.premade;
+package com.vke.core.vulkan.buffers.premade.mesh;
 
 import com.vke.api.draw.Mesh;
 import com.vke.api.draw.Vertex;
@@ -7,6 +7,8 @@ import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.core.vulkan.buffers.premade.IndexBuffer;
+import com.vke.core.vulkan.buffers.premade.vbo.StaticVertexBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -79,8 +81,8 @@ public class StaticMeshBuffer implements Disposable {
             );
             self.indices = new StagedBuffer(engine, d, ibo, indexBufUsage, indexMemUsage);
 
-            self.vertices.uploadViaStaging(engine, d);
-            self.indices.uploadViaStaging(engine, d);
+            self.vertices.uploadViaStaging(engine, d, vbo::free);
+            self.indices.uploadViaStaging(engine, d, ibo::free);
 
             return self;
         }

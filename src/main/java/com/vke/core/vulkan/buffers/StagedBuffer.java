@@ -20,13 +20,14 @@ public class StagedBuffer implements Disposable {
     private final GpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
 
-    public StagedBuffer(VKEngine engine, VulkanRenderDevice device, CpuBuffer buffer, BufferUsage usage, MemoryUsage memoryUsage) {
+    public StagedBuffer(VKEngine engine, VulkanRenderDevice device, CpuBuffer buffer,
+                        BufferUsage usage, MemoryUsage memoryUsage) {
         this.cpuBuffer = buffer;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
         gpuBuffer = device.createBuffer(new Buffer.Description(allocSize, usage, memoryUsage));
     }
 
-    public void uploadViaStaging(VKEngine engine, VulkanRenderDevice device) {
+    public void uploadViaStaging(VKEngine engine, VulkanRenderDevice device, Runnable postUpload) {
         long size = cpuBuffer.getSizeBytes();
 
         BufferUsage bufUsage = new BufferUsage(
@@ -54,7 +55,10 @@ public class StagedBuffer implements Disposable {
                     .dstOffset(0);
 
             VK14.vkCmdCopyBuffer(cmd, staging.getBuffer(), gpuBuffer.getBuffer(), pRegions);
-        }, staging::free);
+        }, () -> {
+            staging.free();
+            postUpload.run();
+        });
     }
 
     public GpuBuffer getGpuBuffer() {

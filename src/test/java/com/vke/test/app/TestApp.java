@@ -10,7 +10,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.manager.VKEAssetManager;
-import com.vke.core.vulkan.buffers.premade.StaticMeshBuffer;
+import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.services.Services;

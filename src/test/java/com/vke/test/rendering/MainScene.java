@@ -13,7 +13,7 @@ import com.vke.core.services.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.buffers.premade.StaticMeshBuffer;
+import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.window.Window;
@@ -103,6 +103,7 @@ public class MainScene extends Scene {
             model.identity()
                     .translate(200.0f, -250.0f, -550)
                     .scale(200, 200, 200)
+                    //.rotateZ(time * speed);
                     .rotateXYZ(time * speed, time * speed, time * speed);
                     //.rotateX(45)
                     ;//.rotateY(90);

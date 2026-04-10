@@ -102,9 +102,13 @@ public class LogicalDevice implements Disposable {
                     .pQueuePriorities(priorities);
         }
 
+        VkPhysicalDeviceFeatures deviceFeatures = VkPhysicalDeviceFeatures.calloc(stack);
         VkPhysicalDeviceVulkan12Features deviceFeaturesVK12 = VkPhysicalDeviceVulkan12Features.calloc(stack).sType$Default();
         VkPhysicalDeviceVulkan13Features deviceFeaturesVK13 = VkPhysicalDeviceVulkan13Features.calloc(stack).sType$Default();
         VkPhysicalDeviceExtendedDynamicStateFeaturesEXT deviceFeaturesEXTDynamicState = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT.calloc(stack).sType$Default();
+
+        deviceFeatures.fillModeNonSolid(true);
+        deviceFeatures.wideLines(true);
 
         deviceFeaturesVK12.bufferDeviceAddress(true);
         deviceFeaturesVK12.descriptorIndexing(true);
@@ -120,6 +124,7 @@ public class LogicalDevice implements Disposable {
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()
                 .pNext(chain.get().address())
+                .pEnabledFeatures(deviceFeatures)
                 .ppEnabledExtensionNames(extBuf)
                 .pQueueCreateInfos(buf);
 
