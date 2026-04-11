@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.buffers.premade;
+package com.vke.core.vulkan.buffers.premade.ibo;
 
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -6,7 +6,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.IntBuffer;
 
 public class IndexBuffer extends CpuBuffer {
-    private IntBuffer data;
+    protected IntBuffer data;
 
     public IndexBuffer(int baseCap) {
         super(baseCap);
@@ -25,6 +25,11 @@ public class IndexBuffer extends CpuBuffer {
         data.put(indices);
         elementCount += indices.length;
         data.flip();
+    }
+
+    public void reset() {
+        data.position(0);
+        elementCount = 0;
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.core.vulkan.buffers.premade.IndexBuffer;
+import com.vke.core.vulkan.buffers.premade.ibo.IndexBuffer;
 import com.vke.core.vulkan.buffers.premade.vbo.StaticVertexBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Disposable;

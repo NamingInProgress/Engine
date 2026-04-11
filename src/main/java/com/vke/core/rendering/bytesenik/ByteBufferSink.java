@@ -1,6 +1,7 @@
 package com.vke.core.rendering.bytesenik;
 
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
@@ -10,7 +11,6 @@ public class ByteBufferSink implements VertexByteSink {
     private final ByteBuffer buffer;
 
     public ByteBufferSink(ByteBuffer buffer) {
-        Objects.requireNonNull(buffer);
         this.buffer = buffer;
     }
 

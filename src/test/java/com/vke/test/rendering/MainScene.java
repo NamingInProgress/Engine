@@ -1,6 +1,7 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.draw.IVertexConsumer;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -14,6 +15,7 @@ import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
+import com.vke.core.vulkan.buffers.premade.mesh.VertexConsumer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.window.Window;
@@ -30,20 +32,30 @@ public class MainScene extends Scene {
         super(name, context);
     }
 
-    private VulkanRenderPipeline cubePipeline;
+    private VulkanRenderPipeline cubePipeline, dynamicVertsPipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
+    private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
 
     private PushConstantHandle projMatrixHandle;
     private PushConstantHandle transformMatrixHandle;
+
+    private PushConstantHandle dvProjMatrixHandle;
+
+    private IVertexConsumer<DynamicTestVertex> consumer;
 
     private StaticMeshBuffer mesh;
 
     @Override
     public void onLoad() {
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
+        dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
         
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
+
+        dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
+
+        consumer = new VertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0)) {};
 
         MeshPrefab prefab;
         try {
@@ -99,21 +111,11 @@ public class MainScene extends Scene {
 
             float speed = 1.0f;
 
-//            model.identity()
-//                    .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
-//                    .scale((float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
-//                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))),
-//                            (float) (200 + 5 * Math.sin(Math.toRadians(time * 10))))
-//                    .rotateXYZ(time * speed, time * speed, time * speed);
-
-
             float scale = 10;
             model.identity()
                     .translate(200.0f, -250.0f, -550)
                     .scale(scale, scale, scale)
                     .rotateY(time * speed);
-                    //.rotateX(45)
-                    ;//.rotateY(90);
 
             projMatrixHandle.write(buf -> buf.putMat4(mat));
             transformMatrixHandle.write(buf -> buf.putMat4(model));
@@ -124,12 +126,32 @@ public class MainScene extends Scene {
             VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(mesh.getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));
 
             VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
+
+
+            cmd.bindRenderPipeline(DYNAMIC);
+
+            dvProjMatrixHandle.write(buf -> buf.putMat4(mat));
+
+            cmd.setPushConstants(DYNAMIC);
+
+            consumer.begin();
+            consumer.vertex(new DynamicTestVertex(0, 0, -550, 1, 0, 0, 1));
+            consumer.vertex(new DynamicTestVertex(200, 0, -550, 0, 1, 0, 1));
+            consumer.vertex(new DynamicTestVertex(200, 200, -550, 0, 0, 1, 1));
+            consumer.vertex(new DynamicTestVertex(0, 200, -500, 1, 1, 0, 1));
+
+            consumer.index(0, 1, 2);
+            consumer.index(2, 3, 0);
+
+            consumer.draw(cmd);
+            //((VertexConsumer<DynamicTestVertex>) consumer).print();
         }
     }
 
     @Override
     public void onUnload() {
         mesh.free();
+        consumer.free();
     }
 
     @Override
@@ -164,6 +186,33 @@ public class MainScene extends Scene {
         public void putSelf(VertexByteSink buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
+            buf.float4(r, g, b, a);
+        }
+    }
+
+    public static class DynamicTestVertex implements Vertex {
+
+        private final float x, y, z;
+        private final float r, g, b, a;
+
+        public DynamicTestVertex(float x, float y, float z, float r, float g, float b, float a) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        @Override
+        public int getByteStride() {
+            return 4*7;
+        }
+
+        @Override
+        public void putSelf(VertexByteSink buf) {
+            buf.float3(x, y, z);
             buf.float4(r, g, b, a);
         }
     }

@@ -9,23 +9,26 @@ import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
-import com.vke.core.vulkan.buffers.premade.IndexBuffer;
+import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
+import com.vke.core.vulkan.buffers.premade.ibo.IndexBuffer;
 import com.vke.core.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
-import com.vke.utils.io.Disposable;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK14;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public abstract class VertexConsumer<T extends Vertex> implements IVertexConsumer<T>, Disposable {
+public abstract class VertexConsumer<T extends Vertex> implements IVertexConsumer<T> {
 
     private static final int BASE_VERTEX_COUNT = 1000;
     private static final int BASE_INDEX_COUNT = 1000;
 
     private final DynamicVertexBuffer<T> _cpuVertices;
-    private final IndexBuffer _cpuIndices;
+    private final DynamicIndexBuffer _cpuIndices;
 
     private final VKEngine _engine;
     private final VulkanRenderer _renderer;
@@ -59,14 +62,31 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
         this._template = template;
 
         this._cpuVertices = new DynamicVertexBuffer<>(template, estVertexCount);
-        this._cpuIndices = new IndexBuffer(estIndexCount);
+        this._cpuIndices = new DynamicIndexBuffer(estIndexCount);
 
         this._gpuVertices = genVertexBuffer(estVertexCount);
         this._gpuIndices = genIndexBuffer(estIndexCount);
     }
 
-    public long getIndicesOffset() { return this._gpuIndices.getOffset(); }
-    public long getVerticesOffset() { return this._gpuVertices.getOffset(); }
+    public void print() {
+        FloatBuffer fb = _cpuVertices.getData().asFloatBuffer();
+        IntBuffer ib = _cpuIndices.getData();
+
+        System.out.println("--------- VERTEX -------------");
+        for (int i = 0; i < 3; i++) {
+            String s = "";
+            for (int j = 0; j < 7; j++) {
+                s += fb.get(i * 7 + j) + " | ";
+            }
+            System.out.println(s);
+        }
+        System.out.println();
+        System.out.println("--------- INDEX -------------");
+        System.out.println(ib.get(0) + " | " + ib.get(1) + " | " + ib.get(2));
+    }
+
+    public long getIndicesOffset() { return this._gpuIndices.getLastOffset(); }
+    public long getVerticesOffset() { return this._gpuVertices.getLastOffset(); }
 
     public int getWrittenIndices(){ return this.currentIndexCount; }
     public int getWrittenVertices(){ return this.currentVertexCount; }
@@ -74,7 +94,7 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
     public void bindIBO(CommandBuffer buffer) {
         VulkanCmdBuffers cmd =  (VulkanCmdBuffers) buffer;
 
-        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(), this.getIndicesOffset(), VK14.VK_INDEX_TYPE_UINT16);
+        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(), this.getIndicesOffset(), VK14.VK_INDEX_TYPE_UINT32);
     }
 
     public void bindVBO(CommandBuffer buffer) {
@@ -97,25 +117,36 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
     }
 
     @Override
-    public void vertex(T vertex) {
-        ensureVertexSpace(1);
-        this._cpuVertices.putVertex(vertex);
-        this.currentVertexCount++;
+    public void vertex(T... verts) {
+        ensureVertexSpace(verts.length);
+        this._cpuVertices.putVertices(verts);
+        this.currentVertexCount += verts.length;
     }
 
     @Override
-    public void index(int index) {
-        ensureIndexSpace(1);
-        this._cpuIndices.put(this.frozenIndexCount + index);
-        this.currentIndexCount++;
+    public void index(int... indices) {
+        ensureIndexSpace(indices.length);
+        this._cpuIndices.put(Arrays.stream(indices).map(i -> frozenIndexCount + i).toArray());
+        this.currentIndexCount += indices.length;
     }
 
     @Override
-    public void upload() {
-        this._gpuIndices.write(this._cpuIndices.getAddress(), 0, this._cpuIndices.getSizeBytes());
-        this._gpuVertices.write(this._cpuVertices.getAddress(), 0, this._cpuVertices.getSizeBytes());
+    public void draw(CommandBuffer cmd) {
+        VulkanCmdBuffers buf = (VulkanCmdBuffers) cmd;
+        this.upload();
+        this.bindIBO(cmd);
+        this.bindVBO(cmd);
+
+        VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), 1, 0, 0, 0);
+
         this.currentFrame++;
+        this.currentVertexCount = 0;
+        this.currentIndexCount = 0;
 
+        handleOldBuffers();
+    }
+
+    private void handleOldBuffers() {
         this._gpuBuffersOld.forEach((v) -> v.v1++);
 
         ArrayList<Integer> toRemove = new ArrayList<>();
@@ -129,6 +160,15 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
         }
 
         toRemove.forEach(this._gpuBuffersOld::remove);
+    }
+
+    @Override
+    public void upload() {
+        this._cpuIndices.reset();
+        this._cpuVertices.reset();
+
+        this._gpuIndices.write(this._cpuIndices.getAddress(), 0, (long) this.getWrittenIndices() * 4);
+        this._gpuVertices.write(this._cpuVertices.getAddress(), 0, (long) this.getWrittenVertices() * _template.getByteStride());
     }
 
     @Override
