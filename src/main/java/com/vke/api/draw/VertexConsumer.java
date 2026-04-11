@@ -1,6 +1,6 @@
 package com.vke.api.draw;
 
-import com.vke.core.vulkan.buffers.premade.StaticMeshBuffer;
+import com.vke.core.mesh.Mesh;
 
 public interface VertexConsumer {
     void begin();

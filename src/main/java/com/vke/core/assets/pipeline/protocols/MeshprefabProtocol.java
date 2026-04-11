@@ -1,7 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
-import com.vke.api.draw.MeshPrefab;
+import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;

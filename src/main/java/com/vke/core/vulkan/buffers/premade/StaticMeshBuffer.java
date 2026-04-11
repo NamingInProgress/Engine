@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers.premade;
 
-import com.vke.api.draw.Mesh;
+import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.VulkanRenderer;

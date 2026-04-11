@@ -1,4 +1,6 @@
-package com.vke.api.draw;
+package com.vke.core.mesh;
+
+import com.vke.api.draw.Vertex;
 
 public class Mesh {
     private final Vertex[] vertices;

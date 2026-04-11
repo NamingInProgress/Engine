@@ -31,6 +31,7 @@ public class AssetPipeline extends CompoundPipelineStage {
         String protocolName = Protocols.PLAIN;
         AssetProtocol<?> protocol = context.getProtocol(protocolName);
         Identifier assetName = stageElement.getAssetName();
-        return protocol.createAssetHandle(stageElement.getAssetData(), assetName, new PipelinedLoader(this, protocolName));
+        String rawAssetName = assetName.getPath();
+        return protocol.createAssetHandle(stageElement.getAssetData(), assetName, new PipelinedLoader(this, protocolName, rawAssetName));
     }
 }

@@ -2,17 +2,16 @@ package com.vke.core.assets.pipeline;
 
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
+import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
 import com.vke.core.assets.pipeline.protocols.*;
 import com.vke.core.assets.pipeline.protocols.shader.FragmentShaderProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.VertexShaderProtocol;
-import com.vke.core.assets.pipeline.stages.ConvertStage;
-import com.vke.core.assets.pipeline.stages.DecodeStage;
-import com.vke.core.assets.pipeline.stages.RenameStage;
+import com.vke.core.assets.pipeline.stages.*;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.core.mesh.MeshPrefabCache;
 
 import java.util.HashMap;
 
@@ -20,12 +19,14 @@ public class PipelineContext {
     private final Context vkeContext;
     private final HashMap<String, StageFactory> registryRegistry;
     private final HashMap<String, AssetProtocol<?>> protocolRegistry;
+    private final HashMap<String, AssetCache> cacheRegistry;
     private final HashMap<String, HashMap<String, AssetConverter>> converterRegistry;
 
     public PipelineContext(Context vkeContext) {
         this.vkeContext = vkeContext;
         this.registryRegistry = new HashMap<>();
         this.protocolRegistry = new HashMap<>();
+        this.cacheRegistry = new HashMap<>();
         this.converterRegistry = new HashMap<>();
 
         //register engine default protocols
@@ -46,6 +47,7 @@ public class PipelineContext {
         registerStage(StageFilter.STAGE, StageFilter::new);
         registerStage(RenameStage.STAGE, RenameStage::new);
         registerStage(DecodeStage.STAGE, DecodeStage::new);
+        registerStage(CacheAssetStage.STAGE, CacheAssetStage::new);
 
         //register converters
         registerConverter(new PlainPathConverter());
@@ -53,6 +55,9 @@ public class PipelineContext {
         registerConverter(new ConfigLangConverter());
         registerConverter(new ConfigPipelineConverter());
         registerConverter(new ObjMeshprefabConverter());
+
+        //register cache handlers
+        registerCacheHandler(new MeshPrefabCache());
     }
 
     public void registerStage(String stageName, StageFactory factory) {
@@ -66,6 +71,10 @@ public class PipelineContext {
     public void registerConverter(AssetConverter converter) {
         HashMap<String, AssetConverter> second = converterRegistry.computeIfAbsent(converter.from(), s -> new HashMap<>());
         second.put(converter.to(), converter);
+    }
+
+    public void registerCacheHandler(AssetCache cacheHandler) {
+        this.cacheRegistry.put(cacheHandler.getTargetProtocol(), cacheHandler);
     }
 
     public PipelineStage produceStage(String stageName, ConfigNode node) throws AssetException {
@@ -86,6 +95,10 @@ public class PipelineContext {
         HashMap<String, AssetConverter> second = converterRegistry.get(fromName);
         if (second == null) return null;
         return second.get(toName);
+    }
+
+    public AssetCache getCacheHandler(String protocol) {
+        return cacheRegistry.get(protocol);
     }
 
     public Context context() {

@@ -30,7 +30,12 @@
         <decode to="png" using="png"/>
     </stage-filter>
     <stage-filter uri="file://extension" query="obj" op="equals">
-        <decode to="obj" using="obj"/>
-        <convert to="meshprefab"/>
+        <cache-asset for="meshprefab">
+            <decode to="obj" using="obj"/>
+            <convert to="meshprefab"/>
+        </cache-asset>
+        <rename>
+            <uri-part uri="file://location/bundle"/>
+        </rename>
     </stage-filter>
 </assets>

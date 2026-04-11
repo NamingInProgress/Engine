@@ -12,15 +12,18 @@ import com.vke.utils.io.Identifier;
 public class PipelinedLoader implements AssetProtocol.Loader {
     private final AssetPipeline pipeline;
     private final String protocol;
+    private final String assetName;
 
-    public PipelinedLoader(AssetPipeline pipeline, String protocol) {
+    public PipelinedLoader(AssetPipeline pipeline, String protocol, String assetName) {
         this.pipeline = pipeline;
         this.protocol = protocol;
+        this.assetName = assetName;
     }
 
     @Override
     public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
         StageElement element = new StageElement(identifier.toPath(), new AssetData(protocol, identifier));
+        element.setAssetName(assetName);
         pipeline.execute(element, executionTarget);
         AssetData data = element.getAssetData();
         if (!data.isResolved()) {
