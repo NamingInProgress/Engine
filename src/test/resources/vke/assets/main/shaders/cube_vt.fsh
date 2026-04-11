@@ -1,7 +1,7 @@
 #version 450
 
 layout(location = 0) in vec4 col;
-layout(location = 1) in vec3 normal;
+layout(location = 1) in vec3 inNormal;
 
 layout (location = 0) out vec4 color;
 
@@ -10,7 +10,7 @@ void main() {
     vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));
 
     // Normalize incoming normal
-    vec3 n = normalize(normal);
+    vec3 n = normalize(inNormal);
 
     // Lambert diffuse lighting
     float diff = max(dot(n, lightDir), 0.0);

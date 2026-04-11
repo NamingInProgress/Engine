@@ -18,6 +18,8 @@ public class MappedGpuRingBuffer extends MappedBuffer {
         this.framesInFlight = framesInFlight;
     }
 
+    public long getOffset() { return (frameIndex % framesInFlight) * singleSize; }
+
     @Override
     public void write(long srcAddress, long offset, long numBytes) {
         if (numBytes + offset > singleSize) {

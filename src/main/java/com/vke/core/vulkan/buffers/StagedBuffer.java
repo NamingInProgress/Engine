@@ -71,7 +71,6 @@ public class StagedBuffer implements Disposable {
 
     @Override
     public void free() {
-        cpuBuffer.free();
         gpuBuffer.free();
     }
 
