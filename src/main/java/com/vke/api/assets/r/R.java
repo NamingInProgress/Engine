@@ -1,5 +1,6 @@
 package com.vke.api.assets.r;
 
+import com.vke.api.draw.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -15,4 +16,5 @@ public class R {
     public static Category<ConfigDocument> configs = new Category<>();
     public static Category<Language> languages = new Category<>();
     public static Category<Shader> shaders = new Category<>();
+    public static Category<MeshPrefab> meshprefabs = new Category<>();
 }

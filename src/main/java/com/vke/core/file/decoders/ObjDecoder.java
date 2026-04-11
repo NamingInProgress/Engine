@@ -8,6 +8,8 @@ import com.vke.utils.Utils;
 import java.io.InputStream;
 
 public class ObjDecoder implements Decoder<ObjFile> {
+    public static final String KEY = "obj";
+
     @Override
     public ObjFile decode(InputStream input) throws DecodeException {
         return Utils.chainExceptions(() -> new ObjFile(input));

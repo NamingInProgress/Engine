@@ -8,7 +8,9 @@
                 <uri-part uri="file://nickname"/>
             </rename>
         </stage-filter>
-        <stage-filter uri="file://name" query="pipeline" op="matches">
+        <stage-filter uri="file://name" query="pipeline" op="contains">
+            <convert to="config"/>
+            <stage-filter uri="config://field/hello" query="world" op="equals"/>
             <convert to="pipeline"/>
         </stage-filter>
     </stage-filter>
@@ -25,6 +27,10 @@
         </rename>
     </stage-filter>
     <stage-filter uri="file://extension" query="png" op="equals">
-        <convert to="png"/>
+        <decode to="png" using="png"/>
+    </stage-filter>
+    <stage-filter uri="file://extension" query="obj" op="equals">
+        <decode to="obj" using="obj"/>
+        <convert to="meshprefab"/>
     </stage-filter>
 </assets>

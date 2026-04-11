@@ -51,9 +51,8 @@ public class MainScene extends Scene {
 
         MeshPrefab prefab;
         try {
-            ObjFile objFile = new ObjFile(context.id("bear.obj").asInputStream());
-            prefab = objFile.toMeshPrefab();
-        } catch (ObjException | IOException e) {
+            prefab = R.meshprefabs.get("bear.obj").acquire(context);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

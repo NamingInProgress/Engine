@@ -17,6 +17,8 @@ import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
+import java.io.IOException;
+
 public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
     @Override
     public String getProtocolName() {
@@ -38,21 +40,28 @@ public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
         return false;
     }
 
+    public static AssetData fromConfig(Context context, ConfigDocument configDocument) throws AssetException {
+        return Utils.chainExceptions(() -> {
+            PipelineData data = PipelineData.fromConfig(configDocument);
+
+            EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
+            Renderer renderer = context.service(rendererType.serviceName);
+            RenderDevice device = renderer.getDevice();
+
+            return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
+        });
+    }
+
     public static class RenderPipelineLoader implements Loader {
 
         @Override
         public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             if (!executionTarget.isUsable(PipelineStage.ExecutionTarget.Main)) return null;
-
-            return Utils.chainExceptions(() -> {
-                PipelineData data = PipelineData.fromConfig(ConfigDocument.parseIdentifier(identifier));
-
-                EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-                Renderer renderer = context.service(rendererType.serviceName);
-                RenderDevice device = renderer.getDevice();
-
-                return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
-            });
+            try {
+                return fromConfig(context, ConfigDocument.parseIdentifier(identifier));
+            } catch (IOException e) {
+                throw new AssetException(e);
+            }
         }
     }
 }

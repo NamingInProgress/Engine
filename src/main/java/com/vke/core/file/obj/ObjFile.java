@@ -103,6 +103,7 @@ public class ObjFile {
             } else {
                 int index = vertices.size();
                 vertices.add(vertexKey.toPrefabVertex());
+                seenVertices.put(vertexKey, index);
                 indices.add(index);
             }
         }

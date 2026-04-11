@@ -1,8 +1,11 @@
 package com.vke.core.assets.pipeline;
 
 import com.vke.api.assets.Protocols;
+import com.vke.core.Context;
+import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
+import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.io.FileUtils;
 import com.vke.utils.io.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +35,15 @@ public class StageElement {
 
     public AssetData getAssetData(@Nullable String protocol) {
         return AssetProtocol.getAssetData(this, protocol == null ? getProtocol() : protocol);
+    }
+
+    public AssetData getAssetDataResolved(Context context, AssetProtocol<?> protocol, PipelineStage.ExecutionTarget target) throws AssetException {
+        AssetData d = AssetProtocol.getAssetData(this, protocol.getProtocolName());
+        if (!d.isResolved() && target != PipelineStage.ExecutionTarget.Pseudo) {
+            AssetProtocol.Loader loader = protocol.getLoader();
+            d = loader.load(context, d.getUnresolved(), target);
+        }
+        return d;
     }
 
     public AssetData getAssetData() {

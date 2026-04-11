@@ -14,4 +14,6 @@ public class Protocols {
     public static final String RENDERPIPELINE = "pipeline";
     public static final String VERTSHADER = "vertshader";
     public static final String FRAGSHADER = "fragshader";
+    public static final String OBJ = "obj";
+    public static final String MESHPREFAB = "meshprefab";
 }
