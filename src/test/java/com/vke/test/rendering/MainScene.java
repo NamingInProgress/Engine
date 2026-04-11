@@ -110,7 +110,7 @@ public class MainScene extends Scene {
 //                    .rotateXYZ(time * speed, time * speed, time * speed);
 
 
-            float scale = 100;
+            float scale = 10;
             model.identity()
                     .translate(200.0f, -250.0f, -550)
                     .scale(scale, scale, scale)
