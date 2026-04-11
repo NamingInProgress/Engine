@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.buffers.premade.mesh;
 
 import com.vke.api.draw.IVertexConsumer;
-import com.vke.api.draw.Mesh;
+import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
