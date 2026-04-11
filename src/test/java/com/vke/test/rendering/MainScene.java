@@ -40,10 +40,12 @@ public class MainScene extends Scene {
     private PushConstantHandle transformMatrixHandle;
 
     private PushConstantHandle dvProjMatrixHandle;
+    private PushConstantHandle dvTransformMatrixHandle;
 
     private IVertexConsumer<DynamicTestVertex> consumer;
 
     private StaticMeshBuffer mesh;
+    private MeshPrefab prefab;
 
     @Override
     public void onLoad() {
@@ -54,10 +56,10 @@ public class MainScene extends Scene {
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
 
         dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
+        dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
 
-        consumer = new VertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0)) {};
+        consumer = new VertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0), 100000, 100000) {};
 
-        MeshPrefab prefab;
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);
 
@@ -131,17 +133,29 @@ public class MainScene extends Scene {
             cmd.bindRenderPipeline(DYNAMIC);
 
             dvProjMatrixHandle.write(buf -> buf.putMat4(mat));
+            dvTransformMatrixHandle.write(buf -> buf.putMat4(new Matrix4f().translate(-220, -250.0f, -550).scale(scale, scale, scale).rotateY(time * speed)));
 
             cmd.setPushConstants(DYNAMIC);
 
             consumer.begin();
-            consumer.vertex(new DynamicTestVertex(0, 0, -550, 1, 0, 0, 1));
-            consumer.vertex(new DynamicTestVertex(200, 0, -550, 0, 1, 0, 1));
-            consumer.vertex(new DynamicTestVertex(200, 200, -550, 0, 0, 1, 1));
-            consumer.vertex(new DynamicTestVertex(0, 200, -500, 1, 1, 0, 1));
+//            consumer.vertex(new DynamicTestVertex(0, 0, -550, 1, 0, 0, 1));
+//            consumer.vertex(new DynamicTestVertex(200, 0, -550, 0, 1, 0, 1));
+//            consumer.vertex(new DynamicTestVertex(200, 200, -550, 0, 0, 1, 1));
+//            consumer.vertex(new DynamicTestVertex(0, 200, -500, 1, 1, 0, 1));
+//
+//            consumer.index(0, 1, 2);
+//            consumer.index(2, 3, 0);
 
-            consumer.index(0, 1, 2);
-            consumer.index(2, 3, 0);
+            consumer.mesh(prefab.toMesh((prefabVertex) -> new DynamicTestVertex(
+                    prefabVertex.position()[0],
+                    prefabVertex.position()[1],
+                    prefabVertex.position()[2],
+
+                    1,
+                    1,
+                    1,
+                    1
+            )));
 
             consumer.draw(cmd);
             //((VertexConsumer<DynamicTestVertex>) consumer).print();

@@ -7,9 +7,10 @@ layout (location = 0) out vec4 outColor;
 
 layout (push_constant) uniform constants {
     mat4 world;
+    mat4 translation;
 } PushConstants;
 
 void main() {
-    gl_Position = PushConstants.world * vec4(inPos, 1);
+    gl_Position = PushConstants.world * PushConstants.translation * vec4(inPos, 1);
     outColor = inColor;
 }
