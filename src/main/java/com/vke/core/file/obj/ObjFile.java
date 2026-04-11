@@ -2,7 +2,7 @@ package com.vke.core.file.obj;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.ObjectIntHashMap;
-import com.vke.api.draw.MeshPrefab;
+import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.utils.iter.Iter;
@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ObjFile {
     private final ArrayList<float[]> positions;
@@ -103,6 +102,7 @@ public class ObjFile {
             } else {
                 int index = vertices.size();
                 vertices.add(vertexKey.toPrefabVertex());
+                seenVertices.put(vertexKey, index);
                 indices.add(index);
             }
         }

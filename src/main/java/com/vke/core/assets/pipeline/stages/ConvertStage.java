@@ -13,7 +13,7 @@ public class ConvertStage extends ParameterizedStage {
     private final PipelineContext context;
     private final String toName;
 
-    public ConvertStage(ConfigNode node, PipelineContext context) throws AssetException {
+    public ConvertStage(ConfigNode node, PipelineContext context) {
         super(node);
         this.context = context;
         this.toName = node.getString("to");
@@ -30,14 +30,14 @@ public class ConvertStage extends ParameterizedStage {
         if (converter == null) {
             stageElement.setData(stageElement.getAssetData().reinterpret(toName));
             return;
-        };
+        }
         if (!stageElement.getAssetData().isResolved()) {
             //now we have to resolve the asset actually
             AssetProtocol<?> protocol = context.getProtocol(fromName);
             AssetProtocol.Loader loader = protocol.getLoader();
-            AssetData resolved = loader.load(context.engine(), stageElement.getAssetData().getUnresolved(), executionTarget);
+            AssetData resolved = loader.load(context.context(), stageElement.getAssetData().getUnresolved(), executionTarget);
             stageElement.setData(resolved);
         }
-        stageElement.setData(converter.performConversion(stageElement, arguments));
+        stageElement.setData(converter.performConversion(context.context(), stageElement, arguments));
     }
 }

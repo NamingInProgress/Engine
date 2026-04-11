@@ -1,8 +1,7 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.MeshPrefab;
-import com.vke.api.draw.Meshes;
+import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
@@ -10,8 +9,6 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
-import com.vke.core.file.obj.ObjException;
-import com.vke.core.file.obj.ObjFile;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -50,9 +47,9 @@ public class MainScene extends Scene {
 
         MeshPrefab prefab;
         try {
-            ObjFile objFile = new ObjFile(context.id("bear.obj").asInputStream());
-            prefab = objFile.toMeshPrefab();
-        } catch (ObjException | IOException e) {
+            prefab = R.meshprefabs.get("bear.obj").acquire(context);
+
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

@@ -66,7 +66,20 @@ public class StageFilter extends CompoundPipelineStage {
     public void execute(StageElement stageElement, ExecutionTarget target) throws AssetException {
         String dataProtocolName = getProtocol();
         AssetProtocol<?> dataProtocol = context.getProtocol(dataProtocolName);
-        AssetData data = dataProtocol.getField(stageElement.getAssetData(dataProtocolName), uri);
+        AssetData resolvedData = stageElement.getAssetDataResolved(context.context(), dataProtocol, target);
+        if (!resolvedData.isResolved()) {
+            return;
+        }
+
+        AssetData data;
+        try {
+            data = dataProtocol.getField(resolvedData, uri);
+        } catch (AssetException e) {
+            //if the field doesnt exist or smth, we dont care
+            return;
+        }
+
+
         dataProtocolName = data.getProtocol();
         dataProtocol = context.getProtocol(dataProtocolName);
         StageElement dataElement = new StageElement(stageElement.getPath(), data);
@@ -84,7 +97,7 @@ public class StageFilter extends CompoundPipelineStage {
             AssetConverter converter = context.getConverter(queryProtocolName, dataProtocolName);
             if (converter != null) {
                 //query --> data
-                AssetData data2 = converter.performConversion(queryElement, new EmptyConfigArray());
+                AssetData data2 = converter.performConversion(context.context(), queryElement, new EmptyConfigArray());
                 if (dataProtocol.applies(data, data2, op)) {
                     processInnerPipeline(stageElement, target);
                 }
@@ -95,7 +108,7 @@ public class StageFilter extends CompoundPipelineStage {
                 throw new AssetException("Unable to convert between '%s' and '%s'! At least one way must be possible for a filter to work.".formatted(dataProtocolName, queryProtocolName));
             }
             //data --> query
-            AssetData query2 = converter.performConversion(dataElement, new EmptyConfigArray());
+            AssetData query2 = converter.performConversion(context.context(), dataElement, new EmptyConfigArray());
             if (queryProtocol.applies(data, query2, op)) {
                 processInnerPipeline(stageElement, target);
             }

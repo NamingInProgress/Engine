@@ -2,11 +2,11 @@ package com.vke.core;
 
 import com.vke.api.app.App;
 import com.vke.api.app.Version;
+import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
-import com.vke.api.services.Service;
 import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
@@ -60,6 +60,8 @@ public class VKEngine extends Context {
 
         profiler = new DummyProfiler();
         EVENT_BUS = service(Services.EVENT_BUS);
+
+        registerSerializers();
     }
 
     public void start(App app) {
@@ -156,5 +158,9 @@ public class VKEngine extends Context {
 
     public Context createNewContext(String namespace) {
         return new ModuleContext(Namespace.of(namespace), this);
+    }
+
+    private void registerSerializers() {
+        MeshPrefab.registerSerializers();
     }
 }
