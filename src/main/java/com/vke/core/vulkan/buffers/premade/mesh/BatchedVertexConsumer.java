@@ -7,6 +7,7 @@ import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
@@ -65,24 +66,6 @@ public class BatchedVertexConsumer<T extends Vertex> implements IVertexConsumer<
         this._gpuIndices = genIndexBuffer(estIndexCount);
     }
 
-    public long getIndicesOffset() { return this._gpuIndices.getLastOffset(); }
-    public long getVerticesOffset() { return this._gpuVertices.getLastOffset(); }
-
-    public int getWrittenIndices(){ return this.currentIndexCount; }
-    public int getWrittenVertices(){ return this.currentVertexCount; }
-
-    public void bindIBO(CommandBuffer buffer) {
-        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) buffer;
-
-        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(), this.getIndicesOffset(), VK14.VK_INDEX_TYPE_UINT32);
-    }
-
-    public void bindVBO(CommandBuffer buffer) {
-        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) buffer;
-
-        VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() }, new long[]{ getVerticesOffset() });
-    }
-
     @Override
     public void free() {
         this._gpuVertices.free();
@@ -111,11 +94,22 @@ public class BatchedVertexConsumer<T extends Vertex> implements IVertexConsumer<
     }
 
     @Override
-    public void draw(CommandBuffer cmd) {
-        VulkanCmdBuffers buf = (VulkanCmdBuffers) cmd;
+    public void mesh(Mesh<T> mesh) {
+        ensureVertexSpace(mesh.getVertices().length);
+        ensureIndexSpace(mesh.getIndices().length);
+
+        this._cpuVertices.putVertices(mesh.getVertices());
+        this._cpuIndices.put(mesh.getIndices());
+        this.currentVertexCount += mesh.getVertices().length;
+        this.currentIndexCount += mesh.getIndices().length;
+    }
+
+    @Override
+    public void draw(DrawContext ctx) {
+        VulkanCmdBuffers buf = (VulkanCmdBuffers) ctx.getCommandBuffer();
         this.upload();
-        this.bindIBO(cmd);
-        this.bindVBO(cmd);
+        this.bindIBO(ctx);
+        this.bindVBO(ctx);
 
         VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), 1, 0, 0, 0);
 
@@ -123,16 +117,6 @@ public class BatchedVertexConsumer<T extends Vertex> implements IVertexConsumer<
         this.currentIndexCount = 0;
 
         handleOldBuffers();
-    }
-
-    private void handleOldBuffers() {
-        ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
-        for (MappedGpuRingBuffer buf : this._gpuBuffersOld) {
-            buf.free();
-            toRemove.add(buf);
-        }
-
-        toRemove.forEach(_gpuBuffersOld::remove);
     }
 
     @Override
@@ -144,15 +128,32 @@ public class BatchedVertexConsumer<T extends Vertex> implements IVertexConsumer<
         this._gpuVertices.write(this._cpuVertices.getAddress(), 0, (long) this.getWrittenVertices() * _template.getByteStride());
     }
 
-    @Override
-    public void mesh(Mesh<T> mesh) {
-        ensureVertexSpace(mesh.getVertices().length);
-        ensureIndexSpace(mesh.getIndices().length);
+    public long getIndicesOffset() { return this._gpuIndices.getLastOffset(); }
+    public long getVerticesOffset() { return this._gpuVertices.getLastOffset(); }
 
-        this._cpuVertices.putVertices(mesh.getVertices());
-        this._cpuIndices.put(mesh.getIndices());
-        this.currentVertexCount += mesh.getVertices().length;
-        this.currentIndexCount += mesh.getIndices().length;
+    public int getWrittenIndices(){ return this.currentIndexCount; }
+    public int getWrittenVertices(){ return this.currentVertexCount; }
+
+    public void bindIBO(DrawContext ctx) {
+        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
+
+        VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(), this.getIndicesOffset(), VK14.VK_INDEX_TYPE_UINT32);
+    }
+
+    public void bindVBO(DrawContext ctx) {
+        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
+
+        VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() }, new long[]{ getVerticesOffset() });
+    }
+
+    private void handleOldBuffers() {
+        ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
+        for (MappedGpuRingBuffer buf : this._gpuBuffersOld) {
+            buf.free();
+            toRemove.add(buf);
+        }
+
+        toRemove.forEach(_gpuBuffersOld::remove);
     }
 
     protected void ensureVertexSpace(int additionalSpace) {

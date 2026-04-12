@@ -4,6 +4,7 @@ import com.vke.api.assets.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.window.Window;
@@ -40,10 +41,10 @@ public class SceneManager {
         return base.getCurrentScene();
     }
 
-    public void callDrawLoop(Window window, VulkanRenderer.FrameData fd) {
+    public void callDrawLoop(DrawContext ctx) {
         Scene s = getCurrentScene();
         if (s != null) {
-            s.drawLoop(window, fd);
+            s.drawLoop(ctx);
         }
     }
 }

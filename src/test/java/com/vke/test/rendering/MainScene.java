@@ -10,6 +10,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -86,19 +87,11 @@ public class MainScene extends Scene {
     }
 
     @Override
-    public void drawLoop(Window window, VulkanRenderer.FrameData fd) {
-        int width = window.getSize().width();
-        int height = window.getSize().height();
+    public void drawLoop(DrawContext ctx) {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanCmdBuffers cmd = fd.frame().getBuffers();
+            VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
             cmd.bindRenderPipeline(CUBE);
-
-            Scissor sc = new Scissor(0, 0, width, height);
-            Viewport wp = new Viewport(0, 0, width, height);
-
-            cmd.setViewport(wp);
-            cmd.setScissor(sc);
 
             Matrix4f mat = new Matrix4f();
             //mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
@@ -124,10 +117,7 @@ public class MainScene extends Scene {
 
             cmd.setPushConstants(CUBE);
 
-            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
-            VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(mesh.getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));
-
-            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
+            mesh.draw(ctx);
 
 
             cmd.bindRenderPipeline(DYNAMIC);
@@ -157,7 +147,7 @@ public class MainScene extends Scene {
                     1
             )));
 
-            consumer.draw(cmd);
+            consumer.draw(ctx);
             //((VertexConsumer<DynamicTestVertex>) consumer).print();
         }
     }

@@ -3,6 +3,7 @@ package com.vke.core.scene;
 import com.vke.api.app.App;
 import com.vke.api.scene.SceneException;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.scene.manager.SceneManager;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
@@ -31,9 +32,9 @@ public class SceneApp extends App {
     }
 
     @Override
-    public void onDraw(Window window, VulkanRenderer.FrameData fd) {
+    public void onDraw(DrawContext ctx) {
         SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
-        sceneManager.callDrawLoop(window, fd);
+        sceneManager.callDrawLoop(ctx);
     }
 
     @Override
