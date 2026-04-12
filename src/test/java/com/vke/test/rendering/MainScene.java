@@ -147,6 +147,15 @@ public class MainScene extends Scene {
                     1
             )));
 
+            consumer.begin();
+            consumer.vertex(new DynamicTestVertex(0, 0, 0, 1, 0, 0, 1));
+            consumer.vertex(new DynamicTestVertex(1, 0, 0, 0, 1, 0, 1));
+            consumer.vertex(new DynamicTestVertex(1, 1, 0, 0, 0, 1, 1));
+            consumer.vertex(new DynamicTestVertex(0, 1, 0, 1, 1, 0, 1));
+
+            consumer.index(0, 1, 2);
+            consumer.index(2, 3, 0);
+
             consumer.draw(ctx);
             //((VertexConsumer<DynamicTestVertex>) consumer).print();
         }
