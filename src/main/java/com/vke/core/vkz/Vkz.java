@@ -120,20 +120,20 @@ public class Vkz extends Service {
     public VkzArchive open(InputStream stream, ArchiveType type) throws VkzOpenException {
         VkzObjLoader loader = new VkzObjLoader(stream, Integer.MAX_VALUE, 0);
 
-        VkzArchive archive = switch (type) {
-            case LazyFiles -> throw new VkzOpenException("Currently no support for LazyFiles sadly :(");
-            case InflateAll -> Serializer.loadObject(VkzImmediateArchive.class, loader, false);
-            case ListOnly -> new VkzListOnlyArchive(loader);
-            case null -> throw new VkzOpenException("Strategy " + type + " is illegal!");
-        };
-
         try {
+            VkzArchive archive = switch (type) {
+                case LazyFiles -> throw new VkzOpenException("Currently no support for LazyFiles sadly :(");
+                case InflateAll -> Serializer.loadObject(VkzImmediateArchive.class, loader, false);
+                case ListOnly -> new VkzListOnlyArchive(loader);
+                case null -> throw new VkzOpenException("Strategy " + type + " is illegal!");
+            };
+
             stream.close();
-        } catch (IOException e) {
+
+            return archive;
+        } catch (Exception e) {
             throw new VkzOpenException(e);
         }
-
-        return archive;
     }
 
     public VkzArchive createNew() {

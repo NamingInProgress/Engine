@@ -1,9 +1,14 @@
 package com.vke.core.file.utils;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.core.file.deflate.compress.DeflatingDevice;
+import com.vke.core.file.deflate.decompress.InflatingDevice;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
+import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -157,5 +162,29 @@ public class DataUtils {
                 return Option.none();
             }
         }
+    }
+
+    public static byte[] deflate(byte[] data) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 2);
+        DeflatingDevice device = new DeflatingDevice(out, 64);
+        device.deflateNext(data);
+        device.finish();
+        return out.toByteArray();
+    }
+
+    public static byte[] inflate(byte[] deflated) throws InflatingException {
+        return inflate(deflated, null);
+    }
+
+    public static byte[] inflate(byte[] deflated, @Nullable Checksum32 checksum) throws InflatingException {
+        ByteArrayInputStream in = new ByteArrayInputStream(deflated);
+        InflatingDevice device = new InflatingDevice(checksum, in);
+        ByteArrayList out = new ByteArrayList(deflated.length);
+        while (!device.isFinished()) {
+            int n = device.inflateNextByte();
+            if (n == -1) break;
+            out.add((byte) n);
+        }
+        return out.toArray();
     }
 }

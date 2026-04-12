@@ -28,18 +28,22 @@ public class VkzListOnlyArchive implements VkzArchive {
     }
 
     public VkzListOnlyArchive(Loader loader) {
-        magic = loader.loadInt();
-        root = new VkzListOnlyDirLayer(loader);
+        try {
+            magic = loader.loadInt();
+            root = new VkzListOnlyDirLayer(loader);
 
-        fileLengths = new VkzArray<>(Integer.class, new Integer[0]);
-        fileLengths.load(loader);
+            fileLengths = new VkzArray<>(Integer.class, new Integer[0]);
+            fileLengths.load(loader);
 
-        int fileCount = fileLengths.length();
-        files = new VkzListOnlyFile[fileCount];
-        for (int i = 0; i < fileCount; i++) {
-            files[i] = new VkzListOnlyFile(fileLengths.elements()[i], loader);
+            int fileCount = fileLengths.length();
+            files = new VkzListOnlyFile[fileCount];
+            for (int i = 0; i < fileCount; i++) {
+                files[i] = new VkzListOnlyFile(fileLengths.elements()[i], loader);
+            }
+            root.setArchive(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        root.setArchive(this);
     }
 
     @Override

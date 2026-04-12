@@ -1,5 +1,6 @@
 package com.vke.core.assets.pipeline.stages;
 
+import com.vke.api.logger.Logger;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.assets.AssetException;
@@ -33,7 +34,15 @@ public class CacheAssetStage extends CompoundPipelineStage {
         }
 
         Identifier assetName = stageElement.getAssetName();
-        AssetData maybeCached = cacheHandler.checkCache(context, assetName);
+        AssetData maybeCached;
+        try {
+            maybeCached = cacheHandler.checkCache(context, assetName);
+        } catch (Throwable e) {
+            Logger logger = context.getLogger();
+            logger.warn("Unable to load cache for asset %s: %s", assetName, e);
+            logger.warn("Falling back to pipeline execution...", assetName, e);
+            maybeCached = null;
+        }
         if (maybeCached != null) {
             stageElement.setData(maybeCached);
         } else {

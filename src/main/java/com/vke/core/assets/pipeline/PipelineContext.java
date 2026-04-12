@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline;
 
 import com.vke.core.Context;
+import com.vke.core.ContextWrapper;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
@@ -15,7 +16,7 @@ import com.vke.core.mesh.MeshPrefabCache;
 
 import java.util.HashMap;
 
-public class PipelineContext {
+public class PipelineContext extends ContextWrapper {
     private final Context vkeContext;
     private final HashMap<String, StageFactory> registryRegistry;
     private final HashMap<String, AssetProtocol<?>> protocolRegistry;
@@ -23,6 +24,7 @@ public class PipelineContext {
     private final HashMap<String, HashMap<String, AssetConverter>> converterRegistry;
 
     public PipelineContext(Context vkeContext) {
+        super(vkeContext);
         this.vkeContext = vkeContext;
         this.registryRegistry = new HashMap<>();
         this.protocolRegistry = new HashMap<>();
