@@ -5,6 +5,7 @@ import com.vke.api.app.App;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.shader.ShaderCompiler;
@@ -141,7 +142,7 @@ public class ShaderReflectTest {
 
 
             @Override
-            public void onDraw(Window window, VulkanRenderer.FrameData fd) {
+            public void onDraw(DrawContext ctx) {
 
             }
 

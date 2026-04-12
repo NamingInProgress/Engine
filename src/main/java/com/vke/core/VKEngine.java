@@ -84,12 +84,12 @@ public class VKEngine extends Context {
                 profiler.begin("Render", AnsiColors.RED);
                 profiler.push();
                 profiler.begin("Frame Setup");
-                VulkanRenderer.FrameData bfd = renderer.startFrame();
+                VulkanRenderer.FrameData bfd = renderer.startFrame(window);
                 profiler.end();
                 profiler.pop();
                 if (bfd != null) {
                     profiler.begin("App Draw", AnsiColors.GREEN);
-                    app.onDraw(window, bfd);
+                    app.onDraw(bfd.context());
                     profiler.end();
                     profiler.begin("Frame End");
                     renderer.endFrame(bfd);

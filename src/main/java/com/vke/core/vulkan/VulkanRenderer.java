@@ -11,6 +11,7 @@ import com.vke.api.services.Service;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
@@ -18,6 +19,7 @@ import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -72,7 +74,7 @@ public class VulkanRenderer extends Service implements Renderer {
         Samplers.init(device);
     }
 
-    public FrameData startFrame() {
+    public FrameData startFrame(Window window) {
         MemoryStack stack = MemoryStack.stackPush();
 
         VulkanFrame frame = frames[currentFrame];
@@ -116,7 +118,17 @@ public class VulkanRenderer extends Service implements Renderer {
         profiler.end();
         profiler.end();
 
-        return new FrameData(frame, stack, imageIndex);
+        int width = window.getSize().width();
+        int height = window.getSize().height();
+
+        Scissor sc = new Scissor(0, 0, width, height);
+        Viewport wp = new Viewport(0, 0, width, height);
+
+        cmd.setViewport(wp);
+        cmd.setScissor(sc);
+
+        DrawContext context = new DrawContext(cmd, window);
+        return new FrameData(frame, stack, imageIndex, context);
     }
 
     public void endFrame(FrameData frameData) {
@@ -185,6 +197,6 @@ public class VulkanRenderer extends Service implements Renderer {
         this.device.free();
     }
 
-    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex) {}
+    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, DrawContext context) {}
 
 }

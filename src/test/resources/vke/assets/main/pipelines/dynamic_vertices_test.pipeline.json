@@ -1,8 +1,8 @@
 {
   "topology": "TRIANGLES",
   "cullMode": "BACK",
-  "polygonMode": "FILL",
-  "lineWidth": 4,
+  "polygonMode": "LINE",
+  "lineWidth": 1,
   "attachments": [
     {
       "type": "COLOR",

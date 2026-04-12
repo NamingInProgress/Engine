@@ -10,6 +10,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.manager.VKEAssetManager;
+import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -155,24 +156,15 @@ public class TestApp extends App {
     AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
 
     @Override
-    public void onDraw(Window window, VulkanRenderer.FrameData fd) {
+    public void onDraw(DrawContext ctx) {
         timer.onFrameStart();
 
-        int width = window.getSize().width();
-        int height = window.getSize().height();
-
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanCmdBuffers cmd = fd.frame().getBuffers();
+            VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
             cmd.bindRenderPipeline(IDK);
 
-            Scissor sc = new Scissor(0, 0, width, height);
-            Viewport wp = new Viewport(0, 0, width, height);
-
-            cmd.setViewport(wp);
-            cmd.setScissor(sc);
-
             Matrix4f mat = new Matrix4f();
-            mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
+            mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
 
             vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
             matrixHandle.write(buf -> buf.putMat4(mat));
