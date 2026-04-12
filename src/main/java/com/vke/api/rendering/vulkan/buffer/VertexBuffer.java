@@ -24,6 +24,11 @@ public abstract class VertexBuffer extends CpuBuffer {
         this.sink = generateSink();
     }
 
+    public VertexBuffer(int baseVertexCount, int stride, boolean allocNow) {
+        super(baseVertexCount, allocNow, stride);
+        this.sink = generateSink();
+    }
+
     @Override
     protected void alloc(int size) {
         data = MemoryUtil.memAlloc(size);

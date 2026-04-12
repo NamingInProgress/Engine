@@ -10,7 +10,6 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
-import com.vke.core.vulkan.buffers.premade.ibo.IndexBuffer;
 import com.vke.core.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.utils.tuple.Pair;
@@ -22,7 +21,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public abstract class VertexConsumer<T extends Vertex> implements IVertexConsumer<T> {
+public class BatchedVertexConsumer<T extends Vertex> implements IVertexConsumer<T> {
 
     private static final int BASE_VERTEX_COUNT = 1000;
     private static final int BASE_INDEX_COUNT = 1000;
@@ -43,18 +42,16 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
 
     private int frozenIndexCount;
 
-    private int currentFrame;
-
     private MappedGpuRingBuffer _gpuVertices;
     private MappedGpuRingBuffer _gpuIndices;
 
-    private ArrayList<Pair<Integer, MappedGpuRingBuffer>> _gpuBuffersOld = new ArrayList<>();
+    private ArrayList<MappedGpuRingBuffer> _gpuBuffersOld = new ArrayList<>();
 
-    public VertexConsumer(VKEngine engine, VulkanRenderer renderer, T template) {
+    public BatchedVertexConsumer(VKEngine engine, VulkanRenderer renderer, T template) {
         this(engine, renderer, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
     }
 
-    public VertexConsumer(VKEngine engine, VulkanRenderer renderer, T template, int estVertexCount, int estIndexCount) {
+    public BatchedVertexConsumer(VKEngine engine, VulkanRenderer renderer, T template, int estVertexCount, int estIndexCount) {
         this.maxVertexCount = estVertexCount;
         this.maxIndexCount = estIndexCount;
         this._engine = engine;
@@ -66,23 +63,6 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
 
         this._gpuVertices = genVertexBuffer(estVertexCount);
         this._gpuIndices = genIndexBuffer(estIndexCount);
-    }
-
-    public void print() {
-        FloatBuffer fb = _cpuVertices.getData().asFloatBuffer();
-        IntBuffer ib = _cpuIndices.getData();
-
-        System.out.println("--------- VERTEX -------------");
-        for (int i = 0; i < 3; i++) {
-            String s = "";
-            for (int j = 0; j < 7; j++) {
-                s += fb.get(i * 7 + j) + " | ";
-            }
-            System.out.println(s);
-        }
-        System.out.println();
-        System.out.println("--------- INDEX -------------");
-        System.out.println(ib.get(0) + " | " + ib.get(1) + " | " + ib.get(2));
     }
 
     public long getIndicesOffset() { return this._gpuIndices.getLastOffset(); }
@@ -139,7 +119,6 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
 
         VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), 1, 0, 0, 0);
 
-        this.currentFrame++;
         this.currentVertexCount = 0;
         this.currentIndexCount = 0;
 
@@ -147,19 +126,13 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
     }
 
     private void handleOldBuffers() {
-        this._gpuBuffersOld.forEach((v) -> v.v1++);
-
-        ArrayList<Integer> toRemove = new ArrayList<>();
-        ArrayList<Pair<Integer, MappedGpuRingBuffer>> gpuBuffersOld = this._gpuBuffersOld;
-        for (int i = 0; i < gpuBuffersOld.size(); i++) {
-            Pair<Integer, MappedGpuRingBuffer> pair = gpuBuffersOld.get(i);
-            if (pair.v1 > _renderer.getFramesInFlight()) {
-                pair.v2.free();
-                toRemove.add(i);
-            }
+        ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
+        for (MappedGpuRingBuffer buf : this._gpuBuffersOld) {
+            buf.free();
+            toRemove.add(buf);
         }
 
-        toRemove.forEach(this._gpuBuffersOld::remove);
+        toRemove.forEach(_gpuBuffersOld::remove);
     }
 
     @Override
@@ -183,7 +156,7 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
     }
 
     protected void ensureVertexSpace(int additionalSpace) {
-        int newCount = this.currentIndexCount + additionalSpace;
+        int newCount = this.currentVertexCount + additionalSpace;
         if (newCount >= this.maxVertexCount) {
             while (newCount > this.maxVertexCount) {
                 this.maxVertexCount = (int) (((double) this.maxVertexCount) * CpuBuffer.GROWTH_FAC);
@@ -203,12 +176,12 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
     }
 
     protected void reallocVertexBuffer(int newSize) {
-        this._gpuBuffersOld.add(new Pair<>(0, this._gpuVertices));
+        this._gpuBuffersOld.add(0, this._gpuVertices);
         this._gpuVertices = genVertexBuffer(newSize);
     }
 
     protected void reallocIndexBuffer(int newSize) {
-        this._gpuBuffersOld.add(new Pair<>(0, this._gpuIndices));
+        this._gpuBuffersOld.add(this._gpuIndices);
         this._gpuIndices= genIndexBuffer(newSize);
     }
 
@@ -223,7 +196,7 @@ public abstract class VertexConsumer<T extends Vertex> implements IVertexConsume
         BufferUsage iboUsage = new BufferUsage(
                 BufferUsage.Bits.IBO
         );
-        return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), indexCount, _renderer.getFramesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+        return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), indexCount * 4L, _renderer.getFramesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
 }

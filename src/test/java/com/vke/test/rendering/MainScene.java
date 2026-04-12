@@ -14,8 +14,8 @@ import com.vke.core.services.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.buffers.premade.mesh.BatchedVertexConsumer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
-import com.vke.core.vulkan.buffers.premade.mesh.VertexConsumer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.window.Window;
@@ -58,7 +58,7 @@ public class MainScene extends Scene {
         dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
         dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
 
-        consumer = new VertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0), 100000, 100000) {};
+        consumer = new BatchedVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);
