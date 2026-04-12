@@ -5,7 +5,6 @@ import com.vke.api.logger.Logger;
 import com.vke.api.services.ScopedService;
 import com.vke.api.services.Service;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.ServiceManager;
 import com.vke.utils.Infallible;
 import com.vke.utils.io.Identifier;
 import org.jetbrains.annotations.NotNull;
