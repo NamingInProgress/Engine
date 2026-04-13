@@ -8,6 +8,10 @@ public class ShaderProgram {
     private AssetHandle<Shader>[] shaders;
     private Identifier[] identifiers;
 
+    public ShaderProgram(AssetHandle<Shader> shader, Identifier identifier) {
+        this(new AssetHandle[]{ shader },  new Identifier[]{ identifier });
+    }
+
     public ShaderProgram(AssetHandle<Shader>[] shaders, Identifier[] identifiers) {
         this.shaders = shaders;
         this.identifiers = identifiers;

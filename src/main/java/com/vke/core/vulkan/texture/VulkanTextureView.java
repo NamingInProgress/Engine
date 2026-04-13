@@ -24,6 +24,39 @@ public class VulkanTextureView implements Disposable {
 
     private final LogicalDevice device;
 
+    public VulkanTextureView(LogicalDevice device, VulkanImage parent, VkImageViewCreateInfo info) {
+        this.image = parent;
+        this.device = device;
+        this.baseMip = 0;
+        this.levelCount = 0;
+        this.baseLayer = 0;
+        this.layerCount = 0;
+        this.aspectMask = null;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
+                    .aspectMask(info.subresourceRange().aspectMask())
+                    .baseMipLevel(info.subresourceRange().baseMipLevel())
+                    .levelCount(info.subresourceRange().levelCount())
+                    .layerCount(info.subresourceRange().layerCount())
+                    .baseArrayLayer(info.subresourceRange().baseArrayLayer());
+
+            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .format(info.format())
+                    .subresourceRange(subresourceRange)
+                    .viewType(info.viewType())
+                    .image(parent.getHandle());
+
+            LongBuffer pImageView = stack.mallocLong(1);
+            if (VK14.vkCreateImageView(device.getDevice(), createInfo, null, pImageView) != VK14.VK_SUCCESS) {
+                throw new IllegalStateException("Failed to create image view");
+            }
+
+            handle = pImageView.get(0);
+        }
+    }
+
     public VulkanTextureView(LogicalDevice device, VulkanImage parent,
                               int baseMip, int levelCount,
                              int baseLayer, int layerCount,

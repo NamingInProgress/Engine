@@ -47,11 +47,14 @@ public class VulkanPipelineLayout implements PipelineLayout {
             VkPipelineLayoutCreateInfo createInfo = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType$Default();
 
-            VkPushConstantRange.Buffer pushConstantsBuffer = VkPushConstantRange.calloc(1, stack);
-            pushConstantsBuffer.get(0)
-                    .offset(0)
-                    .size((int) pc.getLayout().size)
-                    .stageFlags(VK14.VK_SHADER_STAGE_ALL);
+            VkPushConstantRange.Buffer pushConstantsBuffer = null;
+            if (pc.getLayout().size != 0) {
+                pushConstantsBuffer = VkPushConstantRange.calloc(1, stack);
+                pushConstantsBuffer.get(0)
+                        .offset(0)
+                        .size((int) pc.getLayout().size)
+                        .stageFlags(VK14.VK_SHADER_STAGE_ALL);
+            }
 
             LongBuffer pDescriptors = stack.longs(ds.getCompiledLayouts().stream().mapToLong(CompiledDescriptorSetLayout::getHandle).toArray());
 

@@ -1,6 +1,8 @@
 package com.vke.api.rendering.abstraction;
 
-import com.vke.api.rendering.vulkan.pipeline.PipelineData;
+import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.Buffer;
 import com.vke.api.rendering.abstraction.data.Sampler;
@@ -29,8 +31,8 @@ public interface RenderDevice extends Disposable {
     Shader createShader(Identifier identifier, ShaderType type) throws IOException;
 
     /** PIPELINE **/
-    RenderPipeline createRenderPipeline(PipelineData data);
-    //ComputePipeline createComputePipeline();
+    RenderPipeline createRenderPipeline(RenderPipelineData data);
+    ComputePipeline createComputePipeline(ComputePipelineData data);
 
     /** COMMAND BUFFERS **/
     CommandBuffer createCommandBuffer();

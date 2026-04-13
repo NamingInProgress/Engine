@@ -30,6 +30,8 @@ public class XmlToken {
         Eq,
         Slash,
         Question,
-        Illegal
+        Illegal,
+        Exclamation,
+        Dash
     }
 }

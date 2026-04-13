@@ -161,7 +161,7 @@ public class TestApp extends App {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
-            cmd.bindRenderPipeline(IDK);
+            cmd.bindPipeline(IDK);
 
             Matrix4f mat = new Matrix4f();
             mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
@@ -181,7 +181,7 @@ public class TestApp extends App {
             VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
 
             // 2nd draw:
-            cmd.bindRenderPipeline(CUBE);
+            cmd.bindPipeline(CUBE);
 
 
             Matrix4f model = new Matrix4f();

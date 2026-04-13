@@ -21,7 +21,7 @@ import org.lwjgl.vulkan.VkStencilOpState;
 
 import java.util.*;
 
-public class PipelineData {
+public class RenderPipelineData {
 
     // WARNING! THESE FIELDS ARE RESOLVED ONLY DURING PIPELINE CREATION, WHICH MEANS THEY WILL NOT BE AVAILABLE BEFOREHAND!
     public DescriptorsInfo additionalDescriptorInfo;
@@ -84,9 +84,9 @@ public class PipelineData {
             RUNTIME_SIZE_ARRAYS_NAME_NAME = "name",
             RUNTIME_SIZE_ARRAYS_SIZE_NAME = "size";
 
-    public static PipelineData fromConfig(ConfigDocument document) {
+    public static RenderPipelineData fromConfig(ConfigDocument document) {
         ConfigNode root = document.getRoot();
-        PipelineData pd = new PipelineData();
+        RenderPipelineData pd = new RenderPipelineData();
         pd.dynamicStates = dynamicStates(root, pd.dynamicStates);
         pd.primitiveRestartEnable = root.getBooleanOption(PRIMITVE_RESTART_ENABLE_NAME).unwrapOr(pd.primitiveRestartEnable);
         pd.topology = Topology.valueOf(root.getString(TOPOLOGY_NAME));

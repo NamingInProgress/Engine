@@ -10,10 +10,16 @@ public class Protocols {
     public static final String PLAIN = "plain";
     public static final String CONFIG = "config";
     public static final String LANG = "lang";
+
     public static final String PNG = "png";
+
     public static final String RENDERPIPELINE = "pipeline";
+    public static final String COMPUTEPIPELINE = "cpipeline";
+
     public static final String VERTSHADER = "vertshader";
     public static final String FRAGSHADER = "fragshader";
+    public static final String COMPSHADER = "compshader";
+
     public static final String OBJ = "obj";
     public static final String MESHPREFAB = "meshprefab";
 }

@@ -84,6 +84,23 @@ public class XmlParser implements ConfigParser {
                                 //new tag
                                 tokenizer.setInTagHead(true);
                                 XmlToken peek = tokenizer.nextToken();
+                                if (peek.getType() == XmlToken.Type.Exclamation) {
+                                    tokenizer.nextToken();
+                                    tokenizer.nextToken();
+
+                                    do {
+                                        next = tokenizer.nextToken();
+                                    } while (next.getType() != XmlToken.Type.Dash);
+
+                                    while (true) {
+                                        peek = tokenizer.nextToken();
+                                        XmlToken peek2 = tokenizer.nextToken();
+                                        if (peek.getType() == XmlToken.Type.Dash && peek2.getType() == XmlToken.Type.RTri) break;
+                                        tokenizer.putback(peek);
+                                        tokenizer.putback(peek2);
+                                    }
+                                }
+
                                 if (peek.getType() == XmlToken.Type.Slash) {
                                     //closing tag
                                     String closeName = tokenizer.expectToken(XmlToken.Type.Ident).getValue();

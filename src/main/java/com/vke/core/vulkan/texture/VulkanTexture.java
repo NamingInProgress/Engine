@@ -25,15 +25,23 @@ import java.nio.ByteBuffer;
 public class VulkanTexture implements Texture {
 
     private final VulkanImage image;
-
     private final AutoHeapAllocator alloc;
-
     private final VulkanRenderDevice device;
-
     private final ImageData imageData;
+
+    private final boolean canFree;
+
+    public VulkanTexture(VulkanImage image, boolean canFree) {
+        this.image = image;
+        this.alloc = null;
+        this.device = null;
+        this.imageData = null;
+        this.canFree = canFree;
+    }
 
     public VulkanTexture(VulkanRenderDevice device, Pixels pixels, Texture.TextureDesc desc) {
         this.alloc = new AutoHeapAllocator();
+        this.canFree = true;
 
         this.imageData = new ImageData(desc.width, desc.height, pixels.argbToByteBuffer(alloc));
 
@@ -129,7 +137,8 @@ public class VulkanTexture implements Texture {
 
     @Override
     public void free() {
-        alloc.close();
+        if (!canFree) return;
+        if (alloc != null) alloc.close();
         image.free();
     }
 }

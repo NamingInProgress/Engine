@@ -1,21 +1,20 @@
 package com.vke.core.vulkan.command;
 
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
-import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.swapchain.SwapchainImageView;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.vulkan.texture.VulkanTextureView;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -70,8 +69,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
             VK14.vkBeginCommandBuffer(this.vk, beginInfo);
 
-            SwapchainImageView currentColorImage = swapchain.getImageView(swapchain.currentImageIndex());
-            currentColorImage.transitionLayout(
+            VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
+            currentColorImage.getImage().transitionLayout(
                     this,
                     ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
                     0,
@@ -80,9 +79,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT
             );
 
-            VulkanTextureView currentDepthImageView = swapchain.getDepthView(swapchain.currentImageIndex());
-            VulkanImage currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
-            currentDepthImage.transitionLayout(
+            VulkanTexture currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
+            currentDepthImage.getImage().transitionLayout(
                     this,
                     ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                     0,
@@ -97,7 +95,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
             VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(1, stack);
             buffer.get(0)
                     .sType$Default()
-                    .imageView(currentColorImage.getHandle())
+                    .imageView(currentColorImage.getView().getHandle())
                     .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
                     .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
@@ -105,7 +103,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             VkRenderingAttachmentInfo depth = VkRenderingAttachmentInfo.calloc(stack)
                     .sType$Default()
-                    .imageView(currentDepthImageView.getHandle())
+                    .imageView(currentDepthImage.getView().getHandle())
                     .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
                     .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
@@ -146,8 +144,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
         this.recording = false;
         VK14.vkCmdEndRendering(vk);
 
-        SwapchainImageView currentImage = swapchain.getImageView(swapchain.currentImageIndex());
-        currentImage.transitionLayout(
+        VulkanTexture currentImage = swapchain.getColorImage(swapchain.currentImageIndex());
+        currentImage.getImage().transitionLayout(
                 this,
                 ImageLayout.PRESENT_SRC_KHR,
                 VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -164,54 +162,49 @@ public class VulkanCmdBuffers implements CommandBuffer {
         VK14.vkResetCommandBuffer(vk, 0);
     }
 
-    private VulkanRenderPipeline getRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline) {
+    private IVulkanPipeline unwrapPipeline(AssetHandle<? extends Pipeline> pipeline) {
         try {
-            return (VulkanRenderPipeline) pipeline.acquire(engine);
+            return (IVulkanPipeline) pipeline.acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public void bindRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline) {
-        VK14.vkCmdBindPipeline(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS, getRenderPipeline(pipeline).getHandle());
+    private int getBindPoint(IVulkanPipeline pipeline) {
+        return pipeline instanceof RenderPipeline ? VK14.VK_PIPELINE_BIND_POINT_GRAPHICS : VK14.VK_PIPELINE_BIND_POINT_COMPUTE;
     }
 
     @Override
-    public void bindComputePipeline(AssetHandle<? extends ComputePipeline> pipeline) {
-        throw new RuntimeException("Compute Pipelines are not implemented yet!");
-        //VK14.vkCmdBindPipeline(this.getBuffer(),
-        //        VK14.VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.getHandle());
+    public void bindPipeline(AssetHandle<? extends Pipeline> pipeline) {
+        IVulkanPipeline vkPipeline = unwrapPipeline(pipeline);
+        VK14.vkCmdBindPipeline(this.getBuffer(),
+                getBindPoint(vkPipeline), vkPipeline.getHandle());
     }
 
     @Override
     public void setPushConstants(AssetHandle<? extends Pipeline> pipeline) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            // TODO: Fix this for compute pipelines
-            VulkanPipelineLayout layout = (VulkanPipelineLayout) getRenderPipeline((AssetHandle<? extends RenderPipeline>) pipeline).layout();
+        VulkanPipelineLayout layout = (VulkanPipelineLayout) unwrapPipeline(pipeline).layout();
 
-            VK14.vkCmdPushConstants(this.getBuffer(),
-                    layout.getHandle(),
-                    VK14.VK_SHADER_STAGE_ALL, // FIX THIS
-                    0,
-                    layout.pushConstants().getData()
-            );
-        }
+        VK14.vkCmdPushConstants(this.getBuffer(),
+                layout.getHandle(),
+                VK14.VK_SHADER_STAGE_ALL, // FIX THIS
+                0,
+                layout.pushConstants().getData()
+        );
     }
 
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanRenderPipeline p = getRenderPipeline((AssetHandle<? extends RenderPipeline>) pipeline);
-            VulkanPipelineLayout l = p.layout();
+            IVulkanPipeline p = unwrapPipeline(pipeline);
+            VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
 
             LongBuffer sets = stack.longs(
                     l.descriptors().getDescriptorSetHandles()
             );
 
             VK14.vkCmdBindDescriptorSets(this.getBuffer(),
-                    VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    getBindPoint(p),
                     l.getHandle(),
                     0, sets, null);
         }

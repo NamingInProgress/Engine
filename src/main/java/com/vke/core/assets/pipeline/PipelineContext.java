@@ -7,7 +7,12 @@ import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
+import com.vke.core.assets.pipeline.converters.pipeline.ConfigComputePipelineConverter;
+import com.vke.core.assets.pipeline.converters.pipeline.ConfigRenderPipelineConverter;
 import com.vke.core.assets.pipeline.protocols.*;
+import com.vke.core.assets.pipeline.protocols.pipeline.ComputePipelineProtocol;
+import com.vke.core.assets.pipeline.protocols.pipeline.RenderPipelineProtocol;
+import com.vke.core.assets.pipeline.protocols.shader.ComputeShaderProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.FragmentShaderProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.VertexShaderProtocol;
 import com.vke.core.assets.pipeline.stages.*;
@@ -37,10 +42,16 @@ public class PipelineContext extends ContextWrapper {
         registerProtocol(new PlainProtocol());
         registerProtocol(new ConfigProtocol());
         registerProtocol(new LangProtocol());
+
         registerProtocol(new FragmentShaderProtocol());
         registerProtocol(new VertexShaderProtocol());
+        registerProtocol(new ComputeShaderProtocol());
+
         registerProtocol(new RenderPipelineProtocol());
+        registerProtocol(new ComputePipelineProtocol());
+
         registerProtocol(new PngTextureProtocol());
+
         registerProtocol(new ObjProtocol());
         registerProtocol(new MeshprefabProtocol());
 
@@ -55,7 +66,8 @@ public class PipelineContext extends ContextWrapper {
         registerConverter(new PlainPathConverter());
         registerConverter(new PlainConfigConverter());
         registerConverter(new ConfigLangConverter());
-        registerConverter(new ConfigPipelineConverter());
+        registerConverter(new ConfigRenderPipelineConverter());
+        registerConverter(new ConfigComputePipelineConverter());
         registerConverter(new ObjMeshprefabConverter());
 
         //register cache handlers

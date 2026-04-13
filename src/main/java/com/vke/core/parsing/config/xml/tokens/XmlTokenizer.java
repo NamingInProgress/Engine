@@ -61,6 +61,8 @@ public class XmlTokenizer {
                 if (next == '?') return new XmlToken(XmlToken.Type.Question);
                 if (next == '/') return new XmlToken(XmlToken.Type.Slash);
                 if (next == '=') return new XmlToken(XmlToken.Type.Eq);
+                if (next == '!') return new XmlToken(XmlToken.Type.Exclamation);
+                if (next == '-') return new XmlToken(XmlToken.Type.Dash);
 
                 if (next == '"') {
                     //attrib with ""

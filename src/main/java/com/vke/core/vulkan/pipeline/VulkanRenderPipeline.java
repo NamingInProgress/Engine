@@ -1,7 +1,8 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
-import com.vke.api.rendering.vulkan.pipeline.PipelineData;
+import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.vulkan.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
@@ -32,7 +33,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.*;
 
-public class VulkanRenderPipeline implements RenderPipeline {
+public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
     private final Context context;
     private final VulkanRenderDevice device;
@@ -41,20 +42,20 @@ public class VulkanRenderPipeline implements RenderPipeline {
 
     private final long handle;
 
-    public VulkanRenderPipeline(Context context, VulkanRenderDevice device, PipelineData data) {
+    public VulkanRenderPipeline(Context context, VulkanRenderDevice device, RenderPipelineData data) {
         this.context = context;
         this.device = device;
 
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
 
-        var shaders = getReflectedShaders(data.compiledShaders);
-        DescriptorSets ds = createDescriptorSets(data, shaders);
-        PushConstants pc = createPushConstants(data, shaders);
+        var shaders = getReflectedShaders(context, data.compiledShaders);
+        DescriptorSets ds = createDescriptorSets(context, device, data.additionalDescriptorInfo, shaders);
+        PushConstants pc = createPushConstants(shaders);
         data.vertexLayoutData = createVertexLayouts(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VKEngine engine = context.getEngine();
-            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(PipelineData.DynamicState::getVkHandle).toArray());
+            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(RenderPipelineData.DynamicState::getVkHandle).toArray());
             var vertexInputs = getVertexInputs(stack, data.vertexLayoutData);
             var rasterInfo = getRasterInfo(stack, data);
             var inputAssemblyInfo = getInputAssemblyInfo(stack, data);
@@ -64,7 +65,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
             var depthStencilState = getDepthStencilState(stack, data);
             var colorAttachmentFormats = getColorAttachmentFormats(stack, data);
             var renderInfo = getRenderingInfo(stack, data, colorAttachmentFormats);
-            var shaderStages = getShaderStages(stack, data);
+            var shaderStages = getShaderStages(stack, data.shaders, data.compiledShaders);
             var viewportInfo = getViewportInfo(stack);
             this.layout = getPipelineLayout(context.getEngine(), device, pc, ds);
 
@@ -89,7 +90,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
 
             if (VK14.vkCreateGraphicsPipelines(device.getLogicalDevice().getDevice(),
                     VK14.VK_NULL_HANDLE, pipelineCreateInfo, null, pHandle) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Couldn't create graphics pipeline"), "GraphicsPipeline@VulkanImpl");
+                context.throwException(new IllegalStateException("Couldn't create graphics pipeline"), "GraphicsPipeline@VulkanImpl");
             }
 
             this.handle = pHandle.get(0);
@@ -110,71 +111,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
 
 
 
-    private ArrayList<ReflectedShader> getReflectedShaders(VKShaderProgram program) {
-        ShaderReflector refl = context.service(Services.SHADER_REFLECTION);
-        ArrayList<ReflectedShader> reflectedShaders = new ArrayList<>();
-
-        for (Long id : Iter.of(program.getShaders()).map(VulkanShader::getShaderID)) {
-            Option<ReflectedShader> shaderOpt = refl.get(id);
-            if (shaderOpt.isNone()) {
-                throw new IllegalStateException("Requested reflected shader but none was found! This error should not happen");
-            }
-            reflectedShaders.add(shaderOpt.unwrap());
-        }
-
-        return reflectedShaders;
-    }
-
-    private DescriptorSets createDescriptorSets(PipelineData data, ArrayList<ReflectedShader> shaders) {
-        HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
-
-        for (ReflectedShader shader : shaders) {
-            var reflectedDescriptors = shader.getDescriptors();
-
-            for (ArrayList<ReflectedShader.DescriptorResource> value : reflectedDescriptors.values()) {
-                for (ReflectedShader.DescriptorResource resource : value) {
-                    if (!sets.containsKey(resource.set)) sets.put(resource.set, new DescriptorSetLayout());
-                }
-            }
-
-            for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
-                for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
-                    DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
-
-                    BindingLayout binding = new BindingLayout();
-                    binding.name = resource.name;
-                    binding.set = resource.set;
-                    binding.binding = resource.binding;
-                    binding.descriptorCount = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
-                    binding.isDynamic = data.additionalDescriptorInfo.dynamicBuffers.contains(resource.name);
-                    binding.type = DescriptorType.fromBaseType(entry.getKey(), binding.isDynamic);
-
-                    binding.typeLayout = resource.struct;
-                    binding.packingType = PackingType.fromDescriptorType(binding.type);
-
-                    descriptor.bindings.add(binding);
-                }
-            }
-        }
-
-        return new DescriptorSets(context.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), data.additionalDescriptorInfo);
-    }
-
-    private PushConstants createPushConstants(PipelineData data, ArrayList<ReflectedShader> shaders) {
-        PushConstantLayout layout = null;
-        for (ReflectedShader shader : shaders) {
-            ReflectedShader.PushConstantsResource pc = shader.getPushConstants();
-            if (pc == null) continue;
-
-            layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
-        }
-
-        if (layout == null) layout = new PushConstantLayout("", 0, 0, null, PackingType.STD140);
-
-        return new PushConstants(layout);
-    }
-
-    private VertexLayoutData createVertexLayouts(PipelineData data, ArrayList<ReflectedShader> shaders) {
+    private VertexLayoutData createVertexLayouts(RenderPipelineData data, ArrayList<ReflectedShader> shaders) {
         ArrayList<VertexLayoutData.Attribute> attribs = new ArrayList<>();
 
         for (ReflectedShader shader : shaders) {
@@ -227,7 +164,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
                 .sType$Default();
     }
 
-    private VkPipelineRasterizationStateCreateInfo getRasterInfo(MemoryStack stack, PipelineData data) {
+    private VkPipelineRasterizationStateCreateInfo getRasterInfo(MemoryStack stack, RenderPipelineData data) {
         return VkPipelineRasterizationStateCreateInfo.calloc(stack)
                 .sType$Default()
                 .polygonMode(data.polygonMode.getVkHandle())
@@ -241,26 +178,26 @@ public class VulkanRenderPipeline implements RenderPipeline {
                 .rasterizerDiscardEnable(false);
     }
 
-    private VkPipelineInputAssemblyStateCreateInfo getInputAssemblyInfo(MemoryStack stack, PipelineData data) {
+    private VkPipelineInputAssemblyStateCreateInfo getInputAssemblyInfo(MemoryStack stack, RenderPipelineData data) {
         return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
                 .sType$Default()
                 .topology(data.topology.getVkHandle())
                 .primitiveRestartEnable(data.primitiveRestartEnable);
     }
 
-    private VkPipelineMultisampleStateCreateInfo getMultisampleCreateInfo(MemoryStack stack, PipelineData data) {
+    private VkPipelineMultisampleStateCreateInfo getMultisampleCreateInfo(MemoryStack stack, RenderPipelineData data) {
         return VkPipelineMultisampleStateCreateInfo.calloc(stack)
                 .sType$Default()
                 .rasterizationSamples(VK14.VK_SAMPLE_COUNT_1_BIT)
                 .sampleShadingEnable(false);
     }
 
-    private VkPipelineColorBlendAttachmentState.Buffer getColorAttachments(MemoryStack stack, PipelineData data) {
+    private VkPipelineColorBlendAttachmentState.Buffer getColorAttachments(MemoryStack stack, RenderPipelineData data) {
         VkPipelineColorBlendAttachmentState.Buffer attachments =
                 VkPipelineColorBlendAttachmentState.calloc(data.colorAttachments.size(), stack);
 
         for (int i = 0; i < data.colorAttachments.size(); i++) {
-            PipelineData.ColorAttachmentInfo colorAttachment = data.colorAttachments.get(i);
+            RenderPipelineData.ColorAttachmentInfo colorAttachment = data.colorAttachments.get(i);
 
             attachments.get(i)
                 .srcAlphaBlendFactor(colorAttachment.srcAlphaBlendFactor.getVkHandle())
@@ -276,7 +213,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
         return attachments;
     }
 
-    private VkPipelineColorBlendStateCreateInfo getColorBlendState(MemoryStack stack, PipelineData data,
+    private VkPipelineColorBlendStateCreateInfo getColorBlendState(MemoryStack stack, RenderPipelineData data,
                                                                    VkPipelineColorBlendAttachmentState.Buffer attachments) {
         VkPipelineColorBlendStateCreateInfo blendStates = VkPipelineColorBlendStateCreateInfo.calloc(stack)
                 .sType$Default()
@@ -292,7 +229,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
         return blendStates;
     }
 
-    private VkPipelineDepthStencilStateCreateInfo getDepthStencilState(MemoryStack stack, PipelineData data) {
+    private VkPipelineDepthStencilStateCreateInfo getDepthStencilState(MemoryStack stack, RenderPipelineData data) {
         VkPipelineDepthStencilStateCreateInfo info = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
                 .sType$Default()
                 .depthBoundsTestEnable(false);
@@ -312,37 +249,20 @@ public class VulkanRenderPipeline implements RenderPipeline {
         return info;
     }
 
-    private IntBuffer getColorAttachmentFormats(MemoryStack stack, PipelineData data) {
+    private IntBuffer getColorAttachmentFormats(MemoryStack stack, RenderPipelineData data) {
         IntBuffer attachmentFormats = stack.mallocInt(data.colorAttachments.size());
         data.colorAttachments.forEach(att -> attachmentFormats.put(att.format.getVkHandle()));
         attachmentFormats.flip();
         return attachmentFormats;
     }
 
-    private VkPipelineRenderingCreateInfo getRenderingInfo(MemoryStack stack, PipelineData data, IntBuffer attachmentFormats) {
+    private VkPipelineRenderingCreateInfo getRenderingInfo(MemoryStack stack, RenderPipelineData data, IntBuffer attachmentFormats) {
         return VkPipelineRenderingCreateInfo.calloc(stack)
                 .sType$Default()
                 .colorAttachmentCount(data.colorAttachments.size())
                 .pColorAttachmentFormats(attachmentFormats)
                 .depthAttachmentFormat(data.depthAttachment == null ? 0 : data.depthAttachment.format.getVkHandle())
                 .stencilAttachmentFormat(data.stencilAttachment == null ? 0 : data.stencilAttachment.format.getVkHandle());
-    }
-
-    private VkPipelineShaderStageCreateInfo.Buffer getShaderStages(MemoryStack stack, PipelineData data) {
-        VkPipelineShaderStageCreateInfo.Buffer stages =
-                VkPipelineShaderStageCreateInfo.calloc(data.shaders.getShaderCount(), stack);
-
-        VkPipelineShaderStageCreateInfo[] shaderStageCreateInfos = data.compiledShaders.getShaderCreateInfos();
-
-        for (int i = 0; i < shaderStageCreateInfos.length; i++) {
-            VkPipelineShaderStageCreateInfo stage = shaderStageCreateInfos[i];
-
-            stages.get(i).sType$Default()
-                    .stage(stage.stage())
-                    .module(stage.module())
-                    .pName(Utils.ensureCStr(stage.pName()));
-        }
-        return stages;
     }
 
     private VkPipelineViewportStateCreateInfo getViewportInfo(MemoryStack stack) {
@@ -357,6 +277,7 @@ public class VulkanRenderPipeline implements RenderPipeline {
     }
     //endregion
 
+    @Override
     public long getHandle() {
         return this.handle;
     }

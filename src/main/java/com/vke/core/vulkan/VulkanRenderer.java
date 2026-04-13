@@ -1,12 +1,9 @@
 package com.vke.core.vulkan;
 
-import com.vke.api.assets.AssetManager;
-import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
-import com.vke.api.registry.VKERegistries;
 import com.vke.api.services.Service;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
@@ -21,13 +18,11 @@ import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
-import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
@@ -38,7 +33,7 @@ public class VulkanRenderer extends Service implements Renderer {
 
     private final int FRAMES_IN_FLIGHT;
 
-    private final VulkanSwapchain swapchain;
+    public final VulkanSwapchain swapchain;
     private final VulkanRenderDevice device;
     private final VulkanFrame[] frames;
     private final VulkanFence[] imagesInFlight;
@@ -127,7 +122,7 @@ public class VulkanRenderer extends Service implements Renderer {
         cmd.setViewport(wp);
         cmd.setScissor(sc);
 
-        DrawContext context = new DrawContext(cmd, window);
+        DrawContext context = new DrawContext(cmd, swapchain.getExtent(), window);
         return new FrameData(frame, stack, imageIndex, context);
     }
 

@@ -1,4 +1,4 @@
-package com.vke.core.assets.pipeline.converters;
+package com.vke.core.assets.pipeline.converters.pipeline;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -8,9 +8,10 @@ import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.core.assets.pipeline.protocols.RenderPipelineProtocol;
+import com.vke.core.assets.pipeline.protocols.pipeline.ComputePipelineProtocol;
+import com.vke.core.assets.pipeline.protocols.pipeline.RenderPipelineProtocol;
 
-public class ConfigPipelineConverter implements AssetConverter {
+public class ConfigComputePipelineConverter implements AssetConverter {
     @Override
     public String from() {
         return Protocols.CONFIG;
@@ -18,12 +19,12 @@ public class ConfigPipelineConverter implements AssetConverter {
 
     @Override
     public String to() {
-        return Protocols.RENDERPIPELINE;
+        return Protocols.COMPUTEPIPELINE;
     }
 
     @Override
     public AssetData performConversion(Context context, StageElement input, ConfigArrayNode arguments) throws AssetException {
         ConfigDocument document = input.getAssetData().getDataAs();
-        return RenderPipelineProtocol.fromConfig(context, document);
+        return ComputePipelineProtocol.fromConfig(context, document);
     }
 }

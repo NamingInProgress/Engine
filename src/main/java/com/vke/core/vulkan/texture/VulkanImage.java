@@ -35,6 +35,19 @@ public class VulkanImage implements Disposable {
 
     private final VulkanRenderDevice device;
 
+    public VulkanImage(long handle, ImageAspect aspect) {
+        this.image = handle;
+        this.allocation = 0;
+        this.extent = null;
+        this.format = null;
+        this.type = null;
+        this.layout = ImageLayout.UNDEFINED;
+        this.mipLevels = 0;
+        this.arrayLayers = 0;
+        this.aspect = aspect;
+        this.device = null;
+    }
+
     public VulkanImage(VulkanRenderDevice device, Texture.TextureDesc desc, MemoryUsage memoryUsage) {
         this.device = device;
         this.format = desc.format;
@@ -81,6 +94,7 @@ public class VulkanImage implements Disposable {
 
     @Override
     public void free() {
+        if (this.allocation == 0) return; // This means it is a swapchain image, and it is not our problem to free
         if (view != null)
             view.free();
         Vma.vmaDestroyImage(device.getVmaAllocator(), image, allocation);
@@ -107,6 +121,8 @@ public class VulkanImage implements Disposable {
     public TextureType getType() {
         return type;
     }
+
+    public void setView(VulkanTextureView view) { this.view = view; }
 
     public VulkanTextureView getView() {
         if (view != null) return view;

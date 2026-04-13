@@ -1,11 +1,13 @@
-package com.vke.core.assets.pipeline.protocols;
+package com.vke.core.assets.pipeline.protocols.pipeline;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.rendering.vulkan.pipeline.PipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
+import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
@@ -19,10 +21,10 @@ import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
-public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
+public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
     @Override
     public String getProtocolName() {
-        return Protocols.RENDERPIPELINE;
+        return Protocols.COMPUTEPIPELINE;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
 
     @Override
     public Loader getLoader() {
-        return new RenderPipelineLoader();
+        return new ComputePipelineLoader();
     }
 
     @Override
@@ -40,19 +42,19 @@ public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
         return false;
     }
 
-    public static AssetData fromConfig(Context context, ConfigDocument configDocument) throws AssetException {
+    public static AssetData fromConfig(Context context, ConfigDocument configDocument) {
         return Utils.chainExceptions(() -> {
-            PipelineData data = PipelineData.fromConfig(configDocument);
+            ComputePipelineData data = ComputePipelineData.fromConfig(configDocument);
 
             EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
             Renderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
-            return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
+            return new AssetData(Protocols.COMPUTEPIPELINE, device.createComputePipeline(data));
         });
     }
 
-    public static class RenderPipelineLoader implements Loader {
+    public static class ComputePipelineLoader implements Loader {
 
         @Override
         public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {

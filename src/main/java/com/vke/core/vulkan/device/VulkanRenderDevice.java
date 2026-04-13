@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.device;
 
-import com.vke.api.rendering.vulkan.pipeline.PipelineData;
+import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
+import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.Buffer;
@@ -27,6 +28,7 @@ import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.shader.ShaderCompiler;
@@ -235,7 +237,6 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
-        //GeneralBuffer buffer = VKUtils.readInputStreamToVulkanAndClose(identifier.asInputStream());
         byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
 
         try {
@@ -248,7 +249,6 @@ public class VulkanRenderDevice implements RenderDevice {
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
             engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv, shaderType);
 
-            //buffer.free();
             return shader;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -299,8 +299,13 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public VulkanRenderPipeline createRenderPipeline(PipelineData data) {
+    public VulkanRenderPipeline createRenderPipeline(RenderPipelineData data) {
         return new VulkanRenderPipeline(context, this, data);
+    }
+
+    @Override
+    public VulkanComputePipeline createComputePipeline(ComputePipelineData data) {
+        return new VulkanComputePipeline(context, this, data);
     }
 
     @Override

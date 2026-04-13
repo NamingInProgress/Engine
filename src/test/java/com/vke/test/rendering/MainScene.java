@@ -2,6 +2,8 @@ package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.IVertexConsumer;
+import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -12,14 +14,13 @@ import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
-import com.vke.core.vulkan.Scissor;
-import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.buffers.premade.mesh.BatchedVertexConsumer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.window.Window;
+import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -34,8 +35,12 @@ public class MainScene extends Scene {
     }
 
     private VulkanRenderPipeline cubePipeline, dynamicVertsPipeline;
+    private VulkanComputePipeline computePipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
     private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
+    private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("compute_test.cpipeline.json");
+
+    private ImageHandle compute_image;
 
     private PushConstantHandle projMatrixHandle;
     private PushConstantHandle transformMatrixHandle;
@@ -52,12 +57,20 @@ public class MainScene extends Scene {
     public void onLoad() {
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
+        computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
         
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
 
         dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
         dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
+
+        var renderer = context.<VulkanRenderer>service(Services.VULKAN_RENDERER);
+        VulkanSwapchain sw = renderer.swapchain;
+
+        compute_image = computePipeline.resolveUniform("image");
+        compute_image.set(sw.getColorImage(sw.currentImageIndex()));
+        computePipeline.updateUniforms(compute_image);
 
         consumer = new BatchedVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 
@@ -91,13 +104,12 @@ public class MainScene extends Scene {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
-            cmd.bindRenderPipeline(CUBE);
+            cmd.bindPipeline(CUBE);
 
             Matrix4f mat = new Matrix4f();
             //mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
             mat.setPerspective((float) Math.toRadians(90), (float) 800 / 600, 0.1f, 1000, true);
 
-            cmd.bindRenderPipeline(CUBE);
 
 
             Matrix4f model = new Matrix4f();
@@ -120,7 +132,7 @@ public class MainScene extends Scene {
             mesh.draw(ctx);
 
 
-            cmd.bindRenderPipeline(DYNAMIC);
+            cmd.bindPipeline(DYNAMIC);
 
             dvProjMatrixHandle.write(buf -> buf.putMat4(mat));
             dvTransformMatrixHandle.write(buf -> buf.putMat4(new Matrix4f().translate(-220, -250.0f, -550).scale(scale, scale, scale).rotateY(time * speed)));
@@ -157,6 +169,13 @@ public class MainScene extends Scene {
             consumer.index(2, 3, 0);
 
             consumer.draw(ctx);
+
+            cmd.bindPipeline(COMPUTE);
+
+            cmd.bindDescriptorSets(COMPUTE);
+
+            VK14.vkCmdDispatch(cmd.getBuffer(), (int) Math.ceil(ctx.getExtent().width / 16.0), (int) Math.ceil(ctx.getExtent().height / 16.0), 1);
+
             //((VertexConsumer<DynamicTestVertex>) consumer).print();
         }
     }

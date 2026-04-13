@@ -60,8 +60,7 @@ public interface CommandBuffer extends Disposable {
     void end();
     void reset();
 
-    void bindRenderPipeline(AssetHandle<? extends RenderPipeline> pipeline);
-    void bindComputePipeline(AssetHandle<? extends ComputePipeline> pipeline);
+    void bindPipeline(AssetHandle<? extends Pipeline> pipeline);
 
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
     void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline);

@@ -1,5 +1,6 @@
 package com.vke.api.assets.r;
 
+import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.data.Texture;
@@ -9,6 +10,7 @@ import com.vke.core.assets.language.Language;
 
 public class R {
     public static Category<RenderPipeline> pipelines = new Category<>();
+    public static Category<ComputePipeline> compute_pipelines = new Category<>();
     public static Category<Texture> textures = new Category<>();
     public static Category<Boolean> booleans = new Category<>();
     public static Category<Float> numbers = new Category<>();
