@@ -68,7 +68,12 @@ public class VulkanCmdBuffers implements CommandBuffer {
             VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
                     .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
             VK14.vkBeginCommandBuffer(this.vk, beginInfo);
+        }
+    }
 
+    @Override
+    public void beginRendering() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
             currentColorImage.getImage().transitionLayout(
                     this,
@@ -142,7 +147,6 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void end() {
         this.recording = false;
-        VK14.vkCmdEndRendering(vk);
 
         VulkanTexture currentImage = swapchain.getColorImage(swapchain.currentImageIndex());
         currentImage.getImage().transitionLayout(
@@ -155,6 +159,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
         );
 
         VK14.vkEndCommandBuffer(vk);
+    }
+
+    @Override
+    public void endRendering() {
+        VK14.vkCmdEndRendering(vk);
     }
 
     @Override

@@ -1,16 +1,17 @@
 package com.vke.core.scene.manager;
 
+import com.vke.api.app.CompoundFramable;
+import com.vke.api.app.Framable;
 import com.vke.api.assets.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.window.Window;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 
-public class SceneManager {
+public class SceneManager implements CompoundFramable {
     private boolean init;
     private final Context context;
     private final SceneManagerService base;
@@ -41,10 +42,9 @@ public class SceneManager {
         return base.getCurrentScene();
     }
 
-    public void callDrawLoop(DrawContext ctx) {
-        Scene s = getCurrentScene();
-        if (s != null) {
-            s.drawLoop(ctx);
-        }
+    @Override
+    public Iter<Framable> children() {
+        return getCurrentScene() == null ? Iter.of() : Iter.of(getCurrentScene());
     }
+
 }

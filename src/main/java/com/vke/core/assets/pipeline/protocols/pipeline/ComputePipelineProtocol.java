@@ -5,9 +5,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
-import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
@@ -24,7 +22,7 @@ import java.io.IOException;
 public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
     @Override
     public String getProtocolName() {
-        return Protocols.COMPUTEPIPELINE;
+        return Protocols.FUNNY_STUFF;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
             Renderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
-            return new AssetData(Protocols.COMPUTEPIPELINE, device.createComputePipeline(data));
+            return new AssetData(Protocols.FUNNY_STUFF, device.createComputePipeline(data));
         });
     }
 

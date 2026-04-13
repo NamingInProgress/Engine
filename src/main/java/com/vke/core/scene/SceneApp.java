@@ -1,15 +1,16 @@
 package com.vke.core.scene;
 
 import com.vke.api.app.App;
+import com.vke.api.app.CompoundFramable;
+import com.vke.api.app.Framable;
 import com.vke.api.scene.SceneException;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.scene.manager.SceneManager;
 import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.window.Window;
+import com.vke.utils.iter.Iter;
 
-public class SceneApp extends App {
+public class SceneApp extends App implements CompoundFramable {
     private VKEngine engine;
     private final String sceneName;
 
@@ -32,9 +33,8 @@ public class SceneApp extends App {
     }
 
     @Override
-    public void onDraw(DrawContext ctx) {
-        SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
-        sceneManager.callDrawLoop(ctx);
+    public Iter<Framable> children() {
+        return Iter.of(engine.<SceneManager>service(Services.SCENE_MANAGER));
     }
 
     @Override

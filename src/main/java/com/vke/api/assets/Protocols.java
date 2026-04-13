@@ -14,7 +14,7 @@ public class Protocols {
     public static final String PNG = "png";
 
     public static final String RENDERPIPELINE = "pipeline";
-    public static final String COMPUTEPIPELINE = "cpipeline";
+    public static final String FUNNY_STUFF = "funny_stuff";
 
     public static final String VERTSHADER = "vertshader";
     public static final String FRAGSHADER = "fragshader";

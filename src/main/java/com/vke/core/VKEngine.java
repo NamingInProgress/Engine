@@ -84,7 +84,8 @@ public class VKEngine extends Context {
                 profiler.begin("Render", AnsiColors.RED);
                 profiler.push();
                 profiler.begin("Frame Setup");
-                VulkanRenderer.FrameData bfd = renderer.startFrame(window);
+                app.preFrame();
+                VulkanRenderer.FrameData bfd = renderer.startFrame(window, app);
                 profiler.end();
                 profiler.pop();
                 if (bfd != null) {
@@ -92,7 +93,8 @@ public class VKEngine extends Context {
                     app.onDraw(bfd.context());
                     profiler.end();
                     profiler.begin("Frame End");
-                    renderer.endFrame(bfd);
+                    renderer.endFrame(bfd, app);
+                    app.postFrame();
                     profiler.end();
                 }
                 profiler.end();

@@ -1,5 +1,6 @@
 package com.vke.core.vulkan;
 
+import com.vke.api.app.Framable;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -69,7 +70,7 @@ public class VulkanRenderer extends Service implements Renderer {
         Samplers.init(device);
     }
 
-    public FrameData startFrame(Window window) {
+    public FrameData startFrame(Window window, Framable f) {
         MemoryStack stack = MemoryStack.stackPush();
 
         VulkanFrame frame = frames[currentFrame];
@@ -110,6 +111,8 @@ public class VulkanRenderer extends Service implements Renderer {
 
         profiler.begin("Begin");
         cmd.begin();
+        f.preRendering(new DrawContext(cmd, swapchain.getExtent(), window));
+        cmd.beginRendering();
         profiler.end();
         profiler.end();
 
@@ -126,9 +129,11 @@ public class VulkanRenderer extends Service implements Renderer {
         return new FrameData(frame, stack, imageIndex, context);
     }
 
-    public void endFrame(FrameData frameData) {
+    public void endFrame(FrameData frameData, Framable f) {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
+        cmd.endRendering();
+        f.postRendering(new DrawContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
         cmd.end();
 
         device.submit(cmd, new CommandBuffer.SubmitInfo(

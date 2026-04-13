@@ -9,7 +9,6 @@ import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.protocols.pipeline.ComputePipelineProtocol;
-import com.vke.core.assets.pipeline.protocols.pipeline.RenderPipelineProtocol;
 
 public class ConfigComputePipelineConverter implements AssetConverter {
     @Override
@@ -19,7 +18,7 @@ public class ConfigComputePipelineConverter implements AssetConverter {
 
     @Override
     public String to() {
-        return Protocols.COMPUTEPIPELINE;
+        return Protocols.FUNNY_STUFF;
     }
 
     @Override

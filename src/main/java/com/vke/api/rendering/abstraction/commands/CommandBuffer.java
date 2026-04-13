@@ -57,7 +57,9 @@ public interface CommandBuffer extends Disposable {
     boolean isRecording();
 
     void begin();
+    void beginRendering();
     void end();
+    void endRendering();
     void reset();
 
     void bindPipeline(AssetHandle<? extends Pipeline> pipeline);

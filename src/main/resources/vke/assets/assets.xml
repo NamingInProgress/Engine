@@ -10,10 +10,10 @@
         </stage-filter>
 
         <!-- =================== PIPELINES =================== -->
-        <stage-filter uri="file://name" query="cpipeline" op="contains">
+        <stage-filter uri="file://name" query="funny_stuff" op="contains">
             <convert to="config"/>
             <stage-filter uri="config://field/hello" query="world" op="equals"/>
-            <convert to="cpipeline"/>
+            <convert to="funny_stuff"/>
         </stage-filter>
         <stage-filter uri="file://name" query="pipeline" op="contains">
             <convert to="config"/>

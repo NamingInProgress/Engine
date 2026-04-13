@@ -2,7 +2,14 @@ package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.IVertexConsumer;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
+import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
@@ -20,11 +27,13 @@ import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
+import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
+import com.vke.core.vulkan.texture.VulkanImage;
+import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK14;
 
 import java.io.IOException;
 
@@ -34,11 +43,12 @@ public class MainScene extends Scene {
         super(name, context);
     }
 
-    private VulkanRenderPipeline cubePipeline, dynamicVertsPipeline;
+    private VulkanRenderPipeline cubePipeline, dynamicVertsPipeline, fullScreenPipeline;
     private VulkanComputePipeline computePipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
     private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
-    private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("compute_test.cpipeline.json");
+    private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
+    private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
 
     private ImageHandle compute_image;
 
@@ -48,16 +58,39 @@ public class MainScene extends Scene {
     private PushConstantHandle dvProjMatrixHandle;
     private PushConstantHandle dvTransformMatrixHandle;
 
+    private CombinedImageSamplerHandle fullScreenSampler;
+
     private IVertexConsumer<DynamicTestVertex> consumer;
+
+    private VulkanTexture tex;
+
+    private VulkanSwapchain sw;
+    private VulkanRenderer renderer;
 
     private StaticMeshBuffer mesh;
     private MeshPrefab prefab;
 
     @Override
     public void onLoad() {
+        renderer = context.<VulkanRenderer>service(Services.VULKAN_RENDERER);
+        var device = renderer.getDevice();
+
+        var desc = new Texture.TextureDesc();
+        desc.type = TextureType.TEX_2D;
+        desc.format = Format.RGBA8;
+        desc.mipLevels = 1;
+        desc.depth = 1;
+        desc.usage = new ImageUsage(ImageUsage.Bits.STORAGE_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.SAMPLED_BIT);
+        desc.width = 800;
+        desc.height = 600;
+
+        VulkanImage image = new VulkanImage(device, desc, MemoryUsage.Bits.GPU_ONLY.into());
+        tex = new VulkanTexture(image, true);
+
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
         computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
+        fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
         
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
@@ -65,12 +98,20 @@ public class MainScene extends Scene {
         dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
         dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
 
-        var renderer = context.<VulkanRenderer>service(Services.VULKAN_RENDERER);
-        VulkanSwapchain sw = renderer.swapchain;
+
+        sw = renderer.swapchain;
+
+        renderer.immediateSubmit((stack, cmd) -> {
+            tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
+        });
 
         compute_image = computePipeline.resolveUniform("image");
-        compute_image.set(sw.getColorImage(sw.currentImageIndex()));
+        compute_image.set(tex);
         computePipeline.updateUniforms(compute_image);
+
+        fullScreenSampler = fullScreenPipeline.resolveUniform("image");
+        fullScreenSampler.set(tex, Samplers.LINEAR);
+        fullScreenPipeline.updateUniforms(fullScreenSampler);
 
         consumer = new BatchedVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 
@@ -100,17 +141,15 @@ public class MainScene extends Scene {
     }
 
     @Override
-    public void drawLoop(DrawContext ctx) {
-
+    public void onDraw(DrawContext ctx) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
+            cmd.bindPipeline(CUBE);
             cmd.bindPipeline(CUBE);
 
             Matrix4f mat = new Matrix4f();
             //mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
             mat.setPerspective((float) Math.toRadians(90), (float) 800 / 600, 0.1f, 1000, true);
-
-
 
             Matrix4f model = new Matrix4f();
 
@@ -140,13 +179,6 @@ public class MainScene extends Scene {
             cmd.setPushConstants(DYNAMIC);
 
             consumer.begin();
-//            consumer.vertex(new DynamicTestVertex(0, 0, -550, 1, 0, 0, 1));
-//            consumer.vertex(new DynamicTestVertex(200, 0, -550, 0, 1, 0, 1));
-//            consumer.vertex(new DynamicTestVertex(200, 200, -550, 0, 0, 1, 1));
-//            consumer.vertex(new DynamicTestVertex(0, 200, -500, 1, 1, 0, 1));
-//
-//            consumer.index(0, 1, 2);
-//            consumer.index(2, 3, 0);
 
             consumer.mesh(prefab.toMesh((prefabVertex) -> new DynamicTestVertex(
                     prefabVertex.position()[0],
@@ -170,13 +202,24 @@ public class MainScene extends Scene {
 
             consumer.draw(ctx);
 
-            cmd.bindPipeline(COMPUTE);
+            //cmd.bindPipeline(COMPUTE);
 
-            cmd.bindDescriptorSets(COMPUTE);
+            //cmd.bindDescriptorSets(COMPUTE);
 
-            VK14.vkCmdDispatch(cmd.getBuffer(), (int) Math.ceil(ctx.getExtent().width / 16.0), (int) Math.ceil(ctx.getExtent().height / 16.0), 1);
+            //VK14.vkCmdDispatch(cmd.getBuffer(), (int) Math.ceil(ctx.getExtent().width / 16.0), (int) Math.ceil(ctx.getExtent().height / 16.0), 1);
 
-            //((VertexConsumer<DynamicTestVertex>) consumer).print();
+//            cmd.bindPipeline(QUAD);
+//
+//            consumer.begin();
+//            consumer.vertex(new DynamicTestVertex(-1, 1, 0, 1, 1, 1, 1));
+//            consumer.vertex(new DynamicTestVertex(1, 1, 0, 1, 1, 1, 1));
+//            consumer.vertex(new DynamicTestVertex(-1, -1, 0, 1, 1, 1, 1));
+//            consumer.vertex(new DynamicTestVertex(1, -1, 0, 1, 1, 1, 1));
+//
+//            consumer.index(0, 1, 2, 3);
+//
+//            cmd.bindDescriptorSets(QUAD);
+//            consumer.draw(ctx);
         }
     }
 
@@ -188,6 +231,7 @@ public class MainScene extends Scene {
 
     @Override
     public void free() {
+        tex.free();
     }
 
     public static class CubeVertexFormat implements Vertex {
@@ -218,33 +262,6 @@ public class MainScene extends Scene {
         public void putSelf(VertexByteSink buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
-            buf.float4(r, g, b, a);
-        }
-    }
-
-    public static class DynamicTestVertex implements Vertex {
-
-        private final float x, y, z;
-        private final float r, g, b, a;
-
-        public DynamicTestVertex(float x, float y, float z, float r, float g, float b, float a) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-
-        @Override
-        public int getByteStride() {
-            return 4*7;
-        }
-
-        @Override
-        public void putSelf(VertexByteSink buf) {
-            buf.float3(x, y, z);
             buf.float4(r, g, b, a);
         }
     }

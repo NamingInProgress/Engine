@@ -42,8 +42,8 @@ public class VulkanImage implements Disposable {
         this.format = null;
         this.type = null;
         this.layout = ImageLayout.UNDEFINED;
-        this.mipLevels = 0;
-        this.arrayLayers = 0;
+        this.mipLevels = 1;
+        this.arrayLayers = 1;
         this.aspect = aspect;
         this.device = null;
     }
