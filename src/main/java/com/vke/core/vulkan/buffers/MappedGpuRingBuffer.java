@@ -29,7 +29,9 @@ public class MappedGpuRingBuffer extends MappedBuffer {
 
         long frameOffset = (frameIndex % framesInFlight) * singleSize;
         MemoryUtil.memCopy(srcAddress, mappedAddress + frameOffset + offset, numBytes);
-        frameIndex = (frameIndex + 1) % framesInFlight;
     }
 
+    public void rotate() {
+        frameIndex = (frameIndex + 1) % framesInFlight;
+    }
 }

@@ -1,7 +1,7 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.IVertexConsumer;
+import com.vke.api.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
@@ -22,7 +22,7 @@ import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.buffers.premade.mesh.BatchedVertexConsumer;
+import com.vke.core.vulkan.vertexconsumer.AbstractVertexConsumer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
@@ -31,6 +31,7 @@ import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -60,7 +61,7 @@ public class MainScene extends Scene {
 
     private CombinedImageSamplerHandle fullScreenSampler;
 
-    private IVertexConsumer<DynamicTestVertex> consumer;
+    private VertexConsumer<DynamicTestVertex> consumer;
 
     private VulkanTexture tex;
 
@@ -72,7 +73,7 @@ public class MainScene extends Scene {
 
     @Override
     public void onLoad() {
-        renderer = context.<VulkanRenderer>service(Services.VULKAN_RENDERER);
+        renderer = context.service(Services.VULKAN_RENDERER);
         var device = renderer.getDevice();
 
         var desc = new Texture.TextureDesc();
@@ -110,10 +111,10 @@ public class MainScene extends Scene {
         computePipeline.updateUniforms(compute_image);
 
         fullScreenSampler = fullScreenPipeline.resolveUniform("image");
-        fullScreenSampler.set(tex, Samplers.LINEAR);
+        fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
         fullScreenPipeline.updateUniforms(fullScreenSampler);
 
-        consumer = new BatchedVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
+        consumer = new FastVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);
@@ -144,6 +145,7 @@ public class MainScene extends Scene {
     public void onDraw(DrawContext ctx) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
+            consumer.beginFrame();
             cmd.bindPipeline(CUBE);
             cmd.bindPipeline(CUBE);
 
@@ -192,13 +194,13 @@ public class MainScene extends Scene {
             )));
 
             consumer.begin();
-            consumer.vertex(new DynamicTestVertex(0, 0, 0, 1, 0, 0, 1));
-            consumer.vertex(new DynamicTestVertex(1, 0, 0, 0, 1, 0, 1));
-            consumer.vertex(new DynamicTestVertex(1, 1, 0, 0, 0, 1, 1));
-            consumer.vertex(new DynamicTestVertex(0, 1, 0, 1, 1, 0, 1));
+            consumer.vertices(new DynamicTestVertex(0, 0, 0, 1, 0, 0, 1));
+            consumer.vertices(new DynamicTestVertex(1, 0, 0, 0, 1, 0, 1));
+            consumer.vertices(new DynamicTestVertex(1, 1, 0, 0, 0, 1, 1));
+            consumer.vertices(new DynamicTestVertex(0, 1, 0, 1, 1, 0, 1));
 
-            consumer.index(0, 1, 2);
-            consumer.index(2, 3, 0);
+            consumer.indices(0, 1, 2);
+            consumer.indices(2, 3, 0);
 
             consumer.draw(ctx);
 
@@ -234,7 +236,7 @@ public class MainScene extends Scene {
         tex.free();
     }
 
-    public static class CubeVertexFormat implements Vertex {
+    public static class CubeVertexFormat extends Vertex {
 
         private float x, y, z;
         private float nx, ny, nz;

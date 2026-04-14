@@ -1,5 +1,6 @@
 package com.vke.api.rendering.abstraction.data;
 
+import com.vke.api.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
@@ -7,7 +8,7 @@ import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
 
-public interface Texture extends Disposable {
+public interface Texture extends Disposable, QuadTexture {
 
     class TextureDesc {
 
@@ -111,6 +112,8 @@ public interface Texture extends Disposable {
 
     }
 
+    float[] DEFAULT_UVWH = new float[]{ 0, 0, 1, 1 };
+
     int width();
     int height();
     int depth();
@@ -123,4 +126,11 @@ public interface Texture extends Disposable {
 
     long getHandle();
 
+    @Override
+    default Texture texture() {
+        return this;
+    }
+
+    @Override
+    default float[] uvFor() { return DEFAULT_UVWH; }
 }

@@ -9,6 +9,7 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.Objects;
 
 public class VulkanSampler implements Sampler {
 
@@ -54,5 +55,17 @@ public class VulkanSampler implements Sampler {
     @Override
     public void free() {
         VK14.vkDestroySampler(device.getLogicalDevice().getDevice(), handle, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanSampler that = (VulkanSampler) o;
+        return handle == that.handle;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(handle);
     }
 }

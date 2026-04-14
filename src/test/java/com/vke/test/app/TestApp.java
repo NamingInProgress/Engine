@@ -230,7 +230,7 @@ public class TestApp extends App {
         mesh2.free();
     }
 
-    private static class VertexFormatTexture implements Vertex {
+    private static class VertexFormatTexture extends Vertex {
         private final float x, y, z;
         private final float r, g, b, a;
         private final float u, v;
@@ -263,7 +263,7 @@ public class TestApp extends App {
 
     }
 
-    private static class VertexFormat implements Vertex {
+    private static class VertexFormat extends Vertex {
         private final float x, y, z;
         private final float r, g, b, a;
 
@@ -290,7 +290,7 @@ public class TestApp extends App {
         }
     }
 
-    private static class CubeVertexFormat implements Vertex {
+    private static class CubeVertexFormat extends Vertex {
         private final float x, y, z;
         private final float r, g, b, a;
 

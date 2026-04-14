@@ -12,6 +12,7 @@ public class Protocols {
     public static final String LANG = "lang";
 
     public static final String PNG = "png";
+    public static final String TEXTURE = "texture";
 
     public static final String RENDERPIPELINE = "pipeline";
     public static final String FUNNY_STUFF = "funny_stuff";

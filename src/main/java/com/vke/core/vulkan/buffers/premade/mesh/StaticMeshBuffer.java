@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers.premade.mesh;
 
-import com.vke.api.draw.IDrawable;
+import com.vke.api.draw.Drawable;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
@@ -21,7 +21,7 @@ import org.lwjgl.vulkan.VkDevice;
 
 import java.util.Arrays;
 
-public class StaticMeshBuffer implements Disposable, IDrawable {
+public class StaticMeshBuffer implements Disposable, Drawable {
     private StagedBuffer vertices;
     private StagedBuffer indices;
     private long verticesDeviceAddress;

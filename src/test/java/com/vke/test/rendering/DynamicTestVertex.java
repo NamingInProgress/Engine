@@ -3,7 +3,7 @@ package com.vke.test.rendering;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 
-public class DynamicTestVertex implements Vertex {
+public class DynamicTestVertex extends Vertex {
 
     private final float x, y, z;
     private final float r, g, b, a;

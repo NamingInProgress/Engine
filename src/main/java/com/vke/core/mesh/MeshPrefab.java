@@ -1,7 +1,7 @@
 package com.vke.core.mesh;
 
 import com.vke.api.draw.Vertex;
-import com.vke.api.draw.VertexFactory;
+import com.vke.api.draw.MeshVertexFactory;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
@@ -17,7 +17,7 @@ public class MeshPrefab {
         this.indices = indices;
     }
 
-    public Mesh toMesh(VertexFactory factory) {
+    public Mesh toMesh(MeshVertexFactory factory) {
         Vertex[] vertices = new Vertex[this.vertices.length];
         for (int i = 0; i < vertices.length; i++) {
             vertices[i] = factory.formatVertex(this.vertices[i]);

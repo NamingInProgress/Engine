@@ -50,7 +50,8 @@ public class PipelineContext extends ContextWrapper {
         registerProtocol(new RenderPipelineProtocol());
         registerProtocol(new ComputePipelineProtocol());
 
-        registerProtocol(new PngTextureProtocol());
+        registerProtocol(new TextureProtocol());
+        registerProtocol(new PngProtocol());
 
         registerProtocol(new ObjProtocol());
         registerProtocol(new MeshprefabProtocol());
@@ -69,6 +70,7 @@ public class PipelineContext extends ContextWrapper {
         registerConverter(new ConfigRenderPipelineConverter());
         registerConverter(new ConfigComputePipelineConverter());
         registerConverter(new ObjMeshprefabConverter());
+        registerConverter(new PngTextureConverter());
 
         //register cache handlers
         registerCacheHandler(new MeshPrefabCache());

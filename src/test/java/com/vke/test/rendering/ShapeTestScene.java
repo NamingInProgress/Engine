@@ -1,7 +1,7 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.IVertexConsumer;
+import com.vke.api.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
@@ -23,7 +23,7 @@ public class ShapeTestScene extends Scene {
 
     private PushConstantHandle proj, transform;
 
-    private IVertexConsumer<DynamicTestVertex> consumer;
+    private VertexConsumer<DynamicTestVertex> consumer;
 
     @Override
     public void onLoad() {

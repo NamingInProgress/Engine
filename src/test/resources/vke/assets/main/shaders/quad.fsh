@@ -7,5 +7,6 @@ layout (location = 0) out vec4 color;
 layout (set = 0, binding = 0) uniform sampler2D image;
 
 void main() {
-    color = texture(image, uv);
+    //color = texture(image, uv);
+    color = vec4(0);
 }

@@ -21,6 +21,7 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferImageCopy;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 public class VulkanTexture implements Texture {
 
@@ -140,5 +141,17 @@ public class VulkanTexture implements Texture {
         if (!canFree) return;
         if (alloc != null) alloc.close();
         image.free();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanTexture that = (VulkanTexture) o;
+        return Objects.equals(image.getHandle(), that.image.getHandle());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(image.getHandle());
     }
 }

@@ -17,7 +17,7 @@ import com.vke.core.file.png.PngFile;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
-public class PngTextureProtocol implements AssetProtocol<Texture> {
+public class PngProtocol implements AssetProtocol<Texture> {
     @Override
     public String getProtocolName() {
         return Protocols.PNG;
