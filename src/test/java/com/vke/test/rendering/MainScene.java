@@ -19,6 +19,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
+import com.vke.core.profiler.AppTimer;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.vulkan.VulkanRenderer;
@@ -70,6 +71,8 @@ public class MainScene extends Scene {
 
     private StaticMeshBuffer mesh;
     private MeshPrefab prefab;
+
+    private final AppTimer timer = new AppTimer();
 
     @Override
     public void onLoad() {
@@ -143,6 +146,7 @@ public class MainScene extends Scene {
 
     @Override
     public void onDraw(DrawContext ctx) {
+        timer.onFrameStart();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
             consumer.beginFrame();
@@ -222,6 +226,10 @@ public class MainScene extends Scene {
 //
 //            cmd.bindDescriptorSets(QUAD);
 //            consumer.draw(ctx);
+        }
+
+        if (timer.onFrameComplete(AppTimer.DEFAULT_TEST_INTERVAL_BEING_THE_DURATION_OF_9192631770_PERIODS_OF_THE_RADIATION_CORRESPONDING_TO_THE_TRANSITION_BETWEEN_THE_TWO_HYPERFINE_LEVELS_OF_THE_GROUND_STATE_OF_THE_CAESIUM_133_ATOM_EXPRESSED_IN_MILLISECONDS)) {
+            System.out.println("FPS: " + timer.fps());
         }
     }
 

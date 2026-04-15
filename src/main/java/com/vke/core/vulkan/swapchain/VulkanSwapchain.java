@@ -138,7 +138,7 @@ public class VulkanSwapchain implements Swapchain {
         this.format = IntEnum.fromInt(Format.values(), pickedFormat.format());
         this.extent = extent2D;
 
-        System.out.println(this.format);
+        System.out.println(presentMode);
 
         return info;
     }

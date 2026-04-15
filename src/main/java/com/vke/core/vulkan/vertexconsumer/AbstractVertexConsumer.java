@@ -20,8 +20,8 @@ import java.util.Arrays;
 
 public abstract class AbstractVertexConsumer<T extends Vertex> implements VertexConsumer<T> {
 
-    private static final int BASE_VERTEX_COUNT = 1000;
-    private static final int BASE_INDEX_COUNT = 1000;
+    protected static final int BASE_VERTEX_COUNT = 1000;
+    protected static final int BASE_INDEX_COUNT = 1000;
 
     private final DynamicVertexBuffer<T> _cpuVertices;
     private final DynamicIndexBuffer _cpuIndices;
