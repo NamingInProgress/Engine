@@ -58,7 +58,7 @@ public class DescriptorSets implements Disposable {
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();
 
         // Beautiful O(n^2) one liner
-        layouts.forEach(setLayout -> setLayout.bindings.forEach(bindingLayout -> counts.addTo(bindingLayout.type, 1)));
+        layouts.forEach(setLayout -> setLayout.bindings.forEach(bindingLayout -> counts.addTo(bindingLayout.type, bindingLayout.descriptorCount)));
 
         if (layouts.isEmpty()) {
             compiledLayouts = new ArrayList<>();

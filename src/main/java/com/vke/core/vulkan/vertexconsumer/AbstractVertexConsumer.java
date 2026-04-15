@@ -98,7 +98,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         this.currentIndexCount += indices.length;
     }
 
-    public void putMesh(Mesh<T> mesh) {
+    protected void putMesh(Mesh<T> mesh) {
         ensureVertexSpace(mesh.getVertices().length);
         ensureIndexSpace(mesh.getIndices().length);
 
@@ -108,8 +108,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         this.currentIndexCount += mesh.getIndices().length;
     }
 
-    @Override
-    public void draw(DrawContext ctx) {
+    protected void submitDraw(DrawContext ctx) {
         VulkanCmdBuffers buf = (VulkanCmdBuffers) ctx.getCommandBuffer();
         this.upload();
         this.bindIBO(ctx);
@@ -124,6 +123,11 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         this.currentIndexCount = 0;
 
         handleOldBuffers();
+    }
+
+    @Override
+    public void draw(DrawContext ctx) {
+        submitDraw(ctx);
     }
 
     @Override
