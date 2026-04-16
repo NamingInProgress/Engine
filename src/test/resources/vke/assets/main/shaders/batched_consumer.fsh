@@ -6,11 +6,11 @@ layout (location = 2) flat in int texId;
 
 layout (location = 0) out vec4 outColor;
 
-layout (set = 0, binding = 0) uniform sampler2D[2] textures;
+layout (set = 0, binding = 0) uniform sampler2D[4] textures;
 
 void main() {
     if (texId >= 0) {
-        outColor = mix(texture(textures[texId], UV), inColor, 0.5);
+        outColor = mix(texture(textures[texId], vec2(UV.x, 1. - UV.y)), inColor, 0.5);
     } else {
         outColor = inColor;
     }
