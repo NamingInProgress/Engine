@@ -1,6 +1,7 @@
 package com.vke.core.rendering.draw;
 
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.core.geom.Rect;
 import com.vke.core.vulkan.extent.Extent2D;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.window.Window;
@@ -25,4 +26,8 @@ public class DrawContext {
         return window;
     }
     public Extent2D getExtent() { return extent; }
+
+    public Rect canvasRect() {
+        return new Rect(0, 0, extent.width, extent.height);
+    }
 }
