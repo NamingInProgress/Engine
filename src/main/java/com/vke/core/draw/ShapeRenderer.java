@@ -117,8 +117,8 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
 
         consumer.begin();
         consumer.vertices(t, vIpltUV(x, y, z, bx, by, bw, bh, u, v, tw, th));
-        for (int i = 0; i < triCnt; i++) {
-            double t = (double) i / triCnt;
+        for (int i = 0; i <= triCnt; i++) {
+            double t = (double) i / (triCnt);
             double angle = offRad + t * arcRad;
 
             float vx = (float) (x + Math.cos(angle) * rx);

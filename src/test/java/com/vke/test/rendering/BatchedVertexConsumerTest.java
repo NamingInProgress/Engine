@@ -2,6 +2,8 @@ package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.VertexConsumer;
+import com.vke.api.draw.VertexFactory;
+import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -31,6 +33,7 @@ public class BatchedVertexConsumerTest extends Scene {
     private PushConstantHandle proj, transform;
 
     private VertexConsumer<ShapeRendererVertex> consumer;
+    private ShapeRenderer<ShapeRendererVertex> shapeRenderer;
 
     @Override
     public void onLoad() {
@@ -41,6 +44,8 @@ public class BatchedVertexConsumerTest extends Scene {
 
         this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER),
                 new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null), PL, "textures");
+        this.shapeRenderer = new ShapeRenderer<>(consumer, VertexFactory.DEFAULT);
+
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
         this.missing = R.textures.get("missing.png").assume(context);
         this.bear_performance = R.textures.get("bear_performance.png").assume(context);
@@ -57,28 +62,42 @@ public class BatchedVertexConsumerTest extends Scene {
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.beginFrame();
 
-        consumer.begin();
-        consumer.vertices(new ShapeRendererVertex(100, 100, 0, 0, 0, 0, 1, 0, 1, scaryVK));
-        consumer.vertices(new ShapeRendererVertex(100, 200, 0, 0, 0, 0, 1, 0, 0, scaryVK));
-        consumer.vertices(new ShapeRendererVertex(200, 200, 0, 0, 0, 0, 1, 1, 0, scaryVK));
-        consumer.vertices(new ShapeRendererVertex(200, 100, 0, 0, 0, 0, 1, 1, 1, scaryVK));
-        consumer.indices(0, 1, 2, 2, 3, 0);
+        shapeRenderer.texture(scaryVK);
+        shapeRenderer.color(0, 0, 0, 1);
+        shapeRenderer.circle(400, 300, 100, 50);
 
-        consumer.begin();
-        consumer.vertices(new ShapeRendererVertex(200, 100, 0, 0, 0, 0, 1, 0, 1, missing));
-        consumer.vertices(new ShapeRendererVertex(200, 200, 0, 0, 0, 0, 1, 0, 0, missing));
-        consumer.vertices(new ShapeRendererVertex(300, 200, 0, 0, 0, 0, 1, 1, 0, missing));
-        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 1, 1, missing));
-        consumer.indices(0, 1, 2, 2, 3, 0);
+        shapeRenderer.color(1, 0, 0, 1);
+        shapeRenderer.rect(100, 100, 100, 100);
 
-        consumer.begin();
-        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 0, 1, bear_performance));
-        consumer.vertices(new ShapeRendererVertex(300, 200, 0, 0, 0, 0, 1, 0, 0, bear_performance));
-        consumer.vertices(new ShapeRendererVertex(400, 200, 0, 0, 0, 0, 1, 1, 0, bear_performance));
-        consumer.vertices(new ShapeRendererVertex(400, 100, 0, 0, 0, 0, 1, 1, 1, bear_performance));
-        consumer.indices(0, 1, 2, 2, 3, 0);
+        shapeRenderer.texture(missing);
+        shapeRenderer.color(0, 0, 0, 1);
+        shapeRenderer.ovalArc(200, 200, 100, 50, 0, 90, 30);
 
-        consumer.draw(ctx);
+
+
+        shapeRenderer.draw(ctx);
+
+//        consumer.begin();
+//        consumer.vertices(new ShapeRendererVertex(100, 100, 0, 0, 0, 0, 1, 0, 1, scaryVK));
+//        consumer.vertices(new ShapeRendererVertex(100, 200, 0, 0, 0, 0, 1, 0, 0, scaryVK));
+//        consumer.vertices(new ShapeRendererVertex(200, 200, 0, 0, 0, 0, 1, 1, 0, scaryVK));
+//        consumer.vertices(new ShapeRendererVertex(200, 100, 0, 0, 0, 0, 1, 1, 1, scaryVK));
+//        consumer.indices(0, 1, 2, 2, 3, 0);
+//
+//        consumer.begin();
+//        consumer.vertices(new ShapeRendererVertex(200, 100, 0, 0, 0, 0, 1, 0, 1, missing));
+//        consumer.vertices(new ShapeRendererVertex(200, 200, 0, 0, 0, 0, 1, 0, 0, missing));
+//        consumer.vertices(new ShapeRendererVertex(300, 200, 0, 0, 0, 0, 1, 1, 0, missing));
+//        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 1, 1, missing));
+//        consumer.indices(0, 1, 2, 2, 3, 0);
+//
+//        consumer.begin();
+//        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 0, 1, bear_performance));
+//        consumer.vertices(new ShapeRendererVertex(300, 200, 0, 0, 0, 0, 1, 0, 0, bear_performance));
+//        consumer.vertices(new ShapeRendererVertex(400, 200, 0, 0, 0, 0, 1, 1, 0, bear_performance));
+//        consumer.vertices(new ShapeRendererVertex(400, 100, 0, 0, 0, 0, 1, 1, 1, bear_performance));
+//        consumer.indices(0, 1, 2, 2, 3, 0);
+
         //System.exit(0);
 
     }
