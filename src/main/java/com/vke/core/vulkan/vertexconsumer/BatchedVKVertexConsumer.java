@@ -68,6 +68,8 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
         for (Batch b : this.batches.iter()) {
             b.recycle();
         }
+        this.batches.clear();
+        this.batches.virtualAdd();
     }
 
     @Override
