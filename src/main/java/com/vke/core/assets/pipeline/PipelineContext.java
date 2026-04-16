@@ -5,16 +5,23 @@ import com.vke.core.ContextWrapper;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
+import com.vke.core.assets.pipeline.apis.AssetProcessor;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
 import com.vke.core.assets.pipeline.converters.pipeline.ConfigComputePipelineConverter;
 import com.vke.core.assets.pipeline.converters.pipeline.ConfigRenderPipelineConverter;
 import com.vke.core.assets.pipeline.protocols.*;
+import com.vke.core.assets.pipeline.protocols.mesh.MeshprefabProtocol;
+import com.vke.core.assets.pipeline.protocols.mesh.ObjProtocol;
+import com.vke.core.assets.pipeline.protocols.meta.FileProtocol;
+import com.vke.core.assets.pipeline.protocols.meta.MetaProtocol;
 import com.vke.core.assets.pipeline.protocols.pipeline.ComputePipelineProtocol;
 import com.vke.core.assets.pipeline.protocols.pipeline.RenderPipelineProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.ComputeShaderProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.FragmentShaderProtocol;
 import com.vke.core.assets.pipeline.protocols.shader.VertexShaderProtocol;
+import com.vke.core.assets.pipeline.protocols.texture.PngProtocol;
+import com.vke.core.assets.pipeline.protocols.texture.TextureProtocol;
 import com.vke.core.assets.pipeline.stages.*;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.mesh.MeshPrefabCache;
@@ -27,6 +34,7 @@ public class PipelineContext extends ContextWrapper {
     private final HashMap<String, AssetProtocol<?>> protocolRegistry;
     private final HashMap<String, AssetCache> cacheRegistry;
     private final HashMap<String, HashMap<String, AssetConverter>> converterRegistry;
+    private final HashMap<String, AssetProcessor> processorRegistry;
 
     public PipelineContext(Context vkeContext) {
         super(vkeContext);
@@ -35,6 +43,7 @@ public class PipelineContext extends ContextWrapper {
         this.protocolRegistry = new HashMap<>();
         this.cacheRegistry = new HashMap<>();
         this.converterRegistry = new HashMap<>();
+        this.processorRegistry = new HashMap<>();
 
         //register engine default protocols
         registerProtocol(new FileProtocol());
@@ -62,6 +71,7 @@ public class PipelineContext extends ContextWrapper {
         registerStage(RenameStage.STAGE, RenameStage::new);
         registerStage(DecodeStage.STAGE, DecodeStage::new);
         registerStage(CacheAssetStage.STAGE, CacheAssetStage::new);
+        registerStage(ProcessStage.STAGE, ProcessStage::new);
 
         //register converters
         registerConverter(new PlainPathConverter());
@@ -93,6 +103,10 @@ public class PipelineContext extends ContextWrapper {
         this.cacheRegistry.put(cacheHandler.getTargetProtocol(), cacheHandler);
     }
 
+    public void registerProcessor(AssetProcessor processor) {
+        this.processorRegistry.put(processor.getName(), processor);
+    }
+
     public PipelineStage produceStage(String stageName, ConfigNode node) throws AssetException {
         StageFactory fac = registryRegistry.get(stageName);
         if (fac == null) throw AssetException.unknownStage(stageName);
@@ -119,5 +133,9 @@ public class PipelineContext extends ContextWrapper {
 
     public Context context() {
         return vkeContext;
+    }
+
+    public AssetProcessor getProcessor(String name) {
+        return processorRegistry.get(name);
     }
 }

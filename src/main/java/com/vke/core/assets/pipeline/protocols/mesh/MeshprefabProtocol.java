@@ -1,4 +1,4 @@
-package com.vke.core.assets.pipeline.protocols;
+package com.vke.core.assets.pipeline.protocols.mesh;
 
 import com.vke.api.assets.Protocols;
 import com.vke.core.mesh.MeshPrefab;

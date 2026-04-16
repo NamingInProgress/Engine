@@ -1,4 +1,4 @@
-package com.vke.core.assets.pipeline.protocols;
+package com.vke.core.assets.pipeline.protocols.meta;
 
 import com.vke.api.assets.Protocols;
 import com.vke.core.assets.AssetException;

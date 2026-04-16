@@ -1,4 +1,4 @@
-package com.vke.core.assets.pipeline.protocols;
+package com.vke.core.assets.pipeline.protocols.meta;
 
 import com.vke.api.assets.Protocols;
 import com.vke.core.assets.AssetException;
@@ -24,6 +24,7 @@ public class FileProtocol implements AssetProtocol<Infallible> {
         router.addPath(Utils.p("location", "parent"), this::getLocationParent);
         router.addPath(Utils.p("location", "namespace"), this::getLocationNamespace);
         router.addPath(Utils.p("location", "bundle"), this::getBundleRelativeLocation);
+        router.addPath(Utils.p("protocol"), this::getProtocol);
     }
 
     @Override
@@ -72,5 +73,9 @@ public class FileProtocol implements AssetProtocol<Infallible> {
 
     private AssetData getBundleRelativeLocation(StageElement element) {
         return AssetData.plain(FileUtils.getSubpath(element.getPath().normalize(), 3));
+    }
+
+    private AssetData getProtocol(StageElement element) {
+        return AssetData.plain(element.getProtocol());
     }
 }
