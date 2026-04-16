@@ -58,8 +58,4 @@
             <uri-part uri="file://location/bundle"/>
         </rename>
     </stage-filter>
-    <!-- THIS IS JUST FOR TESTING REMOVE IT -->
-    <stage-filter uri="file://location/parent" query="processor_test" op="equals">
-        <process using="helloworld"/>
-    </stage-filter>
 </assets>

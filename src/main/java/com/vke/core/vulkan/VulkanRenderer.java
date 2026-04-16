@@ -42,7 +42,7 @@ public class VulkanRenderer extends Service implements Renderer {
 
     private final VulkanFrame immediateFrame;
 
-    private int currentFrame = 0;
+    private int currentFrameIndex = 0;
 
     // Engine infos
     private final VKEngine engine;
@@ -73,7 +73,7 @@ public class VulkanRenderer extends Service implements Renderer {
     public FrameData startFrame(Window window, Framable f) {
         MemoryStack stack = MemoryStack.stackPush();
 
-        VulkanFrame frame = frames[currentFrame];
+        VulkanFrame frame = frames[currentFrameIndex];
         VulkanFence fence = frame.getRenderFence();
 
         profiler.begin("Frame Fence");
@@ -147,7 +147,7 @@ public class VulkanRenderer extends Service implements Renderer {
         swapchain.present(imagePresentInFlight[frameData.imageIndex]);
 
         frameData.stack().close();
-        currentFrame = (currentFrame + 1) % FRAMES_IN_FLIGHT;
+        currentFrameIndex = (currentFrameIndex + 1) % FRAMES_IN_FLIGHT;
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
@@ -184,6 +184,8 @@ public class VulkanRenderer extends Service implements Renderer {
     }
 
     public int getFramesInFlight() { return this.FRAMES_IN_FLIGHT; }
+
+    public int getCurrentFrameIndex() { return this.currentFrameIndex; }
 
     @Override
     public void free() {

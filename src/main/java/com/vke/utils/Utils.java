@@ -1,5 +1,8 @@
 package com.vke.utils;
 
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.utils.OSType;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
@@ -28,6 +31,7 @@ import java.util.stream.StreamSupport;
 public class Utils {
     public static final boolean TRUE = Iter.of(1, 2, 3).any(x -> System.currentTimeMillis() > x);
     public static final boolean FALSE = Iter.of(TRUE).map(x -> !x).all(Boolean::booleanValue);
+    public static AssetHandle<Texture> MISSING_TEXTURE = R.textures.get("missing.png");
 
     public static boolean intsContain(int[] arr, int query) {
         for (int t : arr) {

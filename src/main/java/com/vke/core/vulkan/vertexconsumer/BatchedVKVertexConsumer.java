@@ -13,6 +13,7 @@ import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -20,12 +21,14 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexConsumer<T> {
+
     private final AssetHandle<RenderPipeline> pipeline;
     private final VulkanRenderPipeline vkPipeline;
     private final CombinedImageSamplerArrayHandle texHandle;
 
     private final InstantResetArrayList<Batch> batches;
     private final int maxTexSlots;
+    private final Texture missing;
 
     private int frozenIndex = 0;
 
@@ -43,6 +46,7 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
             this.vkPipeline = ((VulkanRenderPipeline) pipeline.acquire(context));
             this.texHandle = vkPipeline.resolveUniform(texturesArrayUniformName);
             this.maxTexSlots = this.texHandle.cisBinding.textures.length;
+            this.missing = Utils.MISSING_TEXTURE.acquire(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -180,6 +184,9 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
             bvc.putIndices(indices.toArray());
             ctx.getCommandBuffer().bindPipeline(bvc.pipeline);
             usedTextures.forEach((texture, textureUsage) -> bvc.texHandle.set(texture, Samplers.LINEAR, textureUsage));
+            for (int i = usedTextures.size(); i < maxTextureSlots; i++) {
+                bvc.texHandle.set(missing, Samplers.LINEAR, i);
+            }
             bvc.vkPipeline.updateUniforms(bvc.texHandle);
             ctx.getCommandBuffer().bindDescriptorSets(bvc.pipeline);
             bvc.submitDraw(ctx);

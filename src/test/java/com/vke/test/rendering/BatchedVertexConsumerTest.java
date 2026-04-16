@@ -50,6 +50,7 @@ public class BatchedVertexConsumerTest extends Scene {
 
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.draw(ctx);
+        //System.exit(0);
 
     }
 
