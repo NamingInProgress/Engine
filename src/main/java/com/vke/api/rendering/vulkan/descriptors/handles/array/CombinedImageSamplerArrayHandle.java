@@ -6,6 +6,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
+import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.texture.VulkanTexture;
@@ -15,8 +16,8 @@ public class CombinedImageSamplerArrayHandle extends UniformHandle {
 
     public final CombinedImageSamplerBinding cisBinding;
 
-    public CombinedImageSamplerArrayHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, CombinedImageSamplerBinding cisBinding) {
-        super(setHandle, binding, bindingType, packingType);
+    public CombinedImageSamplerArrayHandle(int descriptorSetListIndex, int binding, DescriptorType bindingType, PackingType packingType, CompiledDescriptorSetLayout compiledLayout, CombinedImageSamplerBinding cisBinding) {
+        super(descriptorSetListIndex, binding, bindingType, packingType, compiledLayout);
         this.cisBinding = cisBinding;
     }
 
@@ -27,8 +28,13 @@ public class CombinedImageSamplerArrayHandle extends UniformHandle {
 
     @Override
     @ApiStatus.Internal
-    public void writeDescriptor(DescriptorWriter writer) {
-        writer.writeCombinedImageSamplers(setHandle, binding, cisBinding.textures, cisBinding.samplers);
+    public void writeDescriptor(DescriptorWriter writer, long handle) {
+        writer.writeCombinedImageSamplers(handle, binding, cisBinding.textures, cisBinding.samplers);
+    }
+
+    @Override
+    public <T extends UniformHandle> T copy() {
+        return (T) new CombinedImageSamplerArrayHandle(descriptorSetListIndex, binding, bindingType, packingType, compiledLayout, cisBinding.copy());
     }
 
 }

@@ -4,6 +4,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -21,8 +22,8 @@ public class BufferHandle extends UniformHandle {
     // Offset in the big array buffer if it is an array
     public final long offset;
 
-    public BufferHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, int bufferIndex, long bufferSize, long cpuAddress, long gpuAddress) {
-        super(setHandle, binding, bindingType, packingType);
+    public BufferHandle(int setIdx, int binding, DescriptorType bindingType, PackingType packingType, CompiledDescriptorSetLayout compiledLayout, int bufferIndex, long bufferSize, long cpuAddress, long gpuAddress) {
+        super(setIdx, binding, bindingType, packingType, compiledLayout);
         this.bufferIndex = bufferIndex;
         this.bufferSize = bufferSize;
         this.cpuAddress = cpuAddress;
@@ -36,6 +37,11 @@ public class BufferHandle extends UniformHandle {
     }
 
     @ApiStatus.Internal
-    public void writeDescriptor(DescriptorWriter writer) { throw new IllegalStateException("Cannot write a buffer type uniform, how tf did you even get here"); }
+    public void writeDescriptor(DescriptorWriter writer, long handle) { throw new IllegalStateException("Cannot write a buffer type uniform, how tf did you even get here"); }
+
+    @Override
+    public <T extends UniformHandle> T copy() {
+        return (T) new BufferHandle(descriptorSetListIndex, binding, bindingType, packingType, compiledLayout, bufferIndex,  bufferSize, cpuAddress, gpuAddress);
+    }
 
 }

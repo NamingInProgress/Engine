@@ -2,6 +2,7 @@ package com.vke.core.vulkan.descriptor;
 
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
+import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Disposable;
@@ -16,12 +17,16 @@ public class CompiledDescriptorSetLayout implements Disposable {
 
     private final VKEngine engine;
     private final VulkanRenderDevice device;
+    private final DescriptorSetLayout layout;
+    private final DescriptorsInfo additionalInfo;
 
     private long handle;
 
-    public CompiledDescriptorSetLayout(VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout) {
+    public CompiledDescriptorSetLayout(VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout, DescriptorsInfo additionalInfo) {
         this.engine = engine;
         this.device = device;
+        this.layout = layout;
+        this.additionalInfo = additionalInfo;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDescriptorSetLayoutBinding.Buffer buf = VkDescriptorSetLayoutBinding.calloc(layout.bindings.size(), stack);
@@ -50,6 +55,14 @@ public class CompiledDescriptorSetLayout implements Disposable {
 
     public long getHandle() {
         return handle;
+    }
+
+    public DescriptorSetLayout getLayout() {
+        return layout;
+    }
+
+    public DescriptorsInfo getAdditionalInfo() {
+        return additionalInfo;
     }
 
     @Override

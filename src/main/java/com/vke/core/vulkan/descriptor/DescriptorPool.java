@@ -18,7 +18,7 @@ public class DescriptorPool implements Disposable {
     private final long handle;
     private final VulkanRenderDevice device;
 
-    public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets) {
+    public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight) {
         this.device = device;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -28,12 +28,12 @@ public class DescriptorPool implements Disposable {
             for (ObjectIntCursor<DescriptorType> countCursor : counts) {
                 countsBuffer.get(index++)
                         .type(countCursor.key.getVkHandle())
-                        .descriptorCount(countCursor.value);
+                        .descriptorCount(countCursor.value * framesInFlight);
             }
 
             VkDescriptorPoolCreateInfo poolCreateInfo = VkDescriptorPoolCreateInfo.calloc(stack)
                     .sType$Default()
-                    .maxSets(numSets)
+                    .maxSets(numSets * framesInFlight)
                     .pPoolSizes(countsBuffer);
 
             LongBuffer pPool = stack.mallocLong(1);

@@ -17,11 +17,11 @@ public class DescriptorAllocator implements Disposable {
     private final VulkanRenderDevice device;
     private final DescriptorPool pool;
 
-    public DescriptorAllocator(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets) {
+    public DescriptorAllocator(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight) {
         this.engine = engine;
         this.device = device;
 
-        this.pool = new DescriptorPool(engine, device, counts, numSets);
+        this.pool = new DescriptorPool(engine, device, counts, numSets, framesInFlight);
     }
 
     public long allocate(CompiledDescriptorSetLayout layout) {
@@ -32,8 +32,9 @@ public class DescriptorAllocator implements Disposable {
                     .pSetLayouts(stack.longs(layout.getHandle()));
 
             LongBuffer pSet = stack.mallocLong(1);
-            if (VK14.vkAllocateDescriptorSets(device.getLogicalDevice().getDevice(), info, pSet) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create descriptor set!"), "DescriptorAllocator");
+            int err = VK14.vkAllocateDescriptorSets(device.getLogicalDevice().getDevice(), info, pSet);
+            if (err != VK14.VK_SUCCESS) {
+                engine.throwException(new IllegalStateException("Failed to create descriptor set! " + err), "DescriptorAllocator");
             }
 
             return pSet.get(0);

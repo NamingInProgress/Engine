@@ -2,7 +2,9 @@ package com.vke.api.rendering.vulkan.descriptors.handles.array;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -17,8 +19,8 @@ public class BufferArrayHandle extends ArrayUniformHandle {
 
    public final long totalSize;
 
-    public BufferArrayHandle(long setHandle, int binding, DescriptorType bindingType, PackingType packingType, int arraySize, long bufferSize, long cpuAddress, long gpuAddress) {
-        super(setHandle, binding, bindingType, packingType, arraySize);
+    public BufferArrayHandle(int descriptorSetListIndex, int binding, DescriptorType bindingType, PackingType packingType, CompiledDescriptorSetLayout compiledLayout, int arraySize, long bufferSize, long cpuAddress, long gpuAddress) {
+        super(descriptorSetListIndex, binding, bindingType, packingType, arraySize, compiledLayout);
         this.bufferSize = bufferSize;
         this.totalSize = (long) arraySize * bufferSize;
         this.cpuAddress = cpuAddress;
@@ -31,6 +33,11 @@ public class BufferArrayHandle extends ArrayUniformHandle {
     }
 
     @ApiStatus.Internal
-    public void writeDescriptor(DescriptorWriter writer) { throw new IllegalStateException("Cannot write a buffer type uniform, how tf did you even get here"); }
+    public void writeDescriptor(DescriptorWriter writer, long handle) { throw new IllegalStateException("Cannot write a buffer type uniform, how tf did you even get here"); }
+
+    @Override
+    public <T extends UniformHandle> T copy() {
+        return (T) new BufferArrayHandle(descriptorSetListIndex, binding, bindingType, packingType, compiledLayout, arraySize, bufferSize, cpuAddress, gpuAddress);
+    }
 
 }

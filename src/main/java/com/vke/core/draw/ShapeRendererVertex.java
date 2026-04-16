@@ -1,11 +1,9 @@
-package com.vke.api.draw.shape;
+package com.vke.core.draw;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.ToIntFunction;
 
 public class ShapeRendererVertex extends Vertex {
 

@@ -8,4 +8,6 @@ public abstract class DescriptorBinding {
     public DescriptorBinding(BindingLayout layout) {
         this.layout = layout;
     }
+
+    public abstract <T extends DescriptorBinding> T copy();
 }

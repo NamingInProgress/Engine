@@ -1,18 +1,18 @@
 package com.vke.core.vulkan.vertexconsumer;
 
-import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.OfArray;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
-public class InstantResetArrayList<T> {
+public class RecyclerArrayList<T> {
     private T[] array;
     private int cap, len;
 
     @SafeVarargs
-    public InstantResetArrayList(int cap, T... ignore) {
+    public RecyclerArrayList(int cap, T... ignore) {
         this.array = Arrays.copyOf(ignore, cap);
         this.cap = cap;
         this.len = 0;
@@ -21,24 +21,7 @@ public class InstantResetArrayList<T> {
     private void ensureSpace(int expectedElems) {
         while (len + expectedElems > cap) {
             double fac = CpuBuffer.GROWTH_FAC;
-            cap
-                    =
-                    (
-                    (
-                            int
-                            )
-                            (
-                            fac
-                                    *
-                                    (
-                                    (
-                                            double
-                                            )
-                                            cap
-                            )
-                    )
-            )
-            ;
+            cap = (int) (fac * (double) cap);
         }
         array = Arrays.copyOf(array, cap);
     }
@@ -67,6 +50,7 @@ public class InstantResetArrayList<T> {
     }
 
     public T get(int index) {
+        if(index >= cap) return null;
         return array[index];
     }
 
@@ -84,5 +68,20 @@ public class InstantResetArrayList<T> {
 
     public boolean wasVeryLastElement() {
         return len >= cap;
+    }
+
+    public T getOrCreateElement(boolean checkRecycle, Supplier<T> factory) {
+        if (!wasVeryLastElement() && checkRecycle) {
+            T newBatch = get(len());
+            if (newBatch == null) {
+                return getOrCreateElement(false, factory);
+            }
+            this.virtualAdd();
+            return newBatch;
+        } else {
+            T newBatch = factory.get();
+            add(newBatch);
+            return newBatch;
+        }
     }
 }

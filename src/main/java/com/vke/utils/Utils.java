@@ -243,7 +243,7 @@ public class Utils {
                 throw c.newInstance(e);
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(e);
             }
         }
     }

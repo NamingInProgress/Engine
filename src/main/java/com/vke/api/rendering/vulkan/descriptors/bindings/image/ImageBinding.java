@@ -14,4 +14,9 @@ public class ImageBinding extends DescriptorBinding {
         this.textures = new VulkanTexture[layout.descriptorCount];
     }
 
+    @Override
+    public <T extends DescriptorBinding> T copy() {
+        return (T) new ImageBinding(layout);
+    }
+
 }

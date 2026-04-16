@@ -19,4 +19,8 @@ public class BufferBinding extends DescriptorBinding {
         this.packingType = packingType;
     }
 
+    @Override
+    public <T extends DescriptorBinding> T copy() {
+        return (T) new BufferBinding(layout, buffer, singleBufferSize, packingType);
+    }
 }

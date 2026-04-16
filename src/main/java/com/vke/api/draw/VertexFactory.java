@@ -1,6 +1,6 @@
 package com.vke.api.draw;
 
-import com.vke.api.draw.shape.ShapeRendererVertex;
+import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.data.Texture;
 import org.jetbrains.annotations.Nullable;
 

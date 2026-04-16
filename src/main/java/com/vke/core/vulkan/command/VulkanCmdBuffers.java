@@ -204,13 +204,17 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
+        this.bindDescriptorSets(pipeline, ((VulkanPipelineLayout) unwrapPipeline(pipeline).layout()).descriptors().getDescriptorSetHandles());
+    }
+
+    @Override
+    public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline, long... handles) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IVulkanPipeline p = unwrapPipeline(pipeline);
             VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
 
-            LongBuffer sets = stack.longs(
-                    l.descriptors().getDescriptorSetHandles()
-            );
+
+            LongBuffer sets = stack.longs(handles);
 
             VK14.vkCmdBindDescriptorSets(this.getBuffer(),
                     getBindPoint(p),
