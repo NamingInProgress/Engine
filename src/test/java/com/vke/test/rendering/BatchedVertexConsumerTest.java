@@ -90,6 +90,7 @@ public class BatchedVertexConsumerTest extends Scene {
 //        consumer.vertices(new ShapeRendererVertex(300, 200, 0, 0, 0, 0, 1, 1, 0, missing));
 //        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 1, 1, missing));
 //        consumer.indices(0, 1, 2, 2, 3, 0);
+//        consumer.draw(ctx);
 //
 //        consumer.begin();
 //        consumer.vertices(new ShapeRendererVertex(300, 100, 0, 0, 0, 0, 1, 0, 1, bear_performance));

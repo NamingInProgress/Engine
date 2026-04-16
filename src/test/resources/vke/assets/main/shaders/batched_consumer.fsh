@@ -6,7 +6,7 @@ layout (location = 2) flat in int texId;
 
 layout (location = 0) out vec4 outColor;
 
-layout (set = 0, binding = 0) uniform sampler2D[2] textures;
+layout (set = 0, binding = 0) uniform sampler2D[4] textures;
 
 void main() {
     if (texId >= 0) {
