@@ -1,21 +1,18 @@
 package com.vke.core.spline;
 
-import com.vke.api.annotation.Warning;
 import com.vke.core.color.RgbColor;
 
 public class SplineStyle {
     public boolean filled;
-    public float strokeWidth;
-    public RgbColor fillColor;
-    public RgbColor strokeColor;
+    public int strokeWidth;
+    public RgbColor color;
     public JoinStyle joinStyle;
     public CapStyle capStyle;
 
     public SplineStyle() {
         this.filled = false;
         this.strokeWidth = 1;
-        this.fillColor = null;
-        this.strokeColor = RgbColor.BLACK;
+        this.color = RgbColor.BLACK;
         this.joinStyle = JoinStyle.Miter;
         this.capStyle = CapStyle.Flat;
     }

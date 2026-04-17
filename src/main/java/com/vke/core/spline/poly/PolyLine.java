@@ -175,4 +175,8 @@ public class PolyLine {
             tpl.batchIndices(0, i, i + 1);
         }
     }
+
+    public TriangulatedPolyLine triangulateFilled(SplineStyle style) {
+        return null;
+    }
 }

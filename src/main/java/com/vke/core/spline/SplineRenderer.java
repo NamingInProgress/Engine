@@ -24,7 +24,15 @@ public class SplineRenderer<V extends Vertex> implements Drawable {
 
     public void drawSpline(Rect area, Spline spline, SplineStyle style, float tolerance) {
         PolyLine polyLine = spline.flatten(tolerance);
-        TriangulatedPolyLine tpl = polyLine.triangulateContour(SplineStyle.JoinStyle.Miter, SplineStyle.CapStyle.Round, 20);
+        TriangulatedPolyLine tpl;
+        if (style.filled) {
+            tpl = polyLine.triangulateFilled(style);
+            if (tpl == null) {
+                return;
+            }
+        } else {
+            tpl = polyLine.triangulateContour(style.joinStyle, style.capStyle, style.strokeWidth);
+        }
         consumer.begin();
         tpl.forEachVertex((x, y) -> {
             consumer.vertices(v(x, y));

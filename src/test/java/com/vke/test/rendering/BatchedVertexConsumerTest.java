@@ -15,6 +15,7 @@ import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.spline.Spline;
 import com.vke.core.spline.SplineRenderer;
+import com.vke.core.spline.SplineStyle;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.vertexconsumer.BatchedVKVertexConsumer;
 import com.vke.utils.io.Identifier;
@@ -39,7 +40,7 @@ public class BatchedVertexConsumerTest extends Scene {
     private VertexConsumer<ShapeRendererVertex> consumer;
     private ShapeRenderer<ShapeRendererVertex> shapeRenderer;
     private SplineRenderer<ShapeRendererVertex> splineRenderer;
-    private Spline spline;
+    private Spline spline, filledSpline;
 
     @Override
     public void onLoad() {
@@ -73,6 +74,12 @@ public class BatchedVertexConsumerTest extends Scene {
                 .quadTo(350, 280, 400, 280)
                 .quadTo(300, 300, 300, 280)
                 .close();
+
+        this.filledSpline = new Spline()
+                .moveTo(100, 100)
+                .cubicTo(300, 300, 100, 150, 200, 300)
+                .cubicTo(100, 100, 400, 100, 200, 50)
+                .close();
     }
 
     @Override
@@ -86,7 +93,9 @@ public class BatchedVertexConsumerTest extends Scene {
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.beginFrame();
 
-        splineRenderer.drawSpline(null, spline, null, 0.5f);
+        SplineStyle style = new SplineStyle();
+        style.filled = true;
+        splineRenderer.drawSpline(null, filledSpline, style, 0.5f);
         splineRenderer.draw(ctx);
 
         //shapeRenderer.texture(scaryVK);
