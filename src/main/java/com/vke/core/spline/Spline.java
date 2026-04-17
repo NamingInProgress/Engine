@@ -1,5 +1,9 @@
 package com.vke.core.spline;
 
+import com.vke.core.geom.bezier.Bezier2;
+import com.vke.core.geom.bezier.Bezier3;
+import com.vke.core.spline.poly.PolyLine;
+import com.vke.core.spline.poly.PolyPoint;
 import com.vke.utils.iter.Iter;
 
 import java.util.ArrayList;
@@ -26,7 +30,7 @@ public class Spline {
         return this;
     }
 
-    public Spline CubicTo(float x, float y, float c1x, float c1y, float c2x, float c2y) {
+    public Spline cubicTo(float x, float y, float c1x, float c1y, float c2x, float c2y) {
         this.commands.add(new SplineCommand(SplineCommand.Type.CubicTo, new float[] {x, y, c1x, c1y, c2x, c2y}));
         return this;
     }
@@ -40,26 +44,26 @@ public class Spline {
         return Iter.of(commands);
     }
 
-    public FlattenedCurve flatten(float tolerance) {
+    public PolyLine flatten(float tolerance) {
         float currentX = 0, currentY = 0;
         //educated array size guess
-        ArrayList<FlatPoint> points = new ArrayList<>();
-        outer:
+        ArrayList<PolyPoint> points = new ArrayList<>();
         for (SplineCommand command : commands) {
             switch (command.getType()) {
                 case MoveTo -> {
                     if (!points.isEmpty()) {
-                        points.add(new FlatPoint(currentX, currentY, true));
+                        PolyPoint last = points.getLast();
+                        last.isEnd = true;
                     }
 
                     currentX = command.getData()[0];
                     currentY = command.getData()[1];
-                    points.add(new FlatPoint(currentX, currentY, false));
+                    points.add(new PolyPoint(currentX, currentY, false));
                 }
                 case LineTo -> {
                     currentX = command.getData()[0];
                     currentY = command.getData()[1];
-                    points.add(new FlatPoint(currentX, currentY, false));
+                    points.add(new PolyPoint(currentX, currentY, false));
                 }
                 case QuadTo -> {
                     float[] data = command.getData();
@@ -85,17 +89,20 @@ public class Spline {
                     currentY = toy;
                 }
                 case Close -> {
-                    break outer;
+                    if (!points.isEmpty()) {
+                        PolyPoint last = points.getLast();
+                        last.isEnd = true;
+                    }
                 }
             }
         }
-        return new FlattenedCurve(points.toArray(FlatPoint[]::new));
+        return new PolyLine(points.toArray(PolyPoint[]::new));
     }
 
-    private void quadRecursive(Bezier2 bezier, ArrayList<FlatPoint> out, float tolerance) {
+    private void quadRecursive(Bezier2 bezier, ArrayList<PolyPoint> out, float tolerance) {
         if (bezier.isBasicallyALine(tolerance)) {
             float[] endPoint = bezier.endPoint();
-            out.add(new FlatPoint(endPoint[0], endPoint[1], false));
+            out.add(new PolyPoint(endPoint[0], endPoint[1], false));
         } else {
             Bezier2[] split = bezier.split(0.5f);
             quadRecursive(split[0], out, tolerance);
@@ -103,10 +110,10 @@ public class Spline {
         }
     }
 
-    private void cubicRecursive(Bezier3 bezier, ArrayList<FlatPoint> out, float tolerance) {
+    private void cubicRecursive(Bezier3 bezier, ArrayList<PolyPoint> out, float tolerance) {
         if (bezier.isBasicallyALine(tolerance)) {
             float[] endPoint = bezier.endPoint();
-            out.add(new FlatPoint(endPoint[0], endPoint[1], false));
+            out.add(new PolyPoint(endPoint[0], endPoint[1], false));
         } else {
             Bezier3[] split = bezier.split(0.5f);
             cubicRecursive(split[0], out, tolerance);

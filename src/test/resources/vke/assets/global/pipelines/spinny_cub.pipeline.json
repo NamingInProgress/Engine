@@ -1,5 +1,6 @@
 {
-  "topology": "TRIANGLES",
+  "topology": "LINE_LIST",
+  "lineWidth": 3,
   "cullMode": "NONE",
   "attachments": [
     {

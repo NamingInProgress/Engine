@@ -1,4 +1,4 @@
-package com.vke.core.spline;
+package com.vke.core.geom.bezier;
 
 import com.vke.core.geom.GeomUtils;
 

@@ -2,7 +2,7 @@
   "topology": "TRIANGLES",
   "cullMode": "NONE",
   "polygonMode": "FILL",
-  "lineWidth": 4,
+  "lineWidth": 3,
   "attachments": [
     {
       "type": "COLOR",

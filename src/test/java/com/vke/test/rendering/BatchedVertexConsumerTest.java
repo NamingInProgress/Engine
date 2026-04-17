@@ -13,10 +13,14 @@ import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
+import com.vke.core.spline.Spline;
+import com.vke.core.spline.SplineRenderer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.vertexconsumer.BatchedVKVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
+
+import java.util.Random;
 
 public class BatchedVertexConsumerTest extends Scene {
 
@@ -34,6 +38,8 @@ public class BatchedVertexConsumerTest extends Scene {
 
     private VertexConsumer<ShapeRendererVertex> consumer;
     private ShapeRenderer<ShapeRendererVertex> shapeRenderer;
+    private SplineRenderer<ShapeRendererVertex> splineRenderer;
+    private Spline spline;
 
     @Override
     public void onLoad() {
@@ -45,10 +51,28 @@ public class BatchedVertexConsumerTest extends Scene {
         this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER),
                 new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null), PL, "textures");
         this.shapeRenderer = new ShapeRenderer<>(consumer, VertexFactory.DEFAULT);
+        this.splineRenderer = new SplineRenderer<>(consumer, VertexFactory.DEFAULT);
 
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
         this.missing = R.textures.get("missing.png").assume(context);
         this.bear_performance = R.textures.get("bear_performance.png").assume(context);
+
+        this.spline = new Spline()
+                .moveTo(100, 100)
+                .lineTo(150, 100)
+                .cubicTo(250, 200, 150, 100, 200, 200)
+                .cubicTo(300, 50, 400, 200, 350, 100)
+                .lineTo(400, 50)
+                .cubicTo(250, 300, 500, 100, 500, 700)
+                .quadTo(200, 400, 250, 400)
+                .quadTo(100, 100, 150, 420)
+
+                .moveTo(300, 300)
+                .quadTo(350, 350, 300, 350)
+                .quadTo(400, 300, 400, 350)
+                .quadTo(350, 280, 400, 280)
+                .quadTo(300, 300, 300, 280)
+                .close();
     }
 
     @Override
@@ -62,20 +86,23 @@ public class BatchedVertexConsumerTest extends Scene {
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.beginFrame();
 
-        shapeRenderer.texture(scaryVK);
-        shapeRenderer.color(0, 0, 0, 1);
-        shapeRenderer.circle(400, 300, 100, 50);
+        splineRenderer.drawSpline(null, spline, null, 0.5f);
+        splineRenderer.draw(ctx);
 
-        shapeRenderer.color(1, 0, 0, 1);
-        shapeRenderer.rect(100, 100, 100, 100);
-
-        shapeRenderer.texture(missing);
-        shapeRenderer.color(0, 0, 0, 1);
-        shapeRenderer.ovalArc(200, 200, 100, 50, 0, 90, 30);
-
-
-
-        shapeRenderer.draw(ctx);
+        //shapeRenderer.texture(scaryVK);
+        //shapeRenderer.color(0, 0, 0, 1);
+        //shapeRenderer.circle(400, 300, 100, 50);
+//
+        //shapeRenderer.color(1, 0, 0, 1);
+        //shapeRenderer.rect(100, 100, 100, 100);
+//
+        //shapeRenderer.texture(missing);
+        //shapeRenderer.color(0, 0, 0, 1);
+        //shapeRenderer.ovalArc(200, 200, 100, 50, 0, 90, 30);
+//
+//
+//
+        //shapeRenderer.draw(ctx);
 
 //        consumer.begin();
 //        consumer.vertices(new ShapeRendererVertex(100, 100, 0, 0, 0, 0, 1, 0, 1, scaryVK));
