@@ -1,21 +1,17 @@
-package com.vke.test.rendering;
+package com.vke.test.input;
 
-import com.carrotsearch.hppc.LongArrayList;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.SceneApp;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-
-        EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
+        EngineCreateInfo createInfo = new EngineCreateInfo("InputTest", "vke");
         createInfo.releaseMode = true;
         //createInfo.vsync = true;
-        createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");
+        createInfo.windowCreateInfo = new WindowCreateInfo("Input Test");
 
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
@@ -23,6 +19,6 @@ public class Main {
 
         if (renderdoc.get()) Thread.sleep(5000);
 
-        engine.start(new SceneApp("main"));
+        engine.start(new SceneApp("input"));
     }
 }

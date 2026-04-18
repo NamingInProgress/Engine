@@ -1,6 +1,7 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
+import com.vke.api.app.Framable;
 import com.vke.api.app.Version;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
@@ -42,6 +43,8 @@ public class VKEngine extends Context {
 
     private final List<String> namespaces;
 
+    private final Framable.Glossary framables;
+
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
 
@@ -61,10 +64,13 @@ public class VKEngine extends Context {
         profiler = new DummyProfiler();
         EVENT_BUS = service(Services.EVENT_BUS);
 
+        this.framables = new Framable.Glossary();
+
         registerSerializers();
     }
 
     public void start(App app) {
+        this.framables.addEntry(app);
         this.window = new Window(this, createInfo.windowCreateInfo);
 
         this.app = app;
@@ -84,17 +90,17 @@ public class VKEngine extends Context {
                 profiler.begin("Render", AnsiColors.RED);
                 profiler.push();
                 profiler.begin("Frame Setup");
-                app.preFrame();
-                VulkanRenderer.FrameData bfd = renderer.startFrame(window, app);
+                framables.preFrame();
+                VulkanRenderer.FrameData bfd = renderer.startFrame(window, framables);
                 profiler.end();
                 profiler.pop();
                 if (bfd != null) {
                     profiler.begin("App Draw", AnsiColors.GREEN);
-                    app.onDraw(bfd.context());
+                    framables.onDraw(bfd.context());
                     profiler.end();
                     profiler.begin("Frame End");
-                    renderer.endFrame(bfd, app);
-                    app.postFrame();
+                    renderer.endFrame(bfd, framables);
+                    framables.postFrame();
                     profiler.end();
                 }
                 profiler.end();
@@ -164,5 +170,13 @@ public class VKEngine extends Context {
 
     private void registerSerializers() {
         MeshPrefab.registerSerializers();
+    }
+
+    public void registerFramable(Framable f) {
+        this.framables.addEntry(f);
+    }
+
+    public void removeFramable(Framable f) {
+        this.framables.removeEntry(f);
     }
 }
