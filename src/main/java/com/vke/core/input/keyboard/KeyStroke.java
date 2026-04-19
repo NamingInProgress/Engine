@@ -1,10 +1,12 @@
 package com.vke.core.input.keyboard;
 
+import com.vke.core.input.PressableState;
+
 import java.util.HashSet;
 import java.util.List;
 
-public class KeyStroke implements InputKeyState {
-    private final KeyboardInput keyboardInput;
+public class KeyStroke implements PressableState {
+    private KeyboardInput keyboardInput;
     private final HashSet<Key> requirements;
 
     private final Listener.Glossary listeners = new Listener.Glossary();
@@ -16,6 +18,10 @@ public class KeyStroke implements InputKeyState {
     KeyStroke(KeyboardInput keyboardInput, Key... requirements) {
         this.keyboardInput = keyboardInput;
         this.requirements = new HashSet<>(List.of(requirements));
+    }
+
+    void setKeyboardInput(KeyboardInput kb) {
+        this.keyboardInput = kb;
     }
 
     void onFrame() {
@@ -82,5 +88,9 @@ public class KeyStroke implements InputKeyState {
         if (this == obj) return true;
         if (!(obj instanceof KeyStroke other)) return false;
         return requirements.equals(other.requirements);
+    }
+
+    HashSet<Key> getRequirements() {
+        return requirements;
     }
 }

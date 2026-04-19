@@ -3,6 +3,7 @@ package com.vke.core.input.keyboard;
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.vke.core.Context;
 import com.vke.core.input.InputManager;
+import com.vke.core.input.PressableState;
 import com.vke.core.services.Services;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -125,7 +126,7 @@ public enum Key {
         return Key.values()[ord];
     }
 
-    public InputKeyState state(Context context) {
+    public PressableState state(Context context) {
         InputManager manager = context.service(Services.INPUT_MANAGER);
         return manager.keyboard().key(this);
     }

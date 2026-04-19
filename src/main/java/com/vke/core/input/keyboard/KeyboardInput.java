@@ -2,6 +2,7 @@ package com.vke.core.input.keyboard;
 
 import com.vke.api.app.Framable;
 import com.vke.core.VKEngine;
+import com.vke.core.input.PressableState;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
@@ -21,7 +22,7 @@ public class KeyboardInput implements Framable, KeyListener {
     public KeyboardInput(VKEngine engine) {
         this.keyStates = new SingleKeyState[KEY_AMOUNT];
         for (int i = 0; i < this.keyStates.length; i++) {
-            this.keyStates[i] = new SingleKeyState();
+            this.keyStates[i] = new SingleKeyState(Key.values()[i]);
         }
         this.listeners = new CopyOnWriteArrayList<>();
 
@@ -59,7 +60,7 @@ public class KeyboardInput implements Framable, KeyListener {
         }
     }
 
-    public InputKeyState key(Key key) {
+    public PressableState key(Key key) {
         return keyStates[key.ordinal()];
     }
 
@@ -79,13 +80,13 @@ public class KeyboardInput implements Framable, KeyListener {
     @Override
     public void onPress(Key key) {
         listeners.forEach(l -> l.onPress(key));
-        this.key(key).requestState(InputKeyState.RequestableState.JustPressed);
+        this.key(key).requestState(PressableState.RequestableState.JustPressed);
     }
 
     @Override
     public void onRelease(Key key) {
         listeners.forEach(l -> l.onRelease(key));
-        this.key(key).requestState(InputKeyState.RequestableState.JustReleased);
+        this.key(key).requestState(PressableState.RequestableState.JustReleased);
     }
 
     public KeyStroke keyStroke(Key... keys) {

@@ -1,8 +1,8 @@
-package com.vke.core.input.keyboard;
+package com.vke.core.input;
 
 import com.vke.utils.collection.AbstractGlossary;
 
-public interface InputKeyState {
+public interface PressableState {
     boolean isPressed();
     boolean wasJustPressed();
     boolean wasJustReleased();
