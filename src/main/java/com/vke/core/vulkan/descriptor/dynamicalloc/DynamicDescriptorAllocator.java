@@ -37,14 +37,17 @@ public class DynamicDescriptorAllocator implements Disposable {
     private final VulkanRenderDevice device;
     private final DescriptorWriter writer;
 
+    private final boolean updateAfterBind;
+
     private int setsPerPool;
 
-    public DynamicDescriptorAllocator(Context context, VulkanRenderDevice device, int initialSets, ObjectIntHashMap<DescriptorType> counts) {
+    public DynamicDescriptorAllocator(Context context, VulkanRenderDevice device, int initialSets, ObjectIntHashMap<DescriptorType> counts, boolean updateAfterBind) {
         this.context = context;
         this.device = device;
         this.counts = counts;
         this.setsPerPool = initialSets;
         this.writer = new DescriptorWriter(device);
+        this.updateAfterBind = updateAfterBind;
 
         readyPools.add(createPool(initialSets));
     }
@@ -119,7 +122,7 @@ public class DynamicDescriptorAllocator implements Disposable {
     }
 
     protected DescriptorPool createPool(int sets) {
-        return new DescriptorPool(context.getEngine(), device, counts, sets, 1);
+        return new DescriptorPool(context.getEngine(), device, counts, sets, 1, this.updateAfterBind);
     }
 
     public void clear() {

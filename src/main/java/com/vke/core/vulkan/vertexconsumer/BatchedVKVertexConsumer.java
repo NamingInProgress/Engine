@@ -52,7 +52,7 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
             this.missing = Utils.MISSING_TEXTURE.acquire(context);
             ObjectIntHashMap<DescriptorType> counts = new  ObjectIntHashMap<>();
             counts.put(DescriptorType.COMBINED_IMAGE_SAMPLER, maxTexSlots);
-            this.alloc = new DynamicDescriptorAllocator(context, renderer.getDevice(), 10, counts);
+            this.alloc = new DynamicDescriptorAllocator(context, renderer.getDevice(), 10, counts, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

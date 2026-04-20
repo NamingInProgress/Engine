@@ -1,6 +1,7 @@
 package com.vke.core.services.shr;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.vulkan.descriptors.PrimitiveBaseType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
 import com.vke.core.logger.LoggerFactory;
@@ -212,11 +213,6 @@ public class ReflectedShader implements Disposable {
     }
 
     public StructType.Member populateMember(DiscoverableMember discoverableMember) {
-        StructType.Member member = new StructType.Member();
-        member.name = discoverableMember.name;
-        member.offset = discoverableMember.offset;
-        member.size = discoverableMember.size;
-
         BaseType type = BaseType.fromSpvc(discoverableMember.baseType);
 
         TypeLayout baseTypeLayout;
@@ -224,27 +220,23 @@ public class ReflectedShader implements Disposable {
         if (discoverableMember.isPointer) {
             baseTypeLayout = new PointerType();
         } else if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
-            baseTypeLayout = new MatrixType();
-            ((MatrixType) baseTypeLayout).rows = discoverableMember.matrixRows;
-            ((MatrixType) baseTypeLayout).columns = discoverableMember.matrixColumns;
-            ((MatrixType) baseTypeLayout).stride = discoverableMember.matrixStride;
+            baseTypeLayout = new MatrixType(discoverableMember.matrixRows, discoverableMember.matrixColumns,
+                    discoverableMember.matrixStride);
         } else if (discoverableMember.struct != null) {
             baseTypeLayout = discoverableMember.struct;
         } else {
             baseTypeLayout = new PrimitiveType();
             ((PrimitiveType) baseTypeLayout).vecSize = discoverableMember.matrixRows > 1 ? discoverableMember.matrixRows : (Math.max(discoverableMember.matrixColumns, 1));
-            ((PrimitiveType) baseTypeLayout).scalarType = com.vke.api.rendering.vulkan.descriptors.BaseType.fromPipelineBaseType(type);
+            ((PrimitiveType) baseTypeLayout).scalarType = PrimitiveBaseType.fromPipelineBaseType(type);
         }
 
         if (discoverableMember.nArrayDim > 1 || (discoverableMember.nArrayDim == 1 && discoverableMember.arrayDim[0] > 1)) {
-            member.type = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
-        } else {
-            member.type = baseTypeLayout;
+            baseTypeLayout = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
         }
 
         baseTypeLayout.size = discoverableMember.size;
 
-        return member;
+        return new StructType.Member(discoverableMember.name, discoverableMember.offset, discoverableMember.size, baseTypeLayout);
     }
 
     public ArrayType compactArray(int[] arrayDim, long arrayStride, TypeLayout elementType) {

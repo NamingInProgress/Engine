@@ -46,16 +46,7 @@ public interface IVulkanPipeline extends Pipeline {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
 
-                    BindingLayout binding = new BindingLayout();
-                    binding.name = resource.name;
-                    binding.set = resource.set;
-                    binding.binding = resource.binding;
-                    binding.descriptorCount = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
-                    binding.isDynamic = additionalDescInfo.dynamicBuffers.contains(resource.name);
-                    binding.type = DescriptorType.fromBaseType(entry.getKey(), binding.isDynamic);
-
-                    binding.typeLayout = resource.struct;
-                    binding.packingType = PackingType.fromDescriptorType(binding.type);
+                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(), additionalDescInfo.dynamicBuffers.contains(resource.name));
 
                     descriptor.bindings.add(binding);
                 }

@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.utils;
+package com.vke.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;

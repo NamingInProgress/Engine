@@ -70,7 +70,7 @@ public class DescriptorSets implements Disposable {
             return;
         }
 
-        this.allocator = new DescriptorAllocator(engine, device, counts, layouts.size(), renderer.getFramesInFlight());
+        this.allocator = new DescriptorAllocator(engine, device, counts, layouts.size(), renderer.getFramesInFlight(), false);
         compiledLayouts = layouts.stream().map(dsl -> new CompiledDescriptorSetLayout(engine, device, dsl, additionalInfo)).toList();
 
         for (int i = 0; i < compiledLayouts.size(); i++) {

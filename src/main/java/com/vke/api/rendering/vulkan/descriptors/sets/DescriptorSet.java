@@ -19,21 +19,17 @@ import java.util.HashMap;
 public class DescriptorSet {
 
     public final HashMap<String, DescriptorBinding> bindings = new HashMap<>();
-    public final int set;
     public final long handle;
     public VulkanRenderDevice device;
     public VKEngine engine;
 
     public DescriptorSet(long handle, VulkanRenderDevice device, VKEngine engine, DescriptorSetLayout layout, DescriptorsInfo additionalInfo) {
-        this.set = layout.set;
         this.handle = handle;
         this.device = device;
         this.engine = engine;
 
         // traverse the layout to set dynamic values and runtime size arrays
         layout.bindings.forEach(bindingLayout -> {
-            if (additionalInfo.dynamicBuffers.contains(bindingLayout.name)) bindingLayout.isDynamic = true;
-
             TypeLayout tl = bindingLayout.typeLayout;
             if (tl != null) {
                 resolveRuntimeArraySizes(tl, additionalInfo.runtimeSizeArraySizes);

@@ -17,14 +17,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterator;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -246,5 +243,10 @@ public class Utils {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /// MUST BE A POWER OF 2!!!
+    public static long alignUpFast(long value, long alignment) {
+        return (value + alignment - 1) & -alignment;
     }
 }

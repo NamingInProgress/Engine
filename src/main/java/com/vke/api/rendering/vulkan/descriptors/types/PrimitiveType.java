@@ -1,10 +1,10 @@
 package com.vke.api.rendering.vulkan.descriptors.types;
 
-import com.vke.api.rendering.vulkan.descriptors.BaseType;
+import com.vke.api.rendering.vulkan.descriptors.PrimitiveBaseType;
 
 public class PrimitiveType extends TypeLayout {
 
-    public BaseType scalarType;
+    public PrimitiveBaseType scalarType;
     public int vecSize;
 
 }

@@ -1,9 +1,12 @@
 package com.vke.core.vulkan;
 
 import com.vke.api.app.Framable;
+import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.services.Service;
 import com.vke.core.Context;
@@ -11,7 +14,9 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
+import com.vke.core.services.shr.ShaderReflector;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.descriptor.DescriptorSets;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
@@ -19,9 +24,11 @@ import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.io.Identifier;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -68,6 +75,17 @@ public class VulkanRenderer extends Service implements Renderer {
         }
 
         Samplers.init(device);
+
+        // VKE shader to set default descriptors via reflection instead of hard coding
+        try {
+            Shader s = device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.glsl"), ShaderType.VERTEX);
+            DescriptorSets sets = new DescriptorSets(context, this, device,
+                    context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
+                            .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
+            s.free();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public FrameData startFrame(Window window, Framable f) {

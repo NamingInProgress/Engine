@@ -1,13 +1,13 @@
 package com.vke.api.rendering.vulkan.descriptors;
 
-public enum BaseType {
+public enum PrimitiveBaseType {
     FLOAT,
     INT,
     UINT,
     BOOL,
     DOUBLE;
 
-    public static BaseType fromPipelineBaseType(com.vke.api.rendering.vulkan.pipeline.BaseType pipelineBaseType) {
+    public static PrimitiveBaseType fromPipelineBaseType(com.vke.api.rendering.vulkan.pipeline.BaseType pipelineBaseType) {
         return switch (pipelineBaseType) {
             case F16, F32 -> FLOAT;
             case I8, I16, I32, I64 -> INT;

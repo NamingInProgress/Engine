@@ -11,6 +11,13 @@ public class StructType extends TypeLayout {
         public long offset;
         public long size;
         public TypeLayout type;
+
+        public Member(String name, long offset, long size, TypeLayout type) {
+            this.name = name;
+            this.offset = offset;
+            this.size = size;
+            this.type = type;
+        }
     }
 
 }
