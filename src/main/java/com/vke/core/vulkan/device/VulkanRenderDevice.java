@@ -20,8 +20,8 @@ import com.vke.core.VKEngine;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.services.Services;
-import com.vke.core.services.shr.ShaderReflector;
+import com.vke.core.services2.Services;
+import com.vke.core.services2.shr.ShaderReflector;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
@@ -31,7 +31,7 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.shader.ShaderCompiler;
+import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
@@ -240,7 +240,7 @@ public class VulkanRenderDevice implements RenderDevice {
         byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
 
         try {
-            ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
+            ByteBuffer spirv = engine.<ShaderCompilerImpl>service(Services.SHADER_COMPILER)
                     .compileGlslToSpirV(bytes, shaderType, identifier);
 
             VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType, SHADER_ID.get());

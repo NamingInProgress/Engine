@@ -6,10 +6,9 @@ import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.shader.ShaderCompiler;
-import com.vke.core.window.Window;
+import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -34,7 +33,7 @@ public class ShaderReflectTest {
             @Override
             public void onInit(VKEngine engine) {
                 VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-                ShaderCompiler sc = engine.service(Services.SHADER_COMPILER);
+                ShaderCompilerImpl sc = engine.service(Services.SHADER_COMPILER);
 
                 byte[] bytes;
                 ByteBuffer spv;

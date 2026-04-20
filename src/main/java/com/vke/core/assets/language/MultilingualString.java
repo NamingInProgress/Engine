@@ -1,10 +1,8 @@
 package com.vke.core.assets.language;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 import com.vke.core.assets.language.manager.LanguageManager;
-import com.vke.core.assets.language.manager.LanguageManagerService;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.SegmentedPath;
 
 public class MultilingualString implements Str {

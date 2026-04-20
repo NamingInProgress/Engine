@@ -1,10 +1,11 @@
 package com.vke.core.profiler;
 
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.utils.console.ColorStringBuilder;
 
 public class TreePrinter extends ProfilerPrinter<ProfilerPrinter.TreeSettings> {
 
-    public TreePrinter(Profiler.Node n, TreeSettings settings) {
+    public TreePrinter(ProfilerImpl.Node n, TreeSettings settings) {
         super(n, Type.TREE, settings);
     }
 
@@ -24,7 +25,7 @@ public class TreePrinter extends ProfilerPrinter<ProfilerPrinter.TreeSettings> {
         return sb.toString();
     }
 
-    private void printNode(Profiler.Node node, String prefix, boolean isLast, int depth, int maxDepth, ColorStringBuilder sb) {
+    private void printNode(ProfilerImpl.Node node, String prefix, boolean isLast, int depth, int maxDepth, ColorStringBuilder sb) {
         if (depth > maxDepth)
             return;
 
@@ -52,7 +53,7 @@ public class TreePrinter extends ProfilerPrinter<ProfilerPrinter.TreeSettings> {
         }
     }
 
-    private String formatObject(Profiler.Node node) {
+    private String formatObject(ProfilerImpl.Node node) {
         StringBuilder sb = new StringBuilder();
 
         this.settings.getCategories().forEach(c -> {

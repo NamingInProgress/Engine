@@ -1,4 +1,4 @@
-package com.vke.core.services.shr;
+package com.vke.core.services2.shr;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;

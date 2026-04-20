@@ -1,6 +1,8 @@
 package com.vke.core.profiler;
 
-public class DummyProfiler extends Profiler {
+import com.vke.core.profiler.service.ProfilerImpl;
+
+public class DummyProfilerImpl extends ProfilerImpl {
 
     @Override
     public void defaultSettings(ProfilerPrinter.Type type) {}

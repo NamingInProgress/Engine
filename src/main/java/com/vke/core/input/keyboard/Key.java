@@ -4,7 +4,7 @@ import com.carrotsearch.hppc.IntIntHashMap;
 import com.vke.core.Context;
 import com.vke.core.input.InputManager;
 import com.vke.core.input.PressableState;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 
 import static org.lwjgl.glfw.GLFW.*;
 

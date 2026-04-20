@@ -1,7 +1,7 @@
 package com.vke.core.event.events;
 
 import com.vke.api.event.Event;
-import com.vke.api.services.Service;
+import com.vke.api.services2.Service;
 
 public class ServiceLoadEvent extends Event {
 

@@ -1,14 +1,14 @@
-package com.vke.core.vulkan.shader;
+package com.vke.core.vulkan.shader.service;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.app.Version;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ServiceImpl;
 import com.vke.api.vkz.ArchiveType;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzEditor;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.core.vkz.Vkz;
 import com.vke.utils.io.FileUtils;
 import com.vke.utils.io.Identifier;
@@ -26,18 +26,21 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 
-public class ShaderCompiler extends Service {
-
+public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     private static final HashMap<String, ByteBuffer> CACHE = new HashMap<>();
 
-    private final long compiler;
-    private final AutoHeapAllocator alloc;
-    private final VKEngine engine;
-    private final Vkz vkz;
+    private long compiler;
+    private AutoHeapAllocator alloc;
+    private VKEngine engine;
+    private Vkz vkz;
 
-    public ShaderCompiler(VKEngine engine) {
-        super(Services.SHADER_COMPILER);
+    public ShaderCompilerImpl(VKEngine engine) {
+        super(Services.SHADER_COMPILER, engine);
         this.engine = engine;
+    }
+
+    @Override
+    protected void onInitialize() {
         this.compiler = Shaderc.shaderc_compiler_initialize();
         this.alloc = new AutoHeapAllocator();
         this.vkz = engine.service(Services.VKZ);
@@ -45,18 +48,22 @@ public class ShaderCompiler extends Service {
         loadCacheFromArchive();
     }
 
+    @Override
     public ByteBuffer compileGlslToSpirV(byte[] shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
         return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind.getShadercHandle(), fileName);
     }
 
+    @Override
     public ByteBuffer compileGlslToSpirV(ByteBuffer shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
         return this.compileGlslToSpirV(shader, kind.getShadercHandle(), fileName);
     }
 
+    @Override
     public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @NotNull Identifier fileName) throws Exception {
         return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind, fileName);
     }
 
+    @Override
     public ByteBuffer compileGlslToSpirV(ByteBuffer source, int kind, @NotNull Identifier fileName) throws Exception {
         if (CACHE.containsKey(fileName.toSpecialVkzFormatCuzItsBad())) return CACHE.get(fileName.toSpecialVkzFormatCuzItsBad());
 
@@ -164,5 +171,4 @@ public class ShaderCompiler extends Service {
     public List<String> dependencies() {
         return List.of(Services.VKZ);
     }
-
 }

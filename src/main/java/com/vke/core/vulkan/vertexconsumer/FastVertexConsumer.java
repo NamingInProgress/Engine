@@ -3,7 +3,7 @@ package com.vke.core.vulkan.vertexconsumer;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.mesh.Mesh;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRenderer;
 
 public class FastVertexConsumer<T extends Vertex> extends AbstractVertexConsumer<T> {
 

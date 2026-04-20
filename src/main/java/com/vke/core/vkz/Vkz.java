@@ -3,7 +3,7 @@ package com.vke.core.vkz;
 import com.vke.api.serializer.Serializer;
 import com.vke.api.services.Service;
 import com.vke.api.vkz.*;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.core.vkz.types.VkzEntry;
 import com.vke.core.vkz.types.VkzName;
 import com.vke.core.vkz.types.imm.VkzImmediateDirLayer;

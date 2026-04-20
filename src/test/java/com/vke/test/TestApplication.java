@@ -6,8 +6,8 @@ import com.vke.api.window.WindowCreateInfo;
 import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.test.app.TestApp;
 
 import java.io.IOException;

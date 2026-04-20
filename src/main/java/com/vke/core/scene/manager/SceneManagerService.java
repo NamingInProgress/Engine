@@ -1,6 +1,5 @@
 package com.vke.core.scene.manager;
 
-import com.vke.api.assets.BundleExchange;
 import com.vke.api.scene.LoadingScene;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
@@ -9,12 +8,11 @@ import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.AssetException;
 import com.vke.core.scene.SceneXML;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

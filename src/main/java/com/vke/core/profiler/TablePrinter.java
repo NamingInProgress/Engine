@@ -1,5 +1,6 @@
 package com.vke.core.profiler;
 
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.console.ColorStringBuilder;
 import com.vke.utils.console.PrettyTable;
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TablePrinter extends ProfilerPrinter<ProfilerPrinter.TableSettings> {
 
-    public TablePrinter(Profiler.Node n, TableSettings settings) {
+    public TablePrinter(ProfilerImpl.Node n, TableSettings settings) {
         super(n, Type.TABLE, settings);
     }
 
@@ -47,7 +48,7 @@ public class TablePrinter extends ProfilerPrinter<ProfilerPrinter.TableSettings>
         return table.toString();
     }
 
-    private void traverse(Profiler.Node node, String path, int depth, ColorStringBuilder sb, PrettyTable table) {
+    private void traverse(ProfilerImpl.Node node, String path, int depth, ColorStringBuilder sb, PrettyTable table) {
         writeObject(node, path, sb, table);
 
         if (node.children == null || node.children.isEmpty())
@@ -57,13 +58,13 @@ public class TablePrinter extends ProfilerPrinter<ProfilerPrinter.TableSettings>
         if (maxDepth >= 0 && depth >= maxDepth)
             return;
 
-        for (Profiler.Node child : node.children) {
+        for (ProfilerImpl.Node child : node.children) {
             String childPath = path + "/" + child.name;
             traverse(child, childPath, depth + 1, sb, table);
         }
     }
 
-    private void writeObject(Profiler.Node node, String path, ColorStringBuilder sb, PrettyTable table) {
+    private void writeObject(ProfilerImpl.Node node, String path, ColorStringBuilder sb, PrettyTable table) {
         settings.getCategories().forEach(c -> {
             if (c == Category.NAME) {
                 table.column(node.color + path + AnsiColors.DEFAULT);

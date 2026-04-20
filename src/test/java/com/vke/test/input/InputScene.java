@@ -8,9 +8,8 @@ import com.vke.core.input.keyboard.*;
 import com.vke.core.input.mouse.Button;
 import com.vke.core.input.mouse.MouseInput;
 import com.vke.core.input.mouse.MouseScrollState;
-import com.vke.core.input.mouse.ScrollDirection;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.io.Identifier;
 

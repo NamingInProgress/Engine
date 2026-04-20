@@ -1,10 +1,11 @@
-package com.vke.core.profiler;
+package com.vke.core.profiler.service;
 
 import com.vke.api.logger.Logger;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.Services;
+import com.vke.core.profiler.ProfilerPrinter;
+import com.vke.core.services2.Services;
 import com.vke.utils.console.AnsiColors;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import static com.vke.core.profiler.ProfilerPrinter.Type.*;
 import static com.vke.core.profiler.ProfilerPrinter.Type;
 import static com.vke.core.profiler.ProfilerPrinter.Settings;
 
-public class Profiler extends Service {
+public class ProfilerImpl extends ServiceImpl implements Profiler {
 
     public static final Logger logger = LoggerFactory.get("Profiler");
 
@@ -27,7 +28,7 @@ public class Profiler extends Service {
     private final Stack<Stack<Node>> doubleStack = new Stack<>();
     private Stack<Node> stack = new Stack<>();
 
-    public Profiler() {
+    public ProfilerImpl() {
         super(Services.PROFILER);
 
         VKEngine.profiler = this;

@@ -1,16 +1,19 @@
-package com.vke.core.vulkan;
+package com.vke.core.vulkan.service;
 
 import com.vke.api.app.Framable;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
+import com.vke.core.vulkan.Scissor;
+import com.vke.core.vulkan.Viewport;
+import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.Samplers;
@@ -28,33 +31,36 @@ import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
 
-public class VulkanRenderer extends Service implements Renderer {
-
+public class VulkanRenderer extends ServiceImpl implements Renderer {
     private static final String HERE = "VulkanRenderer";
 
     private final int FRAMES_IN_FLIGHT;
 
-    public final VulkanSwapchain swapchain;
-    private final VulkanRenderDevice device;
-    private final VulkanFrame[] frames;
-    private final VulkanFence[] imagesInFlight;
-    private final VulkanSemaphore[] imagePresentInFlight;
+    public VulkanSwapchain swapchain;
+    private VulkanRenderDevice device;
+    private VulkanFrame[] frames;
+    private VulkanFence[] imagesInFlight;
+    private VulkanSemaphore[] imagePresentInFlight;
 
-    private final VulkanFrame immediateFrame;
+    private VulkanFrame immediateFrame;
 
     private int currentFrameIndex = 0;
 
     // Engine infos
     private final VKEngine engine;
     private final Context context;
-    private final EngineCreateInfo engineCreateInfo;
+    private final EngineCreateInfo createInfo;
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
-        super(Services.VULKAN_RENDERER);
+        super(Services.VULKAN_RENDERER, context.getEngine());
         this.FRAMES_IN_FLIGHT = createInfo.vulkanCreateInfo.framesInFlight;
         this.engine = context.getEngine();
         this.context = context;
-        this.engineCreateInfo = createInfo;
+        this.createInfo = createInfo;
+    }
+
+    @Override
+    protected void onInitialize() {
         this.device = new VulkanRenderDevice(context, createInfo);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
@@ -174,7 +180,7 @@ public class VulkanRenderer extends Service implements Renderer {
     }
 
     @Override
-    protected List<String> dependencies() {
+    public List<String> dependencies() {
         return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER);
     }
 

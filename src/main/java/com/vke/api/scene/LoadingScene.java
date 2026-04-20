@@ -6,7 +6,7 @@ import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.manager.VKEAssetManager;
 import com.vke.core.scene.loading.DefaultVkeLoadingScene;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 
 public abstract class LoadingScene extends Scene implements BundleLoadingCallback {

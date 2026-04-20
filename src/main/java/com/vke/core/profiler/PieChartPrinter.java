@@ -1,5 +1,6 @@
 package com.vke.core.profiler;
 
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.utils.console.ColoredPieChart;
 import com.vke.utils.tuple.Pair;
 
@@ -10,7 +11,7 @@ import java.util.Queue;
 
 public class PieChartPrinter extends ProfilerPrinter<ProfilerPrinter.PieChartSettings> {
 
-    public PieChartPrinter(Profiler.Node n, PieChartSettings settings) {
+    public PieChartPrinter(ProfilerImpl.Node n, PieChartSettings settings) {
         super(n, Type.PIE_CHART, settings);
     }
 
@@ -18,8 +19,8 @@ public class PieChartPrinter extends ProfilerPrinter<ProfilerPrinter.PieChartSet
     public String format() {
         ColoredPieChart pc = new ColoredPieChart();
 
-        List<Profiler.Node> atDepth = nodesAtDepth(master, settings.getDepth());
-        long totalTimeAtDepth = atDepth.stream().mapToLong(Profiler.Node::getTotalTime).sum();
+        List<ProfilerImpl.Node> atDepth = nodesAtDepth(master, settings.getDepth());
+        long totalTimeAtDepth = atDepth.stream().mapToLong(ProfilerImpl.Node::getTotalTime).sum();
 
         atDepth.forEach(node -> {
             pc.entry(node.name, node.color, (double) node.getTotalTime() / totalTimeAtDepth);
@@ -28,23 +29,23 @@ public class PieChartPrinter extends ProfilerPrinter<ProfilerPrinter.PieChartSet
         return pc.render(10);
     }
 
-    public List<Profiler.Node> nodesAtDepth(Profiler.Node root, int targetDepth) {
-        List<Profiler.Node> result = new ArrayList<>();
+    public List<ProfilerImpl.Node> nodesAtDepth(ProfilerImpl.Node root, int targetDepth) {
+        List<ProfilerImpl.Node> result = new ArrayList<>();
         if (root == null) return result;
 
-        Queue<Pair<Profiler.Node, Integer>> queue = new ArrayDeque<>();
+        Queue<Pair<ProfilerImpl.Node, Integer>> queue = new ArrayDeque<>();
         queue.add(new Pair<>(root, 0));
 
         while (!queue.isEmpty()) {
-            Pair<Profiler.Node, Integer> pair = queue.poll();
-            Profiler.Node node = pair.v1;
+            Pair<ProfilerImpl.Node, Integer> pair = queue.poll();
+            ProfilerImpl.Node node = pair.v1;
             int depth = pair.v2;
 
             if (depth == targetDepth) {
                 result.add(node);
             } else if (depth < targetDepth) {
                 if (node.children != null) {
-                    for (Profiler.Node child : node.children) {
+                    for (ProfilerImpl.Node child : node.children) {
                         queue.add(new Pair<>(child, depth + 1));
                     }
                 }

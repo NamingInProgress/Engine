@@ -8,15 +8,14 @@ import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
-import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.ServiceManager;
-import com.vke.core.profiler.DummyProfiler;
-import com.vke.core.profiler.Profiler;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.services.Services;
+import com.vke.core.services2.ServiceManager;
+import com.vke.core.profiler.DummyProfilerImpl;
+import com.vke.core.profiler.service.ProfilerImpl;
+import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
@@ -30,7 +29,7 @@ public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
-    public static Profiler profiler;
+    public static ProfilerImpl profiler;
 
     private final Logger soutLogger;
 
@@ -56,12 +55,11 @@ public class VKEngine extends Context {
         }};
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
 
-        ServiceCreateContext scc = new ServiceCreateContext(this, createInfo);
-        this.serviceManager = new ServiceManager(scc);
+        this.serviceManager = new ServiceManager(this);
 
         SOUT.redirect(soutLogger);
 
-        profiler = new DummyProfiler();
+        profiler = new DummyProfilerImpl();
         EVENT_BUS = service(Services.EVENT_BUS);
 
         this.framables = new Framable.Glossary();
@@ -178,5 +176,9 @@ public class VKEngine extends Context {
 
     public void removeFramable(Framable f) {
         this.framables.removeEntry(f);
+    }
+
+    public EngineCreateInfo getCreateInfo() {
+        return createInfo;
     }
 }

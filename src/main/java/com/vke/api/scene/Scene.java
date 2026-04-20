@@ -2,9 +2,6 @@ package com.vke.api.scene;
 
 import com.vke.api.app.Framable;
 import com.vke.core.Context;
-import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.window.Window;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 

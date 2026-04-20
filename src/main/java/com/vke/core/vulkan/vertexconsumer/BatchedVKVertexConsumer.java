@@ -12,7 +12,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.array.CombinedImageSampl
 import com.vke.core.Context;
 import com.vke.core.mesh.Mesh;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.descriptor.dynamicalloc.DynamicDescriptorAllocator;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;

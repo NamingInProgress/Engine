@@ -7,7 +7,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
 import com.vke.core.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
