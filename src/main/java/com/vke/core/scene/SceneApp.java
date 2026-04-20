@@ -5,7 +5,8 @@ import com.vke.api.app.CompoundFramable;
 import com.vke.api.app.Framable;
 import com.vke.api.scene.SceneException;
 import com.vke.core.VKEngine;
-import com.vke.core.scene.manager.SceneManager;
+import com.vke.core.scene.service.SceneManager;
+import com.vke.core.scene.service.SceneManagerScopedImpl;
 import com.vke.core.services2.Services;
 import com.vke.utils.iter.Iter;
 
@@ -33,7 +34,7 @@ public class SceneApp extends App implements CompoundFramable {
 
     @Override
     public Iter<Framable> children() {
-        return Iter.of(engine.<SceneManager>service(Services.SCENE_MANAGER));
+        return Iter.of(engine.<SceneManagerScopedImpl>service(Services.SCENE_MANAGER));
     }
 
     @Override

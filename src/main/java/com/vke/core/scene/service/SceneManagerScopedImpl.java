@@ -1,8 +1,8 @@
-package com.vke.core.scene.manager;
+package com.vke.core.scene.service;
 
 import com.vke.api.app.CompoundFramable;
 import com.vke.api.app.Framable;
-import com.vke.api.assets.AssetManager;
+import com.vke.core.assets.service.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
@@ -10,29 +10,34 @@ import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
-public class SceneManager implements CompoundFramable {
+import java.util.List;
+
+public class SceneManagerScopedImpl implements CompoundFramable, SceneManager {
     private boolean init;
     private final Context context;
-    private final SceneManagerService base;
+    private final SceneManagerBaseImpl base;
 
-    public SceneManager(Context context, SceneManagerService base) {
+    public SceneManagerScopedImpl(Context context, SceneManagerBaseImpl base) {
         this.context = context;
         this.base = base;
     }
 
+    @Override
     public void initialize() {
         if (init) return;
         init = true;
         AssetManager manager = context.service(Services.ASSET_MANAGER);
-        manager.initialize();
+        manager.initAssets();
         Identifier sceneDirectory = context.id("scenes/");
         base.registerScenes(sceneDirectory, context);
     }
 
+    @Override
     public void setScene(Identifier name) throws SceneException {
         base.setScene(name);
     }
 
+    @Override
     public void setScene(String name) throws SceneException {
         base.setScene(context.id(name));
     }
@@ -46,4 +51,18 @@ public class SceneManager implements CompoundFramable {
         return getCurrentScene() == null ? Iter.of() : Iter.of(getCurrentScene());
     }
 
+    @Override
+    public String getId() {
+        return base.getId();
+    }
+
+    @Override
+    public List<String> dependencies() {
+        return base.dependencies();
+    }
+
+    @Override
+    public void free() {
+
+    }
 }

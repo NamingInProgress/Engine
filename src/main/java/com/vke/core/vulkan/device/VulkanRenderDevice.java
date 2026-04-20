@@ -21,7 +21,9 @@ import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services2.Services;
-import com.vke.core.services2.shr.ShaderReflector;
+import com.vke.core.vulkan.shader.service.ShaderCompiler;
+import com.vke.core.vulkan.shr.service.ShaderReflector;
+import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
@@ -240,7 +242,7 @@ public class VulkanRenderDevice implements RenderDevice {
         byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
 
         try {
-            ByteBuffer spirv = engine.<ShaderCompilerImpl>service(Services.SHADER_COMPILER)
+            ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
                     .compileGlslToSpirV(bytes, shaderType, identifier);
 
             VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType, SHADER_ID.get());

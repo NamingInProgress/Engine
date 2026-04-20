@@ -2,11 +2,13 @@ package com.vke.test.input;
 
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
-import com.vke.core.input.InputManager;
+import com.vke.core.input.mouse.MouseInput;
+import com.vke.core.input.service.InputManager;
+import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.*;
 import com.vke.core.input.mouse.Button;
-import com.vke.core.input.mouse.MouseInput;
+import com.vke.core.input.mouse.MouseInputImpl;
 import com.vke.core.input.mouse.MouseScrollState;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services2.Services;

@@ -18,7 +18,6 @@ import static com.vke.core.profiler.ProfilerPrinter.Type;
 import static com.vke.core.profiler.ProfilerPrinter.Settings;
 
 public class ProfilerImpl extends ServiceImpl implements Profiler {
-
     public static final Logger logger = LoggerFactory.get("Profiler");
 
     private int enabledDisplayTypes;
@@ -28,22 +27,27 @@ public class ProfilerImpl extends ServiceImpl implements Profiler {
     private final Stack<Stack<Node>> doubleStack = new Stack<>();
     private Stack<Node> stack = new Stack<>();
 
-    public ProfilerImpl() {
-        super(Services.PROFILER);
+    public ProfilerImpl(VKEngine engine) {
+        super(Services.PROFILER, engine);
 
         VKEngine.profiler = this;
+    }
 
+    @Override
+    protected void onInitialize() {
         enabledDisplayTypes = TABLE.asInt() | TREE.asInt();
         settings.put(TABLE, Settings.defaultTable());
         settings.put(TREE, Settings.defaultTree());
     }
 
+    @Override
     public void beginFrame() {
         stack.clear();
         frame = new Node("Frame", AnsiColors.GOLD);
         stack.push(frame);
     }
 
+    @Override
     public void endFrame() {
         end();
         if (!stack.isEmpty()) logger.warn("Unclosed Profiler Object!");
@@ -51,10 +55,12 @@ public class ProfilerImpl extends ServiceImpl implements Profiler {
         printData(frame, enabledDisplayTypes, settings);
     }
 
+    @Override
     public void push() {
         doubleStack.push((Stack<Node>) stack.clone());
     }
 
+    @Override
     public void closeStack() {
         Stack<Node> s = doubleStack.peek();
         for (int i = s.size(); i < stack.size(); i++) {
@@ -62,20 +68,24 @@ public class ProfilerImpl extends ServiceImpl implements Profiler {
         }
     }
 
+    @Override
     public void pop() {
         stack = doubleStack.pop();
     }
 
+    @Override
     public void begin(String name) {
         begin(name, stack.peek().color);
     }
 
+    @Override
     public void begin(String name, String color) {
         Node n = new Node(name, color);
         stack.peek().addChild(n);
         stack.push(n);
     }
 
+    @Override
     public void end() {
         stack.pop().end();
     }
@@ -145,7 +155,7 @@ public class ProfilerImpl extends ServiceImpl implements Profiler {
     }
 
     @Override
-    protected List<String> dependencies() {
+    public List<String> dependencies() {
         return List.of();
     }
 

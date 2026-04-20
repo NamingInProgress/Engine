@@ -12,7 +12,6 @@ public class VKERegistries {
     private static final Map<String, VKERegistrate> REGISTRATES = new LinkedHashMap<>();
 
     public static final VKERegistry<Class<?>, Serializer<?>> SERIALIZERS = new SerializersRegistry(new Identifier("serializers"));
-    public static final ServicesRegistry SERVICES = new ServicesRegistry();
 
     public static VKERegistrate get(String addonId) {
         return REGISTRATES.computeIfAbsent(addonId, VKERegistrate::new);

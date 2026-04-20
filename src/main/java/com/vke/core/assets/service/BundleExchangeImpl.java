@@ -1,4 +1,4 @@
-package com.vke.core.assets.manager;
+package com.vke.core.assets.service;
 
 import com.vke.api.assets.BundleExchange;
 import com.vke.core.assets.AssetException;
@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class VKEBundleExchange implements BundleExchange {
-    private final VKEAssetManagerService manager;
+public class BundleExchangeImpl implements BundleExchange {
+    private final AssetManagerBaseImpl manager;
     final List<String> load;
     final List<String> unload;
 
-    VKEBundleExchange(VKEAssetManagerService manager) {
+    BundleExchangeImpl(AssetManagerBaseImpl manager) {
         this.manager = manager;
         this.load = new ArrayList<>();
         this.unload = new ArrayList<>();

@@ -7,7 +7,7 @@ import com.vke.utils.console.AnsiColors;
 public class ProfilerTest {
 
     public static void main(String[] args) {
-        ProfilerImpl profiler = new ProfilerImpl();
+        ProfilerImpl profiler = new ProfilerImpl(null);
         profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
         var s = new ProfilerPrinter.PieChartSettings();
         s.setDepth(2);

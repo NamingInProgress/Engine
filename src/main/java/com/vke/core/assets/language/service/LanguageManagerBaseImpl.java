@@ -1,9 +1,8 @@
-package com.vke.core.assets.language.manager;
+package com.vke.core.assets.language.service;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetManager;
-import com.vke.api.services.ScopedService;
-import com.vke.api.services.Service;
+import com.vke.core.assets.service.AssetManager;
+import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.language.Language;
@@ -13,17 +12,28 @@ import com.vke.utils.io.Identifier;
 import java.io.IOException;
 import java.util.List;
 
-public class LanguageManagerService extends ScopedService<LanguageManager> {
+public class LanguageManagerBaseImpl extends ScopedServiceImpl<LanguageManagerScopedImpl> implements LanguageManager {
     private final VKEngine engine;
     private Language currentLanguage;
     private long version;
 
-    public LanguageManagerService(VKEngine engine) {
-        super(Services.LANGUAGE_MANAGER);
+    public LanguageManagerBaseImpl(VKEngine engine) {
+        super(Services.LANGUAGE_MANAGER, engine);
         this.engine = engine;
         this.version = Long.MIN_VALUE + 1;
     }
 
+    @Override
+    protected void onInitialize() {
+
+    }
+
+    @Override
+    public void changeLanguage(String language) throws IOException {
+        changeLanguage(engine.id(language));
+    }
+
+    @Override
     public void changeLanguage(Identifier newLanguage) throws IOException {
         AssetManager assetManager = engine.service(Services.ASSET_MANAGER);
         AssetHandle<Language> langHandle = assetManager.getAsset(newLanguage);
@@ -33,12 +43,18 @@ public class LanguageManagerService extends ScopedService<LanguageManager> {
         this.version++;
     }
 
+    @Override
     public Language getCurrentLanguage() {
         return currentLanguage;
     }
 
     @Override
-    protected List<String> dependencies() {
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public List<String> dependencies() {
         return List.of(Services.ASSET_MANAGER);
     }
 
@@ -47,12 +63,8 @@ public class LanguageManagerService extends ScopedService<LanguageManager> {
 
     }
 
-    public long getVersion() {
-        return version;
-    }
-
     @Override
-    protected LanguageManager createScoped(Context context) {
-        return new LanguageManager(context, this);
+    protected LanguageManagerScopedImpl createScoped(Context context) {
+        return new LanguageManagerScopedImpl(context, this);
     }
 }

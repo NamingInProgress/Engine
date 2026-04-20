@@ -5,7 +5,7 @@ import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.scene.manager.SceneManager;
+import com.vke.core.scene.service.SceneManagerScopedImpl;
 import com.vke.core.services2.Services;
 
 public class SceneTest {
@@ -16,11 +16,11 @@ public class SceneTest {
 
         VKEngine engine = new VKEngine(createInfo);
 
-        SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
+        SceneManagerScopedImpl sceneManager = engine.service(Services.SCENE_MANAGER);
         sceneManager.initialize();
 
         Context lolContext = engine.createNewContext("lol");
-        SceneManager lolSceneManager = lolContext.service(Services.SCENE_MANAGER);
+        SceneManagerScopedImpl lolSceneManager = lolContext.service(Services.SCENE_MANAGER);
         lolSceneManager.initialize();
         sceneManager.setScene("main");
     }

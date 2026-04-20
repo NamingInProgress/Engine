@@ -1,13 +1,13 @@
 package com.vke.core.assets.language;
 
 import com.vke.core.Context;
-import com.vke.core.assets.language.manager.LanguageManager;
+import com.vke.core.assets.language.service.LanguageManagerScopedImpl;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.SegmentedPath;
 
 public class MultilingualString implements Str {
     private final SegmentedPath key;
-    private LanguageManager languageManager;
+    private LanguageManagerScopedImpl languageManager;
     private long targetVersion;
     private String cache;
 

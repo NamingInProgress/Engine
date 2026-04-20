@@ -40,7 +40,7 @@ public class FixedBlockTest {
         ByteArrayInputStream bai = new ByteArrayInputStream(output);
         InflatingDevice inflater = new InflatingDevice(null, bai);
 
-        ProfilerImpl profiler = new ProfilerImpl();
+        ProfilerImpl profiler = new ProfilerImpl(null);
         profiler.beginFrame();
 
         profiler.begin("old", Colors.RED);

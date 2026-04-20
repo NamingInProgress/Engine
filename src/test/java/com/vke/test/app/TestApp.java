@@ -9,7 +9,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamp
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.manager.VKEAssetManager;
+import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.services2.Services;
@@ -109,8 +109,8 @@ public class TestApp extends App {
         timer = new AppTimer();
 
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-        VKEAssetManager assetManager = engine.service(Services.ASSET_MANAGER);
-        assetManager.initialize();
+        AssetManagerScopedImpl assetManager = engine.service(Services.ASSET_MANAGER);
+        assetManager.initAssets();
 
         try {
             //scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);

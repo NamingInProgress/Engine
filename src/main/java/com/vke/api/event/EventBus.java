@@ -1,8 +1,10 @@
 package com.vke.api.event;
 
+import com.vke.api.services2.Service;
+
 import java.lang.invoke.MethodHandle;
 
-public interface EventBus {
+public interface EventBus extends Service {
 
     void register(EventListener instance);
     /**

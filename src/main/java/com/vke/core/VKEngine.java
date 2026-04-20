@@ -3,6 +3,7 @@ package com.vke.core;
 import com.vke.api.app.App;
 import com.vke.api.app.Framable;
 import com.vke.api.app.Version;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
@@ -47,6 +48,7 @@ public class VKEngine extends Context {
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
 
+
         if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
 
         this.createInfo = createInfo;
@@ -56,6 +58,7 @@ public class VKEngine extends Context {
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
 
         this.serviceManager = new ServiceManager(this);
+        Services.init(serviceManager, this);
 
         SOUT.redirect(soutLogger);
 
@@ -79,7 +82,7 @@ public class VKEngine extends Context {
         app.onInit(this);
         EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
-        VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
+        VulkanRenderer renderer = service(Services.VULKAN_RENDERER).assumeImplementation();
 
         this.window.show();
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
@@ -109,7 +112,7 @@ public class VKEngine extends Context {
         }
 
         // TODO: Fix me
-        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).getDevice().waitIdle();
+        ((Renderer) this.service(Services.VULKAN_RENDERER)).getDevice().waitIdle();
         free();
     }
 

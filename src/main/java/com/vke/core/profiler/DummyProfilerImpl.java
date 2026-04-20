@@ -4,6 +4,10 @@ import com.vke.core.profiler.service.ProfilerImpl;
 
 public class DummyProfilerImpl extends ProfilerImpl {
 
+    public DummyProfilerImpl() {
+        super(null);
+    }
+
     @Override
     public void defaultSettings(ProfilerPrinter.Type type) {}
 

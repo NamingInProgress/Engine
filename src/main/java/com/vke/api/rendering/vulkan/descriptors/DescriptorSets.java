@@ -56,7 +56,7 @@ public class DescriptorSets implements Disposable {
     public DescriptorSets(VKEngine engine, VulkanRenderDevice device, ArrayList<DescriptorSetLayout> layouts, DescriptorsInfo additionalInfo) {
         this.engine = engine;
         this.device = device;
-        this.renderer = engine.service(Services.VULKAN_RENDERER);
+        this.renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
         this.writer = new DescriptorWriter(device);
 
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();

@@ -2,14 +2,22 @@ package com.vke.core.services2;
 
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.language.manager.LanguageManagerService;
-import com.vke.core.assets.manager.VKEAssetManagerService;
-import com.vke.core.event.EventBus;
-import com.vke.core.input.InputManager;
-import com.vke.core.services2.shr.ShaderReflector;
+import com.vke.core.assets.language.service.LanguageManagerAPI;
+import com.vke.core.assets.language.service.LanguageManagerBaseImpl;
+import com.vke.core.assets.service.AssetManagerAPI;
+import com.vke.core.assets.service.AssetManagerBaseImpl;
+import com.vke.core.event.service.EventBusAPI;
+import com.vke.core.event.service.EventBusImpl;
+import com.vke.core.input.service.InputManagerAPI;
+import com.vke.core.input.service.InputManagerImpl;
+import com.vke.core.profiler.service.ProfilerAPI;
+import com.vke.core.scene.service.SceneManagerAPI;
+import com.vke.core.vulkan.shr.service.ShaderReflectorAPI;
+import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.profiler.service.ProfilerImpl;
-import com.vke.core.scene.manager.SceneManagerService;
-import com.vke.core.vkz.Vkz;
+import com.vke.core.scene.service.SceneManagerBaseImpl;
+import com.vke.core.vkz.service.VkzAPI;
+import com.vke.core.vkz.service.VkzImpl;
 import com.vke.core.vulkan.service.VulkanRendererAPI;
 import com.vke.core.vulkan.shader.service.ShaderCompilerAPI;
 import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
@@ -19,9 +27,9 @@ public class Services {
 
     public static final String VULKAN_RENDERER = "vkr";
     public static final String SHADER_COMPILER = "shc";
-    public static final String PROFILER = "prof";
-    public static final String EVENT_BUS = "evnt";
-    public static final String ASSET_MANAGER = "r";
+    public static final String PROFILER = "prf";
+    public static final String EVENT_BUS = "evt";
+    public static final String ASSET_MANAGER = "asm";
     public static final String VKZ = "vkz";
     public static final String SHADER_REFLECTION = "shr";
     public static final String LANGUAGE_MANAGER = "lan";
@@ -32,14 +40,14 @@ public class Services {
         EngineCreateInfo createInfo = engine.getCreateInfo();
         manager.registerNewService(VULKAN_RENDERER, new VulkanRendererAPI(new VulkanRenderer(engine, createInfo)));
         manager.registerNewService(SHADER_COMPILER, new ShaderCompilerAPI(new ShaderCompilerImpl(engine)));
-        manager.registerNewService(PROFILER, new ProfilerImpl());
-        manager.registerNewService(EVENT_BUS, new EventBus(engine));
-        manager.registerNewService(ASSET_MANAGER, new VKEAssetManagerService(engine));
-        manager.registerNewService(VKZ, new Vkz());
-        manager.registerNewService(SHADER_REFLECTION, new ShaderReflector(engine));
-        manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerService(engine));
-        manager.registerNewService(SCENE_MANAGER, new SceneManagerService(engine));
-        manager.registerNewService(INPUT_MANAGER, new InputManager(engine));
+        manager.registerNewService(PROFILER, new ProfilerAPI(new ProfilerImpl(engine)));
+        manager.registerNewService(EVENT_BUS, new EventBusAPI(new EventBusImpl(engine)));
+        manager.registerNewService(ASSET_MANAGER, new AssetManagerAPI(new AssetManagerBaseImpl(engine)));
+        manager.registerNewService(VKZ, new VkzAPI(new VkzImpl(engine)));
+        manager.registerNewService(SHADER_REFLECTION, new ShaderReflectorAPI(new ShaderReflectorImpl(engine)));
+        manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerAPI(new LanguageManagerBaseImpl(engine)));
+        manager.registerNewService(SCENE_MANAGER, new SceneManagerAPI(new SceneManagerBaseImpl(engine)));
+        manager.registerNewService(INPUT_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
     }
 
 }

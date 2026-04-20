@@ -1,13 +1,17 @@
-package com.vke.api.assets;
+package com.vke.core.assets.service;
 
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.BundleExchange;
+import com.vke.api.assets.Protocols;
+import com.vke.api.services2.Service;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
-public interface AssetManager {
+public interface AssetManager extends Service {
     PipelineContext getPipelineContext();
 
-    void initialize();
+    void initAssets();
 
     <T> AssetHandle<T> getAsset(Identifier id);
     <T> AssetHandle<T> getAsset(String path);

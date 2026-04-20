@@ -1,9 +1,9 @@
-package com.vke.core.scene.manager;
+package com.vke.core.scene.service;
 
 import com.vke.api.scene.LoadingScene;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
-import com.vke.api.services.ScopedService;
+import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.AssetException;
@@ -17,15 +17,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SceneManagerService extends ScopedService<SceneManager> {
+public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedImpl> implements SceneManager {
     private final VKEngine engine;
-    private final HashMap<Identifier, SceneEntry> sceneRegistry;
+    private HashMap<Identifier, SceneEntry> sceneRegistry;
     private Scene currentlyLoadedScene;
-    private final Map<Identifier, AwaitingDependency> awaitingDependencies;
+    private Map<Identifier, AwaitingDependency> awaitingDependencies;
 
-    public SceneManagerService(VKEngine engine) {
-        super(Services.SCENE_MANAGER);
+    public SceneManagerBaseImpl(VKEngine engine) {
+        super(Services.SCENE_MANAGER, engine);
         this.engine = engine;
+    }
+
+    @Override
+    protected void onInitialize() {
         this.sceneRegistry = new HashMap<>();
         this.awaitingDependencies = new HashMap<>();
     }
@@ -84,6 +88,7 @@ public class SceneManagerService extends ScopedService<SceneManager> {
         });
     }
 
+    @Override
     public void setScene(Identifier name) throws SceneException {
         SceneEntry sceneEntry = sceneRegistry.get(name);
         Scene scene = sceneEntry.scene();
@@ -111,18 +116,24 @@ public class SceneManagerService extends ScopedService<SceneManager> {
         }
     }
 
+    @Override
+    public void setScene(String name) throws SceneException {
+        setScene(engine.id(name));
+    }
+
+    @Override
     public Scene getCurrentScene() {
         return currentlyLoadedScene;
     }
 
     @Override
-    protected List<String> dependencies() {
+    public List<String> dependencies() {
         return List.of(Services.ASSET_MANAGER);
     }
 
     @Override
-    protected SceneManager createScoped(Context context) {
-        return new SceneManager(context, this);
+    protected SceneManagerScopedImpl createScoped(Context context) {
+        return new SceneManagerScopedImpl(context, this);
     }
 
     @Override

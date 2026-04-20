@@ -2,7 +2,7 @@ package com.vke.core.input.keyboard;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.vke.core.Context;
-import com.vke.core.input.InputManager;
+import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.input.PressableState;
 import com.vke.core.services2.Services;
 
@@ -127,7 +127,7 @@ public enum Key {
     }
 
     public PressableState state(Context context) {
-        InputManager manager = context.service(Services.INPUT_MANAGER);
+        InputManagerImpl manager = context.service(Services.INPUT_MANAGER);
         return manager.keyboard().key(this);
     }
 }

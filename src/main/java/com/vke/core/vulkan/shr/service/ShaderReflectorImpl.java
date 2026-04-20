@@ -1,11 +1,12 @@
-package com.vke.core.services2.shr;
+package com.vke.core.vulkan.shr.service;
 
 import com.vke.api.logger.Logger;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.PointerBuffer;
@@ -17,17 +18,20 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 
-public class ShaderReflector extends Service {
+public class ShaderReflectorImpl extends ServiceImpl implements ShaderReflector {
 
     private static final Logger logger = LoggerFactory.get("Shader Reflection");
 
-    private final long spvcContext;
+    private long spvcContext;
 
     private final HashMap<Long, ReflectedShader> CACHE = new HashMap<>();
 
-    public ShaderReflector(VKEngine engine) {
-        super(Services.SHADER_REFLECTION);
+    public ShaderReflectorImpl(VKEngine engine) {
+        super(Services.SHADER_REFLECTION, engine);
+    }
 
+    @Override
+    protected void onInitialize() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer pContext = stack.mallocPointer(1);
 
@@ -43,6 +47,7 @@ public class ShaderReflector extends Service {
         }
     }
 
+    @Override
     public ReflectedShader reflect(long id, ByteBuffer spirv, ShaderType shaderType) {
         if (CACHE.containsKey(id)) return CACHE.get(id);
         ReflectedShader s = new ReflectedShader(spvcContext, spirv, shaderType);
@@ -50,12 +55,13 @@ public class ShaderReflector extends Service {
         return s;
     }
 
+    @Override
     public Option<ReflectedShader> get(long id) {
         return Option.useIfNotNull(CACHE.get(id));
     }
 
     @Override
-    protected List<String> dependencies() {
+    public List<String> dependencies() {
         return List.of(Services.SHADER_COMPILER);
     }
 
@@ -64,5 +70,4 @@ public class ShaderReflector extends Service {
         CACHE.values().forEach(Disposable::free);
         Spvc.spvc_context_destroy(spvcContext);
     }
-
 }

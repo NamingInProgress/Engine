@@ -1,7 +1,7 @@
 package com.vke.test.language;
 
-import com.vke.api.assets.AssetManager;
-import com.vke.core.assets.language.manager.LanguageManagerService;
+import com.vke.core.assets.service.AssetManager;
+import com.vke.core.assets.language.service.LanguageManagerBaseImpl;
 import com.vke.core.assets.language.Str;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -19,9 +19,9 @@ public class LangTest {
         VKEngine engine = new VKEngine(createInfo);
 
         AssetManager manager = engine.service(Services.ASSET_MANAGER);
-        manager.initialize();
+        manager.initAssets();
 
-        LanguageManagerService languageManager = engine.service(Services.LANGUAGE_MANAGER);
+        LanguageManagerBaseImpl languageManager = engine.service(Services.LANGUAGE_MANAGER);
 
         Str str = Str.MULTILINGUAL(new SegmentedPath("culture.food"));
 

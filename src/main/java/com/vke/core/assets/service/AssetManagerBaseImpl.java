@@ -1,10 +1,10 @@
-package com.vke.core.assets.manager;
+package com.vke.core.assets.service;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Bundle;
 import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.BundleLoadingCallback;
-import com.vke.api.services.ScopedService;
+import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.AssetException;
@@ -19,20 +19,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
+public class AssetManagerBaseImpl extends ScopedServiceImpl<AssetManagerScopedImpl> implements AssetManager {
     private final VKEngine engine;
-    private final PipelineContext pipelineContext;
-    private final TaskProcessor loadingThread;
-    private final BundleLoadingCallback.List loadingCallbacks;
-    private final HashMap<String, Bundle> loadedBundles;
-    private final Object loadedBundlesLock;
+    private PipelineContext pipelineContext;
+    private TaskProcessor loadingThread;
+    private BundleLoadingCallback.List loadingCallbacks;
+    private HashMap<String, Bundle> loadedBundles;
+    private Object loadedBundlesLock;
 
     Bundle globalBundle;
     HashMap<String, Bundle> allBundles;
 
-    public VKEAssetManagerService(VKEngine engine) {
-        super(Services.ASSET_MANAGER);
+    public AssetManagerBaseImpl(VKEngine engine) {
+        super(Services.ASSET_MANAGER, engine);
         this.engine = engine;
+    }
+
+    @Override
+    protected void onInitialize() {
         this.pipelineContext = new PipelineContext(engine);
         this.loadingThread = new TaskProcessor(engine, "AssetLoader");
         this.loadingCallbacks = new BundleLoadingCallback.List();
@@ -46,11 +50,16 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
         return pipelineContext;
     }
 
-    public BundleExchange beginExchange() {
-        return new VKEBundleExchange(this);
+    @Override
+    public void initAssets() {
+        //handled by scoped impl
     }
 
-    void commitExchange(VKEBundleExchange exchange) throws AssetException {
+    public BundleExchange beginExchange() {
+        return new BundleExchangeImpl(this);
+    }
+
+    void commitExchange(BundleExchangeImpl exchange) throws AssetException {
         synchronized (loadedBundlesLock) {
             loadedBundles.clear();
             HashMap<String, Bundle> removed = new HashMap<>(loadedBundles);
@@ -94,12 +103,17 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
     }
 
     @Override
-    protected VKEAssetManager createScoped(Context context) {
-        return new VKEAssetManager(this, context);
+    public <T> AssetHandle<T> getAsset(String path) {
+        return getAsset(engine.id(path));
     }
 
     @Override
-    protected List<String> dependencies() {
+    protected AssetManagerScopedImpl createScoped(Context context) {
+        return new AssetManagerScopedImpl(this, context);
+    }
+
+    @Override
+    public List<String> dependencies() {
         return List.of();
     }
 
@@ -121,7 +135,7 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
         loadingCallbacks.removeCallback(callback);
     }
 
-    void mergeBundles(Map<String, Bundle> bundleMap) {
+    public void mergeBundles(Map<String, Bundle> bundleMap) {
         bundleMap.forEach((name, bundle) -> {
             Bundle existing = allBundles.get(name);
             if (existing == null) {
@@ -132,7 +146,7 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
         });
     }
 
-    Iter<AssetHandle<?>> allAssets() {
+    public Iter<AssetHandle<?>> allAssets() {
         Iter<AssetHandle<?>> all = globalBundle.allAssets();
         for (Bundle b : allBundles.values()) {
             all = all.chain(b.allAssets());
@@ -140,7 +154,7 @@ public class VKEAssetManagerService extends ScopedService<VKEAssetManager> {
         return all;
     }
 
-    Iter<AssetHandle<?>> allCurrentlyLoadedAssets() {
+    public Iter<AssetHandle<?>> allCurrentlyLoadedAssets() {
         Iter<AssetHandle<?>> all = globalBundle.allAssets();
         for (Bundle b : loadedBundles.values()) {
             all = all.chain(b.allAssets());

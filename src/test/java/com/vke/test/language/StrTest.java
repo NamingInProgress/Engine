@@ -1,6 +1,6 @@
 package com.vke.test.language;
 
-import com.vke.api.assets.AssetManager;
+import com.vke.core.assets.service.AssetManager;
 import com.vke.core.assets.language.Str;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
@@ -15,7 +15,7 @@ public class StrTest {
 
         VKEngine engine = new VKEngine(createInfo);
         AssetManager manager = engine.service(Services.ASSET_MANAGER);
-        manager.initialize();
+        manager.initAssets();
 
         Str test1 = Str.STATIC("Hello World!");
         Str test2 = Str.ASSET(engine.id("greeting"));

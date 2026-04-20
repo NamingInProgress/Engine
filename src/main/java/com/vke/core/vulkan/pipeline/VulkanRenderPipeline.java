@@ -12,7 +12,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
-import com.vke.core.services2.shr.ReflectedShader;
+import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import org.lwjgl.system.MemoryStack;

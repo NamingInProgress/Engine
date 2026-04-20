@@ -1,10 +1,10 @@
-package com.vke.core.event;
+package com.vke.core.event.service;
 
 import com.vke.api.event.CancellableEvent;
 import com.vke.api.event.Event;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.utils.ReflectUtils;
@@ -14,16 +14,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class EventBus extends Service implements com.vke.api.event.EventBus {
+public class EventBusImpl extends ServiceImpl implements com.vke.api.event.EventBus {
 
     private final HashMap<Class<? extends Event>, List<CallableHandler>> handlers = new HashMap<>();
 
     private final VKEngine engine;
 
-    public EventBus(VKEngine engine) {
-        super(Services.EVENT_BUS);
+    public EventBusImpl(VKEngine engine) {
+        super(Services.EVENT_BUS, engine);
         this.engine = engine;
         engine.EVENT_BUS = this;
+    }
+
+    @Override
+    protected void onInitialize() {
+
     }
 
     @Override
@@ -62,7 +67,7 @@ public class EventBus extends Service implements com.vke.api.event.EventBus {
     }
 
     @Override
-    protected List<String> dependencies() {
+    public List<String> dependencies() {
         return List.of();
     }
 

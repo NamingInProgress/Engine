@@ -1,4 +1,4 @@
-package com.vke.core.assets.manager;
+package com.vke.core.assets.service;
 
 import com.vke.api.assets.*;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -14,15 +14,16 @@ import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
+import java.util.List;
 import java.util.Map;
 
-public class VKEAssetManager implements AssetManager {
+public class AssetManagerScopedImpl implements AssetManager {
     private boolean init;
-    private final VKEAssetManagerService base;
+    private final AssetManagerBaseImpl base;
     private final Context context;
     private AssetPipeline pipeline;
 
-    VKEAssetManager(VKEAssetManagerService base, Context context) {
+    AssetManagerScopedImpl(AssetManagerBaseImpl base, Context context) {
         this.base = base;
         this.context = context;
     }
@@ -33,7 +34,7 @@ public class VKEAssetManager implements AssetManager {
     }
 
     @Override
-    public void initialize() {
+    public void initAssets() {
         if (init) return;
         init = true;
         initPipeline();
@@ -100,5 +101,20 @@ public class VKEAssetManager implements AssetManager {
 
     public void removeLoadCallback(BundleLoadingCallback callback) {
         base.removeLoadCallback(callback);
+    }
+
+    @Override
+    public String getId() {
+        return base.getId();
+    }
+
+    @Override
+    public List<String> dependencies() {
+        return base.dependencies();
+    }
+
+    @Override
+    public void free() {
+
     }
 }

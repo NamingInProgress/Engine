@@ -8,7 +8,7 @@ import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.AssetException;
-import com.vke.core.assets.manager.VKEAssetManager;
+import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.core.services2.Services;
 
 import java.io.IOException;
@@ -23,11 +23,11 @@ public class AssetManagerTest {
         VKEngine engine = new VKEngine(createInfo);
         Context lolCtx = engine.createNewContext("lol");
 
-        VKEAssetManager vkeManager = engine.service(Services.ASSET_MANAGER);
-        VKEAssetManager lolManager = lolCtx.service("asm");
+        AssetManagerScopedImpl vkeManager = engine.service(Services.ASSET_MANAGER);
+        AssetManagerScopedImpl lolManager = lolCtx.service("asm");
 
-        vkeManager.initialize();
-        lolManager.initialize();
+        vkeManager.initAssets();
+        lolManager.initAssets();
 
         BundleExchange exchange = vkeManager.beginExchange();
         exchange.load("scene1");

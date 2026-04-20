@@ -4,7 +4,6 @@ import com.vke.api.logger.Logger;
 import com.vke.api.logger.LoggerOutput;
 import com.vke.api.logger.LogEvent;
 import com.vke.api.logger.LogLevel;
-import com.vke.api.services.Service;
 
 import java.util.List;
 
