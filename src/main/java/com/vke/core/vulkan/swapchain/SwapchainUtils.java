@@ -32,14 +32,16 @@ public class SwapchainUtils {
     }
 
     public static VkExtent2D chooseExtent(VkSurfaceCapabilitiesKHR capabilities, AutoHeapAllocator alloc, long windowHandle) {
-        if (capabilities.currentExtent().width() != Integer.MAX_VALUE) {
+        if (capabilities.currentExtent().width() != -1) {
             return capabilities.currentExtent();
         }
         try(MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
             GLFW.glfwGetFramebufferSize(windowHandle, pWidth, pHeight);
-            return VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
+            VkExtent2D e = VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
+            System.out.println(e);
+            return e;
         }
     }
 

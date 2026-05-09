@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.vertexconsumer;
 
 import com.vke.api.draw.VertexConsumer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;

@@ -57,7 +57,7 @@ public class VulkanTexture implements Texture {
     private void loadImage() {
         // TODO: Fix this for later support for arrays by adding offsets and shit
         VKEngine engine = device.getEngine();
-        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
 
         ByteBuffer bytes = imageData.pixels();
         long imageSize = (long) imageData.width() * imageData.height() * 4;
