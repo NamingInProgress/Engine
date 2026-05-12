@@ -399,7 +399,7 @@ public class ReflectedShader implements Disposable {
             for (SpvcReflectedResource res : resourcesBuffer) {
                 long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.type_id());
                 int baseType = Spvc.spvc_type_get_basetype(typeHandle);
-                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
+                arr[i++] = new SPVCResource(Spvc.spvc_compiler_get_name(compiler, res.id()), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
             }
 
             return arr;

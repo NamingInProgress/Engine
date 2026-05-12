@@ -59,11 +59,13 @@ public class DescriptorSets implements Disposable {
         for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : truth.getDescriptors().entrySet()) {
             for (ReflectedShader.DescriptorResource descriptorResource : entry.getValue()) {
                 switch (descriptorResource.name) {
-                    case "camera" -> frameData.bindings.set(0, BindingLayout.fromDescriptorResource(descriptorResource, entry.getKey(), true));
+                    case "camera" -> {
+                        frameData.bindings.add(0, BindingLayout.fromDescriptorResource(descriptorResource, entry.getKey(), true));
+                    }
                     case "textures" -> {
                         BindingLayout l =  BindingLayout.fromDescriptorResource(descriptorResource, entry.getKey(), false);
                         l.descriptorCount = 4096; //device.capabilities().
-                        bindless.bindings.set(0, l);
+                        bindless.bindings.add(0, l);
                     }
                 }
             }
@@ -76,9 +78,9 @@ public class DescriptorSets implements Disposable {
         DescriptorsInfo info = new DescriptorsInfo();
         info.dynamicBuffers.add("camera");
         info.runtimeSizeArraySizes.put("textures", 4096); //device.capabilities()
-        this.EMPTY = new DescriptorSet(globalSetsAlloc.allocate(EMPTY_LAYOUT), device, context.getEngine(), empty, info);
-        this.FRAME_DATA = new DescriptorSet(globalSetsAlloc.allocate(FRAME_DATA_LAYOUT), device, context.getEngine(), frameData, info);
-        this.BINDLESS = new DescriptorSet(globalSetsAlloc.allocate(BINDLESS_LAYOUT, 4096), device, context.getEngine(), bindless, info);
+        //this.EMPTY = new DescriptorSet(globalSetsAlloc.allocate(EMPTY_LAYOUT), device, context.getEngine(), empty, info);
+        //this.FRAME_DATA = new DescriptorSet(globalSetsAlloc.allocate(FRAME_DATA_LAYOUT), device, context.getEngine(), frameData, info);
+        //this.BINDLESS = new DescriptorSet(globalSetsAlloc.allocate(BINDLESS_LAYOUT, 4096), device, context.getEngine(), bindless, info);
     }
 
     @Override
@@ -87,5 +89,6 @@ public class DescriptorSets implements Disposable {
         this.FRAME_DATA_LAYOUT.free();
         this.BINDLESS_LAYOUT.free();
         this.globalSetsAlloc.free();
+        ShaderDataManager.getInstance().free();
     }
 }

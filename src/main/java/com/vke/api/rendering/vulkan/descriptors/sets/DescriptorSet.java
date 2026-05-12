@@ -13,6 +13,7 @@ import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import org.lwjgl.util.vma.Vma;
 
 import java.util.HashMap;
 

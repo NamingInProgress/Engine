@@ -7,6 +7,7 @@ import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
+import org.lwjgl.util.vma.Vma;
 
 public class ShaderDataManager implements Disposable {
 
@@ -27,7 +28,8 @@ public class ShaderDataManager implements Disposable {
         ShaderDataManager self = getInstance();
         long alignedFrameBufSize = createInfo.minUboAlign == 1 ? createInfo.frameDataBufferSize : Utils.alignUpFast(createInfo.frameDataBufferSize, createInfo.minUboAlign);
 
-        self.FRAME_DATA_BUFFER = new MappedGpuRingBuffer(createInfo.context.getEngine(), createInfo.device, alignedFrameBufSize * MAX_OFFSETS_PER_FRAME, createInfo.framesInFlight, BufferUsage.Bits.UBO.into());
+        self.FRAME_DATA_BUFFER = new MappedGpuRingBuffer(createInfo.context.getEngine(), createInfo.device, alignedFrameBufSize * MAX_OFFSETS_PER_FRAME,
+                createInfo.framesInFlight, BufferUsage.Bits.UBO.into());
         self.textures = new Texture[createInfo.maxTexturesCount];
     }
 

@@ -49,6 +49,8 @@ public class VulkanRenderer extends Service implements Renderer {
 
     private final VulkanFrame immediateFrame;
 
+    private final DescriptorSets engineSets;
+
     private int currentFrameIndex = 0;
 
     // Engine infos
@@ -79,7 +81,7 @@ public class VulkanRenderer extends Service implements Renderer {
         // VKE shader to set default descriptors via reflection instead of hard coding
         try {
             Shader s = device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.glsl"), ShaderType.VERTEX);
-            DescriptorSets sets = new DescriptorSets(context, this, device,
+            engineSets = new DescriptorSets(context, this, device,
                     context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                             .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
             s.free();
@@ -210,6 +212,7 @@ public class VulkanRenderer extends Service implements Renderer {
         Samplers.NEAREST.free();
         Samplers.LINEAR.free();
         // Pipelines get freed by the asset manager
+        engineSets.free();
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
         this.immediateFrame.free();

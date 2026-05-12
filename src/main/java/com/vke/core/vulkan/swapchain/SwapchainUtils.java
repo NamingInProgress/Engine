@@ -32,7 +32,7 @@ public class SwapchainUtils {
     }
 
     public static VkExtent2D chooseExtent(VkSurfaceCapabilitiesKHR capabilities, AutoHeapAllocator alloc, long windowHandle) {
-        if (capabilities.currentExtent().width() != Integer.MAX_VALUE) {
+        if (capabilities.currentExtent().width() != -1) {
             return capabilities.currentExtent();
         }
         try(MemoryStack stack = MemoryStack.stackPush()) {
