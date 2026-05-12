@@ -6,6 +6,9 @@ import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import org.jetbrains.annotations.Nullable;
 
 public class ShapeRendererVertex extends Vertex {
+    public static final ShapeRendererVertex EMPTY = new ShapeRendererVertex(
+            0, 0, 0, 0, 0, 0, 0, 0, 0, null
+    );
 
     private float x, y, z;
     private float r, g, b, a;

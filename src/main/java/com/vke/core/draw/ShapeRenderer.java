@@ -6,41 +6,15 @@ import com.vke.core.rendering.draw.DrawContext;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
-public class ShapeRenderer<T extends Vertex> implements Drawable {
+public class ShapeRenderer<T extends Vertex> extends AbstractStatefulRenderer {
 
-    private static final float[] DEFAULT_UV = { 0,0,1,1 };
+    public static final float[] DEFAULT_UV = { 0,0,1,1 };
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;
-
-    //mutable state
-    private float r,g,b,a;
-    private QuadTexture texture;
-    private Texture t;
-    private float z;
 
     public ShapeRenderer(VertexConsumer<T> consumer, VertexFactory<T> factory) {
         this.consumer = consumer;
         this.factory = factory;
-    }
-
-    public void color(float r, float g, float b, float a) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
-
-    public void texture(@Nullable QuadTexture texture) {
-        this.texture = texture;
-        if (texture != null) {
-            this.t = texture.texture();
-        } else {
-            this.t = null;
-        }
-    }
-    
-    public void z(float z) {
-        this.z = z;
     }
 
     private T v(float x, float y, float z, float u, float v) {

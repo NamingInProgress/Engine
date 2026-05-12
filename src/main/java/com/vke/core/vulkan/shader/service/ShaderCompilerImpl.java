@@ -165,6 +165,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     public void free() {
         dumpCacheToArchive();
         alloc.close();
+        System.out.println("FREE");
         Shaderc.shaderc_compiler_release(compiler);
     }
 

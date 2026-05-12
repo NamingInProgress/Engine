@@ -1,0 +1,7 @@
+<scene>
+    <class name="com.vke.test.ui.SDFRoundRectScene"/>
+    <bundles>
+        <bundle name="main"/>
+        <bundle name="sdfTest"/>
+    </bundles>
+</scene>
