@@ -43,7 +43,7 @@ public class DescriptorSet {
 //                // This is the check I added (incase you couldn't tell)
 //                if (newSizeMaybe > 0 && newSizeMaybe != tl.size) {
 //                    tl.size = newSizeMaybe;
-//                }
+//                }push
 //            }
 
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);

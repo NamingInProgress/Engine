@@ -77,8 +77,8 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
             LongBuffer pHandle = stack.mallocLong(1);
 
-            if (VK14.vkCreateGraphicsPipelines(device.getLogicalDevice().getDevice(),
-                    VK14.VK_NULL_HANDLE, pipelineCreateInfo, null, pHandle) != VK14.VK_SUCCESS) {
+            int r = VK14.vkCreateGraphicsPipelines(device.getLogicalDevice().getDevice(), VK14.VK_NULL_HANDLE, pipelineCreateInfo, null, pHandle);
+            if (r != VK14.VK_SUCCESS) {
                 context.throwException(new IllegalStateException("Couldn't create graphics pipeline"), "GraphicsPipeline@VulkanImpl");
             }
 
