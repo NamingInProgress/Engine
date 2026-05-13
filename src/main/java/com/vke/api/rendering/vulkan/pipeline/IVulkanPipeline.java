@@ -14,6 +14,7 @@ import com.vke.core.Context;
 import com.vke.core.services.Services;
 import com.vke.core.services.shr.ReflectedShader;
 import com.vke.core.services.shr.ShaderReflector;
+import com.vke.core.vulkan.VulkanRenderer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.vulkan.shader.VulkanShader;
@@ -31,7 +32,7 @@ public interface IVulkanPipeline extends Pipeline {
 
     // Info create methods that are shared between compute and render pipelines
     default DescriptorSets createDescriptorSets(Context ctx, VulkanRenderDevice device, DescriptorsInfo additionalDescInfo, ArrayList<ReflectedShader> shaders) {
-        HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
+        HashMap<Integer, DescriptorSetLayout> sets = ctx.<VulkanRenderer>service(Services.VULKAN_RENDERER).getEngineSetsManager().getDefaults(shaders);
 
         for (ReflectedShader shader : shaders) {
             var reflectedDescriptors = shader.getDescriptors();

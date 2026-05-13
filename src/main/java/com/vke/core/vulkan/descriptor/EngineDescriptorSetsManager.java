@@ -15,9 +15,10 @@ import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
-public class DescriptorSets implements Disposable {
+public class EngineDescriptorSetsManager implements Disposable {
 
     public CompiledDescriptorSetLayout EMPTY_LAYOUT;
     public CompiledDescriptorSetLayout FRAME_DATA_LAYOUT;
@@ -29,7 +30,7 @@ public class DescriptorSets implements Disposable {
 
     private final DescriptorAllocator globalSetsAlloc;
 
-    public DescriptorSets(Context context, VulkanRenderer renderer, VulkanRenderDevice device, ReflectedShader truth) {
+    public EngineDescriptorSetsManager(Context context, VulkanRenderer renderer, VulkanRenderDevice device, ReflectedShader truth) {
         this.globalSetsAlloc = new DescriptorAllocator(context.getEngine(), device, ObjectIntHashMap.from(
                 new DescriptorType[]{
                         DescriptorType.UNIFORM_BUFFER_DYNAMIC,
@@ -81,6 +82,12 @@ public class DescriptorSets implements Disposable {
         //this.EMPTY = new DescriptorSet(globalSetsAlloc.allocate(EMPTY_LAYOUT), device, context.getEngine(), empty, info);
         //this.FRAME_DATA = new DescriptorSet(globalSetsAlloc.allocate(FRAME_DATA_LAYOUT), device, context.getEngine(), frameData, info);
         //this.BINDLESS = new DescriptorSet(globalSetsAlloc.allocate(BINDLESS_LAYOUT, 4096), device, context.getEngine(), bindless, info);
+    }
+
+    public HashMap<Integer, DescriptorSetLayout> getDefaults(ArrayList<ReflectedShader> shaders) {
+        HashMap<Integer, DescriptorSetLayout> map = new HashMap<>();
+        map.put(0, EMPTY_LAYOUT.getLayout());
+        map.put(1, EMPTY_LAYOUT.getLayout());
     }
 
     @Override

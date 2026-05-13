@@ -1,7 +1,6 @@
 package com.vke.core.vulkan;
 
 import com.vke.api.app.Framable;
-import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -16,7 +15,7 @@ import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services.Services;
 import com.vke.core.services.shr.ShaderReflector;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
-import com.vke.core.vulkan.descriptor.DescriptorSets;
+import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
@@ -49,7 +48,7 @@ public class VulkanRenderer extends Service implements Renderer {
 
     private final VulkanFrame immediateFrame;
 
-    private final DescriptorSets engineSets;
+    private final EngineDescriptorSetsManager engineSetsManager;
 
     private int currentFrameIndex = 0;
 
@@ -81,7 +80,7 @@ public class VulkanRenderer extends Service implements Renderer {
         // VKE shader to set default descriptors via reflection instead of hard coding
         try {
             Shader s = device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.glsl"), ShaderType.VERTEX);
-            engineSets = new DescriptorSets(context, this, device,
+            engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
                     context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                             .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
             s.free();
@@ -207,12 +206,14 @@ public class VulkanRenderer extends Service implements Renderer {
 
     public int getCurrentFrameIndex() { return this.currentFrameIndex; }
 
+    public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }
+
     @Override
     public void free() {
         Samplers.NEAREST.free();
         Samplers.LINEAR.free();
         // Pipelines get freed by the asset manager
-        engineSets.free();
+        engineSetsManager.free();
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
         this.immediateFrame.free();
