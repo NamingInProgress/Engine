@@ -13,11 +13,11 @@ layout(location=2) out vec2 fuv;
 layout(location=3) out flat int ftex;
 layout(location=4) out flat vec4 fclip;
 
-layout(set = 1, binding = 0, std430) readonly buffer TransformBuffer {
+layout(set = 0, binding = 0, std430) readonly buffer TransformBuffer {
     mat4 matrices[2048];
 } Transform;
 
-layout(set = 2, binding = 0, std430) readonly buffer ClipBuffer {
+layout(set = 1, binding = 0, std430) readonly buffer ClipBuffer {
     vec4 rects[2048*4];
 } Clip;
 

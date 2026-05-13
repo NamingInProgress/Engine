@@ -48,6 +48,10 @@ public interface IVulkanPipeline extends Pipeline {
             for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
+                    descriptor.set = resource.set;
+                    if (resource.name.equals("TransformBuffer") || resource.name.equals("ClipBuffer")) {
+                        System.out.println("Something");
+                    }
 
                     BindingLayout binding = new BindingLayout();
                     binding.name = resource.name;

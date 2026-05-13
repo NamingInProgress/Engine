@@ -73,8 +73,10 @@ public class GeneralRenderPass {
     }
 
     public void draw(DrawContext context) {
+        context.getCommandBuffer().bindPipeline(PL);
         context.getCommandBuffer().setPushConstants(PL);
-        pipeline.updateUniforms(uh_clip, uh_transform);
+        context.getCommandBuffer().bindDescriptorSets(PL);
+
         consumer.draw(context);
     }
 

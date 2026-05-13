@@ -10,7 +10,7 @@ layout(location=4) in flat vec4 fclip;
 
 layout(location=0) out vec4 outColor;
 
-layout(set=1,binding=0) uniform sampler2D textures[];
+//layout(set=1,binding=0) uniform sampler2D textures[];
 
 bool outsideRect(vec4 rect, vec2 pt) {
     return pt.x < rect.x && pt.y < rect.y && pt.x > rect.x + rect.z && pt.y > rect.y + rect.w;
@@ -24,7 +24,7 @@ void main() {
     vec4 col;
 
     if (ftex >= 0) {
-        col = mix(texture(textures[nonuniformEXT(ftex)], vec2(fuv.x, 1.0 - fuv.y)), fcolor, 0.5);
+        //col = mix(texture(textures[nonuniformEXT(ftex)], vec2(fuv.x, 1.0 - fuv.y)), fcolor, 0.5);
     } else {
         col = fcolor;
     }

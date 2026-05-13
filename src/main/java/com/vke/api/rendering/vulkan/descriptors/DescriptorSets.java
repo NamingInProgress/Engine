@@ -76,7 +76,7 @@ public class DescriptorSets implements Disposable {
         for (int i = 0; i < compiledLayouts.size(); i++) {
             DescriptorSet[] fifds = new  DescriptorSet[renderer.getFramesInFlight()];
             for (int j = 0; j < renderer.getFramesInFlight(); j++) {
-                fifds[j] = new DescriptorSet(allocator.allocate(compiledLayouts.get(i % renderer.getFramesInFlight())), device, engine, layouts.get(i % renderer.getFramesInFlight()), additionalInfo);
+                fifds[j] = new DescriptorSet(allocator.allocate(compiledLayouts.get(i)), device, engine, layouts.get(i), additionalInfo);
             }
             sets.add(fifds);
         }

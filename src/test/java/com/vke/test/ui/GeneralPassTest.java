@@ -26,7 +26,7 @@ public class GeneralPassTest extends Scene {
 
     public static void main(String[] args) throws InterruptedException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         createInfo.vulkanCreateInfo.framesInFlight = 1;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("UI GP test");

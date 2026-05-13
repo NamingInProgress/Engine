@@ -13,6 +13,7 @@ import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import org.lwjgl.util.vma.Vma;
 
 import java.util.HashMap;
 
@@ -110,7 +111,7 @@ public class DescriptorSet {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
                 BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
-                MappedBuffer buffer = new MappedBuffer(engine, device, layout.typeLayout.size * layout.descriptorCount, usage);
+                MappedBuffer buffer = new MappedBuffer(engine, device, layout.typeLayout.size * layout.descriptorCount, usage, Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT | Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
                 yield new BufferBinding(layout, buffer, layout.typeLayout.size, layout.packingType);
             }
             case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerBinding(layout);
