@@ -3,11 +3,13 @@ package com.vke.api.rendering.vulkan.pipeline;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.api.rendering.vulkan.descriptors.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
+import com.vke.api.rendering.vulkan.descriptors.types.PrimitiveType;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
@@ -55,7 +57,18 @@ public interface IVulkanPipeline extends Pipeline {
                     binding.isDynamic = additionalDescInfo.dynamicBuffers.contains(resource.name);
                     binding.type = DescriptorType.fromBaseType(entry.getKey(), binding.isDynamic);
 
-                    binding.typeLayout = resource.struct;
+                    if (resource.struct == null) {
+                        try {
+                            PrimitiveType primitiveType = new PrimitiveType();
+                            primitiveType.scalarType = BaseType.fromPipelineBaseType(resource.baseType);
+                            primitiveType.vecSize = resource.vecSize;
+                            primitiveType.size = resource.baseType.byteSize() * primitiveType.vecSize;
+                            binding.typeLayout = primitiveType;
+                        } catch (RuntimeException ignore) {}
+                    } else {
+                        binding.typeLayout = resource.struct;
+                    }
+                    System.out.println("this could be null and if its null we are fucked: " + binding.typeLayout);
                     binding.packingType = PackingType.fromDescriptorType(binding.type);
 
                     descriptor.bindings.add(binding);

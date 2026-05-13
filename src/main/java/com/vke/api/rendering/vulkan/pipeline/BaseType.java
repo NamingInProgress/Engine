@@ -4,26 +4,32 @@ import com.vke.api.rendering.abstraction.enums.texture.Format;
 import org.lwjgl.util.spvc.Spvc;
 
 public enum BaseType {
-    Void,
-    Boolean,
-    F16,
-    F32,
-    F64,
-    I8,
-    I16,
-    I32,
-    I64,
-    U8,
-    U16,
-    U32,
-    U64,
-    Struct,
-    Image,
-    Sampler,
-    SampledImage,
-    AccelerationStructure,
-    AtomicCounter,
-    Unknown;
+    Void(0),
+    Boolean(1),
+    F16(2),
+    F32(4),
+    F64(8),
+    I8(1),
+    I16(2),
+    I32(4),
+    I64(8),
+    U8(1),
+    U16(2),
+    U32(4),
+    U64(8),
+    Struct(0),
+    Image(0),
+    Sampler(0),
+    SampledImage(0),
+    AccelerationStructure(0),
+    AtomicCounter(0),
+    Unknown(0);
+
+    private final int byteSize;
+
+    BaseType(int i) {
+        this.byteSize = i;
+    }
 
     public static BaseType fromSpvc(int baseType) {
         return switch (baseType) {
@@ -50,4 +56,7 @@ public enum BaseType {
         };
     }
 
+    public long byteSize() {
+        return byteSize;
+    }
 }

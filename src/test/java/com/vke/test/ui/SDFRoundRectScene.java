@@ -1,6 +1,5 @@
 package com.vke.test.ui;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.scene.Scene;
@@ -26,9 +25,9 @@ public class SDFRoundRectScene extends Scene {
     @Override
     public void onDraw(DrawContext ctx) {
         rrr.beginFrame(ctx);
-
         //rrr.color(1, 0, 0, 1);
         rrr.texture(tex.assume(context));
+
         double radiusX = Math.sin((double) System.currentTimeMillis() / 1000);
         radiusX = (radiusX + 1) / 2;
         radiusX *= 100;

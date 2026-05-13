@@ -1,0 +1,7 @@
+<scene>
+    <class name="com.vke.test.ui.GeneralPassTest"/>
+    <bundles>
+        <bundle name="main"/>
+        <bundle name="ui-core"/>
+    </bundles>
+</scene>

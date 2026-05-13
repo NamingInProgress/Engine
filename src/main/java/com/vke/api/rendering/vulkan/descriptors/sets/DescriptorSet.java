@@ -34,11 +34,17 @@ public class DescriptorSet {
         layout.bindings.forEach(bindingLayout -> {
             if (additionalInfo.dynamicBuffers.contains(bindingLayout.name)) bindingLayout.isDynamic = true;
 
-            TypeLayout tl = bindingLayout.typeLayout;
-            if (tl != null) {
-                resolveRuntimeArraySizes(tl, additionalInfo.runtimeSizeArraySizes);
-                tl.size = recomputeSize(tl);
-            }
+            // Nevermind this is so dogshit it STILL sets the size to 0
+//            // TODO: This does NOT work (it sets size to 0), see the check i added
+//            TypeLayout tl = bindingLayout.typeLayout;
+//            if (tl != null) {
+//                resolveRuntimeArraySizes(tl, additionalInfo.runtimeSizeArraySizes);
+//                long newSizeMaybe = recomputeSize(tl);
+//                // This is the check I added (incase you couldn't tell)
+//                if (newSizeMaybe > 0 && newSizeMaybe != tl.size) {
+//                    tl.size = newSizeMaybe;
+//                }
+//            }
 
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
             bindings.put(bindingLayout.name, binding);

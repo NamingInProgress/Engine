@@ -83,6 +83,9 @@ public class ReflectedShader implements Disposable {
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     res.struct = generateStruct(resource, pSize.get(0));
                     res.size = (int) pSize.get(0);
+                    if (res.size < res.struct.size) {
+                        res.size = (int) res.struct.size;
+                    }
                 }
             } else {
                 LoggerFactory.get("SPIR-V Reflect").error("Found PushConstants block that is not a struct");
@@ -116,10 +119,12 @@ public class ReflectedShader implements Disposable {
                     long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     descriptorResource.struct = generateStruct(resource, pSize.get(0));
+                    System.out.println("Debug debug debug: " + descriptorResource.struct.size);
                 }
             }
             descriptorResource.baseTypeRaw = resource.baseType;
             descriptorResource.baseType = BaseType.fromSpvc(resource.baseType);
+            descriptorResource.vecSize = Spvc.spvc_type_get_vector_size(resource.typeHandle);
 
             descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.typeHandle);
             descriptorResource.arrayDim = new int[descriptorResource.nArrayDim];
@@ -168,6 +173,7 @@ public class ReflectedShader implements Disposable {
     }
 
     private StructType generateStruct(SPVCResource resource, long size) {
+        System.out.println("Initial size: " + size);
         StructType s = new StructType();
         s.name = resource.name;
         s.size = size;
@@ -195,6 +201,7 @@ public class ReflectedShader implements Disposable {
                 members[i] = member;
             }
 
+            long outerSize = 0;
             for (int i = 0; i < memberCount; i++) {
                 long expectedSize;
                 if (i + 1 < memberCount) {
@@ -205,8 +212,20 @@ public class ReflectedShader implements Disposable {
 
                 discoverMemberWithPotentiallyComplexType(members[i], expectedSize);
                 s.members.put(members[i].name, populateMember(members[i]));
+
+                if (i + 1 >= memberCount) {
+                    outerSize = members[i].offset + members[i].size;
+                    System.out.println("Setting outer size " + outerSize);
+                }
+            }
+
+            System.out.println("Debug: " + outerSize + " " + s.size);
+            if (outerSize > s.size) {
+                s.size = outerSize;
             }
         }
+
+        System.out.println("done");
 
         return s;
     }
@@ -311,10 +330,10 @@ public class ReflectedShader implements Disposable {
 
             IntBuffer buf = stack.callocInt(1);
 
-            if (member.matrixRows > 1 || member.matrixColumns > 1) {
-                Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
-                member.matrixStride = buf.get(0);
-            }
+//            if (member.matrixRows > 1 && member.matrixColumns > 1) {
+//                Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
+//                member.matrixStride = buf.get(0);
+//            }
 
             if (member.nArrayDim != 0) {
                 Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.typeHandle, member.idx, buf);
@@ -471,6 +490,7 @@ public class ReflectedShader implements Disposable {
         public StructType struct;
         public int baseTypeRaw;
         public BaseType baseType;
+        public int vecSize;
 
     }
 

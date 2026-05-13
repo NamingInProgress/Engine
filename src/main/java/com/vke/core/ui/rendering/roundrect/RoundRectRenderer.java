@@ -20,7 +20,7 @@ import org.joml.Matrix4f;
 
 public class RoundRectRenderer extends AbstractStatefulRenderer implements Disposable {
     private final VertexConsumer<RoundRectVertex> vertexConsumer;
-    private final LazyAssetHandle<RenderPipeline> PL = R.pipelines.get("roundrect.pipeline.json");
+    private final LazyAssetHandle<RenderPipeline> PL = R.pipelines.get("uicore-roundrect.pipeline.json");
     private final VulkanRenderPipeline pipeline;
     private final PushConstantHandle world, translation;
 
