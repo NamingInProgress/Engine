@@ -9,6 +9,7 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -49,9 +50,9 @@ public class ShaderReflectorImpl extends ServiceImpl implements ShaderReflector 
     }
 
     @Override
-    public ReflectedShader reflect(long id, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
+    public ReflectedShader reflect(long id, Identifier ident, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         if (CACHE.containsKey(id)) return CACHE.get(id);
-        ReflectedShader s = new ReflectedShader(spvcContext, spirv, shaderType, metadata);
+        ReflectedShader s = new ReflectedShader(ident, spvcContext, spirv, shaderType, metadata);
         CACHE.put(id, s);
         return s;
     }

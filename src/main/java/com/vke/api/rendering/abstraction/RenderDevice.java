@@ -29,7 +29,7 @@ public interface RenderDevice extends Disposable {
     Buffer createBuffer(Buffer.Description info);
     Texture createTexture(Pixels pixels, Texture.TextureDesc info);
     Sampler createSampler(Sampler.Description info);
-    Shader createShader(Identifier identifier, ShaderType type, ShaderPreprocessor.ShaderMetadata metadata) throws IOException;
+    Shader createShader(Identifier identifier, ShaderType type) throws IOException;
 
     /** PIPELINE **/
     RenderPipeline createRenderPipeline(RenderPipelineData data);

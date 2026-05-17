@@ -7,6 +7,7 @@ import com.vke.api.rendering.vulkan.descriptors.types.*;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.spvc.Spv;
@@ -26,14 +27,16 @@ public class ReflectedShader implements Disposable {
     private final long compiler;
     private final ShaderType shaderType;
     private final ShaderPreprocessor.ShaderMetadata metadata;
+    public final Identifier shaderPath;
 
     private final HashMap<ResourceType, ArrayList<? extends Resource>> resources = new HashMap<>();
 
-    public ReflectedShader(long context, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
+    public ReflectedShader(Identifier shaderPath, long context, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         this.spv = spirv;
         this.context = context;
         this.shaderType = shaderType;
         this.metadata = metadata;
+        this.shaderPath = shaderPath;
 
         IntBuffer iSpirv = spirv.asIntBuffer();
 

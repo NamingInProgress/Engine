@@ -51,7 +51,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     private VulkanFrame immediateFrame;
 
-    private final EngineDescriptorSetsManager engineSetsManager;
+    private EngineDescriptorSetsManager engineSetsManager;
 
     private int currentFrameIndex = 0;
 
@@ -85,16 +85,12 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         Samplers.init(device);
 
         // VKE shader to set default descriptors via reflection instead of hard coding
-        try {
-            var temp = R.shaders.get("shaders/vke_sets.vsh");
-            Shader s = temp.acquire(context);    //device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.vsh"), ShaderType.VERTEX);
-            engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
-                    context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
-                            .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
-            s.free();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        var temp = R.shaders.get("shaders/vke_sets.vsh");
+        Shader s = temp.assume(context);    //device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.vsh"), ShaderType.VERTEX);
+        engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
+                context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
+                        .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
+        s.free();
     }
 
     public FrameData startFrame(Window window, Framable f) {

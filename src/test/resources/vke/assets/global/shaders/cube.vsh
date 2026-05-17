@@ -3,6 +3,15 @@
 
 layout (location = 0) out vec4 outColor;
 
+#MultipleWrites(100)
+layout (set = 0, binding = 0) uniform Camera {
+    mat4 proj;
+    mat4 view;
+} camera;
+
+layout (set = 1, binding = 0) uniform sampler2D textures[];
+
+
 struct Vertex {
     vec3 position;
     float pad0;

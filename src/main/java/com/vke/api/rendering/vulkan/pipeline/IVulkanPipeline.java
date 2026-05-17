@@ -4,7 +4,6 @@ import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
@@ -13,9 +12,9 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRendererAPI;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
-import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.vulkan.shader.VulkanShader;
@@ -33,16 +32,10 @@ public interface IVulkanPipeline extends Pipeline {
 
     // Info create methods that are shared between compute and render pipelines
     default DescriptorSets createDescriptorSets(Context ctx, VulkanRenderDevice device, DescriptorsInfo additionalDescInfo, ArrayList<ReflectedShader> shaders) {
-        HashMap<Integer, DescriptorSetLayout> sets = ctx.<VulkanRenderer>service(Services.VULKAN_RENDERER).getEngineSetsManager().getDefaults(shaders);
+        HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
         for (ReflectedShader shader : shaders) {
             var reflectedDescriptors = shader.getDescriptors();
-
-            for (ArrayList<ReflectedShader.DescriptorResource> value : reflectedDescriptors.values()) {
-                for (ReflectedShader.DescriptorResource resource : value) {
-                    if (!sets.containsKey(resource.set)) sets.put(resource.set, new DescriptorSetLayout());
-                }
-            }
 
             for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
@@ -54,6 +47,28 @@ public interface IVulkanPipeline extends Pipeline {
                 }
             }
         }
+
+        ArrayList<Integer> mismatchedSets = new ArrayList<>();
+        var mgr = ctx.<VulkanRendererAPI>service(Services.VULKAN_RENDERER).<VulkanRenderer>assumeImplementation().getEngineSetsManager();
+        var engineSets = mgr.getDefaults();
+        for (Map.Entry<Integer, DescriptorSetLayout> integerDescriptorSetLayoutEntry : engineSets.entrySet()) {
+            if (!integerDescriptorSetLayoutEntry.getValue().equals(sets.get(integerDescriptorSetLayoutEntry.getKey()))) {
+                mismatchedSets.add(integerDescriptorSetLayoutEntry.getKey());
+            }
+        }
+
+        if (!mismatchedSets.isEmpty()) {
+            StringBuilder shaderNames = new StringBuilder("[ ");
+            for (int i = 0; i < shaders.size(); i++) {
+                ReflectedShader sh = shaders.get(i);
+                shaderNames.append(sh.shaderPath.toString());
+                if (i != shaders.size() - 1) shaderNames.append(", ");
+            }
+            shaderNames.append(" ]");
+            throw new IllegalStateException("Mismatched sets! Engine reserved: " + Utils.arrayToString(mgr.usedSets) + ", Mismatched: " + Utils.arrayToString(mismatchedSets.toArray(new Integer[0])) + "\nPossible shaders: " + shaderNames);
+        }
+
+        sets.putAll(engineSets);
 
         return new DescriptorSets(ctx.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), additionalDescInfo);
     }

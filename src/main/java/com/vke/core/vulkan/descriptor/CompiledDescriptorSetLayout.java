@@ -40,9 +40,8 @@ public class CompiledDescriptorSetLayout implements Disposable {
             if (layout.bindings != null && !layout.bindings.isEmpty()) {
                 buf = VkDescriptorSetLayoutBinding.calloc(layout.bindings.size(), stack);
 
-                for (int i = 0; i < layout.bindings.size(); i++) {
-                    BindingLayout binding = layout.bindings.get(i);
-                    buf.get(i)
+                for (BindingLayout binding : layout.bindings) {
+                    buf.get(binding.binding)
                             .binding(binding.binding)
                             .descriptorCount(binding.descriptorCount)
                             .descriptorType(binding.type.getVkHandle())

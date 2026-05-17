@@ -48,8 +48,8 @@ public class MainScene extends Scene {
     private VulkanComputePipeline computePipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
     private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
-    private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
-    private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
+    //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
+    //private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
 
     private ImageHandle compute_image;
 
@@ -92,8 +92,8 @@ public class MainScene extends Scene {
 
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
-        computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
-        fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
+        //computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
+        //fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
         
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");

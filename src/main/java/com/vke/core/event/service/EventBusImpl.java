@@ -7,7 +7,7 @@ import com.vke.api.event.SubscribeEvent;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
-import com.vke.core.vulkan.utils.ReflectUtils;
+import com.vke.utils.ReflectUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

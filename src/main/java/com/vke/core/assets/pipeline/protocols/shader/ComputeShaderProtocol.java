@@ -48,7 +48,7 @@ public class ComputeShaderProtocol implements AssetProtocol<Shader> {
             RenderDevice device = renderer.getDevice();
 
             return Utils.chainExceptions(() ->
-                    new AssetData(Protocols.COMPSHADER, device.createShader(identifier, ShaderType.COMPUTE, ShaderPreprocessor.getInstance().process(identifier)))
+                    new AssetData(Protocols.COMPSHADER, device.createShader(identifier, ShaderType.COMPUTE))
             );
         }
     }

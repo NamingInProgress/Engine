@@ -89,6 +89,21 @@ public class Utils {
         }
     }
 
+    public static String arrayToString(Integer[] array) {
+        StringBuilder sb = new StringBuilder("[ ");
+
+        for (int i = 0; i < array.length; i++) {
+            sb.append(array[i]);
+
+            if (i < array.length - 1) {
+                sb.append(", ");
+            }
+        }
+
+        sb.append(" ]");
+        return sb.toString();
+    }
+
     public static OSType getOSType() {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) return OSType.WIN;
