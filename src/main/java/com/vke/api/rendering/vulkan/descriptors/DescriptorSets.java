@@ -12,8 +12,8 @@ import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorAllocator;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
@@ -56,7 +56,7 @@ public class DescriptorSets implements Disposable {
     public DescriptorSets(VKEngine engine, VulkanRenderDevice device, ArrayList<DescriptorSetLayout> layouts, DescriptorsInfo additionalInfo) {
         this.engine = engine;
         this.device = device;
-        this.renderer = engine.service(Services.VULKAN_RENDERER);
+        this.renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
         this.writer = new DescriptorWriter(device);
 
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();

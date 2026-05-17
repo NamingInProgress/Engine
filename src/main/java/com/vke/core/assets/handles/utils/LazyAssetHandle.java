@@ -1,11 +1,10 @@
 package com.vke.core.assets.handles.utils;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetManager;
+import com.vke.core.assets.service.AssetManager;
 import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;

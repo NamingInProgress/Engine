@@ -88,18 +88,17 @@ public class LogicalDevice implements Disposable {
             engine.throwException(new IllegalStateException("Unable to find suitable present queue!"), HERE);
         }
 
-        VkDeviceQueueCreateInfo.Buffer buf = VkDeviceQueueCreateInfo.calloc(
-                (int) Utils.fromSpliterator(queueIndices.spliterator()).filter(c -> c.key != QueueType.PRESENT).count(), stack);
-        int bufferIndex = 0;
+        int[] uniqueIndices = Arrays.stream(queueIndices.values().toArray())
+                .distinct()
+                .toArray();
 
-        for (var entry : queueIndices) {
-            if (entry.key == QueueType.PRESENT) {
-                continue;
-            }
-            FloatBuffer priorities = stack.floats(0.5f);
+        VkDeviceQueueCreateInfo.Buffer queueCreateInfoBuffer = VkDeviceQueueCreateInfo.calloc(uniqueIndices.length, stack);
 
-            buf.get(bufferIndex++).sType$Default()
-                    .queueFamilyIndex(entry.value)
+        for (int i = 0; i < uniqueIndices.length; i++) {
+            FloatBuffer priorities = stack.floats(1.0f);
+            queueCreateInfoBuffer.get(i)
+                    .sType$Default()
+                    .queueFamilyIndex(uniqueIndices[i])
                     .pQueuePriorities(priorities);
         }
 
@@ -134,7 +133,7 @@ public class LogicalDevice implements Disposable {
                 .pNext(chain.get().address())
                 .pEnabledFeatures(deviceFeatures)
                 .ppEnabledExtensionNames(extBuf)
-                .pQueueCreateInfos(buf);
+                .pQueueCreateInfos(queueCreateInfoBuffer);
 
         PointerBuffer pLogicalDevice = stack.mallocPointer(1);
         if (VK14.vkCreateDevice(physicalDevice.getDevice(), createInfo, null, pLogicalDevice) != VK14.VK_SUCCESS) {

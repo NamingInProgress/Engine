@@ -5,6 +5,7 @@ import com.vke.api.annotation.MethodReference;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.draw.Drawable;
 import com.vke.api.draw.Vertex;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
@@ -12,10 +13,11 @@ import com.vke.api.rendering.vulkan.descriptors.handles.array.CombinedImageSampl
 import com.vke.core.Context;
 import com.vke.core.mesh.Mesh;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.descriptor.dynamicalloc.DynamicDescriptorAllocator;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.core.vulkan.service.VulkanRendererAPI;
 import com.vke.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 

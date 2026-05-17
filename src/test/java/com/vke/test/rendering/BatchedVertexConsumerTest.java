@@ -12,7 +12,7 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.vertexconsumer.BatchedVKVertexConsumer;
 import com.vke.utils.io.Identifier;
@@ -42,7 +42,7 @@ public class BatchedVertexConsumerTest extends Scene {
         proj = pipeline.resolvePushConstant("world");
         transform = pipeline.resolvePushConstant("translation");
 
-        this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER),
+        this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
                 new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null), PL, "textures");
         this.shapeRenderer = new ShapeRenderer<>(consumer, VertexFactory.DEFAULT);
 

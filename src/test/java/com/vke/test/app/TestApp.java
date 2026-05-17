@@ -9,18 +9,15 @@ import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamp
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.manager.VKEAssetManager;
+import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
-import com.vke.core.vulkan.Scissor;
-import com.vke.core.vulkan.Viewport;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
+import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.window.Window;
 import com.vke.core.profiler.AppTimer;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -112,8 +109,8 @@ public class TestApp extends App {
         timer = new AppTimer();
 
         VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-        VKEAssetManager assetManager = engine.service(Services.ASSET_MANAGER);
-        assetManager.initialize();
+        AssetManagerScopedImpl assetManager = engine.service(Services.ASSET_MANAGER);
+        assetManager.initAssets();
 
         try {
             //scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);

@@ -2,15 +2,12 @@ package com.vke.test.deFUCKINGflate;
 
 import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.core.file.deflate.compress.DeflatingDevice;
-import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.InflatingDevice;
-import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.deflate.exc.InflatingException;
-import com.vke.core.profiler.Profiler;
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.profiler.ProfilerPrinter;
 import com.vke.utils.Colors;
 import com.vke.utils.io.Identifier;
-import com.vke.utils.iter.Iter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +16,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class FixedBlockTest {
     public static void main(String[] args) throws IOException, InflatingException, InterruptedException {
@@ -44,7 +40,7 @@ public class FixedBlockTest {
         ByteArrayInputStream bai = new ByteArrayInputStream(output);
         InflatingDevice inflater = new InflatingDevice(null, bai);
 
-        Profiler profiler = new Profiler();
+        ProfilerImpl profiler = new ProfilerImpl(null);
         profiler.beginFrame();
 
         profiler.begin("old", Colors.RED);

@@ -1,12 +1,12 @@
 package com.vke.test.asset;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.AssetManager;
+import com.vke.core.assets.service.AssetManager;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.PipelineContext;
-import com.vke.core.services.Services;
+import com.vke.core.services2.Services;
 
 import java.io.IOException;
 
@@ -20,7 +20,7 @@ public class AssetProcessorTest {
         AssetManager manager = engine.service(Services.ASSET_MANAGER);
         PipelineContext context = manager.getPipelineContext();
         context.registerProcessor(new HelloWorldProcessor());
-        manager.initialize();
+        manager.initAssets();
 
         AssetHandle<String> testHandle = manager.getAsset("test_processed.txt");
         String data = testHandle.acquire(engine);

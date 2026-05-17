@@ -1,21 +1,22 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
+import com.vke.api.app.Framable;
 import com.vke.api.app.Version;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
-import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.ServiceManager;
-import com.vke.core.profiler.DummyProfiler;
-import com.vke.core.profiler.Profiler;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.services.Services;
+import com.vke.core.services2.ServiceManager;
+import com.vke.core.profiler.DummyProfilerImpl;
+import com.vke.core.profiler.service.ProfilerImpl;
+import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
@@ -29,7 +30,7 @@ public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
-    public static Profiler profiler;
+    public static ProfilerImpl profiler;
 
     private final Logger soutLogger;
 
@@ -42,8 +43,11 @@ public class VKEngine extends Context {
 
     private final List<String> namespaces;
 
+    private final Framable.Glossary framables;
+
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
+
 
         if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
 
@@ -53,18 +57,21 @@ public class VKEngine extends Context {
         }};
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
 
-        ServiceCreateContext scc = new ServiceCreateContext(this, createInfo);
-        this.serviceManager = new ServiceManager(scc);
+        this.serviceManager = new ServiceManager(this);
+        Services.init(serviceManager, this);
 
         SOUT.redirect(soutLogger);
 
-        profiler = new DummyProfiler();
+        profiler = new DummyProfilerImpl();
         EVENT_BUS = service(Services.EVENT_BUS);
+
+        this.framables = new Framable.Glossary();
 
         registerSerializers();
     }
 
     public void start(App app) {
+        this.framables.addEntry(app);
         this.window = new Window(this, createInfo.windowCreateInfo);
 
         this.app = app;
@@ -75,7 +82,7 @@ public class VKEngine extends Context {
         app.onInit(this);
         EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
-        VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
+        VulkanRenderer renderer = service(Services.VULKAN_RENDERER).assumeImplementation();
 
         this.window.show();
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
@@ -84,17 +91,17 @@ public class VKEngine extends Context {
                 profiler.begin("Render", AnsiColors.RED);
                 profiler.push();
                 profiler.begin("Frame Setup");
-                app.preFrame();
-                VulkanRenderer.FrameData bfd = renderer.startFrame(window, app);
+                framables.preFrame();
+                VulkanRenderer.FrameData bfd = renderer.startFrame(window, framables);
                 profiler.end();
                 profiler.pop();
                 if (bfd != null) {
                     profiler.begin("App Draw", AnsiColors.GREEN);
-                    app.onDraw(bfd.context());
+                    framables.onDraw(bfd.context());
                     profiler.end();
                     profiler.begin("Frame End");
-                    renderer.endFrame(bfd, app);
-                    app.postFrame();
+                    renderer.endFrame(bfd, framables);
+                    framables.postFrame();
                     profiler.end();
                 }
                 profiler.end();
@@ -105,7 +112,7 @@ public class VKEngine extends Context {
         }
 
         // TODO: Fix me
-        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).getDevice().waitIdle();
+        ((Renderer) this.service(Services.VULKAN_RENDERER)).getDevice().waitIdle();
         free();
     }
 
@@ -164,5 +171,17 @@ public class VKEngine extends Context {
 
     private void registerSerializers() {
         MeshPrefab.registerSerializers();
+    }
+
+    public void registerFramable(Framable f) {
+        this.framables.addEntry(f);
+    }
+
+    public void removeFramable(Framable f) {
+        this.framables.removeEntry(f);
+    }
+
+    public EngineCreateInfo getCreateInfo() {
+        return createInfo;
     }
 }
