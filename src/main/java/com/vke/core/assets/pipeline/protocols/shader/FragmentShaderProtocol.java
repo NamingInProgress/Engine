@@ -48,7 +48,7 @@ public class FragmentShaderProtocol implements AssetProtocol<Shader> {
             RenderDevice device = renderer.getDevice();
 
             return Utils.chainExceptions(() ->
-                    new AssetData(Protocols.FRAGSHADER, device.createShader(identifier, ShaderType.FRAGMENT))
+                    new AssetData(Protocols.FRAGSHADER, device.createShader(identifier, ShaderType.FRAGMENT, ShaderPreprocessor.getInstance().process(identifier)))
             );
         }
     }

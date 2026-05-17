@@ -17,6 +17,7 @@ import com.vke.api.logger.Logger;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
@@ -236,7 +237,7 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
+    public VulkanShader createShader(Identifier identifier, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) throws IOException {
         byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
 
         try {
@@ -247,7 +248,7 @@ public class VulkanRenderDevice implements RenderDevice {
             logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
-            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv, shaderType);
+            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv, shaderType, metadata);
 
             return shader;
         } catch (Exception e) {

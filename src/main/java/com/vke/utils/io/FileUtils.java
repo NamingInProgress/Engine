@@ -12,7 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -73,15 +75,26 @@ public class FileUtils {
 
     public static Iter<WalkedFile> getRelativePaths(String folder, int maxDepth) {
         try {
-            URL url = ClassLoader.getSystemResource(folder);
-            if (url == null)
-                return Iter.of();
+            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(folder);
 
-            return switch (url.getProtocol()) {
-                case "file" -> listFromFileSystem(url, maxDepth);
-                case "jar"  -> listFromJar(url, maxDepth);
-                default     -> Iter.of();
-            };
+            if (!urls.hasMoreElements()) {
+                return Iter.of();
+            }
+
+            List<Iter<WalkedFile>> iters = new ArrayList<>();
+
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                Iter<WalkedFile> currentIter = switch (url.getProtocol()) {
+                    case "file" -> listFromFileSystem(url, maxDepth);
+                    case "jar"  -> listFromJar(url, maxDepth);
+                    default     -> Iter.of();
+                };
+                iters.add(currentIter);
+            }
+
+            return Iter.of(iters).flatMap(it -> it);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -4,6 +4,7 @@ import com.vke.api.logger.Logger;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.services.Service;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.services.Services;
 import com.vke.utils.io.Disposable;
@@ -44,9 +45,9 @@ public class ShaderReflector extends Service {
         }
     }
 
-    public ReflectedShader reflect(long id, ByteBuffer spirv, ShaderType shaderType) {
+    public ReflectedShader reflect(long id, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         if (CACHE.containsKey(id)) return CACHE.get(id);
-        ReflectedShader s = new ReflectedShader(spvcContext, spirv, shaderType);
+        ReflectedShader s = new ReflectedShader(spvcContext, spirv, shaderType, metadata);
         CACHE.put(id, s);
         return s;
     }

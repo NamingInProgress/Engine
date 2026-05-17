@@ -1,6 +1,7 @@
 package com.vke.core.vulkan;
 
 import com.vke.api.app.Framable;
+import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -79,7 +80,8 @@ public class VulkanRenderer extends Service implements Renderer {
 
         // VKE shader to set default descriptors via reflection instead of hard coding
         try {
-            Shader s = device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.glsl"), ShaderType.VERTEX);
+            var temp = R.shaders.get("shaders/vke_sets.vsh");
+            Shader s = temp.acquire(context);    //device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.vsh"), ShaderType.VERTEX);
             engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
                     context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                             .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));

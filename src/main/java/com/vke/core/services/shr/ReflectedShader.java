@@ -4,6 +4,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.vulkan.descriptors.PrimitiveBaseType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
@@ -24,13 +25,15 @@ public class ReflectedShader implements Disposable {
     private final long context;
     private final long compiler;
     private final ShaderType shaderType;
+    private final ShaderPreprocessor.ShaderMetadata metadata;
 
     private final HashMap<ResourceType, ArrayList<? extends Resource>> resources = new HashMap<>();
 
-    public ReflectedShader(long context, ByteBuffer spirv, ShaderType shaderType) {
+    public ReflectedShader(long context, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         this.spv = spirv;
         this.context = context;
         this.shaderType = shaderType;
+        this.metadata = metadata;
 
         IntBuffer iSpirv = spirv.asIntBuffer();
 
@@ -48,6 +51,10 @@ public class ReflectedShader implements Disposable {
 
     public ShaderType getShaderType() {
         return shaderType;
+    }
+
+    public ShaderPreprocessor.ShaderMetadata getMetadata() {
+        return metadata;
     }
 
     @SuppressWarnings("unchecked")

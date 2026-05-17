@@ -48,7 +48,7 @@ public class VertexShaderProtocol implements AssetProtocol<Shader> {
             RenderDevice device = renderer.getDevice();
 
             return Utils.chainExceptions(() ->
-                    new AssetData(Protocols.VERTSHADER, device.createShader(identifier, ShaderType.VERTEX))
+                    new AssetData(Protocols.VERTSHADER, device.createShader(identifier, ShaderType.VERTEX, ShaderPreprocessor.getInstance().process(identifier)))
             );
         }
     }

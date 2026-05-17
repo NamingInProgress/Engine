@@ -13,6 +13,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.png.Pixels;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
@@ -28,7 +29,7 @@ public interface RenderDevice extends Disposable {
     Buffer createBuffer(Buffer.Description info);
     Texture createTexture(Pixels pixels, Texture.TextureDesc info);
     Sampler createSampler(Sampler.Description info);
-    Shader createShader(Identifier identifier, ShaderType type) throws IOException;
+    Shader createShader(Identifier identifier, ShaderType type, ShaderPreprocessor.ShaderMetadata metadata) throws IOException;
 
     /** PIPELINE **/
     RenderPipeline createRenderPipeline(RenderPipelineData data);
