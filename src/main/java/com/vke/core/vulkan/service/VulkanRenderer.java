@@ -2,6 +2,7 @@ package com.vke.core.vulkan.service;
 
 import com.vke.api.app.Framable;
 import com.vke.api.assets.r.R;
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -41,9 +42,9 @@ import static com.vke.core.VKEngine.profiler;
 public class VulkanRenderer extends ServiceImpl implements Renderer {
     private static final String HERE = "VulkanRenderer";
 
-    private final int FRAMES_IN_FLIGHT;
+    private final FrameCounter frameCounter;
 
-    public VulkanSwapchain swapchain;
+    private VulkanSwapchain swapchain;
     private VulkanRenderDevice device;
     private VulkanFrame[] frames;
     private VulkanFence[] imagesInFlight;
@@ -53,8 +54,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     private EngineDescriptorSetsManager engineSetsManager;
 
-    private int currentFrameIndex = 0;
-
     // Engine infos
     private final VKEngine engine;
     private final Context context;
@@ -62,7 +61,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.VULKAN_RENDERER, context.getEngine());
-        this.FRAMES_IN_FLIGHT = createInfo.vulkanCreateInfo.framesInFlight;
+        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.context = context;
         this.createInfo = createInfo;
@@ -96,7 +95,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     public FrameData startFrame(Window window, Framable f) {
         MemoryStack stack = MemoryStack.stackPush();
 
-        VulkanFrame frame = frames[currentFrameIndex];
+        VulkanFrame frame = frames[frameCounter.currentIndex()];
         VulkanFence fence = frame.getRenderFence();
 
         profiler.begin("Frame Fence");
@@ -170,7 +169,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         swapchain.present(imagePresentInFlight[frameData.imageIndex]);
 
         frameData.stack().close();
-        currentFrameIndex = (currentFrameIndex + 1) % FRAMES_IN_FLIGHT;
+        this.frameCounter.nextFrame();
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
@@ -206,9 +205,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         return this.device;
     }
 
-    public int getFramesInFlight() { return this.FRAMES_IN_FLIGHT; }
-
-    public int getCurrentFrameIndex() { return this.currentFrameIndex; }
+    @Override
+    public FrameCounter getFrameCounter() {
+        return this.frameCounter;
+    }
 
     public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }
 

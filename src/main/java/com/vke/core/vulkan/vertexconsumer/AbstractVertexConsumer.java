@@ -166,7 +166,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     private void handleOldBuffers() {
         ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
         for (Map.Entry<MappedGpuRingBuffer, Integer> entry : _gpuBuffersOld.entrySet()) {
-            if (entry.getValue() > _renderer.getFramesInFlight()) {
+            if (entry.getValue() > _renderer.getFrameCounter().framesInFlight()) {
                 entry.getKey().free();
                 toRemove.add(entry.getKey());
             }
@@ -210,14 +210,16 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         BufferUsage vboUsage = new BufferUsage(
                 BufferUsage.Bits.VBO
         );
-       return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), (long) vertexCount * _template.getByteStride(), _renderer.getFramesInFlight(), vboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+       return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), (long) vertexCount * _template.getByteStride(),
+               _renderer.getFrameCounter().framesInFlight(), vboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
     protected MappedGpuRingBuffer genIndexBuffer(int indexCount) {
         BufferUsage iboUsage = new BufferUsage(
                 BufferUsage.Bits.IBO
         );
-        return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), indexCount * 4L, _renderer.getFramesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+        return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), indexCount * 4L,
+                _renderer.getFrameCounter().framesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
 }

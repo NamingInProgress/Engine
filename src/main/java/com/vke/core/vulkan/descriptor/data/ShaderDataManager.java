@@ -11,8 +11,6 @@ import org.lwjgl.util.vma.Vma;
 
 public class ShaderDataManager implements Disposable {
 
-    public static final int MAX_OFFSETS_PER_FRAME = 1000;
-
     private static ShaderDataManager instance;
 
     private static boolean initialized = false;
@@ -28,8 +26,6 @@ public class ShaderDataManager implements Disposable {
         ShaderDataManager self = getInstance();
         long alignedFrameBufSize = createInfo.minUboAlign == 1 ? createInfo.frameDataBufferSize : Utils.alignUpFast(createInfo.frameDataBufferSize, createInfo.minUboAlign);
 
-        self.FRAME_DATA_BUFFER = new MappedGpuRingBuffer(createInfo.context.getEngine(), createInfo.device, alignedFrameBufSize * MAX_OFFSETS_PER_FRAME,
-                createInfo.framesInFlight, BufferUsage.Bits.UBO.into());
         self.textures = new Texture[createInfo.maxTexturesCount];
     }
 
@@ -41,23 +37,7 @@ public class ShaderDataManager implements Disposable {
         FRAME_DATA_BUFFER.rotate();
     }
 
-    public int texture(Texture tex) {
-        int firstFree = -1;
-        for (int i = 0; i < textures.length; i++) {
-            if (textures[i] == tex) return i;
-            if (textures[i] == null && firstFree == -1) {
-                firstFree = i;
-            }
-        }
-        if (firstFree == -1) throw new IllegalStateException("Out of texture slots!");
 
-        textures[firstFree] = tex;
-        return firstFree;
-    }
-
-    public void removeTexture(int index) {
-        // TODO: implement
-    }
 
     @Override
     public void free() {

@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.service;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.services2.ServiceAPI;
@@ -18,5 +19,10 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     @Override
     public RenderDevice getDevice() {
         return getImpl().getDevice();
+    }
+
+    @Override
+    public FrameCounter getFrameCounter() {
+        return getImpl().getFrameCounter();
     }
 }

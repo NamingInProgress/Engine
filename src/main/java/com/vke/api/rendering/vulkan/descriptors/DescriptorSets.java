@@ -70,12 +70,12 @@ public class DescriptorSets implements Disposable {
             return;
         }
 
-        this.allocator = new DescriptorAllocator(engine, device, counts, layouts.size(), renderer.getFramesInFlight(), false);
+        this.allocator = new DescriptorAllocator(engine, device, counts, layouts.size(), renderer.getFrameCounter().framesInFlight(), false);
         compiledLayouts = layouts.stream().map(dsl -> new CompiledDescriptorSetLayout(engine, device, dsl, additionalInfo)).toList();
 
         for (int i = 0; i < compiledLayouts.size(); i++) {
-            DescriptorSet[] fifds = new  DescriptorSet[renderer.getFramesInFlight()];
-            for (int j = 0; j < renderer.getFramesInFlight(); j++) {
+            DescriptorSet[] fifds = new  DescriptorSet[renderer.getFrameCounter().framesInFlight()];
+            for (int j = 0; j < renderer.getFrameCounter().framesInFlight(); j++) {
                 fifds[j] = new DescriptorSet(allocator.allocate(compiledLayouts.get(i)), device, engine, layouts.get(i), additionalInfo);
             }
             sets.add(fifds);
@@ -83,7 +83,7 @@ public class DescriptorSets implements Disposable {
     }
 
     public long[] getDescriptorSetHandles() {
-        return this.sets.stream().mapToLong((fifds) -> fifds[renderer.getCurrentFrameIndex()].getHandle()).toArray();
+        return this.sets.stream().mapToLong((fifds) -> fifds[renderer.getFrameCounter().currentIndex()].getHandle()).toArray();
     }
 
     @SuppressWarnings("unchecked")
@@ -207,7 +207,7 @@ public class DescriptorSets implements Disposable {
                 logger.warn("Tried updating a buffer based handle!");
                 continue;
             }
-            int frameIdx = renderer.getCurrentFrameIndex();
+            int frameIdx = renderer.getFrameCounter().currentIndex();
             DescriptorSet[] dsfefif = sets.get(uniform.descriptorSetListIndex);
             uniform.writeDescriptor(writer, dsfefif[frameIdx].handle);
         }

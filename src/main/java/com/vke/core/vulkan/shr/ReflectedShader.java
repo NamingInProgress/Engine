@@ -516,6 +516,8 @@ public class ReflectedShader implements Disposable {
 
         public int getSpvc() { return this.spvc; }
 
+        public boolean isDescriptorBuffer() { return this == UBO || this == SSBO; }
+
     }
 
 }

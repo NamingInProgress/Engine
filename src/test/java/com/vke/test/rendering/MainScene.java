@@ -102,7 +102,7 @@ public class MainScene extends Scene {
         dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
 
 
-        sw = renderer.swapchain;
+        //sw = renderer.swapchain;
 
         renderer.immediateSubmit((stack, cmd) -> {
             tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
