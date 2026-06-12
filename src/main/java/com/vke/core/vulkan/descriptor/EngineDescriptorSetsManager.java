@@ -23,7 +23,7 @@ public class EngineDescriptorSetsManager implements Disposable {
     public final HashMap<Integer, DescriptorSetLayout> ENGINE_LAYOUTS = new HashMap<>();
     public Integer[] usedSets;
 
-    private HashMap<Pair<Integer, Integer>, MappedGpuRingBuffer> BUFFERS = new HashMap<>(); // <Set, Binding>
+    private final HashMap<Pair<Integer, Integer>, MappedGpuRingBuffer> BUFFERS = new HashMap<>(); // <Set, Binding>
 
     private Texture[] bindlessTextures;
 
