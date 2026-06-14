@@ -35,6 +35,7 @@ public class Services {
     public static final String LANGUAGE_MANAGER = "lan";
     public static final String SCENE_MANAGER = "scn";
     public static final String INPUT_MANAGER = "ipm";
+    public static final String AUDIO_LOAD_MANAGER = "alm";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -48,6 +49,7 @@ public class Services {
         manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerAPI(new LanguageManagerBaseImpl(engine)));
         manager.registerNewService(SCENE_MANAGER, new SceneManagerAPI(new SceneManagerBaseImpl(engine)));
         manager.registerNewService(INPUT_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
+        manager.registerNewService(AUDIO_LOAD_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
     }
 
 }

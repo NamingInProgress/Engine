@@ -3,10 +3,12 @@ package com.vke.core.assets.service;
 import com.vke.api.assets.*;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
+import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.Context;
 import com.vke.core.assets.BundleCollector;
 import com.vke.core.assets.pipeline.AssetPipeline;
+import com.vke.core.assets.pipeline.AssetPipelinePhase;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.parsing.config.xml.XmlParser;
@@ -57,9 +59,18 @@ public class AssetManagerScopedImpl implements AssetManager {
                 char[] source = Utils.readCharsFromInputStream(assetsXMLIdent.asInputStream());
                 parser.setSource(source);
                 ConfigDocument document = parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
-                ConfigNode assetsNode = document.getRoot().asObject().getNode("assets");
-                //every xml node is an array so were chilling
-                this.pipeline = new AssetPipeline(assetsNode.asArray(), base.getPipelineContext());
+                ConfigArrayNode assetsNode = document.getRoot().getArray("assets");
+                //i will probably validate the assets.xml against a schema so thats probably fine here lmao
+
+                AssetPipeline pipeline = new AssetPipeline(base.getPipelineContext());
+                for (ConfigNode phaseNode : assetsNode.values()) {
+                    String phaseName = phaseNode.getString("name");
+                    //every xml node is an array so were chilling
+                    AssetPipelinePhase phase = new AssetPipelinePhase(phaseName, phaseNode.asArray(), base.getPipelineContext());
+                    pipeline.addPhase(phase);
+                }
+
+                this.pipeline = pipeline;
             } catch (Exception e) {
                 e.printStackTrace();
             }

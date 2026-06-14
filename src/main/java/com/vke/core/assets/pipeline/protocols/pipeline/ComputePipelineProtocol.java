@@ -22,7 +22,7 @@ import java.io.IOException;
 public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
     @Override
     public String getProtocolName() {
-        return Protocols.FUNNY_STUFF;
+        return Protocols.COMPUTE_PIPELINE;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
             Renderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
-            return new AssetData(Protocols.FUNNY_STUFF, device.createComputePipeline(data));
+            return new AssetData(Protocols.COMPUTE_PIPELINE, device.createComputePipeline(data));
         });
     }
 

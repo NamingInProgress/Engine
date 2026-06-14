@@ -251,8 +251,10 @@ public class Utils {
             try {
                 @SuppressWarnings("unchecked")
                 Class<F> fClass = (Class<F>) ignore.getClass().getComponentType();
-                Constructor<F> c = fClass.getDeclaredConstructor(Throwable.class);
-                throw c.newInstance(e);
+                Constructor<F> c = fClass.getDeclaredConstructor(String.class);
+                F t = c.newInstance(e.getMessage());
+                t.setStackTrace(e.getStackTrace());
+                throw t;
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ex) {
                 throw new RuntimeException(e);

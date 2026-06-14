@@ -5,6 +5,7 @@ import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
@@ -28,19 +29,20 @@ public class StaticMeshBuffer implements Disposable, Drawable {
 
     private StaticMeshBuffer() {}
 
-    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh) {
-        return StaticMeshBuffer.uploadOnce(engine, renderer, mesh, false);
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, Mesh<?> mesh) {
+        return StaticMeshBuffer.uploadOnce(engine, mesh, false);
     }
 
-    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
-        return StaticMeshBuffer.uploadOnce(engine, renderer, vertices, indices, false);
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, T[] vertices, int[] indices) {
+        return StaticMeshBuffer.uploadOnce(engine, vertices, indices, false);
     }
 
-    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh, boolean align16) {
-        return uploadOnce(engine, renderer, mesh.getVertices(), mesh.getIndices(), align16);
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, Mesh<?> mesh, boolean align16) {
+        return uploadOnce(engine, mesh.getVertices(), mesh.getIndices(), align16);
     }
 
-    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices, boolean align16) {
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, T[] vertices, int[] indices, boolean align16) {
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
         if (vertices.length == 0) {
             engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }

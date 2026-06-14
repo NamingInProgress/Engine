@@ -1,5 +1,6 @@
 package com.vke.api.assets.r;
 
+import com.vke.api.audio.AudioClip;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -19,4 +20,5 @@ public class R {
     public static Category<Language> languages = new Category<>();
     public static Category<Shader> shaders = new Category<>();
     public static Category<MeshPrefab> meshprefabs = new Category<>();
+    public static Category<AudioClip> audios = new Category<>();
 }

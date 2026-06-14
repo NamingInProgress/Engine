@@ -32,7 +32,12 @@ public class VKShaderProgram implements Disposable {
     }
 
     public static VKShaderProgram asVkShaderProgram(Context context, ShaderProgram sp) {
-        return new VKShaderProgram(Iter.of(sp.getShaders()).faultyMap(ah -> ah.acquire(context)).<VulkanShader>cast().toArray());
+        return new VKShaderProgram(Iter.of(sp.getShaders()).faultyMap(ah -> {
+            if (ah == null) {
+                System.out.println("Asset handle null!");
+            }
+            return ah.acquire(context);
+        }).<VulkanShader>cast().toArray());
     }
 
     public VulkanShader[] getShaders() {

@@ -9,9 +9,12 @@ import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.stages.CompoundPipelineStage;
+import com.vke.core.assets.pipeline.stages.FilterElseStage;
+import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.io.SegmentedPath;
 
 import java.net.URI;
+import java.util.HashSet;
 
 public class StageFilter extends CompoundPipelineStage {
     public static final String STAGE = "stage-filter";
@@ -22,8 +25,12 @@ public class StageFilter extends CompoundPipelineStage {
     private final Op op;
     private final String query;
 
+    private boolean wasSuccessful;
+    private String elseTag;
+    private final HashSet<String> elseTags;
+
     public StageFilter(ConfigNode node, PipelineContext context) throws AssetException {
-        super(node.asArray(), context, "uri", "op", "query");
+        super(node.asArray(), context, "uri", "op", "query", "else");
         this.context = context;
         String uriString = node.getString("uri");
         String opStr = node.getStringOption("op").unwrapOr(Op.EQUALS.name());
@@ -36,6 +43,8 @@ public class StageFilter extends CompoundPipelineStage {
         }
         this.op = Op.valueOf(opStr.toUpperCase());
         this.query = query;
+        this.elseTag = node.getStringOption("else").unwrapOrNull();
+        this.elseTags = new HashSet<>();
     }
 
     public String getProtocol() {
@@ -63,7 +72,31 @@ public class StageFilter extends CompoundPipelineStage {
     }
 
     @Override
+    protected void processInnerPipeline(StageElement element, ExecutionTarget executionTarget) throws AssetException {
+        elseTags.clear();
+        for (PipelineStage stage : stages) {
+            if (stage.executionTarget().isUsable(executionTarget)) {
+                if (stage instanceof FilterElseStage filterElseStage) {
+                    if (elseTags.contains(filterElseStage.getTag())) {
+                        stage.execute(element, executionTarget);
+                    }
+                } else {
+                    stage.execute(element, executionTarget);
+                }
+
+                if (stage instanceof StageFilter filter) {
+                    if (!filter.wasSuccessful && filter.elseTag != null) {
+                        elseTags.add(filter.elseTag);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void execute(StageElement stageElement, ExecutionTarget target) throws AssetException {
+        wasSuccessful = false;
+
         String dataProtocolName = getProtocol();
         AssetProtocol<?> dataProtocol = context.getProtocol(dataProtocolName);
         AssetData resolvedData = stageElement.getAssetDataResolved(context.context(), dataProtocol, target);
@@ -91,6 +124,7 @@ public class StageFilter extends CompoundPipelineStage {
 
         if (queryProtocolName.equals(dataProtocolName)) {
             if (dataProtocol.applies(data, queryData, op)) {
+                wasSuccessful = true;
                 processInnerPipeline(stageElement, target);
             }
         } else {
@@ -99,6 +133,7 @@ public class StageFilter extends CompoundPipelineStage {
                 //query --> data
                 AssetData data2 = converter.performConversion(context.context(), queryElement, new EmptyConfigArray());
                 if (dataProtocol.applies(data, data2, op)) {
+                    wasSuccessful = true;
                     processInnerPipeline(stageElement, target);
                 }
                 return;
@@ -110,6 +145,7 @@ public class StageFilter extends CompoundPipelineStage {
             //data --> query
             AssetData query2 = converter.performConversion(context.context(), dataElement, new EmptyConfigArray());
             if (queryProtocol.applies(data, query2, op)) {
+                wasSuccessful = true;
                 processInnerPipeline(stageElement, target);
             }
         }

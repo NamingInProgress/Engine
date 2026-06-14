@@ -8,9 +8,12 @@ import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProcessor;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
+import com.vke.core.assets.pipeline.converters.audio.preload.WavAudioPreloadConverter;
 import com.vke.core.assets.pipeline.converters.pipeline.ConfigComputePipelineConverter;
 import com.vke.core.assets.pipeline.converters.pipeline.ConfigRenderPipelineConverter;
 import com.vke.core.assets.pipeline.protocols.*;
+import com.vke.core.assets.pipeline.protocols.audio.AudioPreloadProtocol;
+import com.vke.core.assets.pipeline.protocols.audio.WavPreloadProtocol;
 import com.vke.core.assets.pipeline.protocols.mesh.MeshprefabProtocol;
 import com.vke.core.assets.pipeline.protocols.mesh.ObjProtocol;
 import com.vke.core.assets.pipeline.protocols.meta.FileProtocol;
@@ -45,6 +48,8 @@ public class PipelineContext extends ContextWrapper {
         this.converterRegistry = new HashMap<>();
         this.processorRegistry = new HashMap<>();
 
+        //i have to make a better system this class is awful
+
         //register engine default protocols
         registerProtocol(new FileProtocol());
         registerProtocol(new MetaProtocol(vkeContext.getEngine()));
@@ -65,6 +70,9 @@ public class PipelineContext extends ContextWrapper {
         registerProtocol(new ObjProtocol());
         registerProtocol(new MeshprefabProtocol());
 
+        registerProtocol(new WavPreloadProtocol());
+        registerProtocol(new AudioPreloadProtocol());
+
         //register engine default stages
         registerStage(ConvertStage.STAGE, ConvertStage::new);
         registerStage(StageFilter.STAGE, StageFilter::new);
@@ -72,6 +80,8 @@ public class PipelineContext extends ContextWrapper {
         registerStage(DecodeStage.STAGE, DecodeStage::new);
         registerStage(CacheAssetStage.STAGE, CacheAssetStage::new);
         registerStage(ProcessStage.STAGE, ProcessStage::new);
+        registerStage(FilterElseStage.STAGE, FilterElseStage::new);
+        registerStage(LogStage.STAGE, LogStage::new);
 
         //register converters
         registerConverter(new PlainPathConverter());
@@ -81,6 +91,7 @@ public class PipelineContext extends ContextWrapper {
         registerConverter(new ConfigComputePipelineConverter());
         registerConverter(new ObjMeshprefabConverter());
         registerConverter(new PngTextureConverter());
+        registerConverter(new WavAudioPreloadConverter());
 
         //register cache handlers
         registerCacheHandler(new MeshPrefabCache());

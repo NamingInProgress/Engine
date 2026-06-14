@@ -2,31 +2,11 @@ package com.vke.core.assets.pipeline.protocols.texture;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.core.assets.AssetException;
-import com.vke.core.assets.pipeline.Op;
-import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.core.assets.pipeline.apis.AssetProtocol;
-import com.vke.core.assets.pipeline.apis.AssetUri;
-import com.vke.core.assets.pipeline.protocols.loader.UnsupportedLoader;
+import com.vke.core.assets.pipeline.apis.AbstractAssetProtocol;
 
-public class TextureProtocol implements AssetProtocol<Texture> {
+public class TextureProtocol implements AbstractAssetProtocol<Texture> {
     @Override
     public String getProtocolName() {
         return Protocols.TEXTURE;
-    }
-
-    @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
-        throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
-    }
-
-    @Override
-    public Loader getLoader() {
-        return new UnsupportedLoader(getProtocolName());
-    }
-
-    @Override
-    public boolean applies(AssetData a, AssetData b, Op op) {
-        return false;
     }
 }
