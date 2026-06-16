@@ -84,9 +84,19 @@ public class VKEngine extends Context {
 
         VulkanRenderer renderer = service(Services.VULKAN_RENDERER).assumeImplementation();
 
+        int reqFps = createInfo.fps;
+        long targetFrameTimeNs = reqFps > 0 ? 1_000_000_000L / reqFps : 0L;
+        long lastFrameTime = System.nanoTime();
+
         this.window.show();
         while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
             if (!window.isMinimized()) {
+                long now = System.nanoTime();
+
+                if (reqFps != -1 && now - lastFrameTime < targetFrameTimeNs) continue;
+
+                lastFrameTime = now;
+
                 profiler.beginFrame();
                 profiler.begin("Render", AnsiColors.RED);
                 profiler.push();
@@ -183,5 +193,9 @@ public class VKEngine extends Context {
 
     public EngineCreateInfo getCreateInfo() {
         return createInfo;
+    }
+
+    public void explode() {
+        throwException(new RuntimeException("boom!"), "java code");
     }
 }

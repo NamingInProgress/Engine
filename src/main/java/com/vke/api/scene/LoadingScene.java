@@ -7,11 +7,12 @@ import com.vke.core.assets.AssetException;
 import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.core.scene.loading.DefaultVkeLoadingScene;
 import com.vke.core.services2.Services;
+import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.io.Identifier;
 
 public abstract class LoadingScene extends Scene implements BundleLoadingCallback {
     protected final AssetManagerScopedImpl assetManager;
-    private Runnable onComplete;
+    private FaultyRunnable onComplete;
 
     public LoadingScene(Identifier name, Context context) {
         super(name, context);
@@ -32,7 +33,7 @@ public abstract class LoadingScene extends Scene implements BundleLoadingCallbac
         throw new UnsupportedOperationException("LoadingScenes cannot have a loading scene lol!");
     }
 
-    public void loadBundles(java.util.List<String> bundleNames, Runnable onComplete) throws AssetException {
+    public void loadBundles(java.util.List<String> bundleNames, FaultyRunnable onComplete) throws Exception {
         onLoad();
         this.onComplete = onComplete;
         assetManager.registerLoadCallback(this);
@@ -41,7 +42,7 @@ public abstract class LoadingScene extends Scene implements BundleLoadingCallbac
         exchange.commit();
     }
 
-    protected void completeLoading() {
+    protected void completeLoading() throws Exception {
         onUnload();
         assetManager.removeLoadCallback(this);
         if (onComplete != null) onComplete.run();

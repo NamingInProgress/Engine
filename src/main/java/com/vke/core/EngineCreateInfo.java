@@ -17,6 +17,7 @@ public class EngineCreateInfo {
 
     public final String engine = "VkEngine";
     public final Version engineVersion = Version.V1_0_0;
+    public int fps = 60;
 
     public EngineCreateInfo(String applicationName, String namespace) {
         this.windowCreateInfo = new WindowCreateInfo();

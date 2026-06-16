@@ -16,6 +16,7 @@ import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +55,7 @@ public class AssetManagerScopedImpl implements AssetManager {
         Identifier assetsXMLIdent = context.id("assets/assets.xml");
         if (assetsXMLIdent.existsFile()) {
             try {
-                //yes i hardcode this to xml here, go cry somewhere
-                ConfigParser parser = new XmlParser();
-                char[] source = Utils.readCharsFromInputStream(assetsXMLIdent.asInputStream());
-                parser.setSource(source);
-                ConfigDocument document = parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
+                ConfigDocument document = parseXml(assetsXMLIdent);
                 ConfigArrayNode assetsNode = document.getRoot().getArray("assets");
                 //i will probably validate the assets.xml against a schema so thats probably fine here lmao
 
@@ -75,6 +72,14 @@ public class AssetManagerScopedImpl implements AssetManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static ConfigDocument parseXml(Identifier identifier) throws IOException, ConfigParser.ConfigParseException {
+        //yes i hardcode this to xml here, go cry somewhere
+        ConfigParser parser = new XmlParser();
+        char[] source = Utils.readCharsFromInputStream(identifier.asInputStream());
+        parser.setSource(source);
+        return parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
     }
 
     @Override

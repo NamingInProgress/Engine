@@ -1,9 +1,9 @@
 package com.vke.core.audio.source;
 
 import com.vke.core.audio.AudioException;
-import com.vke.core.audio.pcm.EnginePCM;
+import com.vke.core.audio.playback.PlaybackState;
 import com.vke.core.audio.pcm.PCMInfo;
-import com.vke.core.audio.pcm.PCMReader;
+import com.vke.core.audio.pcm.reader.PCMReader;
 import com.vke.core.audio.pcm.PreResampler;
 import com.vke.core.file.wav.WAVAudioFormat;
 import com.vke.core.file.wav.WAVFile;
@@ -29,7 +29,7 @@ public class WavPCMPreloadedReader implements PCMReader {
         byte[] sampleData = wavFile.getRawSampleData();
 
         int sampleRate = (int) fmt.getSampleRate();
-        int targetSampleRate = EnginePCM.SAMPLE_RATE;
+        int targetSampleRate = PlaybackState.SAMPLE_RATE;
         int bytesPerFrame = fmt.getBlockAlign();
         int bytesPerSample = fmt.getBitsPerSample() / 8;
         int totalFrames = sampleData.length / bytesPerFrame;
@@ -103,13 +103,20 @@ public class WavPCMPreloadedReader implements PCMReader {
     }
 
     @Override
-    public void fetchFrames(float[][] dst, int dstPos, int frames) {
-        System.arraycopy(pcm, (int) position, dst, dstPos, frames);
+    public int fetchFrames(float[][] dst, int dstPos, int frames) {
+        int toCopy = (int) Math.min(frames, pcm.length - position);
+        System.arraycopy(pcm, (int) position, dst, dstPos, toCopy);
+        return toCopy;
     }
 
     @Override
     public void seek(long frame) {
         position = frame;
+    }
+
+    @Override
+    public long position() {
+        return position;
     }
 
     @Override

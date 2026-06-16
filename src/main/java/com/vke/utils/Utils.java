@@ -266,4 +266,11 @@ public class Utils {
     public static long alignUpFast(long value, long alignment) {
         return (value + alignment - 1) & -alignment;
     }
+
+    public static int xmin(int... values) {
+        if (values == null || values.length == 0) return 0;
+        int m = values[0];
+        for (int v : values) if (v < m) m = v;
+        return m;
+    }
 }

@@ -1,15 +1,14 @@
 package com.vke.core.assets.pipeline.converters.audio.preload;
 
 import com.vke.api.assets.Protocols;
-import com.vke.api.audio.AudioClip;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.core.audio.pcm.EnginePCM;
-import com.vke.core.audio.pcm.PCMReader;
+import com.vke.core.audio.PreloadedAudioClip;
+import com.vke.core.audio.pcm.reader.PCMReader;
 import com.vke.core.audio.source.WavPCMPreloadedReader;
 import com.vke.core.file.wav.WAVFile;
 import com.vke.utils.Utils;
@@ -31,8 +30,7 @@ public class WavAudioPreloadConverter implements AssetConverter {
             WAVFile file = input.getAssetData().getDataAs();
             PCMReader reader = new WavPCMPreloadedReader(file);
 
-            EnginePCM enginePCM = EnginePCM.fromReader(reader);
-            return new AssetData(to(), new AudioClip(enginePCM));
+            return new AssetData(to(), new PreloadedAudioClip(reader));
         });
     }
 }

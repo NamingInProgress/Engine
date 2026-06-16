@@ -1,83 +1,12 @@
 <assets>
-    <phase name="bootstrap">
-        <stage-filter uri="file://extension" query="json" op="equals">
-            <convert to="config"/>
-            <stage-filter uri="file://location/parent" query="language" op="equals">
-                <convert to="lang"/>
-                <rename>
-                    <static-part value="language."/>
-                    <uri-part uri="file://nickname"/>
-                </rename>
-            </stage-filter>
-
-            <!-- =================== PIPELINES =================== -->
-            <stage-filter uri="file://name" query="compute_pipeline" op="contains">
-                <convert to="config"/>
-                <stage-filter uri="config://field/hello" query="world" op="equals"/>
-                <convert to="compute_pipeline"/>
-            </stage-filter>
-            <stage-filter uri="file://name" query="pipeline" op="contains">
-                <convert to="config"/>
-                <stage-filter uri="config://field/hello" query="world" op="equals"/>
-                <convert to="pipeline"/>
-            </stage-filter>
-        </stage-filter>
-
-        <!-- =================== SHADERS =================== -->
-        <stage-filter uri="file://extension" query="frag|fsh" op="matches">
-            <convert to="fragshader"/>
-            <rename>
-                <uri-part uri="file://location/bundle"/>
-            </rename>
-        </stage-filter>
-        <stage-filter uri="file://extension" query="vert|vsh" op="matches">
-            <convert to="vertshader"/>
-            <rename>
-                <uri-part uri="file://location/bundle"/>
-            </rename>
-        </stage-filter>
-        <stage-filter uri="file://extension" query="comp|csh" op="matches">
-            <convert to="compshader"/>
-            <rename>
-                <uri-part uri="file://location/bundle"/>
-            </rename>
-        </stage-filter>
-        <stage-filter uri="file://extension" query="glsl" op="matches">
-            <convert to="vertshader"/>
-            <rename>
-                <uri-part uri="file://location/bundle"/>
-            </rename>
-        </stage-filter>
-
-        <!-- =================== TEXTURES =================== -->
-        <stage-filter uri="file://extension" query="png" op="equals">
-            <decode to="png" using="png"/>
-            <convert to="texture"/>
-        </stage-filter>
-
-        <!-- =================== MESHES =================== -->
-        <stage-filter uri="file://extension" query="obj" op="equals">
-            <cache-asset for="meshprefab">
-                <decode to="obj" using="obj"/>
-                <convert to="meshprefab"/>
-            </cache-asset>
-            <rename>
-                <uri-part uri="file://location/bundle"/>
-            </rename>
-        </stage-filter>
-
-        <!-- =================== AUDIO =================== -->
-        <stage-filter uri="file://extension" query="wav" op="equals">
-            <stage-filter uri="file://location/parent" query="preload" op="equals" else="wav_not_preload">
-                <decode to="wav" using="wav"/>
-                <convert to="audio_pre"/>
-            </stage-filter>
-            <filter-else tag="wav_not_preload">
-                <log level="error">
-                    <uri-part uri="file://location/bundle"/>
-                    <static-part value=": WAV files can only be preloaded as of right now!"/>
-                </log>
-            </filter-else>
-        </stage-filter>
+    <phase name="schemas">
+        <include file="vke:assets/schemas.d.xml"/>
+    </phase>
+    <phase name="assets">
+        <include file="vke:assets/configs.d.xml"/>
+        <include file="vke:assets/shaders.d.xml"/>
+        <include file="vke:assets/textures.d.xml"/>
+        <include file="vke:assets/meshes.d.xml"/>
+        <include file="vke:assets/audio.d.xml"/>
     </phase>
 </assets>

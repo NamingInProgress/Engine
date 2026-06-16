@@ -55,7 +55,7 @@ public class LogStage implements PipelineStage {
             String p = part.applyForElement(stageElement);
             nameBuilder.append(p);
         }
-        LoggerFactory.get("Asset Pipeline").log(level, nameBuilder.toString());
+        LoggerFactory.get("AssetPipeline").log(level, nameBuilder.toString());
     }
 
     @Override

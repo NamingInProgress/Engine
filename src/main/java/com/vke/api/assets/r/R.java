@@ -1,7 +1,7 @@
 package com.vke.api.assets.r;
 
-import com.vke.api.audio.AudioClip;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.core.audio.source.AudioClip;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.data.Texture;

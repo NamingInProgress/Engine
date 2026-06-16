@@ -82,6 +82,7 @@ public class PipelineContext extends ContextWrapper {
         registerStage(ProcessStage.STAGE, ProcessStage::new);
         registerStage(FilterElseStage.STAGE, FilterElseStage::new);
         registerStage(LogStage.STAGE, LogStage::new);
+        registerStage(IncludeStage.STAGE, IncludeStage::new);
 
         //register converters
         registerConverter(new PlainPathConverter());

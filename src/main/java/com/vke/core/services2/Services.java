@@ -6,6 +6,12 @@ import com.vke.core.assets.language.service.LanguageManagerAPI;
 import com.vke.core.assets.language.service.LanguageManagerBaseImpl;
 import com.vke.core.assets.service.AssetManagerAPI;
 import com.vke.core.assets.service.AssetManagerBaseImpl;
+import com.vke.core.audio.playback.service.AudioManagerMasterAPI;
+import com.vke.core.audio.playback.service.AudioManagerMasterImpl;
+import com.vke.core.audio.playback2d.service.AudioManager2DAPI;
+import com.vke.core.audio.playback2d.service.AudioManager2DBaseImpl;
+import com.vke.core.audio.playback3d.service.AudioManager3DAPI;
+import com.vke.core.audio.playback3d.service.AudioManager3DBaseImpl;
 import com.vke.core.event.service.EventBusAPI;
 import com.vke.core.event.service.EventBusImpl;
 import com.vke.core.input.service.InputManagerAPI;
@@ -24,7 +30,6 @@ import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.core.vulkan.service.VulkanRenderer;
 
 public class Services {
-
     public static final String VULKAN_RENDERER = "vkr";
     public static final String SHADER_COMPILER = "shc";
     public static final String PROFILER = "prf";
@@ -35,7 +40,9 @@ public class Services {
     public static final String LANGUAGE_MANAGER = "lan";
     public static final String SCENE_MANAGER = "scn";
     public static final String INPUT_MANAGER = "ipm";
-    public static final String AUDIO_LOAD_MANAGER = "alm";
+    public static final String AUDIO_MANAGER_2D = "au2";
+    public static final String AUDIO_MANAGER_3D = "au3";
+    public static final String AUDIO_MANAGER_MASTER = "aum";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -49,7 +56,9 @@ public class Services {
         manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerAPI(new LanguageManagerBaseImpl(engine)));
         manager.registerNewService(SCENE_MANAGER, new SceneManagerAPI(new SceneManagerBaseImpl(engine)));
         manager.registerNewService(INPUT_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
-        manager.registerNewService(AUDIO_LOAD_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
+        manager.registerNewService(AUDIO_MANAGER_2D, new AudioManager2DAPI(new AudioManager2DBaseImpl(engine)));
+        manager.registerNewService(AUDIO_MANAGER_3D, new AudioManager3DAPI(new AudioManager3DBaseImpl(engine)));
+        manager.registerNewService(AUDIO_MANAGER_MASTER, new AudioManagerMasterAPI(new AudioManagerMasterImpl(engine)));
     }
 
 }

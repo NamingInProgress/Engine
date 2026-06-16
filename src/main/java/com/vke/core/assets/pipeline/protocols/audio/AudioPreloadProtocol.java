@@ -1,8 +1,8 @@
 package com.vke.core.assets.pipeline.protocols.audio;
 
 import com.vke.api.assets.Protocols;
-import com.vke.api.audio.AudioClip;
 import com.vke.core.assets.pipeline.apis.AbstractAssetProtocol;
+import com.vke.core.audio.source.AudioClip;
 
 public class AudioPreloadProtocol implements AbstractAssetProtocol<AudioClip> {
     @Override

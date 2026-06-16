@@ -20,9 +20,9 @@ public abstract class Scene implements Disposable, Framable {
         return name;
     }
 
-    public abstract void onLoad();
+    public abstract void onLoad() throws Exception;
 
-    public abstract void onUnload();
+    public abstract void onUnload() throws Exception;
 
     public LoadingScene getLoadingScene() {
         return loadingScene;

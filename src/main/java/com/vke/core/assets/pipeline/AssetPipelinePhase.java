@@ -38,10 +38,11 @@ public class AssetPipelinePhase extends CompoundPipelineStage {
         return protocol.createAssetHandle(stageElement.getAssetData(), assetName, new PipelinedLoader(this, protocolName, rawAssetName));
 
         //TODO for tmr:
+        //also implement the <include> tag in asset pipeline to split stuff. when parsing a PipelineStage, just parse a whole new file instead and put the shit in. maybe even make IncludeStage its own thing idk
+
         //now where the filter-else and phase thingy works, make the schemas load in a separate phase before and perform optional validation in the
         //plain->config converter
 
-        //also implement the <include> tag in asset pipeline to split stuff. when parsing a PipelineStage, just parse a whole new file instead and put the shit in. maybe even make IncludeStage its own thing idk
     }
 
     public String getName() {

@@ -1,15 +1,9 @@
 package com.vke.core.assets.pipeline;
 
-import com.vke.api.assets.AssetHandle;
-import com.vke.api.assets.Protocols;
 import com.vke.core.assets.AssetException;
-import com.vke.core.assets.pipeline.apis.AssetProtocol;
-import com.vke.core.assets.pipeline.protocols.loader.PipelinedLoader;
 import com.vke.utils.functionalinterface.FaultyConsumer;
-import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class AssetPipeline {
     private final ArrayList<AssetPipelinePhase> phases;
