@@ -23,17 +23,18 @@ public class WavPCMPreloadedReader implements PCMReader {
             default -> throw new AudioException("Unsupported bit depth: " + fmt.getBitsPerSample());
         }
 
-        //how fucking high is your sample rate that this conversion throws damn
-        this.info = new PCMInfo((int) fmt.getSampleRate(), fmt.getNumChannels(), fmt.getBitsPerSample());
 
         byte[] sampleData = wavFile.getRawSampleData();
 
+        //how fucking high is your sample rate that this conversion throws damn
         int sampleRate = (int) fmt.getSampleRate();
         int targetSampleRate = PlaybackState.SAMPLE_RATE;
         int bytesPerFrame = fmt.getBlockAlign();
         int bytesPerSample = fmt.getBitsPerSample() / 8;
         int totalFrames = sampleData.length / bytesPerFrame;
         int numChannels = fmt.getNumChannels();
+
+        this.info = new PCMInfo(sampleRate, numChannels, fmt.getBitsPerSample(), totalFrames);
 
         float[][] originalPcm = new float[totalFrames][numChannels];
         for (int i = 0, p = 0; i < sampleData.length;) {

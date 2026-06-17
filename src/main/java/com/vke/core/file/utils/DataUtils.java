@@ -88,6 +88,50 @@ public class DataUtils {
         stream.write(value & 0xFF);
     }
 
+    public static long readU64LittleEndian(InputStream stream) throws IOException {
+        long a = stream.read();
+        long b = stream.read();
+        long c = stream.read();
+        long d = stream.read();
+        long e = stream.read();
+        long f = stream.read();
+        long g = stream.read();
+        long h = stream.read();
+
+        if (a == -1 || b == -1 || c == -1 || d == -1 || e == -1 || f == -1 || g == -1 || h == -1) return -1;
+
+        return (h << 56)
+                | (g << 48)
+                | (f << 40)
+                | (e << 32)
+                | (d << 24)
+                | (c << 16)
+                | (b << 8)
+                | a;
+    }
+
+    public static long readU64BigEndian(InputStream stream) throws IOException {
+        long a = stream.read();
+        long b = stream.read();
+        long c = stream.read();
+        long d = stream.read();
+        long e = stream.read();
+        long f = stream.read();
+        long g = stream.read();
+        long h = stream.read();
+
+        if (a == -1 || b == -1 || c == -1 || d == -1 || e == -1 || f == -1 || g == -1 || h == -1) return -1;
+
+        return (a << 56)
+                | (b << 48)
+                | (c << 40)
+                | (d << 32)
+                | (e << 24)
+                | (f << 16)
+                | (g << 8)
+                | h;
+    }
+
     public static long unsign32(int size) {
         return Integer.toUnsignedLong(size);
     }
@@ -144,6 +188,20 @@ public class DataUtils {
 
     public static Iter<String> readerLines(Reader reader) {
         return new LineReader(reader);
+    }
+
+    public static int[] readU8N(int n, InputStream stream) throws IOException {
+        int[] out = new int[n];
+        for (int i = 0; i < n; i++) {
+            out[i] = readU8(stream);
+        }
+        return out;
+    }
+
+    public static void transferBytes(InputStream inputStream, OutputStream outputStream, int n) throws IOException {
+        byte[] read = inputStream.readNBytes(n);
+        if (read.length != n) throw new EOFException();
+        outputStream.write(read);
     }
 
     private static class LineReader implements Iter<String> {

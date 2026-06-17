@@ -21,7 +21,7 @@ public class ToneGenerator {
                 pcm[i][c] = sample * 0.2f;
             }
         }
-        PCMInfo info = new PCMInfo(sampleRate, numChannels, 16);
+        PCMInfo info = new PCMInfo(sampleRate, numChannels, 16, totalFrames);
         return new PreloadedAudioClip(new ArrayPCMReader(pcm, info));
     }
 }

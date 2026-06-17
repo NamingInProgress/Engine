@@ -50,4 +50,12 @@ public class BitStreamUtils {
             bytes.add(b);
         }
     }
+
+    public static int read8(BitInputStream bitStream) throws IOException {
+        return bitStream.readBits(8);
+    }
+
+    public static boolean readFlag(BitInputStream bitStream) throws IOException {
+        return (bitStream.readBits(1) & 1) == 1;
+    }
 }

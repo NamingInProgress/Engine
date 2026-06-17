@@ -273,4 +273,11 @@ public class Utils {
         for (int v : values) if (v < m) m = v;
         return m;
     }
+
+    public static boolean anyNull(Object... values) {
+        for(Object o : values) {
+            if (o == null) return true;
+        }
+        return false;
+    }
 }
