@@ -102,7 +102,7 @@ public class DescriptorSet {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
                 BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
                 MappedBuffer buffer = new MappedBuffer(engine, device, layout.typeLayout.size * layout.descriptorCount, usage);
-                yield new BufferBinding(layout, buffer, layout.typeLayout.size, layout.packingType);
+                yield new BufferBinding(layout, buffer, layout.typeLayout.size, layout.packingType, layout.multiWrite);
             }
             case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerBinding(layout);
             case SAMPLED_IMAGE -> new SampledImageBinding(layout);

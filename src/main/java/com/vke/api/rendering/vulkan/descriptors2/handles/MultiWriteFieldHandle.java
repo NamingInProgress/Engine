@@ -3,6 +3,7 @@ package com.vke.api.rendering.vulkan.descriptors2.handles;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 
 import java.util.function.Consumer;
 
@@ -10,8 +11,8 @@ public class MultiWriteFieldHandle extends FieldHandle {
 
     private final MultiWriteBufferHandle parent;
 
-    public MultiWriteFieldHandle(int set, int binding, DescriptorType type, MultiWriteBufferHandle parent, long fieldOffset, int fieldLength) {
-        super(set, binding, type, parent, fieldOffset, fieldLength);
+    public MultiWriteFieldHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type, MultiWriteBufferHandle parent, long fieldOffset, int fieldLength) {
+        super(instance, set, binding, type, parent, fieldOffset, fieldLength);
         this.parent = parent;
     }
 

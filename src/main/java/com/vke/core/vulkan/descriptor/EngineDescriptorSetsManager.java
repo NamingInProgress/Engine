@@ -7,6 +7,7 @@ import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.core.Context;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.data.ShaderDataManager;
+import com.vke.core.vulkan.descriptor.dynamicalloc.DynamicDescriptorAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shr.ReflectedShader;

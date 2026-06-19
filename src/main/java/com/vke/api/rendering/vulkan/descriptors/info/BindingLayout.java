@@ -16,13 +16,14 @@ public class BindingLayout {
     public int binding;
     public DescriptorType type;
     public int descriptorCount;
+    public boolean multiWrite;
 
-    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount) {
-        this(name, set, binding, type, descriptorCount, null, null);
+    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount, boolean multiWrite) {
+        this(name, set, binding, type, descriptorCount, null, null, multiWrite);
     }
 
     public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount,
-                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType) {
+                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType, boolean multiWrite) {
         this.name = name;
         this.set = set;
         this.binding = binding;
@@ -30,6 +31,7 @@ public class BindingLayout {
         this.descriptorCount = descriptorCount;
         this.typeLayout = typeLayout;
         this.packingType = packingType;
+        this.multiWrite = multiWrite;
     }
 
     public static BindingLayout fromDescriptorResource(ReflectedShader.DescriptorResource resource, ReflectedShader.ResourceType rt, boolean isDynamic) {
@@ -39,7 +41,7 @@ public class BindingLayout {
         }
         DescriptorType type = DescriptorType.fromBaseType(rt, isDynamic);
         return new BindingLayout(resource.name, resource.set, resource.binding,
-                type, count, resource.struct, PackingType.fromDescriptorType(type));
+                type, count, resource.struct, PackingType.fromDescriptorType(type), resource.multiWrite);
     }
 
     // Nullable if binding isn't a buffer
