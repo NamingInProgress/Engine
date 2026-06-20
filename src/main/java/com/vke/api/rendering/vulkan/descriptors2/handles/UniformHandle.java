@@ -9,7 +9,7 @@ public class UniformHandle {
     public final DescriptorType type;
     public final DescriptorSetInstance instance;
 
-    public UniformHandle(DescriptorSetInstance instance, DescriptorType type, int set, int binding) {
+    public UniformHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type) {
         this.set = set;
         this.binding = binding;
         this.type = type;

@@ -13,7 +13,6 @@ import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
-import org.lwjgl.util.vma.Vma;
 
 import java.util.HashMap;
 
@@ -57,12 +56,12 @@ public class DescriptorSet {
             }
         }
         else if (type instanceof ArrayType arrayType) {
-            if (arrayType.length == -1) {
+            if (arrayType.elementCount == -1) {
 
                 Integer resolvedSize = runtimeSizes.get(currentPath);
 
                 if (resolvedSize != null) {
-                    arrayType.length = resolvedSize;
+                    arrayType.elementCount = resolvedSize;
                     arrayType.size = resolvedSize * arrayType.stride;
                 } else {
                     throw new IllegalStateException("Missing runtime size for array: " + currentPath);
@@ -78,7 +77,7 @@ public class DescriptorSet {
         }
 
         if (type instanceof ArrayType arr) {
-            arr.size = arr.length * arr.stride;
+            arr.size = arr.elementCount * arr.stride;
             return arr.size;
         }
 

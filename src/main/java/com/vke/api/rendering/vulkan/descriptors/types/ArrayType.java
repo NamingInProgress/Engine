@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class ArrayType extends TypeLayout {
 
-    public int length = -1; // -1 for runtime size arrays
+    public int elementCount = -1; // -1 for runtime size arrays
     public long stride;
     public TypeLayout elementType;
 
@@ -12,11 +12,11 @@ public class ArrayType extends TypeLayout {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ArrayType arrayType = (ArrayType) o;
-        return length == arrayType.length && stride == arrayType.stride && Objects.equals(elementType, arrayType.elementType);
+        return elementCount == arrayType.elementCount && stride == arrayType.stride && Objects.equals(elementType, arrayType.elementType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(length, stride, elementType);
+        return Objects.hash(elementCount, stride, elementType);
     }
 }

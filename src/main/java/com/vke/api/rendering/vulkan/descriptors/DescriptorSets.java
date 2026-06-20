@@ -143,7 +143,7 @@ public class DescriptorSets implements Disposable {
         long gpuAddress = binding.buffer.getGpuBuffer().getBuffer();
 
         if (res.finalType() instanceof ArrayType)
-            return new EntryArrayHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, descriptorIndex, binding.singleBufferSize, ((ArrayType) res.finalType()).length, ((ArrayType) res.finalType()).stride, cpuAddress, gpuAddress, res.offset());
+            return new EntryArrayHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, descriptorIndex, binding.singleBufferSize, ((ArrayType) res.finalType()).elementCount, ((ArrayType) res.finalType()).stride, cpuAddress, gpuAddress, res.offset());
 
         return new EntryHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, descriptorIndex, binding.singleBufferSize, (int) res.finalType().size, cpuAddress, gpuAddress, res.offset()); // I really fucking hope this is correct
     }

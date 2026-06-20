@@ -10,6 +10,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.handles.single.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors2.handles.*;
@@ -84,10 +85,12 @@ public class DescriptorSetGroup {
 
         if (res.finalType() instanceof ArrayType) {
             if (binding.multiWrite) {
-                //return new MultiWriteFieldArrayHandle(set, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent, res.offset());
+                return new MultiWriteFieldArrayHandle(set, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent,
+                        res.offset(), (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
             }
 
-            //return new FieldArrayHandle();
+            return new FieldArrayHandle(set, set.set(), layout.binding, layout.type, parent, res.offset(),
+                    (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
         }
 
         if (binding.multiWrite) {

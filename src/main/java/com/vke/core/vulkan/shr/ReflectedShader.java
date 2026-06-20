@@ -262,7 +262,7 @@ public class ReflectedShader implements Disposable {
             length *= d;
         }
 
-        result.length = length;
+        result.elementCount = length;
         result.stride = arrayStride;
         result.elementType = elementType;
         result.size = arrayStride * length;
