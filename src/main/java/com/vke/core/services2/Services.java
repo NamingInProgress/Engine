@@ -11,6 +11,8 @@ import com.vke.core.event.service.EventBusImpl;
 import com.vke.core.input.service.InputManagerAPI;
 import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.profiler.service.ProfilerAPI;
+import com.vke.core.rendering.reflection2.service.ShaderReflector2API;
+import com.vke.core.rendering.reflection2.service.ShaderReflector2Impl;
 import com.vke.core.scene.service.SceneManagerAPI;
 import com.vke.core.vulkan.shr.service.ShaderReflectorAPI;
 import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
@@ -35,6 +37,7 @@ public class Services {
     public static final String LANGUAGE_MANAGER = "lan";
     public static final String SCENE_MANAGER = "scn";
     public static final String INPUT_MANAGER = "ipm";
+    public static final String SHADER_REFLECTION2 = "shr2";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -48,6 +51,7 @@ public class Services {
         manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerAPI(new LanguageManagerBaseImpl(engine)));
         manager.registerNewService(SCENE_MANAGER, new SceneManagerAPI(new SceneManagerBaseImpl(engine)));
         manager.registerNewService(INPUT_MANAGER, new InputManagerAPI(new InputManagerImpl(engine)));
+        manager.registerNewService(SHADER_REFLECTION2, new ShaderReflector2API(new ShaderReflector2Impl(engine)));
     }
 
 }

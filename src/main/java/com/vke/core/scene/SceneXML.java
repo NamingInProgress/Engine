@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SceneXML {
+    public final Identifier file;
     public final Identifier name;
     public final Class<?> clazz;
     public final List<String> bundles;
@@ -20,6 +21,8 @@ public class SceneXML {
 
     public SceneXML(Identifier file, Context context) throws SceneException {
         try {
+            this.file = file;
+
             String filename = FileUtils.getFileNickname(file.toPath());
             this.name = new Identifier(file.getNamespace(), filename);
 

@@ -1,230 +1,173 @@
 package com.vke.test.rendering;
 
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.api.rendering.abstraction.enums.texture.Format;
-import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
-import com.vke.api.rendering.abstraction.enums.texture.TextureType;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.vulkan.ImageLayout;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
-import com.vke.core.mesh.MeshPrefab;
+import com.vke.core.assets.service.AssetManager;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
-import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.profiler.AppTimer;
 import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services2.Services;
-import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
-import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.sampler.Samplers;
-import com.vke.core.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.vulkan.texture.VulkanImage;
-import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK14;
 
 import java.io.IOException;
 
 public class MainScene extends Scene {
+    private StaticMeshBuffer mesh;
+
+    private AppTimer timer;
+
+    PushConstantHandle vertexBufferPointer;
+
+    PushConstantHandle projMatrixHandle;
+    PushConstantHandle transformMatrixHandle;
+
+    AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline.json");
 
     public MainScene(Identifier name, Context context) {
         super(name, context);
     }
 
-    private VulkanRenderPipeline cubePipeline, dynamicVertsPipeline, fullScreenPipeline;
-    private VulkanComputePipeline computePipeline;
-    private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
-    private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
-    //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
-    //private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
-
-    private ImageHandle compute_image;
-
-    private PushConstantHandle projMatrixHandle;
-    private PushConstantHandle transformMatrixHandle;
-
-    private PushConstantHandle dvProjMatrixHandle;
-    private PushConstantHandle dvTransformMatrixHandle;
-
-    private CombinedImageSamplerHandle fullScreenSampler;
-
-    private VertexConsumer<DynamicTestVertex> consumer;
-
-    private VulkanTexture tex;
-
-    private VulkanSwapchain sw;
-    private VulkanRenderer renderer;
-
-    private StaticMeshBuffer mesh;
-    private MeshPrefab prefab;
-
-    private final AppTimer timer = new AppTimer();
-
     @Override
     public void onLoad() {
-        renderer = context.service(Services.VULKAN_RENDERER);
-        var device = renderer.getDevice();
+        AssetManager assetManager = context.service(Services.ASSET_MANAGER);
+        assetManager.initAssets();
 
-        var desc = new Texture.TextureDesc();
-        desc.type = TextureType.TEX_2D;
-        desc.format = Format.RGBA8;
-        desc.mipLevels = 1;
-        desc.depth = 1;
-        desc.usage = new ImageUsage(ImageUsage.Bits.STORAGE_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.SAMPLED_BIT);
-        desc.width = 800;
-        desc.height = 600;
+        CubeVertexFormat[] vf = new CubeVertexFormat[]{
+                // Front (red)
+                new CubeVertexFormat(-25, -25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat( 25, -25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 0, 0, 0.5f),
+                new CubeVertexFormat(-25,  25,  25, 1, 0, 0, 0.5f),
 
-        VulkanImage image = new VulkanImage(device, desc, MemoryUsage.Bits.GPU_ONLY.into());
-        tex = new VulkanTexture(image, true);
+                // Back (green)
+                new CubeVertexFormat( 25, -25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat(-25, -25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 0, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 0, 1, 0, 0.5f),
 
-        cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
-        dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
-        //computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
-        //fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
-        
-        projMatrixHandle = cubePipeline.resolvePushConstant("world");
-        transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
+                // Left (blue)
+                new CubeVertexFormat(-25, -25, -25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25, -25,  25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25,  25, 0, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 0, 0, 1, 0.5f),
 
-        dvProjMatrixHandle = dynamicVertsPipeline.resolvePushConstant("world");
-        dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
+                // Right (yellow)
+                new CubeVertexFormat( 25, -25,  25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25, -25, -25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 1, 1, 0, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 1, 0, 0.5f),
 
+                // Top (magenta)
+                new CubeVertexFormat(-25,  25,  25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat( 25,  25,  25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat( 25,  25, -25, 1, 0, 1, 0.5f),
+                new CubeVertexFormat(-25,  25, -25, 1, 0, 1, 0.5f),
 
-        sw = renderer.swapchain;
+                // Bottom (cyan)
+                new CubeVertexFormat(-25, -25, -25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat( 25, -25, -25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat( 25, -25,  25, 0, 1, 1, 0.5f),
+                new CubeVertexFormat(-25, -25,  25, 0, 1, 1, 0.5f),
+        };
 
-        renderer.immediateSubmit((stack, cmd) -> {
-            tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
+        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), vf, new int[]{
+                // Front
+                0, 1, 2,
+                2, 3, 0,
+
+                // Back
+                4, 5, 6,
+                6, 7, 4,
+
+                // Left
+                8, 9, 10,
+                10, 11, 8,
+
+                // Right
+                12, 13, 14,
+                14, 15, 12,
+
+                // Top
+                16, 17, 18,
+                18, 19, 16,
+
+                // Bottom
+                20, 21, 22,
+                22, 23, 20
         });
 
-        compute_image = computePipeline.resolveUniform("image");
-        compute_image.set(tex);
-        computePipeline.updateUniforms(compute_image);
+        timer = new AppTimer();
 
-        fullScreenSampler = fullScreenPipeline.resolveUniform("image");
-        fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
-        fullScreenPipeline.updateUniforms(fullScreenSampler);
-
-        consumer = new FastVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
-
+        VulkanRenderPipeline cubePipeline;
         try {
-            prefab = R.meshprefabs.get("bear.obj").acquire(context);
-
+            cubePipeline = (VulkanRenderPipeline) CUBE.acquire(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        float[] color = {1, 1, 1, 1};
+        vertexBufferPointer = cubePipeline.resolvePushConstant("vertexBuffer");
+        projMatrixHandle = cubePipeline.resolvePushConstant("world");
+        transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
+    }
 
-        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), context.service(Services.VULKAN_RENDERER),
-                prefab.toMesh((prefabVertex -> new CubeVertexFormat(
-                        prefabVertex.position()[0],
-                        prefabVertex.position()[1],
-                        prefabVertex.position()[2],
+    @Override
+    public void onUnload() {
 
-                        prefabVertex.normal()[0],
-                        prefabVertex.normal()[1],
-                        prefabVertex.normal()[2],
-
-                        color[0],
-                        color[1],
-                        color[2],
-                        color[3]))));
     }
 
     @Override
     public void onDraw(DrawContext ctx) {
         timer.onFrameStart();
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
-            consumer.beginFrame();
-            cmd.bindPipeline(CUBE);
-            cmd.bindPipeline(CUBE);
 
             Matrix4f mat = new Matrix4f();
-            //mat.setOrtho(0, wp.width(), 0, wp.height(), 0, 1000, true);
-            mat.setPerspective((float) Math.toRadians(90), (float) 800 / 600, 0.1f, 1000, true);
+            mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
+
+            vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
+            projMatrixHandle.write(buf -> buf.putMat4(mat));
+
+            cmd.bindPipeline(CUBE);
+
 
             Matrix4f model = new Matrix4f();
 
+            // time in seconds (you need to supply this)
             float time = (System.nanoTime() / 1_000_000_000.0f);
 
+            // rotation speed (radians per second)
             float speed = 1.0f;
 
-            float scale = 10;
+            // build transform
             model.identity()
-                    .translate(200.0f, -250.0f, -550)
-                    .scale(scale, scale, scale)
-                    .rotateY(time * speed);
+                    .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
+                    .scale((float) (5 + 5 * Math.sin(Math.toRadians(time * 10))),
+                            (float) (5 + 5 * Math.sin(Math.toRadians(time * 10))),
+                            (float) (5 + 5 * Math.sin(Math.toRadians(time * 10))))
+                    .rotateXYZ(time * speed, time * speed, time * speed);
 
             projMatrixHandle.write(buf -> buf.putMat4(mat));
             transformMatrixHandle.write(buf -> buf.putMat4(model));
 
+            cmd.bindDescriptorSets(CUBE);
             cmd.setPushConstants(CUBE);
 
-            mesh.draw(ctx);
+            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+            VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(mesh.getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));
 
-
-            cmd.bindPipeline(DYNAMIC);
-
-            dvProjMatrixHandle.write(buf -> buf.putMat4(mat));
-            dvTransformMatrixHandle.write(buf -> buf.putMat4(new Matrix4f().translate(-220, -250.0f, -550).scale(scale, scale, scale).rotateY(time * speed)));
-
-            cmd.setPushConstants(DYNAMIC);
-
-            consumer.begin();
-
-            consumer.mesh(prefab.toMesh((prefabVertex) -> new DynamicTestVertex(
-                    prefabVertex.position()[0],
-                    prefabVertex.position()[1],
-                    prefabVertex.position()[2],
-
-                    1,
-                    1,
-                    1,
-                    1
-            )));
-
-            consumer.begin();
-            consumer.vertices(new DynamicTestVertex(0, 0, 0, 1, 0, 0, 1));
-            consumer.vertices(new DynamicTestVertex(1, 0, 0, 0, 1, 0, 1));
-            consumer.vertices(new DynamicTestVertex(1, 1, 0, 0, 0, 1, 1));
-            consumer.vertices(new DynamicTestVertex(0, 1, 0, 1, 1, 0, 1));
-
-            consumer.indices(0, 1, 2);
-            consumer.indices(2, 3, 0);
-
-            consumer.draw(ctx);
-
-            //cmd.bindPipeline(COMPUTE);
-
-            //cmd.bindDescriptorSets(COMPUTE);
-
-            //VK14.vkCmdDispatch(cmd.getBuffer(), (int) Math.ceil(ctx.getExtent().width / 16.0), (int) Math.ceil(ctx.getExtent().height / 16.0), 1);
-
-//            cmd.bindPipeline(QUAD);
-//
-//            consumer.begin();
-//            consumer.vertex(new DynamicTestVertex(-1, 1, 0, 1, 1, 1, 1));
-//            consumer.vertex(new DynamicTestVertex(1, 1, 0, 1, 1, 1, 1));
-//            consumer.vertex(new DynamicTestVertex(-1, -1, 0, 1, 1, 1, 1));
-//            consumer.vertex(new DynamicTestVertex(1, -1, 0, 1, 1, 1, 1));
-//
-//            consumer.index(0, 1, 2, 3);
-//
-//            cmd.bindDescriptorSets(QUAD);
-//            consumer.draw(ctx);
+            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
         }
 
         if (timer.onFrameComplete(AppTimer.DEFAULT_TEST_INTERVAL_BEING_THE_DURATION_OF_9192631770_PERIODS_OF_THE_RADIATION_CORRESPONDING_TO_THE_TRANSITION_BETWEEN_THE_TWO_HYPERFINE_LEVELS_OF_THE_GROUND_STATE_OF_THE_CAESIUM_133_ATOM_EXPRESSED_IN_MILLISECONDS)) {
@@ -233,29 +176,18 @@ public class MainScene extends Scene {
     }
 
     @Override
-    public void onUnload() {
-        mesh.free();
-        consumer.free();
-    }
-
-    @Override
     public void free() {
-        tex.free();
+        mesh.free();
     }
 
-    public static class CubeVertexFormat extends Vertex {
+    private static class CubeVertexFormat extends Vertex {
+        private final float x, y, z;
+        private final float r, g, b, a;
 
-        private float x, y, z;
-        private float nx, ny, nz;
-        private float r, g, b, a;
-
-        public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a) {
+        public CubeVertexFormat(float x, float y, float z, float r, float g, float b, float a) {
             this.x = x;
             this.y = y;
             this.z = z;
-            this.nx = nx;
-            this.ny = ny;
-            this.nz = nz;
             this.r = r;
             this.g = g;
             this.b = b;
@@ -264,14 +196,26 @@ public class MainScene extends Scene {
 
         @Override
         public int getByteStride() {
-            return 4*10;
+            return Float.BYTES * 8;
         }
 
         @Override
         public void putSelf(VertexByteSink buf) {
+            //AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
+            //abb.float3(x, y, z);
+            //abb.float4(r, g, b, a);
+
             buf.float3(x, y, z);
-            buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);
+
+//            buf.putFloat(x);
+//            buf.putFloat(y);
+//            buf.putFloat(z);
+//
+//            buf.putFloat(r);
+//            buf.putFloat(g);
+//            buf.putFloat(b);
+//            buf.putFloat(a);
         }
     }
 

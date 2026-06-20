@@ -3,7 +3,6 @@
 
 layout (location = 0) out vec4 outColor;
 
-#MultipleWrites(100)
 layout (set = 0, binding = 0) uniform Camera {
     mat4 proj;
     mat4 view;

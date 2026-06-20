@@ -29,6 +29,8 @@ public class CompiledDescriptorSetLayout implements Disposable {
     }
 
     public CompiledDescriptorSetLayout(VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout, DescriptorsInfo additionalInfo, boolean partialBinding) {
+        layout.debug();
+
         this.engine = engine;
         this.device = device;
         this.layout = layout;

@@ -66,4 +66,21 @@ public class BindingLayout {
     public int hashCode() {
         return Objects.hash(name, set, binding, type, descriptorCount, typeLayout, packingType);
     }
+
+    @Override
+    public String toString() {
+        return "BindingLayout{" +
+                "name='" + name + '\'' +
+                ", set=" + set +
+                ", binding=" + binding +
+                ", type=" + type +
+                ", descriptorCount=" + descriptorCount +
+                ", typeLayout=" + typeLayout +
+                ", packingType=" + packingType +
+                '}';
+    }
+
+    public void debug() {
+        System.out.println(this);
+    }
 }

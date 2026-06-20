@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.enums.texture.Format;
 import org.lwjgl.util.spvc.Spvc;
 
 public enum BaseType {
@@ -23,7 +22,8 @@ public enum BaseType {
     SampledImage,
     AccelerationStructure,
     AtomicCounter,
-    Unknown;
+    TypePointer,
+    Unknown, Array;
 
     public static BaseType fromSpvc(int baseType) {
         return switch (baseType) {
@@ -50,4 +50,18 @@ public enum BaseType {
         };
     }
 
+    public static BaseType forInt(int width, int signedness) {
+        if (width == 8) return signedness == 1 ? BaseType.I8 : BaseType.U8;
+        if (width == 16) return signedness == 1 ? BaseType.I16 : BaseType.U16;
+        if (width == 32) return signedness == 1 ? BaseType.I32 : BaseType.U32;
+        if (width == 64) return signedness == 1 ? BaseType.I64 : BaseType.U64;
+        return BaseType.Unknown;
+    }
+
+    public static BaseType forFloat(int width, int enc) {
+        if (width == 16) return BaseType.F16;
+        if (width == 32) return BaseType.F32;
+        if (width == 64) return BaseType.F64;
+        return BaseType.Unknown;
+    }
 }

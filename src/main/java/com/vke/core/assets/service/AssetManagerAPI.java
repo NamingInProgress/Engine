@@ -8,6 +8,7 @@ import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
+import org.jetbrains.annotations.Nullable;
 
 public class AssetManagerAPI extends ServiceAPI implements AssetManager {
     public AssetManagerAPI(ServiceImpl baseImpl) {

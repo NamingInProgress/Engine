@@ -72,6 +72,7 @@ public class DescriptorSet {
         }
     }
 
+    //これはちょっと怪しいね
     public static long recomputeSize(TypeLayout type) {
         if (type instanceof PrimitiveType) {
             return type.size;

@@ -11,6 +11,7 @@ import com.vke.core.scene.SceneXML;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -146,6 +147,28 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
 
     private boolean isSceneFile(Identifier identifier) {
         return "xml".equals(identifier.getExtensionLower());
+    }
+
+    @Override
+    public @Nullable SceneTransferState createTransferState() {
+        HashMap<Identifier, SceneTransferState.Entry> registry = new HashMap<>(sceneRegistry.size());
+        sceneRegistry.forEach((k, v) -> registry.put(k, new SceneTransferState.Entry(v.scene, v.sceneXML.file)));
+        return new SceneTransferState(currentlyLoadedScene, registry);
+    }
+
+    @Override
+    public void applyTransferState(@Nullable SceneTransferState state) {
+        applyTransferState(state, engine);
+    }
+
+    void applyTransferState(@Nullable SceneTransferState state, Context context) {
+        if (state == null) return;
+
+        this.currentlyLoadedScene = state.currentLoadedScene();
+        this.sceneRegistry.clear();
+        for (SceneTransferState.Entry entry : state.sceneRegistry().values()) {
+            registerScene(entry.file(), engine);
+        }
     }
 
     private record SceneEntry(Scene scene, SceneXML sceneXML) {}

@@ -9,6 +9,7 @@ import com.vke.core.Context;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -64,5 +65,15 @@ public class SceneManagerScopedImpl implements CompoundFramable, SceneManager {
     @Override
     public void free() {
 
+    }
+
+    @Override
+    public @Nullable SceneTransferState createTransferState() {
+        return base.createTransferState();
+    }
+
+    @Override
+    public void applyTransferState(@Nullable SceneTransferState state) {
+        base.applyTransferState(state, context);
     }
 }

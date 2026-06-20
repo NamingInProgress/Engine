@@ -14,7 +14,6 @@ import org.lwjgl.vulkan.VkDescriptorPoolSize;
 import java.nio.LongBuffer;
 
 public class DescriptorPool implements Disposable {
-
     private final long handle;
     private final VulkanRenderDevice device;
 

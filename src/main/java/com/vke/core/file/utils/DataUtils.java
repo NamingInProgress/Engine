@@ -15,6 +15,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class DataUtils {
+    private static boolean THROW_ON_EOF = false;
+    private static boolean oldToeof;
+
+    public static void enableThrowOnEOF() {
+        oldToeof = THROW_ON_EOF;
+        THROW_ON_EOF = true;
+    }
+
+    public static void popConfig() {
+        THROW_ON_EOF = oldToeof;
+    }
+
     public static int abcd(int a, int b, int c, int d) {
         return (a << 24) | (b << 16) | (c << 8) | d;
     }
@@ -25,13 +37,17 @@ public class DataUtils {
 
     public static int readU8(InputStream stream) throws IOException {
         int i = stream.read();
+        if (i == -1 && THROW_ON_EOF) throw new EOFException();
         return i == -1 ? -1 : i & 0xFF;
     }
 
     public static int readU16LittleEndian(InputStream stream) throws IOException {
         int a = stream.read();
         int b = stream.read();
-        if (a == -1 || b == -1) return -1;
+        if (a == -1 || b == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(0, 0, b, a);
     }
 
@@ -40,14 +56,20 @@ public class DataUtils {
         int b = stream.read();
         int c = stream.read();
         int d = stream.read();
-        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (a == -1 || b == -1 || c == -1 || d == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(d, c, b, a);
     }
 
     public static int readU16BigEndian(InputStream stream) throws IOException {
         int a = stream.read();
         int b = stream.read();
-        if (a == -1 || b == -1) return -1;
+        if (a == -1 || b == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(0, 0, a, b);
     }
 
@@ -56,7 +78,10 @@ public class DataUtils {
         int b = stream.read();
         int c = stream.read();
         int d = stream.read();
-        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (a == -1 || b == -1 || c == -1 || d == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return dcba(d, c, b, a);
     }
 

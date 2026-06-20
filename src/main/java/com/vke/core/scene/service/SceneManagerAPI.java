@@ -6,6 +6,7 @@ import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 public class SceneManagerAPI extends ServiceAPI implements SceneManager {
     public SceneManagerAPI(ServiceImpl baseImpl) {
@@ -29,5 +30,15 @@ public class SceneManagerAPI extends ServiceAPI implements SceneManager {
     @Override
     public void setScene(String name) throws SceneException {
         getImpl().setScene(name);
+    }
+
+    @Override
+    public @Nullable SceneTransferState createTransferState() {
+        return getImpl().createTransferState();
+    }
+
+    @Override
+    public void applyTransferState(@Nullable SceneTransferState state) {
+        getImpl().applyTransferState(state);
     }
 }

@@ -16,4 +16,13 @@ public class DescriptorSetLayout {
         return bindings.equals(that.bindings);
     }
 
+    public void debug() {
+        System.out.println("Descriptor set layout debug begin");
+        System.out.println("count: " + bindings.size());
+        for (var b : bindings) {
+            b.debug();
+        }
+        System.out.println("Descriptor set layout debug end");
+    }
+
 }

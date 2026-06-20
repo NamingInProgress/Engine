@@ -70,7 +70,10 @@ public interface IVulkanPipeline extends Pipeline {
 
         sets.putAll(engineSets);
 
-        return new DescriptorSets(ctx.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), additionalDescInfo);
+        DescriptorSetLayout[] layouts = new DescriptorSetLayout[sets.size()];
+        sets.forEach((k, v) -> layouts[k] = v);
+
+        return new DescriptorSets(ctx.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(layouts).collectToList(), additionalDescInfo);
     }
 
     default PushConstants createPushConstants(ArrayList<ReflectedShader> shaders) {
