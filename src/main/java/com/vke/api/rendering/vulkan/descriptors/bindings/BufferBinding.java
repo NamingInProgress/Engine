@@ -10,9 +10,9 @@ public class BufferBinding extends DescriptorBinding {
     public final long singleBufferSize; // ALIGNED, Used for buffer arrays, if the descriptor is not an array set it to the size of the buffer
     public final int numBuffers;
     public final PackingType packingType;
-    public final boolean multiWrite;
+    public final int multiWrite;
 
-    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType, boolean multiWrite) {
+    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType, int multiWrite) {
         super(layout);
         this.buffer = buffer;
         this.singleBufferSize = singleBufferSize;

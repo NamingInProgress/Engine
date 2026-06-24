@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors2.handles;
+package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;

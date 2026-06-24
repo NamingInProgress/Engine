@@ -12,6 +12,7 @@ import com.vke.api.rendering.vulkan.descriptors.types.StructType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
+import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 
 import java.util.HashMap;
@@ -100,7 +101,17 @@ public class DescriptorSet {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
                 BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
-                MappedBuffer buffer = new MappedBuffer(engine, device, layout.typeLayout.size * layout.descriptorCount, usage);
+                MappedBuffer buffer = null;
+                int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
+
+                if (layout.multiWrite != -1) {
+                    buffer = new MappedGpuRingBuffer(engine, device, layout.typeLayout.size, layout.multiWrite * framesInFlight, usage);
+                } else {
+                    new MappedBuffer(engine, device, layout.typeLayout.size * framesInFlight, usage);
+                }
+
+                if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");
+
                 yield new BufferBinding(layout, buffer, layout.typeLayout.size, layout.packingType, layout.multiWrite);
             }
             case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerBinding(layout);

@@ -69,7 +69,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     @Override
     protected void onInitialize() {
-        this.device = new VulkanRenderDevice(context, createInfo);
+        this.device = new VulkanRenderDevice(context, createInfo, this);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
         this.frames = device.createFrames(swapchain);

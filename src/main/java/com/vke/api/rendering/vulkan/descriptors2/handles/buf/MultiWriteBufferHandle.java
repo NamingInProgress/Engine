@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors2.handles;
+package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
@@ -12,6 +12,10 @@ public class MultiWriteBufferHandle extends BufferHandle {
 
     private final MultiWriteCounter counter;
     private final long singleBufferSize;
+
+    public MultiWriteBufferHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type, int maxRotations, long fullBufferSize, long singleBufferSize, long cpuAddress) {
+        this(instance, set, binding, type, maxRotations, fullBufferSize, singleBufferSize, cpuAddress, 0);
+    }
 
     public MultiWriteBufferHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type, int maxRotations, long fullBufferSize, long singleBufferSize, long cpuAddress, long gpuAddress) {
         super(instance, set, binding, type, 0, fullBufferSize, cpuAddress, gpuAddress);

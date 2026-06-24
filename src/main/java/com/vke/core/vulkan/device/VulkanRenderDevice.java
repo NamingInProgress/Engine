@@ -22,6 +22,7 @@ import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.VKUtils;
@@ -81,18 +82,20 @@ public class VulkanRenderDevice implements RenderDevice {
     private final VulkanCreateInfo vulkanCreateInfo;
     private final VKEngine engine;
     private final Context context;
+    private final VulkanRenderer renderer;
 
     private final AutoHeapAllocator alloc;
 
     private final Logger logger;
 
-    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo) {
+    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo, VulkanRenderer renderer) {
         this.engine = context.getEngine();
         this.context = context;
         this.engineCreateInfo = engineCreateInfo;
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
         this.logger = LoggerFactory.get("Vulkan Setup");
+        this.renderer = renderer;
 
         initInstance();
         setupDebugMessenger(this.instance, engine);
@@ -369,4 +372,8 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     public VKEngine getEngine() { return this.engine; }
+
+    public VulkanRenderer getRenderer() {
+        return renderer;
+    }
 }

@@ -16,14 +16,14 @@ public class BindingLayout {
     public int binding;
     public DescriptorType type;
     public int descriptorCount;
-    public boolean multiWrite;
+    public int multiWrite;
 
-    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount, boolean multiWrite) {
+    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount, int multiWrite) {
         this(name, set, binding, type, descriptorCount, null, null, multiWrite);
     }
 
     public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount,
-                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType, boolean multiWrite) {
+                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType, int multiWrite) {
         this.name = name;
         this.set = set;
         this.binding = binding;

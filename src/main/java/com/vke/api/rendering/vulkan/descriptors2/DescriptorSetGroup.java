@@ -14,6 +14,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.single.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors2.handles.*;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.*;
 import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
@@ -65,9 +66,9 @@ public class DescriptorSetGroup {
 
         if (!isDeep) {
             if (binding.layout.type.isBuffer()) {
-                return (T) resolveShallowBuffer((BufferBinding) binding, root, descriptorCount, hasIndex, descriptorSetIndex);
+                return (T) resolveShallowBuffer((BufferBinding) binding, root, descriptorCount, hasIndex, set);
             }
-            return (T) resolveShallowNonBuffer(binding, root, descriptorCount, hasIndex, descriptorSetIndex);
+            return (T) resolveShallowNonBuffer(binding, root, descriptorCount, hasIndex, set);
         }
 
         if (!binding.layout.type.isBuffer()) throw new IllegalStateException("Only Buffer type uniforms support deep access!");
@@ -100,22 +101,28 @@ public class DescriptorSetGroup {
         return new FieldHandle(set, set.set(), layout.binding, layout.type, parent, res.offset(), (int) res.finalType().size);
     }
 
-    private com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle resolveShallowBuffer(BufferBinding binding, EntryNode node, int descriptorCount, boolean hasIndex, int descriptorSetIndex) {
+    private UniformHandle resolveShallowBuffer(BufferBinding binding, int descriptorCount, boolean hasIndex, DescriptorSetInstance set) {
         BindingLayout layout = binding.layout;
-        CompiledDescriptorSetLayout dsl = this.compiledLayouts.get(descriptorSetIndex);
+
         if (descriptorCount > 1) {
-            if (!hasIndex) {
-                return new BufferArrayHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, layout.descriptorCount, binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
-            }
-            return new BufferHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, ((ArrayIndexNode) node.child).index, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+            throw new IllegalStateException("Buffer Arrays not supported!");
+//            if (!hasIndex) {
+//                return new BufferArrayHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, layout.descriptorCount, binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+//            }
+//            return new BufferHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, ((ArrayIndexNode) node.child).index, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
         } else {
             if (hasIndex) throw new IllegalStateException("Requested buffer with index from a non-array buffer!");
 
-            return new BufferHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, 0, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
+            var buf = binding.buffer;
+            if (binding.multiWrite == -1) {
+                return new BufferHandle(set, set.set(), layout.binding, layout.type, buf.getSize(), buf.getMappedAddress());
+            } else {
+                return new MultiWriteBufferHandle(set, set.set(), layout.binding, layout.type, binding.multiWrite, buf.getSize(), binding.singleBufferSize, buf.getMappedAddress());
+            }
         }
     }
 
-    private com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle resolveShallowNonBuffer(DescriptorBinding binding, EntryNode node, int descriptorCount, boolean hasIndex, int descriptorSetIndex) {
+    private UniformHandle resolveShallowNonBuffer(DescriptorBinding binding, EntryNode node, int descriptorCount, boolean hasIndex, int descriptorSetIndex) {
         BindingLayout layout = binding.layout;
         if (descriptorCount > 1) {
             if (!hasIndex) {
@@ -129,8 +136,8 @@ public class DescriptorSetGroup {
         }
     }
 
-    private com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle getHandleForNonBufferArrayType(DescriptorBinding binding, BindingLayout layout, int descriptorSetIndex) {
-        CompiledDescriptorSetLayout dsl = this.compiledLayouts.get(descriptorSetIndex);
+    private UniformHandle getHandleForNonBufferArrayType(DescriptorBinding binding, BindingLayout layout, int descriptorSetIndex) {
+
         return switch (layout.type) {
             case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerArrayHandle(descriptorSetIndex, layout.binding, layout.type, null, dsl, (CombinedImageSamplerBinding) binding);
             case SAMPLED_IMAGE, STORAGE_IMAGE -> new ImageArrayHandle(descriptorSetIndex, layout.binding, layout.type, null, dsl, (ImageBinding) binding);
@@ -140,7 +147,7 @@ public class DescriptorSetGroup {
         };
     }
 
-    private com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle getHandleForNonBufferType(DescriptorBinding binding, BindingLayout layout, int index, int descriptorSetIndex) {
+    private UniformHandle getHandleForNonBufferType(DescriptorBinding binding, BindingLayout layout, int index, int descriptorSetIndex) {
         CompiledDescriptorSetLayout dsl = this.compiledLayouts.get(descriptorSetIndex);
         return switch (layout.type) {
             case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerHandle(descriptorSetIndex, layout.binding, layout.type, null, dsl, (CombinedImageSamplerBinding) binding, index);
