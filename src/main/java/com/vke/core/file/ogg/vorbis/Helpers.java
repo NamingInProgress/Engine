@@ -1,4 +1,4 @@
-package com.vke.core.file.ogg.vorbis.setup;
+package com.vke.core.file.ogg.vorbis;
 
 //https://xiph.org/vorbis/doc/Vorbis_I_spec.pdf#subsubsection.9.2.1
 public class Helpers {

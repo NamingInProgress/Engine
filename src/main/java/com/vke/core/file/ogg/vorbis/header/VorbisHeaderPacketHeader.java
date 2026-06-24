@@ -1,4 +1,4 @@
-package com.vke.core.file.ogg.vorbis;
+package com.vke.core.file.ogg.vorbis.header;
 
 public record VorbisHeaderPacketHeader(int packetType) {
     public boolean isIdent() {

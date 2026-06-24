@@ -1,14 +1,15 @@
-package com.vke.core.file.ogg.vorbis.setup;
+package com.vke.core.file.ogg.vorbis.header.setup;
 
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.huffman.Code;
 import com.vke.core.file.io.bit.BitStreamUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
-import com.vke.core.file.ogg.vorbis.IdentHeader;
+import com.vke.core.file.ogg.vorbis.Helpers;
+import com.vke.core.file.ogg.vorbis.header.IdentHeader;
 import com.vke.core.file.ogg.vorbis.VorbisStreamUndecodableException;
-import com.vke.core.file.ogg.vorbis.setup.floor.Floor0;
-import com.vke.core.file.ogg.vorbis.setup.floor.Floor1;
-import com.vke.core.file.ogg.vorbis.setup.huffman.VorbisHMCodeGenerator;
+import com.vke.core.file.ogg.vorbis.header.setup.floor.Floor0;
+import com.vke.core.file.ogg.vorbis.header.setup.floor.Floor1;
+import com.vke.core.file.ogg.vorbis.header.setup.huffman.VorbisHMCodeGenerator;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
@@ -17,10 +18,11 @@ import java.util.Arrays;
 public class SetupHeader {
     private final IdentHeader ident;
 
-    private final Codebook[] codebooks;
-    private final FloorConfig[] floorConfigs;
-    private final Residue[] residues;
-    private final Mapping[] mappings;
+    public final Codebook[] codebooks;
+    public final FloorConfig[] floorConfigs;
+    public final Residue[] residues;
+    public final Mapping[] mappings;
+    public final Mode[] modes;
 
     public SetupHeader(IdentHeader ident, BitInputStream bitStream) throws IOException {
         this.ident = ident;
@@ -58,6 +60,10 @@ public class SetupHeader {
         }
 
         int modesAmt = bitStream.readBits(6) + 1;
+        this.modes = new Mode[modesAmt];
+        for (int i = 0; i < modesAmt; i++) {
+            modes[i] = decodeMode(bitStream);
+        }
     }
 
     //https://xiph.org/vorbis/doc/Vorbis_I_spec.pdf#section.3
@@ -115,7 +121,7 @@ public class SetupHeader {
         Code[] actualCodes = VorbisHMCodeGenerator.generateVorbisCodes(codewords);
 
         if (lookupType == 0) {
-            return new Codebook(actualCodes, dimensions, entries);
+            return new Codebook(actualCodes, dimensions, entries, lookupType);
         }
 
         float minVal = Helpers.float32_unpack(bitStream.readBits(32));
@@ -135,7 +141,7 @@ public class SetupHeader {
             multiplicands[i] = bitStream.readBits(valBits);
         }
 
-        return new Codebook(actualCodes, dimensions, entries, minVal, deltaVal, seqP, multiplicands);
+        return new Codebook(actualCodes, dimensions, entries, minVal, deltaVal, seqP, multiplicands, lookupType, lookupValues);
     }
 
     private FloorConfig decodeFloorConfig(BitInputStream bitStream) throws IOException {

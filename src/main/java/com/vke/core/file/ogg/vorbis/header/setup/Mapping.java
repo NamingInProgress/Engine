@@ -1,4 +1,4 @@
-package com.vke.core.file.ogg.vorbis.setup;
+package com.vke.core.file.ogg.vorbis.header.setup;
 
 public record Mapping(
         int submasks,

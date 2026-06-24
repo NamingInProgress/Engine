@@ -1,4 +1,4 @@
-package com.vke.core.file.ogg.vorbis.setup.floor;
+package com.vke.core.file.ogg.vorbis.header.setup.floor;
 
 public record Floor0(
         int f0_order,

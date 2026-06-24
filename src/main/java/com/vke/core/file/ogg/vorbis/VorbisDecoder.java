@@ -3,10 +3,16 @@ package com.vke.core.file.ogg.vorbis;
 import com.vke.core.audio.decoder.AudioDecoder;
 import com.vke.core.audio.pcm.PCMInfo;
 import com.vke.core.file.io.bit.BitOrdering;
+import com.vke.core.file.io.bit.BitStreamUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.ogg.OggPacketReader;
-import com.vke.core.file.ogg.vorbis.setup.SetupHeader;
+import com.vke.core.file.ogg.vorbis.data.VorbisAudioPacketDecoder;
+import com.vke.core.file.ogg.vorbis.header.CommentHeader;
+import com.vke.core.file.ogg.vorbis.header.IdentHeader;
+import com.vke.core.file.ogg.vorbis.header.VorbisHeaderPacketHeader;
+import com.vke.core.file.ogg.vorbis.header.VorbisPCMInfoExtension;
+import com.vke.core.file.ogg.vorbis.header.setup.SetupHeader;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.utils.Utils;
 import com.vke.utils.types.Container;
@@ -25,6 +31,8 @@ public class VorbisDecoder implements AudioDecoder {
     private BitInputStream bitStream;
 
     private VorbisPCMInfoExtension info;
+
+    private VorbisAudioPacketDecoder audioPacketDecoder;
 
     public VorbisDecoder(InputStream stream) {
         this.oggDecoder = new OggPacketReader(stream);
@@ -55,6 +63,7 @@ public class VorbisDecoder implements AudioDecoder {
         bitStream.alignToByte();
 
         this.info = new VorbisPCMInfoExtension(ident, comment, setup);
+        this.audioPacketDecoder = new VorbisAudioPacketDecoder(info);
         return new PCMInfo((int) ident.sampleRate, ident.channels, 32, -1, info);
     }
 
@@ -69,11 +78,15 @@ public class VorbisDecoder implements AudioDecoder {
 
     }
 
-    private VorbisHeaderPacketHeader startHeaderPacket() throws IOException {
+    private void setupPacket() throws IOException {
         byte[] packet = oggDecoder.readNextPacket();
         this.stream = new ByteArrayInputStream(packet);
         this.bitStream = new ShittyBitInputStream(stream);
         this.bitStream.setOrdering(BitOrdering.LSB_FIRST);
+    }
+
+    private VorbisHeaderPacketHeader startHeaderPacket() throws IOException {
+        setupPacket();
 
         int type = DataUtils.readU8(stream);
         int[] V_O_R_B_I_S = DataUtils.readU8N(6, stream);
@@ -81,5 +94,17 @@ public class VorbisDecoder implements AudioDecoder {
             throw new IOException("Not a vorbis packet!");
         }
         return new VorbisHeaderPacketHeader(type);
+    }
+
+    private Object decodeAudioPacket() throws IOException {
+        setupPacket();
+
+        boolean isntAudioPacket = BitStreamUtils.readFlag(bitStream);
+        if (!isntAudioPacket) {
+            return audioPacketDecoder.decodeAudioPacket(bitStream);
+        }
+        //spec says:
+        //"the decoder must ignore the packet and not attempt decoding it to audio"
+        return decodeAudioPacket();
     }
 }

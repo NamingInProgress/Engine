@@ -1,7 +1,7 @@
-package com.vke.core.file.ogg.vorbis.setup.huffman;
+package com.vke.core.file.ogg.vorbis.header.setup.huffman;
 
 import com.vke.core.file.deflate.decompress.huffman.Code;
-import com.vke.core.file.ogg.vorbis.setup.Codeword;
+import com.vke.core.file.ogg.vorbis.header.setup.Codeword;
 
 public class VorbisHMCodeGenerator {
     public static Code[] generateVorbisCodes(Codeword[] codewords) {

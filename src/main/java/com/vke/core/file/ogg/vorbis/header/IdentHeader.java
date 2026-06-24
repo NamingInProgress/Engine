@@ -1,8 +1,9 @@
-package com.vke.core.file.ogg.vorbis;
+package com.vke.core.file.ogg.vorbis.header;
 
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
+import com.vke.core.file.ogg.vorbis.VorbisStreamUndecodableException;
 
 import java.io.IOException;
 
