@@ -61,8 +61,8 @@ public class Fn {
         return (float) min(barkMapSize - 1, foobar(n, i, floorRate, barkMapSize));
     }
 
-    public static double omega(float[] map, int i, int barkMapSize) {
-        return (float) dv(PI * map[i], barkMapSize);
+    public static double omega(float mapped, int barkMapSize) {
+        return (float) dv(PI * mapped, barkMapSize);
     }
 
     public static double p_odd(double omega, int floorOrder, float[] coeff) {
@@ -89,5 +89,10 @@ public class Fn {
         double q = dv(1 + cos2(omega), 2);
         int qLim = (int) dv(floorOrder - 2, 2);
         return q * prod(qLim, 0, j -> 4 * sq(cos(coeff[2 * j]) - cos(omega)));
+    }
+
+    public static double linearFloor(int amplitude, int amplitudeBits, int amplitudeOffset, double p, double q) {
+        double denom = (amplitudeBits << 2 - 1) * sqrt(p + q);
+        return exp(0.11512925 * (dv(amplitude * amplitudeOffset, denom) - amplitudeOffset));
     }
 }
