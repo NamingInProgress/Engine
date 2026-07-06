@@ -1,10 +1,13 @@
 package com.vke.core.vulkan.command;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
@@ -13,15 +16,15 @@ import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.vulkan.texture.VulkanTextureView;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
-import java.nio.LongBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class VulkanCmdBuffers implements CommandBuffer {
 
@@ -30,14 +33,16 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VkCommandBuffer vk;
     private final VulkanSwapchain swapchain;
     private final VKEngine engine;
+    private final FrameCounter fc;
 
     private boolean recording;
 
-    public VulkanCmdBuffers(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
+    public VulkanCmdBuffers(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool, FrameCounter fc) {
         this.device = device;
         this.poolHandle = pool.getHandle();
         this.swapchain = swapchain;
         this.engine = engine;
+        this.fc = fc;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc(stack)
@@ -204,23 +209,34 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
-        this.bindDescriptorSets(pipeline, ((VulkanPipelineLayout) unwrapPipeline(pipeline).layout()).descriptors().getDescriptorSetHandles());
-    }
+        IVulkanPipeline p = unwrapPipeline(pipeline);
+        VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
+        l.writeHandles();
 
-    @Override
-    public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline, long... handles) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IVulkanPipeline p = unwrapPipeline(pipeline);
-            VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
+        List<Integer> usedSets = new ArrayList<>();
+        long[] sets = new long[l.getUserSets().size()];
+        List<Integer> dynamicOffsets = new ArrayList<>();
 
-
-            LongBuffer sets = stack.longs(handles);
-
-            VK14.vkCmdBindDescriptorSets(this.getBuffer(),
-                    getBindPoint(p),
-                    l.getHandle(),
-                    0, sets, null);
+        for (var entry : l.getGroup().getHandleCache().entrySet()) {
+            int currSet = entry.getValue().set;
+            if (!usedSets.contains(currSet)) {
+                sets[currSet] = l.getUserSets().get(currSet).getSet().getHandle();
+                usedSets.add(currSet);
+            }
         }
+
+        l.getGroup().getHandleCache().values().stream()
+                .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
+                .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
+                .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
+
+        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
+                getBindPoint(p),
+                l.getHandle(),
+                0, sets,
+                dynamicOffsets.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray());
     }
 
     @Override

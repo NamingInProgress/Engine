@@ -127,7 +127,7 @@ public class ReflectedShader implements Disposable {
                     long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     descriptorResource.struct = generateStruct(resource, pSize.get(0));
-                    descriptorResource.multiWrite = this.getMetadata().multipleWrites().getOrDefault(resource.name, -1);
+                    descriptorResource.multiWrite = this.getMetadata().multipleWrites().getOrDefault(resource.name, 1);
                 }
             }
             descriptorResource.baseTypeRaw = resource.baseType;

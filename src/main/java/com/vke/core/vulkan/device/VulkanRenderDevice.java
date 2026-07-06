@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.device;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
@@ -25,7 +26,7 @@ import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
-import com.vke.core.vulkan.VKUtils;
+import com.vke.core.vulkan.utils.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
@@ -39,7 +40,6 @@ import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.utils.Utils;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -57,7 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class VulkanRenderDevice implements RenderDevice {
+public class VulkanRenderDevice extends FrameCounter implements RenderDevice {
 
     private static final String HERE = "RenderDevice@VulkanImpl";
 
@@ -329,14 +329,14 @@ public class VulkanRenderDevice implements RenderDevice {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(engine, logicalDevice, swapchain);
+            frames[i] = new VulkanFrame(engine, logicalDevice, swapchain, getRenderer().getFrameCounter());
         }
 
         return frames;
     }
 
     public VulkanFrame createImmediateFrame(VulkanSwapchain swapchain) {
-        return new VulkanFrame(engine, logicalDevice, swapchain, true);
+        return new VulkanFrame(engine, logicalDevice, swapchain, getRenderer().getFrameCounter(), true);
     }
 
     @Override

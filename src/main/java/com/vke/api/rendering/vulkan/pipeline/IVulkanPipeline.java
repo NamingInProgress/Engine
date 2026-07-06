@@ -41,7 +41,8 @@ public interface IVulkanPipeline extends Pipeline {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
 
-                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(), additionalDescInfo.dynamicBuffers.contains(resource.name));
+                    // TODO: Change this
+                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(), !additionalDescInfo.dynamicBuffers.contains(resource.name));
 
                     descriptor.bindings.add(binding);
                 }

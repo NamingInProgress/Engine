@@ -34,6 +34,10 @@ public enum DescriptorType implements IntEnum {
         return this == UNIFORM_BUFFER || this == UNIFORM_BUFFER_DYNAMIC || this == STORAGE_BUFFER || this == STORAGE_BUFFER_DYNAMIC;
     }
 
+    public boolean isDynamic() {
+        return this == UNIFORM_BUFFER_DYNAMIC || this == STORAGE_BUFFER_DYNAMIC;
+    }
+
     public static DescriptorType fromBaseType(ReflectedShader.ResourceType rt, boolean isDynamic) {
         return switch (rt) {
             case UBO -> isDynamic ? UNIFORM_BUFFER_DYNAMIC : UNIFORM_BUFFER;

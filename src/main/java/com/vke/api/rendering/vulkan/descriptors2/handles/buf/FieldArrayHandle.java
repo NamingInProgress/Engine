@@ -2,9 +2,9 @@ package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
-import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 
 import java.util.function.Consumer;
 
@@ -17,9 +17,9 @@ public class FieldArrayHandle extends UniformHandle {
     public final int elementCount;
     public final int totalLength;
 
-    public FieldArrayHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type, BufferHandle parent,
+    public FieldArrayHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferHandle parent,
                             long fieldOffset, int stride, int elementCount) {
-        super(instance, set, binding, type);
+        super(group, set, binding, type);
         this.parent = parent;
         this.fieldOffset = fieldOffset;
         this.stride = stride;

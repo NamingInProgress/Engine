@@ -1,19 +1,26 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles;
 
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
-import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 
 public class UniformHandle {
 
     public final int set, binding;
     public final DescriptorType type;
-    public final DescriptorSetInstance instance;
+    public final DescriptorSetGroup group;
 
-    public UniformHandle(DescriptorSetInstance instance, int set, int binding, DescriptorType type) {
+    private boolean dirty = false;
+
+    public UniformHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type) {
         this.set = set;
         this.binding = binding;
         this.type = type;
-        this.instance = instance;
+        this.group = group;
+    }
+
+    public void setDirty() {
+        if (!dirty) dirty = true;
+        group.setDirty(this);
     }
 
 }

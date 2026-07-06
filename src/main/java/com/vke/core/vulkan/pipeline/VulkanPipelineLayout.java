@@ -6,10 +6,18 @@ import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
-import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
+import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.ImageHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.descriptor.DescriptorAllocator;
+import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.Utils;
@@ -38,6 +46,10 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final DescriptorAllocator alloc;
     private final List<DescriptorSetInstance> userSets = new ArrayList<>();
 
+    private com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup group;
+
+    public final DescriptorWriter writer;
+
     public static VulkanPipelineLayout getLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, List<DescriptorSetLayout> layouts) {
         // TODO: Fix this making a new pipeline layout (This is technically fine but it is recommended to reuse)
         FrameCounter fc = engine.service(engine.rendererType().serviceName);
@@ -53,6 +65,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
         this.engine = engine;
         this.device = device;
         this.pushConstants = pc;
+        this.writer = new DescriptorWriter(device);
 
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();
         layouts.forEach(setLayout -> setLayout.bindings.forEach(bindingLayout ->
@@ -62,7 +75,9 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
         for (int i = 0; i < layouts.size(); i++) {
             DescriptorSetLayout layout = layouts.get(i);
-            userSets.add(new DescriptorSetInstance(engine, device, alloc, layout, fc, i));
+            var ds = new DescriptorSetInstance(engine, device, alloc, layout, fc, i);
+            userSets.add(ds);
+
         }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -114,6 +129,38 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     public PushConstants pushConstants() {
         return pushConstants;
+    }
+
+    public DescriptorSetGroup getGroup() {
+        if (group == null) group = new DescriptorSetGroup(this, device.getRenderer().getFrameCounter());
+        return group;
+    }
+
+    public long getSetHandle(int set) {
+        return getUserSets().get(set).getSet().getHandle();
+    }
+
+    public void writeHandles() {
+        for (UniformHandle uh : getGroup().getDirtyHandles()) {
+            long dsh = getSetHandle(uh.set);
+            switch (uh) {
+                case CISHandle handle ->
+                        writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                case CISArrayHandle handle ->
+                        writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                case ImageHandle handle ->
+                        writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                case ImageArrayHandle handle ->
+                        writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                case SamplerHandle handle -> writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+                case SamplerArrayHandle handle ->
+                        writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+                default -> {}
+            }
+        }
+
+        getGroup().clearDirty();
+        writer.flush();
     }
 
     @Override

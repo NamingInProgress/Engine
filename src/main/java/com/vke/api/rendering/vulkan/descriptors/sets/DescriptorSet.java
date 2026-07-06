@@ -101,13 +101,13 @@ public class DescriptorSet {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
                 BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
-                MappedBuffer buffer = null;
+                MappedBuffer buffer;
                 int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
 
-                if (layout.multiWrite != -1) {
-                    buffer = new MappedGpuRingBuffer(engine, device, layout.typeLayout.size, layout.multiWrite * framesInFlight, usage);
+                if (layout.staticBuffer) {
+                    buffer = new MappedBuffer(engine, device, layout.typeLayout.size, usage);
                 } else {
-                    new MappedBuffer(engine, device, layout.typeLayout.size * framesInFlight, usage);
+                    buffer = new MappedGpuRingBuffer(engine, device, layout.typeLayout.size * layout.multiWrite, framesInFlight, usage);
                 }
 
                 if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");

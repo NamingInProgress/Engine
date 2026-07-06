@@ -33,7 +33,7 @@ public class EngineDescriptorSetsManager implements Disposable {
             for (ReflectedShader.DescriptorResource descriptorResource : entry.getValue()) {
                 ENGINE_LAYOUTS.computeIfAbsent(descriptorResource.set, (_) -> new DescriptorSetLayout())
                         .bindings.add(BindingLayout.fromDescriptorResource(descriptorResource, entry.getKey(),
-                                !truth.getMetadata().staticBuffers().contains(descriptorResource.name)));
+                                truth.getMetadata().staticBuffers().contains(descriptorResource.name)));
 
                 if (entry.getKey().isDescriptorBuffer()) {
                     var bufferUsage = entry.getKey() == ReflectedShader.ResourceType.UBO ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();

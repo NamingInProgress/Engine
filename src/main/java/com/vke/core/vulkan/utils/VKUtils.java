@@ -1,4 +1,4 @@
-package com.vke.core.vulkan;
+package com.vke.core.vulkan.utils;
 
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
@@ -198,4 +198,17 @@ public class VKUtils {
             return buffer;
         }
     }
+
+    public static long encodeDescriptor(int set, int binding) {
+        return (set & 0xFFFFFFFFL) | ((long) binding << 32);
+    }
+
+    public static int set(long encoded) {
+        return (int) encoded;
+    }
+
+    public static int binding(long encoded) {
+        return (int) (encoded >>> 32);
+    }
+
 }

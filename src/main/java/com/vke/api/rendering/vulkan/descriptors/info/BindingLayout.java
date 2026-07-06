@@ -17,13 +17,14 @@ public class BindingLayout {
     public DescriptorType type;
     public int descriptorCount;
     public int multiWrite;
+    public boolean staticBuffer;
 
-    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount, int multiWrite) {
-        this(name, set, binding, type, descriptorCount, null, null, multiWrite);
+    public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount, int multiWrite, boolean staticBuffer) {
+        this(name, set, binding, type, descriptorCount, null, null, multiWrite, staticBuffer);
     }
 
     public BindingLayout(String name, int set, int binding, DescriptorType type, int descriptorCount,
-                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType, int multiWrite) {
+                         @Nullable TypeLayout typeLayout, @Nullable PackingType packingType, int multiWrite, boolean staticBuffer) {
         this.name = name;
         this.set = set;
         this.binding = binding;
@@ -32,16 +33,17 @@ public class BindingLayout {
         this.typeLayout = typeLayout;
         this.packingType = packingType;
         this.multiWrite = multiWrite;
+        this.staticBuffer = staticBuffer;
     }
 
-    public static BindingLayout fromDescriptorResource(ReflectedShader.DescriptorResource resource, ReflectedShader.ResourceType rt, boolean isDynamic) {
+    public static BindingLayout fromDescriptorResource(ReflectedShader.DescriptorResource resource, ReflectedShader.ResourceType rt, boolean staticBuffer) {
         int count = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
         if (count == 0) {
             count = 1;
         }
-        DescriptorType type = DescriptorType.fromBaseType(rt, isDynamic);
+            DescriptorType type = DescriptorType.fromBaseType(rt, !staticBuffer);
         return new BindingLayout(resource.name, resource.set, resource.binding,
-                type, count, resource.struct, PackingType.fromDescriptorType(type), resource.multiWrite);
+                type, count, resource.struct, PackingType.fromDescriptorType(type), resource.multiWrite, staticBuffer);
     }
 
     // Nullable if binding isn't a buffer

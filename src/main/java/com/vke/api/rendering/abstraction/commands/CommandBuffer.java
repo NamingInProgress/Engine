@@ -66,7 +66,6 @@ public interface CommandBuffer extends Disposable {
 
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
     void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline);
-    void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline, long... handles);
 
     void setViewport(Viewport viewport);
     void setScissor(Scissor scissor);
