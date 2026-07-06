@@ -29,11 +29,14 @@ public class DescriptorSet {
         this.device = device;
         this.engine = engine;
 
+        additionalInfo = new DescriptorsInfo();
+
         // traverse the layout to set dynamic values and runtime size arrays
+        DescriptorsInfo finalAdditionalInfo = additionalInfo;
         layout.bindings.forEach(bindingLayout -> {
             TypeLayout tl = bindingLayout.typeLayout;
             if (tl != null) {
-                resolveRuntimeArraySizes(tl, additionalInfo.runtimeSizeArraySizes);
+                resolveRuntimeArraySizes(tl, finalAdditionalInfo.runtimeSizeArraySizes);
                 tl.size = recomputeSize(tl);
             }
 

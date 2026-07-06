@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.descriptor.ds2;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.core.VKEngine;
@@ -23,6 +24,7 @@ public class DescriptorSetInstance implements Disposable {
         this.setObjects = new DescriptorSet[fc.framesInFlight()];
 
         this.compiledLayout = new CompiledDescriptorSetLayout(engine, device, setLayout, null);
+
         for (int i = 0; i < fc.framesInFlight(); i++) {
             setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine, setLayout, null);
         }
@@ -31,6 +33,8 @@ public class DescriptorSetInstance implements Disposable {
     public DescriptorSet getSet() {
         return setObjects[fc.currentIndex()];
     }
+
+    public DescriptorSet[] getAllSets() { return this.setObjects; }
 
     public int set() { return this.set; }
 

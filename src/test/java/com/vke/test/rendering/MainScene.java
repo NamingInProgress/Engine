@@ -108,13 +108,11 @@ public class MainScene extends Scene {
             tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
         });
 
-        compute_image = computePipeline.resolveUniform("image");
-        compute_image.set(tex);
-        computePipeline.updateUniforms(compute_image);
+        //compute_image = computePipeline.resolveUniform("image");
+        //compute_image.set(tex);
 
-        fullScreenSampler = fullScreenPipeline.resolveUniform("image");
-        fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
-        fullScreenPipeline.updateUniforms(fullScreenSampler);
+        //fullScreenSampler = fullScreenPipeline.resolveUniform("image");
+        //fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
 
         consumer = new FastVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 

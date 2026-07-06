@@ -2,7 +2,9 @@ package com.vke.core.draw;
 
 import com.vke.api.draw.*;
 import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.core.Context;
 import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
@@ -11,6 +13,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private static final float[] DEFAULT_UV = { 0,0,1,1 };
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;
+    private final Context ctx;
 
     //mutable state
     private float r,g,b,a;
@@ -18,9 +21,10 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private Texture t;
     private float z;
 
-    public ShapeRenderer(VertexConsumer<T> consumer, VertexFactory<T> factory) {
+    public ShapeRenderer(Context ctx, VertexConsumer<T> consumer, VertexFactory<T> factory) {
         this.consumer = consumer;
         this.factory = factory;
+        this.ctx = ctx;
     }
 
     public void color(float r, float g, float b, float a) {
@@ -44,7 +48,10 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     }
 
     private T v(float x, float y, float z, float u, float v) {
-        return factory.apply(x, y, z, r, g, b, a, u, v, t);
+        var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
+        // TODO: Fix this later
+        vert.setTextureId(ctx.service(ctx.getEngine().rendererType().serviceName).<VulkanRenderer>assumeImplementation().getEngineSetsManager().texture(t));
+        return vert;
     }
 
     /**
@@ -57,7 +64,9 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float u = bu + nx * btw;
         float v = bv + ny * bth;
 
-        return factory.apply(x, y, z, r, g, b, a, u, v, t);
+        var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
+        vert.setTextureId(ctx.service(ctx.getEngine().rendererType().serviceName).<VulkanRenderer>assumeImplementation().getEngineSetsManager().texture(t));
+        return vert;
     }
     
     private float[] uvwh() {

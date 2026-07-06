@@ -29,13 +29,9 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
     public static final int DEFAULT_BATCH_VERTEX_CAPACITY = 10_000;
     private final AssetHandle<RenderPipeline> pipeline;
     private final VulkanRenderPipeline vkPipeline;
-    private final CombinedImageSamplerArrayHandle texHandle;
-    private final DynamicDescriptorAllocator alloc;
 
     private final RecyclerArrayList<Batch> batches;
     private final RecyclerArrayList<CombinedImageSamplerArrayHandle> handleCache;
-    private final int maxTexSlots;
-    private final Texture missing;
 
     public BatchedVKVertexConsumer(Context context, VulkanRenderer renderer, T template, AssetHandle<RenderPipeline> pipeline,
                                    String texturesArrayUniformName) {
@@ -49,19 +45,13 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
 
         try {
             this.vkPipeline = ((VulkanRenderPipeline) pipeline.acquire(context));
-            this.texHandle = vkPipeline.resolveUniform(texturesArrayUniformName);
-            this.maxTexSlots = this.texHandle.cisBinding.textures.length;
-            this.missing = Utils.MISSING_TEXTURE.acquire(context);
-            ObjectIntHashMap<DescriptorType> counts = new  ObjectIntHashMap<>();
-            counts.put(DescriptorType.COMBINED_IMAGE_SAMPLER, maxTexSlots);
-            this.alloc = new DynamicDescriptorAllocator(context, renderer.getDevice(), 10, counts, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         this.batches = new RecyclerArrayList<>(3);
         this.handleCache = new RecyclerArrayList<>(10);
-        this.batches.add(new Batch(maxTexSlots));
+        //this.batches.add(new Batch(maxTexSlots));
     }
 
     @Override
@@ -84,13 +74,10 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
 
     @MethodReference
     private Batch newBatch() {
-        return new Batch(maxTexSlots);
+        return new Batch(512);
     }
 
     @MethodReference
-    private CombinedImageSamplerArrayHandle copyHandle() {
-        return alloc.copy(texHandle);
-    }
 
     private Batch ensureBatch(@Nullable Texture usesTexture, T... vertices) {
         Batch lastBatch = this.batches.lastUnchecked();
@@ -168,7 +155,7 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
     @Override
     public void free() {
         super.free();
-        this.alloc.free();
+        //this.alloc.free();
     }
 
     final class Batch implements Drawable {
@@ -212,16 +199,16 @@ public class BatchedVKVertexConsumer<T extends Vertex> extends AbstractVertexCon
             bvc.putVertices(vertices.toArray());
             bvc.putIndices(indices.toArray());
             ctx.getCommandBuffer().bindPipeline(bvc.pipeline);
-            var handle = bvc.handleCache.getOrCreateElement(true, bvc::copyHandle);
-            usedTextures.forEach((texture, textureUsage) -> handle.set(texture, Samplers.LINEAR, textureUsage));
+            //var handle = bvc.handleCache.getOrCreateElement(true, bvc::copyHandle);
+            //usedTextures.forEach((texture, textureUsage) -> handle.set(texture, Samplers.LINEAR, textureUsage));
 
             // Fill it so vulkan shuts its bitch ass up
             for (int i = usedTextures.size(); i < maxTextureSlots; i++) {
-                handle.set(missing, Samplers.LINEAR, i);
+                //handle.set(missing, Samplers.LINEAR, i);
             }
 
-            alloc.update(handle);
-            alloc.bindDescriptors(ctx, pipeline, handle);
+            //alloc.update(handle);
+            //alloc.bindDescriptors(ctx, pipeline, handle);
             bvc.submitDraw(ctx);
         }
 

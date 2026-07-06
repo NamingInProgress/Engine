@@ -130,9 +130,9 @@ public class TestApp extends App {
             throw new RuntimeException(e);
         }
 
-        CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
-        sampl.set(scaryVk, Samplers.LINEAR);
-        pipeline.updateUniforms(sampl);
+        //CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
+        //sampl.set(scaryVk, Samplers.LINEAR);
+        //pipeline.updateUniforms(sampl);
 
         vertexBufferPointer = pipeline.resolvePushConstant("vertexBuffer");
         matrixHandle = pipeline.resolvePushConstant("world");

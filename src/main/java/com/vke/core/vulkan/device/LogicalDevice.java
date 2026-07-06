@@ -6,6 +6,7 @@ import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.deflate.decompress.BitUtils;
+import com.vke.core.vulkan.utils.StructureChain3;
 import com.vke.core.vulkan.utils.VKUtils;
 import com.vke.core.vulkan.utils.StructureChain4;
 import com.vke.utils.io.Disposable;
@@ -104,7 +105,6 @@ public class LogicalDevice implements Disposable {
         VkPhysicalDeviceVulkan12Features deviceFeaturesVK12 = VkPhysicalDeviceVulkan12Features.calloc(stack).sType$Default();
         VkPhysicalDeviceVulkan13Features deviceFeaturesVK13 = VkPhysicalDeviceVulkan13Features.calloc(stack).sType$Default();
         VkPhysicalDeviceExtendedDynamicStateFeaturesEXT deviceFeaturesEXTDynamicState = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT.calloc(stack).sType$Default();
-        VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures = VkPhysicalDeviceDescriptorIndexingFeatures.calloc(stack).sType$Default();
 
         deviceFeatures.fillModeNonSolid(true);
         deviceFeatures.wideLines(true);
@@ -115,16 +115,16 @@ public class LogicalDevice implements Disposable {
         deviceFeaturesVK13.dynamicRendering(true);
         deviceFeaturesEXTDynamicState.extendedDynamicState(true);
 
-        descriptorIndexingFeatures.runtimeDescriptorArray(true);
-        descriptorIndexingFeatures.descriptorBindingPartiallyBound(true);
-        descriptorIndexingFeatures.shaderSampledImageArrayNonUniformIndexing(true);
-        descriptorIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind(true);
-        descriptorIndexingFeatures.descriptorBindingUpdateUnusedWhilePending(true);
+        deviceFeaturesVK12.runtimeDescriptorArray(true);
+        deviceFeaturesVK12.descriptorBindingPartiallyBound(true);
+        deviceFeaturesVK12.shaderSampledImageArrayNonUniformIndexing(true);
+        deviceFeaturesVK12.descriptorBindingSampledImageUpdateAfterBind(true);
+        deviceFeaturesVK12.descriptorBindingUpdateUnusedWhilePending(true);
 
 
-        StructureChain4<VkPhysicalDeviceVulkan12Features, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT, VkPhysicalDeviceDescriptorIndexingFeatures> chain =
-                new StructureChain4<>(deviceFeaturesVK12, deviceFeaturesVK13, deviceFeaturesEXTDynamicState, descriptorIndexingFeatures,
-                        deviceFeaturesVK12::pNext, deviceFeaturesVK13::pNext, deviceFeaturesEXTDynamicState::pNext);
+        StructureChain3<VkPhysicalDeviceVulkan12Features, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain =
+                new StructureChain3<>(deviceFeaturesVK12, deviceFeaturesVK13, deviceFeaturesEXTDynamicState,
+                        deviceFeaturesVK12::pNext, deviceFeaturesVK13::pNext);
 
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()

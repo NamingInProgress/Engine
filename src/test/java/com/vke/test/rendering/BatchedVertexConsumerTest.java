@@ -15,6 +15,7 @@ import com.vke.core.rendering.draw.DrawContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.vertexconsumer.BatchedVKVertexConsumer;
+import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
@@ -42,9 +43,11 @@ public class BatchedVertexConsumerTest extends Scene {
         proj = pipeline.resolvePushConstant("world");
         transform = pipeline.resolvePushConstant("translation");
 
-        this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
-                new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null), PL, "textures");
-        this.shapeRenderer = new ShapeRenderer<>(consumer, VertexFactory.DEFAULT);
+        //this.consumer = new BatchedVKVertexConsumer<>(this.context, this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
+        //        new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null), PL, "textures");
+        this.consumer = new FastVertexConsumer<>(this.context.getEngine(), this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
+                new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null));
+        this.shapeRenderer = new ShapeRenderer<>(this.context, consumer, VertexFactory.DEFAULT);
 
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
         this.missing = R.textures.get("missing.png").assume(context);
@@ -58,6 +61,8 @@ public class BatchedVertexConsumerTest extends Scene {
         mat.setOrtho(0, ctx.getWindow().getSize().width(), 0, ctx.getWindow().getSize().height(), 0, 1000, true);
         proj.write(slice -> slice.putMat4(mat));
         transform.write(slice -> slice.putMat4(new Matrix4f()));
+        ctx.getCommandBuffer().bindPipeline(PL);
+        ctx.getCommandBuffer().bindDescriptorSets(PL);
 
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.beginFrame();

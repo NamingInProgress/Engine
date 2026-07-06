@@ -12,6 +12,7 @@ import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexN
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
 import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
+import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors2.handles.*;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.*;
@@ -130,6 +131,10 @@ public class DescriptorSetGroup {
 //            return new BufferHandle(descriptorSetIndex, layout.binding, layout.type, layout.packingType, dsl, ((ArrayIndexNode) node.child).index, (int) binding.singleBufferSize, binding.buffer.getMappedAddress(), binding.buffer.getGpuBuffer().getBuffer());
         } else {
             if (hasIndex) throw new IllegalStateException("Requested buffer with index from a non-array buffer!");
+
+            for (DescriptorSet ds : set.getAllSets()) {
+                parent.writer.writeBuffer(ds.getHandle(), layout.binding, layout.typeLayout.size, 0, binding.buffer.getGpuBuffer().getBuffer(), layout.type);
+            }
 
             var buf = binding.buffer;
             if (binding.multiWrite == -1) {

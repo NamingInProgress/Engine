@@ -8,6 +8,7 @@ import com.vke.utils.console.ColorStringBuilder;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -110,6 +111,7 @@ public class VKUtils {
 
     public static Iterator<String> getGlfwExtensionNames(MemoryStack stack) {
         PointerBuffer glfwExtensions = GLFWVulkan.glfwGetRequiredInstanceExtensions();
+
         if (glfwExtensions == null) {
             glfwExtensions = stack.callocPointer(0);
         }
@@ -200,14 +202,14 @@ public class VKUtils {
     }
 
     public static long encodeDescriptor(int set, int binding) {
-        return (set & 0xFFFFFFFFL) | ((long) binding << 32);
-    }
-
-    public static int set(long encoded) {
-        return (int) encoded;
+        return ((long) set << 32) | (binding & 0xFFFFFFFFL);
     }
 
     public static int binding(long encoded) {
+        return (int) encoded;
+    }
+
+    public static int set(long encoded) {
         return (int) (encoded >>> 32);
     }
 

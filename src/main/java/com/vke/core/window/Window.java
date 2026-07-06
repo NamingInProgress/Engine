@@ -18,6 +18,7 @@ public class Window {
     private WindowSize size;
 
     public Window(VKEngine engine, WindowCreateInfo windowCreateInfo) throws IllegalStateException {
+        GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11); // thjis is for testing cuz linux and wayland wants to be funny
         if (!glfwInit()) {
             engine.getLogger().fatal("Failed to init GLFW!");
             throw new IllegalStateException("Failed to initialize GLFW!");

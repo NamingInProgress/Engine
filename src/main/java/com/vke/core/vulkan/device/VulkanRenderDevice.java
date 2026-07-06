@@ -57,7 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class VulkanRenderDevice extends FrameCounter implements RenderDevice {
+public class VulkanRenderDevice implements RenderDevice {
 
     private static final String HERE = "RenderDevice@VulkanImpl";
 
@@ -329,14 +329,14 @@ public class VulkanRenderDevice extends FrameCounter implements RenderDevice {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(engine, logicalDevice, swapchain, getRenderer().getFrameCounter());
+            frames[i] = new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter());
         }
 
         return frames;
     }
 
     public VulkanFrame createImmediateFrame(VulkanSwapchain swapchain) {
-        return new VulkanFrame(engine, logicalDevice, swapchain, getRenderer().getFrameCounter(), true);
+        return new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter(), true);
     }
 
     @Override

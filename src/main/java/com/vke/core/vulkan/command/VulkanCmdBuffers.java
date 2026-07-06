@@ -2,6 +2,7 @@ package com.vke.core.vulkan.command;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
@@ -13,7 +14,10 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
+import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanTexture;
@@ -34,15 +38,20 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VulkanSwapchain swapchain;
     private final VKEngine engine;
     private final FrameCounter fc;
+    private final int highestEngineSet;
+    private final EngineDescriptorSetsManager setsMgr;
 
     private boolean recording;
+    private boolean engineDescriptorSetsBound = false;
 
-    public VulkanCmdBuffers(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool, FrameCounter fc) {
-        this.device = device;
+    public VulkanCmdBuffers(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, CommandPool pool, FrameCounter fc) {
+        this.device = device.getLogicalDevice();
         this.poolHandle = pool.getHandle();
         this.swapchain = swapchain;
         this.engine = engine;
         this.fc = fc;
+        this.setsMgr = device.getRenderer().getEngineSetsManager();
+        this.highestEngineSet = setsMgr.highestSet;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc(stack)
@@ -53,11 +62,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             PointerBuffer pCommandBuffer = stack.mallocPointer(1);
 
-            if (VK14.vkAllocateCommandBuffers(device.getDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
+            if (VK14.vkAllocateCommandBuffers(this.device.getDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
                 throw new IllegalStateException("Failed to create command buffer!");
             }
 
-            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), device.getDevice());
+            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), this.device.getDevice());
         }
     }
 
@@ -208,21 +217,57 @@ public class VulkanCmdBuffers implements CommandBuffer {
     }
 
     @Override
+    public void bindEngineDescriptorSets(PipelineLayout layout) {
+        if (engineDescriptorSetsBound) return;
+        engineDescriptorSetsBound = true;
+
+        VulkanPipelineLayout l = (VulkanPipelineLayout) layout;
+        l.writeHandles();
+
+        long[] sets = new long[l.getUserSets().size()];
+        List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
+
+        List<DescriptorSetInstance> userSets = l.getUserSets();
+        for (int i = 0; i < userSets.size(); i++) {
+            DescriptorSetInstance userSet = userSets.get(i);
+            sets[i] = userSet.getSet().getHandle();
+        }
+
+        l.getGroup().getHandleCache().values().stream()
+                .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
+                .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
+                .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
+
+        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
+                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
+                l.getHandle(),
+                0, sets,
+                dynamicOffsets.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray());
+
+        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
+                VK14.VK_PIPELINE_BIND_POINT_COMPUTE,
+                l.getHandle(),
+                0, sets,
+                dynamicOffsets.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray());
+    }
+
+    @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
         IVulkanPipeline p = unwrapPipeline(pipeline);
         VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
         l.writeHandles();
 
-        List<Integer> usedSets = new ArrayList<>();
         long[] sets = new long[l.getUserSets().size()];
-        List<Integer> dynamicOffsets = new ArrayList<>();
+        List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
 
-        for (var entry : l.getGroup().getHandleCache().entrySet()) {
-            int currSet = entry.getValue().set;
-            if (!usedSets.contains(currSet)) {
-                sets[currSet] = l.getUserSets().get(currSet).getSet().getHandle();
-                usedSets.add(currSet);
-            }
+        List<DescriptorSetInstance> userSets = l.getUserSets();
+        for (int i = 0; i < userSets.size(); i++) {
+            DescriptorSetInstance userSet = userSets.get(i);
+            sets[i] = userSet.getSet().getHandle();
         }
 
         l.getGroup().getHandleCache().values().stream()

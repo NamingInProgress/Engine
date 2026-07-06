@@ -2,15 +2,18 @@ package com.vke.api.rendering.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.service.VulkanRendererAPI;
 import com.vke.core.vulkan.shr.ReflectedShader;
@@ -29,9 +32,10 @@ import java.util.*;
 public interface IVulkanPipeline extends Pipeline {
 
     long getHandle();
+    PipelineLayout layout();
 
     // Info create methods that are shared between compute and render pipelines
-    default DescriptorSets createDescriptorSets(Context ctx, VulkanRenderDevice device, DescriptorsInfo additionalDescInfo, ArrayList<ReflectedShader> shaders) {
+    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, VulkanRenderDevice device, ArrayList<ReflectedShader> shaders) {
         HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
         for (ReflectedShader shader : shaders) {
@@ -41,8 +45,8 @@ public interface IVulkanPipeline extends Pipeline {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
 
-                    // TODO: Change this
-                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(), !additionalDescInfo.dynamicBuffers.contains(resource.name));
+                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(),
+                            shader.getMetadata().staticBuffers().contains(resource.name));
 
                     descriptor.bindings.add(binding);
                 }
@@ -58,20 +62,12 @@ public interface IVulkanPipeline extends Pipeline {
             }
         }
 
-        if (!mismatchedSets.isEmpty()) {
-            StringBuilder shaderNames = new StringBuilder("[ ");
-            for (int i = 0; i < shaders.size(); i++) {
-                ReflectedShader sh = shaders.get(i);
-                shaderNames.append(sh.shaderPath.toString());
-                if (i != shaders.size() - 1) shaderNames.append(", ");
-            }
-            shaderNames.append(" ]");
-            throw new IllegalStateException("Mismatched sets! Engine reserved: " + Utils.arrayToString(mgr.usedSets) + ", Mismatched: " + Utils.arrayToString(mismatchedSets.toArray(new Integer[0])) + "\nPossible shaders: " + shaderNames);
-        }
-
         sets.putAll(engineSets);
 
-        return new DescriptorSets(ctx.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), additionalDescInfo);
+        return sets.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .map(Map.Entry::getValue)
+                .toList();
     }
 
     default PushConstants createPushConstants(ArrayList<ReflectedShader> shaders) {
@@ -82,8 +78,6 @@ public interface IVulkanPipeline extends Pipeline {
 
             layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
         }
-
-        if (layout == null) layout = new PushConstantLayout("", 0, 0, null, PackingType.STD140);
 
         return new PushConstants(layout);
     }
@@ -118,6 +112,10 @@ public interface IVulkanPipeline extends Pipeline {
                     .pName(Utils.ensureCStr(stage.pName()));
         }
         return stages;
+    }
+
+    default <T extends UniformHandle> T resolveUniform(String name) {
+        return ((VulkanPipelineLayout) layout()).getGroup().resolve(name);
     }
 
 }

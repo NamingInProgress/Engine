@@ -21,6 +21,7 @@ import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
@@ -34,7 +35,9 @@ import org.lwjgl.vulkan.KHRSwapchain;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
@@ -72,8 +75,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         this.device = new VulkanRenderDevice(context, createInfo, this);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
-        this.frames = device.createFrames(swapchain);
-        this.immediateFrame = device.createImmediateFrame(swapchain);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
 
@@ -90,6 +91,14 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
                 context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                         .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
         s.free();
+        engineSetsManager.ENGINE_PIPELINE_LAYOUT = VulkanPipelineLayout.getLayout(context.getEngine(), device, null,
+                engineSetsManager.ENGINE_LAYOUTS.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .map(Map.Entry::getValue)
+                .toList());
+
+        this.immediateFrame = device.createImmediateFrame(swapchain);
+        this.frames = device.createFrames(swapchain);
     }
 
     public FrameData startFrame(Window window, Framable f) {
@@ -135,6 +144,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.begin();
         f.preRendering(new DrawContext(cmd, swapchain.getExtent(), window));
         cmd.beginRendering();
+        //cmd.bindEngineDescriptorSets(engineSetsManager.ENGINE_PIPELINE_LAYOUT);
         profiler.end();
         profiler.end();
 

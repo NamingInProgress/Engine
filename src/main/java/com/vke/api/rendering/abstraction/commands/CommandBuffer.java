@@ -2,6 +2,7 @@ package com.vke.api.rendering.abstraction.commands;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.sync.Fence;
@@ -66,6 +67,7 @@ public interface CommandBuffer extends Disposable {
 
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
     void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline);
+    void bindEngineDescriptorSets(PipelineLayout layout);
 
     void setViewport(Viewport viewport);
     void setScissor(Scissor scissor);

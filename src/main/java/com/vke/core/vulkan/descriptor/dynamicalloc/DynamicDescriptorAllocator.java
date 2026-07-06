@@ -95,7 +95,7 @@ public class DynamicDescriptorAllocator implements Disposable {
     }
 
     public void bindDescriptors(DrawContext ctx, AssetHandle<RenderPipeline> pipeline, UniformHandle... handles) {
-        ctx.getCommandBuffer().bindDescriptorSets(pipeline, Arrays.stream(handles).mapToLong(handle -> allocatedSets.get(handle.descriptorSetListIndex).handle).toArray());
+        //ctx.getCommandBuffer().bindDescriptorSets(pipeline, Arrays.stream(handles).mapToLong(handle -> allocatedSets.get(handle.descriptorSetListIndex).handle).toArray());
     }
 
     public <T extends UniformHandle> T copy(UniformHandle toCopy) {
