@@ -47,7 +47,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     private int lastVertexCount;
 
-    private HashMap<MappedGpuRingBuffer, Integer> _gpuBuffersOld = new HashMap<>();
+    private final HashMap<MappedGpuRingBuffer, Integer> _gpuBuffersOld = new HashMap<>();
 
     public AbstractVertexConsumer(VKEngine engine, VulkanRenderer renderer, T template) {
         this(engine, renderer, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
@@ -86,7 +86,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     @Override
     public void begin() {
-        this.frozenIndex = currentIndexCount;
+        this.frozenIndex = currentVertexCount;
     }
 
     protected void putVertices(T... verts) {

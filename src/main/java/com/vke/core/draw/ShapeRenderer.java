@@ -1,6 +1,8 @@
 package com.vke.core.draw;
 
 import com.vke.api.draw.*;
+import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.DrawContext;
@@ -14,6 +16,8 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;
     private final Context ctx;
+    private final Renderer renderer;
+    private final ITextureManager texManager;
 
     //mutable state
     private float r,g,b,a;
@@ -25,6 +29,8 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         this.consumer = consumer;
         this.factory = factory;
         this.ctx = ctx;
+        this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName);
+        this.texManager = this.renderer.textureManager();
     }
 
     public void color(float r, float g, float b, float a) {
@@ -49,8 +55,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
 
     private T v(float x, float y, float z, float u, float v) {
         var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
-        // TODO: Fix this later
-        vert.setTextureId(ctx.service(ctx.getEngine().rendererType().serviceName).<VulkanRenderer>assumeImplementation().getEngineSetsManager().texture(t));
+        vert.setTextureId(texManager.texture(t));
         return vert;
     }
 
@@ -65,7 +70,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float v = bv + ny * bth;
 
         var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
-        vert.setTextureId(ctx.service(ctx.getEngine().rendererType().serviceName).<VulkanRenderer>assumeImplementation().getEngineSetsManager().texture(t));
+        vert.setTextureId(texManager.texture(t));
         return vert;
     }
     

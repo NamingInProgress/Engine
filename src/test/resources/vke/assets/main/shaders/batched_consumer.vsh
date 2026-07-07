@@ -17,13 +17,18 @@ layout (set = 0, binding = 0) uniform Camera {
 
 layout (set = 1, binding = 0) uniform sampler2D textures[];
 
+layout (set = 2, binding = 0) uniform Stuff {
+    mat4 world;
+    mat4 translation;
+} stuff;
+
 layout (push_constant) uniform constants {
     mat4 world;
     mat4 translation;
 } PushConstants;
 
 void main() {
-    gl_Position = PushConstants.world * PushConstants.translation * vec4(inPos, 1);
+    gl_Position = stuff.world * stuff.translation * vec4(inPos, 1);
     outColor = inColor;
     UV = inUV;
     outTexId = texId;

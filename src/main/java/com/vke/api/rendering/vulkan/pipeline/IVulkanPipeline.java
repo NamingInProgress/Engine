@@ -4,10 +4,8 @@ import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
-import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
@@ -114,7 +112,7 @@ public interface IVulkanPipeline extends Pipeline {
         return stages;
     }
 
-    default <T extends UniformHandle> T resolveUniform(String name) {
+    default <T extends UniformHandle> T uniform(String name) {
         return ((VulkanPipelineLayout) layout()).getGroup().resolve(name);
     }
 

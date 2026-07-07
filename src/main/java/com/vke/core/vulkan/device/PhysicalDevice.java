@@ -98,8 +98,19 @@ public class PhysicalDevice implements Disposable {
         caps.gpuType = IntEnum.fromInt(GpuType.values(), props.deviceType());
 
         caps.minUboAlign = limits.minUniformBufferOffsetAlignment();
+        caps.minSSBOAlign = limits.minStorageBufferOffsetAlignment();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkPhysicalDeviceDescriptorIndexingProperties indexingProps = VkPhysicalDeviceDescriptorIndexingProperties.calloc(stack)
+                    .sType$Default();
+            VkPhysicalDeviceProperties2 props2 = VkPhysicalDeviceProperties2.calloc(stack)
+                    .sType$Default()
+                    .pNext(indexingProps);
+
+            VK14.vkGetPhysicalDeviceProperties2(vk, props2);
+
+            caps.maxBindlessSampledImages = indexingProps.maxDescriptorSetUpdateAfterBindSampledImages();
+
             VkFormatProperties vkProps = VkFormatProperties.malloc(stack);
 
             VK14.vkGetPhysicalDeviceFormatProperties(

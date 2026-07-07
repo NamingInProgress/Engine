@@ -26,7 +26,7 @@ public class DescriptorSetInstance implements Disposable {
         this.compiledLayout = new CompiledDescriptorSetLayout(engine, device, setLayout, null);
 
         for (int i = 0; i < fc.framesInFlight(); i++) {
-            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine, setLayout, null);
+            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine, setLayout);
         }
     }
 

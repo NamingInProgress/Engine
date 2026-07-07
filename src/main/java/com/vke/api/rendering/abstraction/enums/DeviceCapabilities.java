@@ -18,6 +18,9 @@ public class DeviceCapabilities {
     public int maxPushConstantSize;
 
     public long minUboAlign;
+    public long minSSBOAlign;
+
+    public int maxBindlessSampledImages;
     /** GPU INFO **/
     public GpuType gpuType;
 

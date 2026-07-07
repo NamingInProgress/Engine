@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.descriptors.bindings;
 
-import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.core.vulkan.buffers.MappedBuffer;

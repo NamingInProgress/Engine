@@ -5,6 +5,7 @@ import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
@@ -218,6 +219,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     @Override
     public FrameCounter getFrameCounter() {
         return this.frameCounter;
+    }
+
+    @Override
+    public ITextureManager textureManager() {
+        return getEngineSetsManager().textureManager;
     }
 
     public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }

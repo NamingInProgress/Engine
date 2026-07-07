@@ -14,6 +14,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.utils.Utils;
 
 import java.util.HashMap;
 
@@ -24,22 +25,12 @@ public class DescriptorSet {
     public VulkanRenderDevice device;
     public VKEngine engine;
 
-    public DescriptorSet(long handle, VulkanRenderDevice device, VKEngine engine, DescriptorSetLayout layout, DescriptorsInfo additionalInfo) {
+    public DescriptorSet(long handle, VulkanRenderDevice device, VKEngine engine, DescriptorSetLayout layout) {
         this.handle = handle;
         this.device = device;
         this.engine = engine;
 
-        additionalInfo = new DescriptorsInfo();
-
-        // traverse the layout to set dynamic values and runtime size arrays
-        DescriptorsInfo finalAdditionalInfo = additionalInfo;
         layout.bindings.forEach(bindingLayout -> {
-            TypeLayout tl = bindingLayout.typeLayout;
-            if (tl != null) {
-                resolveRuntimeArraySizes(tl, finalAdditionalInfo.runtimeSizeArraySizes);
-                tl.size = recomputeSize(tl);
-            }
-
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
             bindings.put(bindingLayout.name, binding);
         });
@@ -103,15 +94,7 @@ public class DescriptorSet {
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
-                BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
-                MappedBuffer buffer;
-                int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
-
-                if (layout.staticBuffer) {
-                    buffer = new MappedBuffer(engine, device, layout.typeLayout.size, usage);
-                } else {
-                    buffer = new MappedGpuRingBuffer(engine, device, layout.typeLayout.size * layout.multiWrite, framesInFlight, usage);
-                }
+                var buffer = generateBuffer(engine, device, layout);
 
                 if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");
 
@@ -123,6 +106,24 @@ public class DescriptorSet {
             case SAMPLER -> new SamplerBinding(layout);
             case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TODO: implement this
         };
+    }
+
+    public static MappedBuffer generateBuffer(VKEngine engine, VulkanRenderDevice device, BindingLayout layout) {
+        BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
+        int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
+
+        if (layout.staticBuffer) {
+            return new MappedBuffer(engine, device, layout.typeLayout.size, usage);
+        } else {
+            return new MappedGpuRingBuffer(engine, device, Utils.alignUpFast(layout.typeLayout.size,
+                    getAlign(device, layout)) * layout.multiWrite, framesInFlight, usage);
+        }
+    }
+
+    public static long getAlign(VulkanRenderDevice device, BindingLayout layout) {
+        return layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC
+                ? device.capabilities().minUboAlign
+                : device.capabilities().minSSBOAlign;
     }
 
 }

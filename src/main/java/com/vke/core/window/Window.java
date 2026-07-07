@@ -1,9 +1,11 @@
 package com.vke.core.window;
 
+import com.vke.api.utils.OSType;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.callbacks.FramebufferCallbacks;
 import com.vke.core.callbacks.KeyboardCallbacks;
+import com.vke.utils.Utils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
@@ -18,7 +20,8 @@ public class Window {
     private WindowSize size;
 
     public Window(VKEngine engine, WindowCreateInfo windowCreateInfo) throws IllegalStateException {
-        GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11); // thjis is for testing cuz linux and wayland wants to be funny
+        if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
+            GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11); // thjis is for testing cuz linux and wayland wants to be funny
         if (!glfwInit()) {
             engine.getLogger().fatal("Failed to init GLFW!");
             throw new IllegalStateException("Failed to initialize GLFW!");

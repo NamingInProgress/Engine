@@ -44,7 +44,7 @@ public class StagedBuffer implements Disposable {
         long cpuAddress = cpuBuffer.getAddress();
         MemoryUtil.memCopy(cpuAddress, gpuAddress, size);
 
-        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
         renderer.immediateSubmit((MemoryStack stack, VulkanCmdBuffers vkeCmd) -> {
             VkCommandBuffer cmd = vkeCmd.getBuffer();
 

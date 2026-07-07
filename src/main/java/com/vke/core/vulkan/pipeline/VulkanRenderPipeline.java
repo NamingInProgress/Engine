@@ -2,13 +2,12 @@ package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.vulkan.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
