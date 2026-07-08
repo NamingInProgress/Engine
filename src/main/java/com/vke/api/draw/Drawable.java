@@ -1,11 +1,11 @@
 package com.vke.api.draw;
 
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 
 public interface Drawable {
 
-    void draw(DrawContext ctx);
-    default void bindIBO(DrawContext ctx) {}
-    default void bindVBO(DrawContext ctx) {}
+    void draw(FrameContext ctx);
+    default void bindIBO(FrameContext ctx) {}
+    default void bindVBO(FrameContext ctx) {}
 
 }

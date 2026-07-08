@@ -4,7 +4,7 @@ import com.vke.api.draw.Drawable;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
@@ -92,7 +92,7 @@ public class StaticMeshBuffer implements Disposable, Drawable {
     }
 
     @Override
-    public void draw(DrawContext ctx) {
+    public void draw(FrameContext ctx) {
         VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
         bindIBO(ctx);
         bindVBO(ctx);
@@ -101,13 +101,13 @@ public class StaticMeshBuffer implements Disposable, Drawable {
     }
 
     @Override
-    public void bindIBO(DrawContext ctx) {
+    public void bindIBO(FrameContext ctx) {
         VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
     }
 
     @Override
-    public void bindVBO(DrawContext ctx) {
+    public void bindVBO(FrameContext ctx) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
             VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));

@@ -1,13 +1,12 @@
 package com.vke.core.vulkan.vertexconsumer;
 
 import com.vke.api.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
@@ -111,7 +110,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         putIndices(mesh.getIndices());
     }
 
-    protected void submitDraw(DrawContext ctx) {
+    protected void submitDraw(FrameContext ctx) {
         VulkanCmdBuffers buf = (VulkanCmdBuffers) ctx.getCommandBuffer();
         this.upload();
         this.bindIBO(ctx);
@@ -129,7 +128,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     }
 
     @Override
-    public void draw(DrawContext ctx) {
+    public void draw(FrameContext ctx) {
         submitDraw(ctx);
     }
 
@@ -149,14 +148,14 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     public int getWrittenIndices(){ return this.currentIndexCount; }
     public int getWrittenVertices(){ return this.currentVertexCount; }
 
-    public void bindIBO(DrawContext ctx) {
+    public void bindIBO(FrameContext ctx) {
         VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(),
                 this.getRingIndicesOffset() + currentMaxIndex * 4L, VK14.VK_INDEX_TYPE_UINT32);
     }
 
-    public void bindVBO(DrawContext ctx) {
+    public void bindVBO(FrameContext ctx) {
         VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
 
         VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() },

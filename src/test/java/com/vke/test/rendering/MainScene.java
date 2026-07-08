@@ -7,7 +7,6 @@ import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
@@ -18,14 +17,13 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.profiler.AppTimer;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
@@ -138,7 +136,7 @@ public class MainScene extends Scene {
     }
 
     @Override
-    public void onDraw(DrawContext ctx) {
+    public void onDraw(FrameContext ctx) {
         timer.onFrameStart();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();

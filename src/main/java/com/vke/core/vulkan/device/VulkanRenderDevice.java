@@ -40,6 +40,7 @@ import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.utils.io.Disposable;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -54,7 +55,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class VulkanRenderDevice implements RenderDevice {
@@ -87,6 +90,8 @@ public class VulkanRenderDevice implements RenderDevice {
     private final AutoHeapAllocator alloc;
 
     private final Logger logger;
+
+    private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
 
     public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo, VulkanRenderer renderer) {
         this.engine = context.getEngine();
@@ -348,6 +353,7 @@ public class VulkanRenderDevice implements RenderDevice {
         logicalDevice.free();
         VK14.vkDestroyInstance(instance, null);
         alloc.close();
+        FREE_QUEUE.forEach(Disposable::free);
     }
 
     /** GETTERS **/

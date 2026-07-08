@@ -13,7 +13,7 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
@@ -90,7 +90,7 @@ public class BatchedVertexConsumerTest extends Scene {
     }
 
     @Override
-    public void onDraw(DrawContext ctx) {
+    public void onDraw(FrameContext ctx) {
         // Draw
         Matrix4f mat = new Matrix4f();
         mat.setOrtho(0, ctx.getWindow().getSize().width(), 0, ctx.getWindow().getSize().height(), 0, 1000, true);
@@ -120,7 +120,7 @@ public class BatchedVertexConsumerTest extends Scene {
         shapeRenderer.draw(ctx);
 
         ctx.getCommandBuffer().bindPipeline(CUBE);
-        ctx.getCommandBuffer().bindDescriptorSets(CUBE);
+        ctx.getCommandBuffer().bindDescriptorSets(CUBE);z
         Matrix4f model = new Matrix4f();
 
         float time = (System.nanoTime() / 1_000_000_000.0f);

@@ -1,15 +1,15 @@
 package com.vke.api.app;
 
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.utils.collection.AbstractGlossary;
 import com.vke.utils.iter.Iter;
 
 public interface Framable {
 
     default void preFrame() {}
-    default void preRendering(DrawContext ctx) {}
-    default void onDraw(DrawContext ctx) {}
-    default void postRendering(DrawContext ctx) {}
+    default void preRendering(FrameContext ctx) {}
+    default void onDraw(FrameContext ctx) {}
+    default void postRendering(FrameContext ctx) {}
     default void postFrame() {}
 
     class Glossary extends AbstractGlossary<Framable> implements CompoundFramable {

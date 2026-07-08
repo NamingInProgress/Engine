@@ -9,7 +9,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.service.AssetManagerScopedImpl;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
@@ -151,7 +151,7 @@ public class TestApp extends App {
     AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
 
     @Override
-    public void onDraw(DrawContext ctx) {
+    public void onDraw(FrameContext ctx) {
         timer.onFrameStart();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {

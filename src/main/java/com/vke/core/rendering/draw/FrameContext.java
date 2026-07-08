@@ -6,13 +6,13 @@ import com.vke.core.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.window.Window;
 import org.lwjgl.vulkan.VkExtent2D;
 
-public class DrawContext {
+public class FrameContext {
 
     private final CommandBuffer cmd;
     private final Window window;
     private final Extent2D extent;
 
-    public DrawContext(CommandBuffer cmd, VkExtent2D extent, Window window) {
+    public FrameContext(CommandBuffer cmd, VkExtent2D extent, Window window) {
         this.cmd = cmd;
         this.window = window;
         this.extent = VulkanExtentUtils.ofVk(extent);

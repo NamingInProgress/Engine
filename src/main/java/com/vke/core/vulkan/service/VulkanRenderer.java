@@ -7,14 +7,13 @@ import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.enums.QueueType;
-import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
@@ -30,23 +29,18 @@ import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
-import com.vke.utils.io.Identifier;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
 
 public class VulkanRenderer extends ServiceImpl implements Renderer {
 
-    private final FrameCounter frameCounter;
-
+    // Vulkan Stuff
     private VulkanSwapchain swapchain;
     private VulkanRenderDevice device;
     private VulkanFrame[] frames;
@@ -61,6 +55,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     private final VKEngine engine;
     private final Context context;
     private final EngineCreateInfo createInfo;
+    private final FrameCounter frameCounter;
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.VULKAN_RENDERER, context.getEngine());
@@ -147,7 +142,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         profiler.begin("Begin");
         cmd.begin();
-        f.preRendering(new DrawContext(cmd, swapchain.getExtent(), window));
+        f.preRendering(new FrameContext(cmd, swapchain.getExtent(), window));
         cmd.beginRendering();
         profiler.end();
         profiler.end();
@@ -161,7 +156,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.setViewport(wp);
         cmd.setScissor(sc);
 
-        DrawContext context = new DrawContext(cmd, swapchain.getExtent(), window);
+        FrameContext context = new FrameContext(cmd, swapchain.getExtent(), window);
         getEngineSetsManager().textureManager.frame();
         return new FrameData(frame, stack, imageIndex, context);
     }
@@ -170,7 +165,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
         cmd.endRendering();
-        f.postRendering(new DrawContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
+        f.postRendering(new FrameContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
         cmd.end();
 
         device.submit(cmd, new CommandBuffer.SubmitInfo(
@@ -234,8 +229,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     @Override
     public void free() {
-        Samplers.NEAREST.free();
-        Samplers.LINEAR.free();
+        Samplers.free();
         // Pipelines get freed by the asset manager
         engineSetsManager.free();
         Arrays.stream(frames).forEach(VulkanFrame::free);
@@ -245,6 +239,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         this.device.free();
     }
 
-    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, DrawContext context) {}
+    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, FrameContext context) {}
 
 }

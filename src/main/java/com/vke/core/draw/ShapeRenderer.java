@@ -5,8 +5,7 @@ import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.Context;
-import com.vke.core.rendering.draw.DrawContext;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.draw.FrameContext;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
@@ -160,7 +159,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     }
 
     @Override
-    public void draw(DrawContext ctx) {
+    public void draw(FrameContext ctx) {
         consumer.draw(ctx);
     }
 }
