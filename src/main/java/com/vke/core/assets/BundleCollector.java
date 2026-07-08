@@ -45,6 +45,7 @@ public class BundleCollector {
 
         for (Identifier file : ident.walkFiles()) {
             if (file.equals(bundleXMLIdent)) continue;
+            System.out.printf("%s -> %s%n", ident, file);
 
             try {
                 StageElement element = new StageElement(file.toPath(), AssetData.plain(file));

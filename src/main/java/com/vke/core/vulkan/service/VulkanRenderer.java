@@ -86,7 +86,12 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         // VKE shader to set default descriptors via reflection instead of hard coding
         var temp = R.shaders.get("shaders/vke_sets.vsh");
-        Shader s = temp.assume(context);
+        Shader s = null;
+        try {
+            s = temp.acquire(context);
+        } catch (IOException e) {
+            context.throwException(new IllegalStateException("Couldnt load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
+        }
         engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
                 context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                         .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
