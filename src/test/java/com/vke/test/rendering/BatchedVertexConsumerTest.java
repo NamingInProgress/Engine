@@ -120,7 +120,7 @@ public class BatchedVertexConsumerTest extends Scene {
         shapeRenderer.draw(ctx);
 
         ctx.getCommandBuffer().bindPipeline(CUBE);
-        ctx.getCommandBuffer().bindDescriptorSets(CUBE);z
+        ctx.getCommandBuffer().bindDescriptorSets(CUBE);
         Matrix4f model = new Matrix4f();
 
         float time = (System.nanoTime() / 1_000_000_000.0f);

@@ -34,7 +34,7 @@ public class BufferHandle extends UniformHandle {
 
     public BufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
                         int arrayIndex, long bufferSize, long cpuAddress, long gpuAddress) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, bufBinding);
         this.arrayIndex = arrayIndex;
         this.bufferSize = bufferSize;
         this.offset = arrayIndex * bufferSize;

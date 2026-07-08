@@ -14,7 +14,7 @@ public class ImageHandle extends UniformHandle {
     public final int index;
 
     public ImageHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, ImageBinding imgBinding, int index) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, imgBinding);
         this.imgBinding = imgBinding;
         this.index = index;
     }

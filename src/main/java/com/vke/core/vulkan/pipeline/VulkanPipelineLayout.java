@@ -20,6 +20,7 @@ import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -190,6 +191,10 @@ public class VulkanPipelineLayout implements PipelineLayout {
             pushConstants.free();
         }
         VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
+    }
+
+    public VulkanRenderer getRenderer() {
+        return this.device.getRenderer();
     }
 
     public record LayoutCapabilities() {}

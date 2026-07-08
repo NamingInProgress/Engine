@@ -19,7 +19,7 @@ public class FieldArrayHandle extends UniformHandle {
 
     public FieldArrayHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferHandle parent,
                             long fieldOffset, int stride, int elementCount) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, parent.bindingObject);
         this.parent = parent;
         this.fieldOffset = fieldOffset;
         this.stride = stride;
