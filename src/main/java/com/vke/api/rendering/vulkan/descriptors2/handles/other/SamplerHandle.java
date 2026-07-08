@@ -14,7 +14,7 @@ public class SamplerHandle extends UniformHandle {
     public final int index;
 
     public SamplerHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, SamplerBinding samplBinding, int index) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, samplBinding);
         this.samplBinding = samplBinding;
         this.index = index;
     }

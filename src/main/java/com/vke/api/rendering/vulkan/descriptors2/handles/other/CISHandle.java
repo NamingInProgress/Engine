@@ -16,7 +16,7 @@ public class CISHandle extends UniformHandle {
     public final int index;
 
     public CISHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, CombinedImageSamplerBinding cisBinding, int index) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, cisBinding);
         this.cisBinding = cisBinding;
         this.index = index;
     }

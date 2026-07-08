@@ -10,6 +10,7 @@ import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.core.vulkan.service.VulkanRenderer;
 
 import java.util.HashMap;
 
@@ -23,12 +24,14 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
 
     private final EngineDescriptorSetsManager mgr;
     private final Context ctx;
+    private final VulkanRenderer renderer;
 
     public VulkanTextureManager(Context ctx, EngineDescriptorSetsManager mgr, VulkanRenderDevice device) {
         BINDLESS_TEXTURES_COUNT = Math.min(device.capabilities().maxBindlessSampledImages, 8192);
         bindlessTextures = new Texture[BINDLESS_TEXTURES_COUNT];
         this.mgr = mgr;
         this.ctx = ctx;
+        this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName).assumeImplementation();
     }
 
     @SubscribeEvent
@@ -36,12 +39,6 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
         var obj = e.desc.handle().get();
         if (obj instanceof Texture tex) {
             registerTexture(tex);
-        }
-    }
-
-    public void frame() {
-        if (BINDLESS_HANDLE != null) {
-            BINDLESS_HANDLE.setDirty();
         }
     }
 
@@ -62,6 +59,7 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
         bindlessTextures[firstFree] = tex;
         textures.put(tex, firstFree);
         BINDLESS_HANDLE.set(tex, Samplers.LINEAR, firstFree);
+        renderer.scheduleDescriptorUpdate(mgr.ENGINE_PIPELINE_LAYOUT, BINDLESS_HANDLE);
         return firstFree;
     }
 

@@ -13,7 +13,7 @@ public class SamplerArrayHandle extends UniformHandle {
     public final SamplerBinding samplBinding;
 
     public SamplerArrayHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, SamplerBinding samplBinding) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, samplBinding);
         this.samplBinding = samplBinding;
     }
 

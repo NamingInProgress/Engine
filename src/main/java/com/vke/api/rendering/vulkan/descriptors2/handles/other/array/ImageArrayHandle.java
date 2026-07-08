@@ -12,7 +12,7 @@ public class ImageArrayHandle extends UniformHandle {
     public final ImageBinding imgBinding;
 
     public ImageArrayHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, ImageBinding imgBinding) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, imgBinding);
         this.imgBinding = imgBinding;
     }
 

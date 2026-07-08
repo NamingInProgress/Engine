@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.service;
 
+import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.app.Framable;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
@@ -9,6 +10,15 @@ import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
+import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
+import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.ImageHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
@@ -19,6 +29,7 @@ import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
@@ -27,8 +38,11 @@ import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.vulkan.vertexconsumer.RecyclerArrayList;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.tuple.Pair;
+import com.vke.utils.tuple.Tripple;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
@@ -56,6 +70,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     private final Context context;
     private final EngineCreateInfo createInfo;
     private final FrameCounter frameCounter;
+
+    private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, IntWrapper> scheduledBindingUpdates = new HashMap<>();
+    private final RecyclerArrayList<Pair<VulkanPipelineLayout, UniformHandle>> toRemoveBindingUpdates = new RecyclerArrayList<>(20);
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.VULKAN_RENDERER, context.getEngine());
@@ -99,6 +116,29 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         this.immediateFrame = device.createImmediateFrame(swapchain);
         this.frames = device.createFrames(swapchain);
+    }
+
+    public void writeHandle(VulkanPipelineLayout layout, UniformHandle uh) {
+        long dsh = layout.getSetHandle(uh.set);
+        //System.out.println(dsh);
+        var writer = layout.writer;
+        switch (uh) {
+            case CISHandle handle ->
+                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+            case CISArrayHandle handle ->
+                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+            case ImageHandle handle ->
+                    writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+            case ImageArrayHandle handle ->
+                    writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+            case SamplerHandle handle ->
+                    writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+            case SamplerArrayHandle handle ->
+                    writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+            default -> {
+            }
+        }
+        writer.flush();
     }
 
     public FrameData startFrame(Window window, Framable f) {
@@ -157,7 +197,18 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.setScissor(sc);
 
         FrameContext context = new FrameContext(cmd, swapchain.getExtent(), window);
-        getEngineSetsManager().textureManager.frame();
+
+        toRemoveBindingUpdates.clear();
+        for (var entry : scheduledBindingUpdates.entrySet()) {
+            if (entry.getValue().anInt > 0) {
+                writeHandle(entry.getKey().v1, entry.getKey().v2);
+                entry.getValue().anInt--;
+            } else {
+                toRemoveBindingUpdates.add(entry.getKey());
+            }
+        }
+        toRemoveBindingUpdates.iter().forEach(scheduledBindingUpdates::remove);
+
         return new FrameData(frame, stack, imageIndex, context);
     }
 
@@ -227,6 +278,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }
 
+    public void scheduleDescriptorUpdate(VulkanPipelineLayout layout, UniformHandle handle) {
+        scheduledBindingUpdates.put(new Pair<>(layout, handle), new IntWrapper(frameCounter.framesInFlight() + 1));
+    }
+
     @Override
     public void free() {
         Samplers.free();
@@ -240,5 +295,18 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     }
 
     public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, FrameContext context) {}
+
+    public static class IntWrapper {
+
+        public IntWrapper() {
+            anInt = 0;
+        }
+
+        public IntWrapper(int val) {
+            anInt = val;
+        }
+
+        public int anInt;
+    }
 
 }

@@ -14,7 +14,7 @@ public class CISArrayHandle extends UniformHandle {
     public final CombinedImageSamplerBinding cisBinding;
 
     public CISArrayHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, CombinedImageSamplerBinding cisBinding) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, cisBinding);
         this.cisBinding = cisBinding;
     }
 

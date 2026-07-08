@@ -16,7 +16,7 @@ public class FieldHandle extends UniformHandle {
     public final int fieldLength;
 
     public FieldHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferHandle parent, long fieldOffset, int fieldLength) {
-        super(group, set, binding, type);
+        super(group, set, binding, type, parent.bindingObject);
         this.parent = parent;
         this.fieldLength = fieldLength;
         this.fieldOffset = fieldOffset;
