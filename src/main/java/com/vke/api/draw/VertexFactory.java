@@ -9,6 +9,6 @@ public interface VertexFactory<T extends Vertex> {
 
     VertexFactory<ShapeRendererVertex> DEFAULT = ShapeRendererVertex::new;
 
-    T apply(float x, float y, float z, float r, float g, float b, float a, float u, float v, @Nullable Texture texture);
+    T apply(float x, float y, float z, float r, float g, float b, float a, float u, float v, int matId, @Nullable Texture texture);
 
 }

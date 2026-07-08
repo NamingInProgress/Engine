@@ -3,7 +3,9 @@ package com.vke.test.rendering;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.data.Texture;
@@ -38,7 +40,8 @@ public class BatchedVertexConsumerTest extends Scene {
     private Texture bear_performance;
 
     private PushConstantHandle projMatrixHandle, transformMatrixHandle;
-    private FieldHandle proj, transform;
+    private PushConstantHandle proj, transform;
+    private MultiWriteBufferHandle matricesBuf;
 
     private StaticMeshBuffer mesh;
     private MeshPrefab prefab;
@@ -54,11 +57,14 @@ public class BatchedVertexConsumerTest extends Scene {
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
 
-        proj = pipeline.uniform("stuff.world");
-        transform = pipeline.uniform("stuff.translation");
+//        proj = pipeline.uniform("stuff.world");
+//        transform = pipeline.uniform("stuff.translation");
+        proj = pipeline.resolvePushConstant("world");
+        transform = pipeline.resolvePushConstant("translation");
+        matricesBuf = pipeline.uniform("matrixStack");
 
         this.consumer = new FastVertexConsumer<>(this.context.getEngine(), this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
-                new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, null));
+                new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,null));
         this.shapeRenderer = new ShapeRenderer<>(this.context, consumer, VertexFactory.DEFAULT);
 
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
@@ -97,17 +103,26 @@ public class BatchedVertexConsumerTest extends Scene {
         proj.write(slice -> slice.putMat4(mat));
         transform.write(slice -> slice.putMat4(new Matrix4f().translate(0, 0, 0)));
         ctx.getCommandBuffer().bindPipeline(PL);
-        ctx.getCommandBuffer().bindDescriptorSets(PL);
 
         ctx.getCommandBuffer().setPushConstants(PL);
         consumer.beginFrame();
 
+        var ms = shapeRenderer.getMatrixStack();
+
+        ms.push();
+        ms.rotate(System.nanoTime() / 1_000_000_000f);
+        //ms.translate(400, 300);
         shapeRenderer.texture(scaryVK);
         shapeRenderer.color(0, 0, 0, 1);
         shapeRenderer.circle(400, 300, 100, 50);
+        ms.pop();
 
+        ms.push();
+        ms.translate(100, 100, 0);
+        ms.rotate((float) Math.toRadians(45));
         shapeRenderer.color(1, 0, 0, 1);
-        shapeRenderer.rect(100, 100, 100, 100);
+        shapeRenderer.rect(0, 0, 100, 100);
+        ms.pop();
 
 //        shapeRenderer.texture(bear_performance);
 //        shapeRenderer.color(0, 0, 0, 1);
@@ -117,6 +132,10 @@ public class BatchedVertexConsumerTest extends Scene {
         shapeRenderer.color(0, 0, 0, 1);
         shapeRenderer.ovalArc(200, 200, 100, 50, 0, 90, 32);
 
+        matricesBuf.write((slice) -> {
+            shapeRenderer.getMatrixStack().upload(slice);
+        });
+        ctx.getCommandBuffer().bindDescriptorSets(PL);
         shapeRenderer.draw(ctx);
 
         ctx.getCommandBuffer().bindPipeline(CUBE);
@@ -139,6 +158,8 @@ public class BatchedVertexConsumerTest extends Scene {
         ctx.getCommandBuffer().setPushConstants(CUBE);
 
         mesh.draw(ctx);
+
+        matricesBuf.nextFrame();
     }
 
     @Override

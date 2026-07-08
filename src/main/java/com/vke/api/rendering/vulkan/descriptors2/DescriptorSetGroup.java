@@ -93,7 +93,9 @@ public class DescriptorSetGroup {
 
         if (!isDeep) {
             if (binding.layout.type.isBuffer()) {
-                return (T) resolveShallowBuffer((BufferBinding) binding, descriptorCount, hasIndex, set);
+                var buf = resolveShallowBuffer((BufferBinding) binding, descriptorCount, hasIndex, set);
+                buf.setDirty();
+                return (T) buf;
             }
             return (T) resolveShallowNonBuffer(binding, root, descriptorCount, hasIndex, set);
         }

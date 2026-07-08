@@ -95,7 +95,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
         for (ReflectedShader shader : shaders) {
             if (shader.getShaderType() == ShaderType.FRAGMENT) continue;
-            var vaos = shader.getVAOs();
+            var vaos = shader.getVAOs().stream().sorted(Comparator.comparingInt(c -> c.location));
 
             vaos.forEach(resource -> attribs.add(
                     new VertexLayoutData.Attribute(resource.stride, Format.fromBaseType(resource.baseType, resource.vecSize))

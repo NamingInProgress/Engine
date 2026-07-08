@@ -16,6 +16,4 @@ public interface VertexConsumer<T extends Vertex> extends Disposable, Drawable {
     void upload();
 
     void mesh(Mesh<T> mesh);
-
-    MatrixStack getMatrixStack();
 }

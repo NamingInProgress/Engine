@@ -69,6 +69,7 @@ public class DescriptorSetInstance implements Disposable {
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
+                if (layout.typeLayout.size == 0) layout.typeLayout.size = 64 * 10;
                 var buffer = generateBuffer(engine, device, layout);
 
                 if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");

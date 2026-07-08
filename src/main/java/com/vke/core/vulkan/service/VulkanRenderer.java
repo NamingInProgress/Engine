@@ -13,6 +13,9 @@ import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.ImageHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
@@ -120,7 +123,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     public void writeHandle(VulkanPipelineLayout layout, UniformHandle uh) {
         long dsh = layout.getSetHandle(uh.set);
-        //System.out.println(dsh);
         var writer = layout.writer;
         switch (uh) {
             case CISHandle handle ->
@@ -135,8 +137,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
                     writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
             case SamplerArrayHandle handle ->
                     writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
-            default -> {
-            }
+            case BufferHandle handle ->
+                    writer.writeBuffer(dsh, handle.binding, handle.bufferSize, handle.offset, handle.gpuAddress, handle.type);
+            case FieldHandle handle ->
+                    writer.writeBuffer(dsh, handle.binding, handle.parent.bufferSize, handle.parent.offset, handle.parent.gpuAddress, handle.type);
+            default -> {}
         }
         writer.flush();
     }

@@ -6,6 +6,7 @@ import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.FrameContext;
+import com.vke.core.rendering.transform.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
@@ -17,6 +18,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private final Context ctx;
     private final Renderer renderer;
     private final ITextureManager texManager;
+    private final MatrixStack matrixStack = new MatrixStack();
 
     //mutable state
     private float r,g,b,a;
@@ -53,7 +55,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     }
 
     private T v(float x, float y, float z, float u, float v) {
-        var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
+        var vert = factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
         vert.setTextureId(texManager.texture(t));
         return vert;
     }
@@ -68,7 +70,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float u = bu + nx * btw;
         float v = bv + ny * bth;
 
-        var vert = factory.apply(x, y, z, r, g, b, a, u, v, t);
+        var vert = factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
         vert.setTextureId(texManager.texture(t));
         return vert;
     }
@@ -161,5 +163,15 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     @Override
     public void draw(FrameContext ctx) {
         consumer.draw(ctx);
+        matrixStack.reset();
     }
+
+    public MatrixStack getMatrixStack() {
+        return this.matrixStack;
+    }
+
+    public int currentStackIndex() {
+        return this.matrixStack.currentMatrixIndex();
+    }
+
 }

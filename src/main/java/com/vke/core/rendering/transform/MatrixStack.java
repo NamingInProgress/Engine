@@ -7,87 +7,84 @@ import org.joml.Matrix4f;
 public class MatrixStack {
     private final RecyclerArrayList<Matrix4f> stack;
     private int index;
-    private Matrix4f m;
-    private boolean consecutive;
 
     public MatrixStack() {
         this(10);
     }
 
-    public MatrixStack(int cap) {
-        this.stack = new RecyclerArrayList<>(cap);
-        this.m = new Matrix4f();
-        this.stack.add(m);
+    public MatrixStack(int capacity) {
+        stack = new RecyclerArrayList<>(capacity);
+
+        Matrix4f identity = new Matrix4f();
+        stack.add(identity);
+
+        index = 1;
     }
 
     public void reset() {
-        index = 0;
+        index = 1;
         stack.clear();
         stack.virtualAdd();
-        this.m = stack.get(0);
+
+        stack.get(0).identity();
     }
 
-    public void push(LinearTransform transform) {
-        if (!consecutive) {
-            stack.add(m);
-            index++;
-        }
-        Matrix4f mat = transform.matrix();
-        Matrix4f newM = stack.getOrCreateElement(true, Matrix4f::new);
-        m.mul(mat, newM);
-        m = newM;
-    }
+    public void push() {
+        Matrix4f current = stack.get(index - 1);
+        Matrix4f next = stack.getOrCreateElement(true, Matrix4f::new);
 
-    public void pop() {
-        index--;
-        if (index < 0) index++;
-        m = stack.get(index);
-    }
-
-    public void begin() {
-        consecutive = true;
-    }
-
-    public void end() {
-        consecutive = false;
-        stack.add(m);
+        next.set(current);
         index++;
     }
 
+    public void pop() {
+        if (index > 1) {
+            index--;
+        }
+    }
+
+    public Matrix4f current() {
+        return stack.get(index - 1);
+    }
+
+    public int currentMatrixIndex() {
+        return index - 1;
+    }
+
+    public int size() {
+        return index;
+    }
+
     public void translate(float x, float y, float z) {
-        push(new Translate(x, y, z));
+        current().translate(x, y, z);
     }
 
     public void translate(float x, float y) {
-        push(new Translate(x, y));
-    }
-
-    public void shear(float x, float y, float z) {
-        push(new Shear(x, y, z));
+        current().translate(x, y, 0);
     }
 
     public void rotate(float x, float y, float z) {
-        push(new Rotate(x, y, z));
+        current().rotateXYZ(x, y, z);
     }
 
     public void rotate(float z) {
-        push(new Rotate(z));
+        current().rotateZ(z);
     }
 
-    public void scale(float scale) {
-        push(new Scale(scale));
+    public void scale(float s) {
+        current().scale(s);
     }
 
     public void scale(float x, float y, float z) {
-        push(new Scale(x, y, z));
+        current().scale(x, y, z);
     }
 
-    public int len() {
-        return stack.len();
+    public void shear(float x, float y, float z) {
+        // however you implement shear
     }
 
     public void upload(BufferSlice sink) {
-        for (int i = 0, l = len(); i < l; i++) {
+        for (int i = 0, l = stack.len(); i < l; i++) {
             sink.putMat4(stack.get(i));
         }
     }

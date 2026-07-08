@@ -4,6 +4,7 @@ layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec4 inColor;
 layout (location = 2) in vec2 inUV;
 layout (location = 3) in int texId;
+layout (location = 4) in int matrixId;
 
 layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec2 UV;
@@ -17,10 +18,9 @@ layout (set = 0, binding = 0) uniform Camera {
 
 layout (set = 1, binding = 0) uniform sampler2D textures[];
 
-layout (set = 2, binding = 0) uniform Stuff {
-    mat4 world;
-    mat4 translation;
-} stuff;
+layout (std430, set = 2, binding = 0) readonly buffer MatrixStack {
+    mat4 modelMatrices[];
+} matrixStack;
 
 layout (push_constant) uniform constants {
     mat4 world;
@@ -28,7 +28,7 @@ layout (push_constant) uniform constants {
 } PushConstants;
 
 void main() {
-    gl_Position = stuff.world * stuff.translation * vec4(inPos, 1);
+    gl_Position = PushConstants.world * matrixStack.modelMatrices[matrixId] * vec4(inPos, 1);
     outColor = inColor;
     UV = inUV;
     outTexId = texId;
