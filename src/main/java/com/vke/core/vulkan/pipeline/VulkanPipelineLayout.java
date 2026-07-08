@@ -153,27 +153,32 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     public void writeHandles() {
         getGroup().getDirtyHandles().addAll(engineSets.ENGINE_PIPELINE_LAYOUT.getGroup().getDirtyHandles());
-        for (UniformHandle uh : getGroup().getDirtyHandles()) {
-            long dsh = getSetHandle(uh.set);
-            switch (uh) {
-                case CISHandle handle ->
-                        writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
-                case CISArrayHandle handle ->
-                        writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
-                case ImageHandle handle ->
-                        writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
-                case ImageArrayHandle handle ->
-                        writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
-                case SamplerHandle handle -> writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
-                case SamplerArrayHandle handle ->
-                        writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
-                default -> {}
-            }
-        }
 
-        getGroup().clearDirty();
-        engineSets.ENGINE_PIPELINE_LAYOUT.getGroup().clearDirty();
-        writer.flush();
+        if (!getGroup().getDirtyHandles().isEmpty()) {
+            for (UniformHandle uh : getGroup().getDirtyHandles()) {
+                long dsh = getSetHandle(uh.set);
+                switch (uh) {
+                    case CISHandle handle ->
+                            writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                    case CISArrayHandle handle ->
+                            writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                    case ImageHandle handle ->
+                            writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                    case ImageArrayHandle handle ->
+                            writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                    case SamplerHandle handle ->
+                            writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+                    case SamplerArrayHandle handle ->
+                            writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
+                    default -> {
+                    }
+                }
+            }
+
+            getGroup().clearDirty();
+            engineSets.ENGINE_PIPELINE_LAYOUT.getGroup().clearDirty();
+            writer.flush();
+        }
     }
 
     @Override

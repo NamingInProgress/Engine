@@ -13,7 +13,7 @@ public interface BundleLoadingCallback {
     void onAssetException(AssetDesc desc, Throwable exception);
     void onLoadingComplete();
 
-    record AssetDesc(Identifier name, int position, int totalAmount) {
+    record AssetDesc(Identifier name, int position, int totalAmount, AssetHandle<?> handle) {
         @Override
         public @NotNull String toString() {
             return String.format("[%d/%d] %s", position, totalAmount, name);

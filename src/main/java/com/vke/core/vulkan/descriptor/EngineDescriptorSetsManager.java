@@ -33,7 +33,8 @@ public class EngineDescriptorSetsManager implements Disposable {
     public int highestSet; // All sets below this one are used!
 
     public EngineDescriptorSetsManager(Context context, VulkanRenderer renderer, VulkanRenderDevice device, ReflectedShader truth) {
-        this.textureManager = new VulkanTextureManager(this, device);
+        this.textureManager = new VulkanTextureManager(context, this, device);
+        context.getEngine().EVENT_BUS.register(textureManager);
 
         for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : truth.getDescriptors().entrySet()) {
             for (ReflectedShader.DescriptorResource descriptorResource : entry.getValue()) {

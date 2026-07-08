@@ -210,49 +210,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
         VK14.vkCmdPushConstants(this.getBuffer(),
                 layout.getHandle(),
-                VK14.VK_SHADER_STAGE_ALL, // FIX THIS
+                VK14.VK_SHADER_STAGE_ALL,
                 0,
                 layout.pushConstants().getData()
         );
-    }
-
-    @Override
-    public void bindEngineDescriptorSets(PipelineLayout layout) {
-        if (engineDescriptorSetsBound) return;
-        engineDescriptorSetsBound = true;
-
-        VulkanPipelineLayout l = (VulkanPipelineLayout) layout;
-        l.writeHandles();
-
-        long[] sets = new long[l.getUserSets().size()];
-        List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
-
-        List<DescriptorSetInstance> userSets = l.getUserSets();
-        for (int i = 0; i < userSets.size(); i++) {
-            DescriptorSetInstance userSet = userSets.get(i);
-            sets[i] = userSet.getSet().getHandle();
-        }
-
-        l.getGroup().getHandleCache().values().stream()
-                .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
-                .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
-                .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
-
-        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_GRAPHICS,
-                l.getHandle(),
-                0, sets,
-                dynamicOffsets.stream()
-                        .mapToInt(Integer::intValue)
-                        .toArray());
-
-        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
-                VK14.VK_PIPELINE_BIND_POINT_COMPUTE,
-                l.getHandle(),
-                0, sets,
-                dynamicOffsets.stream()
-                        .mapToInt(Integer::intValue)
-                        .toArray());
     }
 
     @Override

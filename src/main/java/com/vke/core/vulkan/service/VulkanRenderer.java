@@ -144,7 +144,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.begin();
         f.preRendering(new DrawContext(cmd, swapchain.getExtent(), window));
         cmd.beginRendering();
-        //cmd.bindEngineDescriptorSets(engineSetsManager.ENGINE_PIPELINE_LAYOUT);
         profiler.end();
         profiler.end();
 

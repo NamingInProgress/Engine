@@ -35,7 +35,7 @@ public final class Bundle implements Disposable {
         for (Map.Entry<Identifier, AssetHandle<?>> entry : assets.entrySet()) {
             AssetHandle<?> handle = entry.getValue();
             Identifier name = entry.getKey();
-            BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount);
+            BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount, handle);
 
             try {
                 if (callback != null) {
