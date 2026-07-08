@@ -157,6 +157,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.setScissor(sc);
 
         DrawContext context = new DrawContext(cmd, swapchain.getExtent(), window);
+        getEngineSetsManager().textureManager.frame();
         return new FrameData(frame, stack, imageIndex, context);
     }
 

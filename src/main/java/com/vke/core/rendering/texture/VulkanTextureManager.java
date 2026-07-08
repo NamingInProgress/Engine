@@ -39,6 +39,12 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
         }
     }
 
+    public void frame() {
+        if (BINDLESS_HANDLE != null) {
+            BINDLESS_HANDLE.setDirty();
+        }
+    }
+
     @Override
     public int registerTexture(Texture tex) {
         if (textures.containsKey(tex)) return textures.get(tex);
