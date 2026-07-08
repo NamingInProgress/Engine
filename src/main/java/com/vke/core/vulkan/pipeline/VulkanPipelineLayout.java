@@ -184,11 +184,12 @@ public class VulkanPipelineLayout implements PipelineLayout {
     @Override
     public void free() {
         // destroy descriptors and stuff
-        VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
         this.userSets.forEach(Disposable::free);
         this.alloc.free();
-        if (pushConstants != null)
+        if (pushConstants != null) {
             pushConstants.free();
+        }
+        VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
     }
 
     public record LayoutCapabilities() {}
