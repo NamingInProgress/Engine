@@ -48,7 +48,6 @@ public class VKEngine extends Context {
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
 
-
         if (!createInfo.releaseMode) System.out.println("Process Handle: " + ProcessHandle.current().pid());
 
         this.createInfo = createInfo;

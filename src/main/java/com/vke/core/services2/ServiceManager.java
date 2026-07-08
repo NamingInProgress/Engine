@@ -55,7 +55,9 @@ public class ServiceManager implements Disposable {
     @SuppressWarnings("unchecked")
     public void replaceImpl(String key, ServiceImpl newImpl) {
         ServiceAPI api = registry.get(key);
-        api.replaceImplementation(newImpl);
+        if (api != null) {
+            api.replaceImplementation(newImpl);
+        }
     }
 
     @Override
