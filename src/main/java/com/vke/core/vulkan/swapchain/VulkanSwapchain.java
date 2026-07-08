@@ -232,7 +232,9 @@ public class VulkanSwapchain implements Swapchain {
                     .sType$Default();
             IntBuffer pNextImageIndex = stack.mallocInt(1);
             int VK_RESULT = KHRSwapchain.vkAcquireNextImage2KHR(device.getLogicalDevice().getDevice(), acquireInfo, pNextImageIndex);
-            if (VK_RESULT != VK14.VK_SUCCESS) {
+            // VK_SUCCESS and VK_SUBOPTIMAL_KHR both signal the semaphore/fence and return a valid
+            // image index; only genuine error codes (negative) must skip consuming them.
+            if (VK_RESULT != VK14.VK_SUCCESS && VK_RESULT != KHRSwapchain.VK_SUBOPTIMAL_KHR) {
                 return ~VK_RESULT;
             }
             currentImageIndex = pNextImageIndex.get(0);
@@ -255,7 +257,7 @@ public class VulkanSwapchain implements Swapchain {
 
             int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(device.getQueue(QueueType.PRESENT).vk(), presentInfo);
             if (VK_RESULT != VK14.VK_SUCCESS) {
-                if (VK_RESULT == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
+                if (VK_RESULT == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || VK_RESULT == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
                     recreate();
                 } else {
                     engine.getLogger().warn("Failed to present queue!");

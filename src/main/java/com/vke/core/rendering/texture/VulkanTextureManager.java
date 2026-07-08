@@ -27,7 +27,10 @@ public class VulkanTextureManager implements ITextureManager {
         if (BINDLESS_HANDLE == null) BINDLESS_HANDLE = mgr.ENGINE_PIPELINE_LAYOUT.getGroup().resolve("textures");
         int firstFree = -1;
         for (int i = 0; i < bindlessTextures.length; i++) {
-            if (bindlessTextures[i] == tex) return i;
+            if (bindlessTextures[i] == tex) {
+                BINDLESS_HANDLE.set(tex, Samplers.LINEAR, i);
+                return i;
+            }
             if (bindlessTextures[i] == null && firstFree == -1) {
                 firstFree = i;
             }

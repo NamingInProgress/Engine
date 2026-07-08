@@ -48,7 +48,7 @@ public class EngineDescriptorSetsManager implements Disposable {
 
                 if (entry.getKey().isDescriptorBuffer()) {
                     BUFFERS.put(VKUtils.encodeDescriptor(descriptorResource.set, descriptorResource.binding),
-                            DescriptorSet.generateBuffer(context.getEngine(), device, layout));
+                            DescriptorSetInstance.generateBuffer(context.getEngine(), device, layout));
                 }
             }
         }

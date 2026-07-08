@@ -113,7 +113,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         profiler.begin("Image Acquire");
         int imageIndex = swapchain.acquireNextImage(frame.getImageSemaphore());
-        if (imageIndex < 0) {
+        if (imageIndex < 0 || imageIndex > imagesInFlight.length) {
             int errorCode = ~imageIndex;
             if (errorCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
                 swapchain.recreate();

@@ -1,32 +1,50 @@
 package com.vke.core.vulkan.descriptor.ds2;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.api.rendering.vulkan.descriptors.bindings.*;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.core.VKEngine;
+import com.vke.core.vulkan.buffers.MappedBuffer;
+import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
+
+import java.util.HashMap;
 
 public class DescriptorSetInstance implements Disposable {
 
+    public final HashMap<String, DescriptorBinding> bindings = new HashMap<>();
     private final DescriptorSet[] setObjects;
     private final int set;
     private final CompiledDescriptorSetLayout compiledLayout;
     private final FrameCounter fc;
+    private final VKEngine engine;
+    private final VulkanRenderDevice device;
 
     public DescriptorSetInstance(VKEngine engine, VulkanRenderDevice device, DescriptorAllocator alloc,
                                  DescriptorSetLayout setLayout, FrameCounter fc, int set) {
         this.fc = fc;
         this.set = set;
         this.setObjects = new DescriptorSet[fc.framesInFlight()];
+        this.engine = engine;
+        this.device = device;
 
         this.compiledLayout = new CompiledDescriptorSetLayout(engine, device, setLayout, null);
 
+        setLayout.bindings.forEach(bindingLayout -> {
+            DescriptorBinding binding = createDescriptorBinding(bindingLayout);
+            bindings.put(bindingLayout.name, binding);
+        });
+
         for (int i = 0; i < fc.framesInFlight(); i++) {
-            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine, setLayout);
+            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine);
         }
     }
 
@@ -46,4 +64,40 @@ public class DescriptorSetInstance implements Disposable {
     public void free() {
         this.compiledLayout.free();
     }
+
+    public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
+        return switch (layout.type) {
+            case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
+                var buffer = generateBuffer(engine, device, layout);
+
+                if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");
+
+                yield new BufferBinding(layout, buffer, layout.typeLayout.size, layout.packingType, layout.multiWrite);
+            }
+            case COMBINED_IMAGE_SAMPLER -> new CombinedImageSamplerBinding(layout);
+            case SAMPLED_IMAGE -> new SampledImageBinding(layout);
+            case STORAGE_IMAGE -> new StorageImageBinding(layout);
+            case SAMPLER -> new SamplerBinding(layout);
+            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TODO: implement this
+        };
+    }
+
+    public static MappedBuffer generateBuffer(VKEngine engine, VulkanRenderDevice device, BindingLayout layout) {
+        BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
+        int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
+
+        if (layout.staticBuffer) {
+            return new MappedBuffer(engine, device, layout.typeLayout.size, usage);
+        } else {
+            return new MappedGpuRingBuffer(engine, device, Utils.alignUpFast(layout.typeLayout.size,
+                    getAlign(device, layout)) * layout.multiWrite, framesInFlight, usage);
+        }
+    }
+
+    public static long getAlign(VulkanRenderDevice device, BindingLayout layout) {
+        return layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC
+                ? device.capabilities().minUboAlign
+                : device.capabilities().minSSBOAlign;
+    }
+
 }

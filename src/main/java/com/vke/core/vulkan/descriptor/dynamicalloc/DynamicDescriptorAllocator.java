@@ -75,7 +75,7 @@ public class DynamicDescriptorAllocator implements Disposable {
             }
             readyPools.add(pool);
 
-            DescriptorSet ds = new DescriptorSet(pSet.get(0), device, context.getEngine(), layout.getLayout());
+            DescriptorSet ds = new DescriptorSet(pSet.get(0), device, context.getEngine());
             allocatedSets.add(ds);
 
             return ds;

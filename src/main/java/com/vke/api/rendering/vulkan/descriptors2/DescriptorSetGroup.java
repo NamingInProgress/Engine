@@ -70,8 +70,8 @@ public class DescriptorSetGroup {
 
         for (int i = 0; i < parent.descriptorCount(); i++) {
             DescriptorSetInstance descriptorSet = parent.getUserSets().get(i);
-            if (descriptorSet.getSet().bindings.containsKey(root.name)) {
-                binding = descriptorSet.getSet().bindings.get(root.name);
+            if (descriptorSet.bindings.containsKey(root.name)) {
+                binding = descriptorSet.bindings.get(root.name);
                 set = descriptorSet;
                 break;
             }
