@@ -33,7 +33,7 @@ public interface IVulkanPipeline extends Pipeline {
     PipelineLayout layout();
 
     // Info create methods that are shared between compute and render pipelines
-    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, VulkanRenderDevice device, ArrayList<ReflectedShader> shaders) {
+    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, ArrayList<ReflectedShader> shaders) {
         HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
         for (ReflectedShader shader : shaders) {
@@ -51,14 +51,8 @@ public interface IVulkanPipeline extends Pipeline {
             }
         }
 
-        ArrayList<Integer> mismatchedSets = new ArrayList<>();
         var mgr = ctx.<VulkanRendererAPI>service(Services.VULKAN_RENDERER).<VulkanRenderer>assumeImplementation().getEngineSetsManager();
         var engineSets = mgr.getDefaults();
-        for (Map.Entry<Integer, DescriptorSetLayout> integerDescriptorSetLayoutEntry : engineSets.entrySet()) {
-            if (!integerDescriptorSetLayoutEntry.getValue().equals(sets.get(integerDescriptorSetLayoutEntry.getKey()))) {
-                mismatchedSets.add(integerDescriptorSetLayoutEntry.getKey());
-            }
-        }
 
         sets.putAll(engineSets);
 

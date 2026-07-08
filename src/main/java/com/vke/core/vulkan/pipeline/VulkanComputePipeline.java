@@ -33,7 +33,7 @@ public class VulkanComputePipeline implements ComputePipeline, IVulkanPipeline {
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shader);
 
         var shaders = getReflectedShaders(context, data.compiledShaders);
-        List<DescriptorSetLayout> ds = createDescriptorSets(context, device, shaders);
+        List<DescriptorSetLayout> ds = createDescriptorSets(context, shaders);
         PushConstants pc = createPushConstants(shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {

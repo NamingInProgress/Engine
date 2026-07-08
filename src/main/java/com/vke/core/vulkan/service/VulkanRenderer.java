@@ -44,7 +44,6 @@ import java.util.function.BiConsumer;
 import static com.vke.core.VKEngine.profiler;
 
 public class VulkanRenderer extends ServiceImpl implements Renderer {
-    private static final String HERE = "VulkanRenderer";
 
     private final FrameCounter frameCounter;
 
@@ -87,7 +86,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         // VKE shader to set default descriptors via reflection instead of hard coding
         var temp = R.shaders.get("shaders/vke_sets.vsh");
-        Shader s = temp.assume(context);    //device.createShader(new Identifier("vke", "assets/global/shaders/vke_sets.vsh"), ShaderType.VERTEX);
+        Shader s = temp.assume(context);
         engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
                 context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
                         .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));

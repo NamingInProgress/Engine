@@ -38,7 +38,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
 
         var shaders = getReflectedShaders(context, data.compiledShaders);
-        List<DescriptorSetLayout> ds = createDescriptorSets(context, device, shaders);
+        List<DescriptorSetLayout> ds = createDescriptorSets(context, shaders);
         PushConstants pc = createPushConstants(shaders);
         data.vertexLayoutData = createVertexLayouts(data, shaders);
 
