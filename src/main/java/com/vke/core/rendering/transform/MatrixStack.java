@@ -1,6 +1,5 @@
 package com.vke.core.rendering.transform;
 
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.vulkan.vertexconsumer.RecyclerArrayList;
 import org.joml.Matrix4f;
@@ -18,6 +17,7 @@ public class MatrixStack {
     public MatrixStack(int cap) {
         this.stack = new RecyclerArrayList<>(cap);
         this.m = new Matrix4f();
+        this.stack.add(m);
     }
 
     public void reset() {
@@ -33,7 +33,7 @@ public class MatrixStack {
             index++;
         }
         Matrix4f mat = transform.matrix();
-        Matrix4f newM = new Matrix4f();
+        Matrix4f newM = stack.getOrCreateElement(true, Matrix4f::new);
         m.mul(mat, newM);
         m = newM;
     }

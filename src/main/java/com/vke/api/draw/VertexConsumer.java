@@ -2,6 +2,7 @@ package com.vke.api.draw;
 
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.mesh.Mesh;
+import com.vke.core.rendering.transform.MatrixStack;
 import com.vke.utils.io.Disposable;
 
 public interface VertexConsumer<T extends Vertex> extends Disposable, Drawable {
@@ -15,4 +16,6 @@ public interface VertexConsumer<T extends Vertex> extends Disposable, Drawable {
     void upload();
 
     void mesh(Mesh<T> mesh);
+
+    MatrixStack getMatrixStack();
 }
