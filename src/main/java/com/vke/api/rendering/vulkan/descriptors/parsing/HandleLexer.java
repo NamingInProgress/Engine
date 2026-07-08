@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors.handles.parsing;
+package com.vke.api.rendering.vulkan.descriptors.parsing;
 
 import java.util.ArrayDeque;
 

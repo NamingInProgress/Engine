@@ -1,7 +1,7 @@
 package com.vke.test;
 
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.BaseNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.BaseNode;
 
 public class HandleParserTest {
 

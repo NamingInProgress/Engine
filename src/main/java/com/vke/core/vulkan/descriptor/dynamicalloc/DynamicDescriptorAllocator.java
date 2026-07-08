@@ -4,11 +4,7 @@ import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.array.BufferArrayHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.array.EntryArrayHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.BufferHandle;
-import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
+
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.DrawContext;
@@ -23,7 +19,6 @@ import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo;
 
 import java.nio.LongBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DynamicDescriptorAllocator implements Disposable {
 
@@ -80,29 +75,6 @@ public class DynamicDescriptorAllocator implements Disposable {
 
             return ds;
         }
-    }
-
-    public void update(UniformHandle... uniforms) {
-        for (UniformHandle uniform : uniforms) {
-            if (uniform instanceof BufferArrayHandle || uniform instanceof BufferHandle || uniform instanceof EntryArrayHandle) {
-                continue;
-            }
-
-            uniform.writeDescriptor(writer, allocatedSets.get(uniform.descriptorSetListIndex).handle);
-        }
-
-        writer.flush();
-    }
-
-    public void bindDescriptors(DrawContext ctx, AssetHandle<RenderPipeline> pipeline, UniformHandle... handles) {
-        //ctx.getCommandBuffer().bindDescriptorSets(pipeline, Arrays.stream(handles).mapToLong(handle -> allocatedSets.get(handle.descriptorSetListIndex).handle).toArray());
-    }
-
-    public <T extends UniformHandle> T copy(UniformHandle toCopy) {
-        UniformHandle handle = toCopy.copy();
-        allocate(handle.compiledLayout);
-        handle.descriptorSetListIndex = allocatedSets.size() - 1;
-        return (T) handle;
     }
 
     protected DescriptorPool getPool() {

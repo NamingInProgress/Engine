@@ -6,11 +6,11 @@ import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBin
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.SamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.parsing.LayoutResolver;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.ArrayIndexNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.EntryNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.Node;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;

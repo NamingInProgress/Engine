@@ -1,8 +1,8 @@
-package com.vke.api.rendering.vulkan.descriptors.handles.parsing;
+package com.vke.api.rendering.vulkan.descriptors.parsing;
 
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.ArrayIndexNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.Node;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.ArrayIndexNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.EntryNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.Node;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors.types.StructType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;

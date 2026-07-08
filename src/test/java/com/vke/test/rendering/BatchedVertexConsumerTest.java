@@ -18,7 +18,6 @@ import com.vke.core.services2.Services;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.service.VulkanRenderer;
-import com.vke.core.vulkan.vertexconsumer.BatchedVKVertexConsumer;
 import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;

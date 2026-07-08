@@ -1,8 +1,8 @@
 package com.vke.api.rendering.vulkan.pushconstants;
 
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.HandleParser;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.LayoutResolver;
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.EntryNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.HandleParser;
+import com.vke.api.rendering.vulkan.descriptors.parsing.LayoutResolver;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.EntryNode;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.io.Disposable;
 import org.jetbrains.annotations.ApiStatus;

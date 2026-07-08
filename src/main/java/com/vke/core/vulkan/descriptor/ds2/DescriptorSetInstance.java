@@ -63,6 +63,7 @@ public class DescriptorSetInstance implements Disposable {
     @Override
     public void free() {
         this.compiledLayout.free();
+        bindings.values().forEach(Disposable::free);
     }
 
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {

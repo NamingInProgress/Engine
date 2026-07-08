@@ -9,8 +9,6 @@ import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.ImageLayout;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -51,7 +49,6 @@ public class MainScene extends Scene {
     //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
     //private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
 
-    private ImageHandle compute_image;
 
     private PushConstantHandle projMatrixHandle;
     private PushConstantHandle transformMatrixHandle;
@@ -59,7 +56,6 @@ public class MainScene extends Scene {
     private PushConstantHandle dvProjMatrixHandle;
     private PushConstantHandle dvTransformMatrixHandle;
 
-    private CombinedImageSamplerHandle fullScreenSampler;
 
     private VertexConsumer<DynamicTestVertex> consumer;
 

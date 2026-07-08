@@ -1,4 +1,4 @@
-package com.vke.api.rendering.vulkan.descriptors.handles.parsing.node;
+package com.vke.api.rendering.vulkan.descriptors.parsing.node;
 
 public class ArrayIndexNode extends Node {
 

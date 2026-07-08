@@ -1,6 +1,10 @@
-package com.vke.api.rendering.vulkan.descriptors.handles.parsing;
+package com.vke.api.rendering.vulkan.descriptors.parsing;
 
-import com.vke.api.rendering.vulkan.descriptors.handles.parsing.node.*;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.*;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.ArrayIndexNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.BaseNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.EntryNode;
+import com.vke.api.rendering.vulkan.descriptors.parsing.node.Node;
 
 public class HandleParser {
 

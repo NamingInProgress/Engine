@@ -22,7 +22,7 @@ public class BufferBinding extends DescriptorBinding {
     }
 
     @Override
-    public <T extends DescriptorBinding> T copy() {
-        return (T) new BufferBinding(layout, buffer, singleBufferSize, packingType, multiWrite);
+    public void free() {
+        this.buffer.free();
     }
 }
