@@ -122,7 +122,7 @@ public class TestApp extends App {
         VulkanRenderPipeline pipeline;
         VulkanRenderPipeline cubePipeline;
         try {
-            pipeline = (VulkanRenderPipeline) IDK.acquire(engine);
+            pipeline = null; // (VulkanRenderPipeline) IDK.acquire(engine);
             cubePipeline = (VulkanRenderPipeline) CUBE.acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -147,7 +147,7 @@ public class TestApp extends App {
     PushConstantHandle projMatrixHandle;
     PushConstantHandle transformMatrixHandle;
 
-    AssetHandle<RenderPipeline> IDK = R.pipelines.get("test.pipeline.json");
+    //AssetHandle<RenderPipeline> IDK = R.pipelines.get("test.pipeline.json");
     AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
 
     @Override
@@ -156,7 +156,7 @@ public class TestApp extends App {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
-            cmd.bindPipeline(IDK);
+            //cmd.bindPipeline(IDK);
 
             Matrix4f mat = new Matrix4f();
             mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
@@ -167,9 +167,9 @@ public class TestApp extends App {
 
             // Set sampler (outside of render loop tho)
 
-            cmd.bindDescriptorSets(IDK);
+            //cmd.bindDescriptorSets(IDK);
 
-            cmd.setPushConstants(IDK);
+            //cmd.setPushConstants(IDK);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 
