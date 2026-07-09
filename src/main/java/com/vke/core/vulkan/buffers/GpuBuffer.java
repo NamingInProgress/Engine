@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.utils.VKUtils;
 import com.vke.utils.iter.Iter;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -21,6 +22,8 @@ import java.util.Arrays;
 public class GpuBuffer implements Buffer {
     private static final String HERE = "Buffer@VulkanImpl/GPUBuffer";
 
+    public static int counter = 0;
+
     private final long allocator;
     private final long buffer, allocation;
     private final VmaAllocationInfo info;
@@ -31,6 +34,8 @@ public class GpuBuffer implements Buffer {
     private final long size;
     private final BufferUsage usage;
     private final MemoryUsage memUsage;
+
+    private int idx;
 
     public GpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
         this(engine, device, info.size(), info.usage(), info.memUsage(), info.flags());
@@ -65,6 +70,12 @@ public class GpuBuffer implements Buffer {
             buffer = pBuffer.get(0);
             allocation = pAllocation.get(0);
             info = allocationInfo;
+
+            if (engine.isDebugMode()) {
+                this.idx = counter;
+                VKUtils.setDebugName(rd.getLogicalDevice(), "Gpu Buffer #" + counter, this.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
+                counter++;
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.vke.core.vulkan.descriptor;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 public class EngineDescriptorSetsManager implements Disposable {
 
     public final HashMap<Integer, DescriptorSetLayout> ENGINE_LAYOUTS = new HashMap<>();
-    private final HashMap<Long, MappedBuffer> BUFFERS = new HashMap<>(); // <Set, Binding>
 
     public final ArrayList<DescriptorSetInstance> INSTANCES = new ArrayList<>();
 
@@ -63,11 +63,6 @@ public class EngineDescriptorSetsManager implements Disposable {
                         truth.getMetadata().staticBuffers().contains(descriptorResource.name));
                 layout.resolveRuntimeSizeArrays(truth.getMetadata().defaultRuntimeSizes());
                 set.bindings.add(layout);
-
-                if (entry.getKey().isDescriptorBuffer()) {
-                    BUFFERS.put(VKUtils.encodeDescriptor(descriptorResource.set, descriptorResource.binding),
-                            DescriptorSetInstance.generateBuffer(context.getEngine(), device, layout));
-                }
             }
         }
         usedSets = Iter.of(ENGINE_LAYOUTS.keySet()).toArray();
@@ -78,12 +73,15 @@ public class EngineDescriptorSetsManager implements Disposable {
     }
 
     public List<Integer> getDynamicOffsets() {
-        return BUFFERS.entrySet().stream()
-                .filter(entry -> entry.getValue() instanceof MappedGpuRingBuffer)
-                .sorted(Comparator.comparingLong(Map.Entry::getKey))
-                .mapToInt(entry -> (int) ((MappedGpuRingBuffer) entry.getValue()).getOffset())
-                .boxed()
-                .collect(Collectors.toCollection(ArrayList::new));
+        return ENGINE_PIPELINE_LAYOUT.getUserSets().stream()
+                .flatMap(instance -> instance.bindings.values().stream()
+                        .filter(binding -> binding instanceof BufferBinding)
+                        .map(binding -> ((BufferBinding) binding).buffer)
+                        .filter(buf -> buf instanceof MappedGpuRingBuffer)
+                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset())
+                        .sorted(Comparator.comparingInt(c -> c))
+                ).collect(Collectors.toCollection(ArrayList::new));
+
     }
 
     public void onFrame() {

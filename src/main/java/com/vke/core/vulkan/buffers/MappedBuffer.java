@@ -21,6 +21,8 @@ public class MappedBuffer implements Disposable {
     protected final long mappedAddress;
     protected final long size;
 
+    private int idx = 0;
+
     public MappedBuffer(
             VKEngine engine,
             VulkanRenderDevice device,
@@ -33,10 +35,6 @@ public class MappedBuffer implements Disposable {
         this.gpuBuffer = device.createBuffer(new Buffer.Description(size, usage, MemoryUsage.Bits.AUTO_PREFER_HOST.into(),
                 Arrays.stream(flags).reduce(0, (a, b) -> a | b) |
                 Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT | Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT));
-
-        if (engine.isDebugMode()) {
-            VKUtils.setDebugName(device.getLogicalDevice(), "Mapped Buffer #" + counter++, this.gpuBuffer.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
-        }
 
         this.mappedAddress = gpuBuffer.getInfo().pMappedData();
 
