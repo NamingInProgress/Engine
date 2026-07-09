@@ -106,7 +106,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         try {
             s = temp.acquire(context);
         } catch (IOException e) {
-            context.throwException(new IllegalStateException("Couldnt load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
+            context.throwException(new IllegalStateException("Couldnt load shader vke_sets.gdef which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
         }
         engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
                 context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
