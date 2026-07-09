@@ -189,10 +189,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     public void endFrame(FrameData frameData, Framable f) {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
-        VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
-                layout.getGroup().getHandleCache().values().stream()
-                        .filter(e -> e instanceof BufferHandle)
-                        .forEach(uh -> ((BufferHandle) uh).nextFrame()));
+        //VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
+        //        layout.getGroup().getHandleCache().values().stream()
+        //                .filter(e -> e instanceof BufferHandle)
+        //                .forEach(uh -> ((BufferHandle) uh).nextFrame()));
 
         cmd.endRendering();
         f.postRendering(new FrameContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
