@@ -147,7 +147,7 @@ public class DescriptorSetGroup {
             }
 
             var buf = binding.buffer;
-            if (binding.multiWrite == 0) {
+            if (binding.multiWrite == 1) {
                 return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, buf.getSize(), buf.getMappedAddress());
             } else {
                 return new MultiWriteBufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, binding.multiWrite,
