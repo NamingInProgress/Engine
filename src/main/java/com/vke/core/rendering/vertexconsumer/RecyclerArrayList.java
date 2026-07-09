@@ -84,4 +84,19 @@ public class RecyclerArrayList<T> {
             return newBatch;
         }
     }
+
+    public T getOrCreateElement(int index, boolean checkRecycle, Supplier<T> factory) {
+        if (index >= cap && checkRecycle) {
+            T newBatch = get(len());
+            if (newBatch == null) {
+                return getOrCreateElement(index, false, factory);
+            }
+            this.virtualAdd();
+            return newBatch;
+        } else {
+            T newBatch = factory.get();
+            add(newBatch);
+            return newBatch;
+        }
+    }
 }
