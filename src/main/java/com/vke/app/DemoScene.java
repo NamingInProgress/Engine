@@ -1,6 +1,8 @@
-package com.vke.test.rendering;
+package com.vke.app;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.draw.Vertex;
+import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
@@ -33,7 +35,7 @@ public class DemoScene extends Scene {
         float[] color = {1, 1, 1, 1};
 
         mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), (VulkanRenderer) getRenderer(),
-                prefab.toMesh((prefabVertex -> new MainScene.CubeVertexFormat(
+                prefab.toMesh((prefabVertex -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
@@ -71,4 +73,37 @@ public class DemoScene extends Scene {
     public void free() {
         mesh.free();
     }
+
+    public static class CubeVertexFormat extends Vertex {
+
+        private float x, y, z;
+        private float nx, ny, nz;
+        private float r, g, b, a;
+
+        public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.nx = nx;
+            this.ny = ny;
+            this.nz = nz;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        @Override
+        public int getByteStride() {
+            return 4*10;
+        }
+
+        @Override
+        public void putSelf(VertexByteSink buf) {
+            buf.float3(x, y, z);
+            buf.float3(nx, ny, nz);
+            buf.float4(r, g, b, a);
+        }
+    }
+
 }
