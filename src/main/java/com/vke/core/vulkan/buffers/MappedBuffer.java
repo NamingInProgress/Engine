@@ -34,7 +34,9 @@ public class MappedBuffer implements Disposable {
                 Arrays.stream(flags).reduce(0, (a, b) -> a | b) |
                 Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT | Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT));
 
-        VKUtils.setDebugName(device.getLogicalDevice(), "Mapped Buffer #" + counter++, this.gpuBuffer.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
+        if (engine.isDebugMode()) {
+            VKUtils.setDebugName(device.getLogicalDevice(), "Mapped Buffer #" + counter++, this.gpuBuffer.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
+        }
 
         this.mappedAddress = gpuBuffer.getInfo().pMappedData();
 
