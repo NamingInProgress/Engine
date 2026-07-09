@@ -34,7 +34,7 @@ public class DemoScene extends Scene {
 
         float[] color = {1, 1, 1, 1};
 
-        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), (VulkanRenderer) getRenderer(),
+        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(),
                 prefab.toMesh((prefabVertex -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],

@@ -39,6 +39,7 @@ public class VorbisAudioPacketDecoder {
 
         FloorCurveDecoder floorCurve = new FloorCurveDecoder(info, bitStream, mode);
 
+        return null;
     }
 
 
