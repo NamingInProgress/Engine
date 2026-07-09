@@ -126,7 +126,6 @@ public class FileUtils {
                     String relativePath = root.relativize(p).toString().replace('\\', '/');
                     return new WalkedFile(relativePath, Files.isRegularFile(p));
                 })
-                .inspect(System.out::println)
                 .finisher(() -> {
                     stream.close();
                     if (closeableFs != null) {

@@ -35,7 +35,6 @@ public class VulkanShader implements Shader {
                 engine.throwException(new IllegalStateException("Failed to create shader module!"), "SHADER_INIT");
             }
             this.handle = pShaderModule.get(0);
-            System.out.println("crated shader: " + Long.toHexString(handle));
         }
 
         this.type = type;

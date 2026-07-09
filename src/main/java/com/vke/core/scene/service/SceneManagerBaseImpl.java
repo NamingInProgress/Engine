@@ -35,14 +35,12 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     }
 
     void registerScenes(Identifier sceneDirectory, Context context) {
-        System.out.println("Scenes");
         sceneDirectory.walkFiles()
                 .filter(this::isSceneFile)
                 .forEach(sceneFile -> registerScene(sceneFile, context));
     }
 
     private void registerScene(Identifier sceneFile, Context context) {
-        System.out.println("Scene");
         try {
             SceneXML sceneXML = new SceneXML(sceneFile, context);
             Identifier thisName = sceneXML.name;

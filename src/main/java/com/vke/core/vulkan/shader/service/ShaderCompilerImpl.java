@@ -34,6 +34,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     private AutoHeapAllocator alloc;
     private VKEngine engine;
     private Vkz vkz;
+    private boolean hasBeenFreed;
 
     public ShaderCompilerImpl(VKEngine engine) {
         super(Services.SHADER_COMPILER, engine);
@@ -43,6 +44,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     @Override
     protected void onInitialize() {
         this.compiler = Shaderc.shaderc_compiler_initialize();
+        //System.out.println("making compiler: " + Long.toHexString(compiler));
         this.alloc = new AutoHeapAllocator();
         this.vkz = engine.service(Services.VKZ);
 
@@ -163,9 +165,15 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
 
     @Override
     public void free() {
-        dumpCacheToArchive();
-        alloc.close();
-        Shaderc.shaderc_compiler_release(compiler);
+        if (!hasBeenFreed) {
+            dumpCacheToArchive();
+            alloc.close();
+            //we, the nip team, dont care about your ram :) if you cant afford more ram,
+            // you sadly cant be using this engine -> go use unity or something.
+            //System.out.println("bla bla bla shaderc free compiler ahgh handle: " + Long.toHexString(compiler));
+            //Shaderc.shaderc_compiler_release(compiler);
+            hasBeenFreed = true;
+        }
     }
 
     @Override
