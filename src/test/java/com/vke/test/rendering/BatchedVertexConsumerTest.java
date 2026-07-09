@@ -3,8 +3,6 @@ package com.vke.test.rendering;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
@@ -20,7 +18,7 @@ import com.vke.core.services2.Services;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.service.VulkanRenderer;
-import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
+import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
@@ -63,9 +61,8 @@ public class BatchedVertexConsumerTest extends Scene {
         transform = pipeline.resolvePushConstant("translation");
         matricesBuf = pipeline.uniform("matrixStack");
 
-        this.consumer = new FastVertexConsumer<>(this.context.getEngine(), this.context.service(Services.VULKAN_RENDERER).assumeImplementation(),
-                new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, 0,null));
-        this.shapeRenderer = new ShapeRenderer<>(this.context, consumer, VertexFactory.DEFAULT);
+        this.consumer = getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE);
+        this.shapeRenderer = new ShapeRenderer<>(this.context, consumer, ShapeRendererVertex.FACTORY);
 
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
         this.missing = R.textures.get("missing.png").assume(context);
@@ -110,11 +107,12 @@ public class BatchedVertexConsumerTest extends Scene {
         var ms = shapeRenderer.getMatrixStack();
 
         ms.push();
+        ms.translate(400, 300, 0);
         ms.rotate(System.nanoTime() / 1_000_000_000f);
-        //ms.translate(400, 300);
+        //ms.translate(-400, -300, 0);
         shapeRenderer.texture(scaryVK);
         shapeRenderer.color(0, 0, 0, 1);
-        shapeRenderer.circle(400, 300, 100, 50);
+        shapeRenderer.circle(0, 0, 100, 50);
         ms.pop();
 
         ms.push();

@@ -46,6 +46,8 @@ public interface IVulkanPipeline extends Pipeline {
                     BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(),
                             shader.getMetadata().staticBuffers().contains(resource.name));
 
+                    binding.resolveRuntimeSizeArrays(shader.getMetadata().defaultRuntimeSizes());
+
                     descriptor.bindings.add(binding);
                 }
             }

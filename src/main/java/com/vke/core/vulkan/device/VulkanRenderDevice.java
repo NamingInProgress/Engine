@@ -248,7 +248,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
-        Pair<String, ShaderPreprocessor.ShaderMetadata> processed = ShaderPreprocessor.getInstance().process(identifier);
+        Pair<String, ShaderPreprocessor.ShaderMetadata> processed = ShaderPreprocessor.getInstance(getRenderer()).process(identifier);
         byte[] bytes = processed.v1.getBytes(StandardCharsets.UTF_8);
 
         try {

@@ -232,7 +232,7 @@ public class ReflectedShader implements Disposable {
             baseTypeLayout = new PointerType();
         } else if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
             baseTypeLayout = new MatrixType(discoverableMember.matrixRows, discoverableMember.matrixColumns,
-                    discoverableMember.matrixStride);
+                    discoverableMember.matrixStride, PrimitiveBaseType.fromPipelineBaseType(type));
         } else if (discoverableMember.struct != null) {
             baseTypeLayout = discoverableMember.struct;
         } else {
@@ -241,11 +241,16 @@ public class ReflectedShader implements Disposable {
             ((PrimitiveType) baseTypeLayout).scalarType = PrimitiveBaseType.fromPipelineBaseType(type);
         }
 
-        if (discoverableMember.nArrayDim > 1 || (discoverableMember.nArrayDim == 1 && discoverableMember.arrayDim[0] > 1)) {
+        if (discoverableMember.nArrayDim > 1) {
             baseTypeLayout = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
+        } else if (discoverableMember.nArrayDim == 1) {
+            if ((discoverableMember.arrayDim[0] > 1) || (discoverableMember.arrayDim[0] == 0)) {
+                baseTypeLayout = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
+            }
         }
 
         baseTypeLayout.size = discoverableMember.size;
+        baseTypeLayout.name = discoverableMember.name;
 
         return new StructType.Member(discoverableMember.name, discoverableMember.offset, discoverableMember.size, baseTypeLayout);
     }
@@ -255,8 +260,8 @@ public class ReflectedShader implements Disposable {
 
         int length = 1;
         for (int d : arrayDim) {
-            if (d == -1) { // runtime-size array
-                length = -1;
+            if (d == 0) { // runtime-size array
+                length = 0;
                 break;
             }
             length *= d;

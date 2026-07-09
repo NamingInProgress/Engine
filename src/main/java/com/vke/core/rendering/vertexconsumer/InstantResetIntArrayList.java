@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.vertexconsumer;
+package com.vke.core.rendering.vertexconsumer;
 
 import com.carrotsearch.hppc.IntArrayList;
 

@@ -2,12 +2,16 @@ package com.vke.api.rendering.vulkan.descriptors.info;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
+import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
+import com.vke.api.rendering.vulkan.descriptors.types.StructType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BindingLayout {
 
@@ -38,9 +42,7 @@ public class BindingLayout {
 
     public static BindingLayout fromDescriptorResource(ReflectedShader.DescriptorResource resource, ReflectedShader.ResourceType rt, boolean staticBuffer) {
         int count = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
-        if (count == 0) {
-            count = 1;
-        }
+
             DescriptorType type = DescriptorType.fromBaseType(rt, !staticBuffer);
         return new BindingLayout(resource.name, resource.set, resource.binding,
                 type, count, resource.struct, PackingType.fromDescriptorType(type), resource.multiWrite, staticBuffer);
@@ -70,4 +72,33 @@ public class BindingLayout {
     public int hashCode() {
         return Objects.hash(name, set, binding, type, descriptorCount, typeLayout, packingType);
     }
+
+    public void resolveRuntimeSizeArrays(HashMap<String, Integer> runtimeSizes) {
+        if (typeLayout == null && runtimeSizes.containsKey(name)) {
+            descriptorCount = runtimeSizes.get(name);
+            return;
+        }
+        typeLayout.size += rrsaInternal(typeLayout, runtimeSizes);
+    }
+
+    private long rrsaInternal(TypeLayout typeLayout, HashMap<String, Integer> runtimeSizes) {
+        if (typeLayout instanceof StructType st) {
+            AtomicLong additionalSize = new AtomicLong();
+            st.members.values().forEach(m -> {
+                additionalSize.getAndAdd(rrsaInternal(m.type, runtimeSizes));
+            });
+            return additionalSize.get();
+        } else if (typeLayout instanceof ArrayType at) {
+            if (at.elementCount == 0 || runtimeSizes.containsKey(at.name)) {
+                int elementCount = runtimeSizes.get(at.name);
+                at.elementCount = elementCount;
+                at.stride = at.elementType.size;
+                at.size = elementCount * at.stride;
+                return at.size;
+            }
+        }
+
+        return 0;
+    }
+
 }

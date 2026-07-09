@@ -16,9 +16,10 @@ layout (set = 0, binding = 0) uniform Camera {
     mat4 view;
 } camera;
 
-layout (set = 1, binding = 0) uniform sampler2D textures[];
+layout (set = 1, binding = 0) uniform /*#DefaultSize(1024)*/ sampler2D textures[];
 
 layout (std430, set = 2, binding = 0) readonly buffer MatrixStack {
+    //#DefaultSize(1024)
     mat4 modelMatrices[];
 } matrixStack;
 

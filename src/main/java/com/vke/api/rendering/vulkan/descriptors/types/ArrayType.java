@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class ArrayType extends TypeLayout {
 
-    public int elementCount = -1; // -1 for runtime size arrays
+    public int elementCount;
     public long stride;
     public TypeLayout elementType;
 

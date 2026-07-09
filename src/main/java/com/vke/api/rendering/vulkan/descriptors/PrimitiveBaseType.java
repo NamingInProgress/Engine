@@ -1,11 +1,17 @@
 package com.vke.api.rendering.vulkan.descriptors;
 
 public enum PrimitiveBaseType {
-    FLOAT,
-    INT,
-    UINT,
-    BOOL,
-    DOUBLE;
+    FLOAT(4),
+    INT(4),
+    UINT(4),
+    BOOL(4),
+    DOUBLE(8);
+
+    public final int size;
+
+    PrimitiveBaseType(int size) {
+        this.size = size;
+    }
 
     public static PrimitiveBaseType fromPipelineBaseType(com.vke.api.rendering.vulkan.pipeline.BaseType pipelineBaseType) {
         return switch (pipelineBaseType) {

@@ -27,7 +27,7 @@ import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
+import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;

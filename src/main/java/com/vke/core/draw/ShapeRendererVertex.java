@@ -1,11 +1,15 @@
 package com.vke.core.draw;
 
 import com.vke.api.draw.Vertex;
+import com.vke.api.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import org.jetbrains.annotations.Nullable;
 
 public class ShapeRendererVertex extends Vertex {
+
+    public static final ShapeRendererVertex TEMPLATE = new ShapeRendererVertex(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
+    public static final VertexFactory FACTORY = ShapeRendererVertex::new;
 
     private float x, y, z;
     private float r, g, b, a;

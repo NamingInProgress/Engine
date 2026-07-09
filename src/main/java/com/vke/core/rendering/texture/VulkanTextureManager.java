@@ -26,8 +26,8 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
     private final Context ctx;
     private final VulkanRenderer renderer;
 
-    public VulkanTextureManager(Context ctx, EngineDescriptorSetsManager mgr, VulkanRenderDevice device) {
-        BINDLESS_TEXTURES_COUNT = Math.min(device.capabilities().maxBindlessSampledImages, 8192);
+    public VulkanTextureManager(Context ctx, EngineDescriptorSetsManager mgr, VulkanRenderDevice device, int bindlessTexturesCount) {
+        BINDLESS_TEXTURES_COUNT = bindlessTexturesCount;
         bindlessTextures = new Texture[BINDLESS_TEXTURES_COUNT];
         this.mgr = mgr;
         this.ctx = ctx;

@@ -1,4 +1,4 @@
-package com.vke.core.vulkan.vertexconsumer;
+package com.vke.core.rendering.vertexconsumer;
 
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.utils.iter.Iter;
