@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 public class MatrixStack {
     private final RecyclerArrayList<Matrix4f> stack;
     private int index;
+    private Matrix4f m;
 
     public MatrixStack() {
         this(10);
@@ -15,8 +16,8 @@ public class MatrixStack {
     public MatrixStack(int capacity) {
         stack = new RecyclerArrayList<>(capacity);
 
-        Matrix4f identity = new Matrix4f();
-        stack.add(identity);
+        this.m = new Matrix4f();
+        stack.add(m);
 
         index = 1;
     }
@@ -26,14 +27,15 @@ public class MatrixStack {
         stack.clear();
         stack.virtualAdd();
 
-        stack.get(0).identity();
+        this.m = stack.get(0).identity();
     }
 
     public void push() {
         Matrix4f current = stack.get(index - 1);
-        Matrix4f next = stack.getOrCreateElement(true, Matrix4f::new);
+        Matrix4f next = stack.getOrCreateElement(index, true, Matrix4f::new);
 
         next.set(current);
+        m = next;
         index++;
     }
 
@@ -41,10 +43,11 @@ public class MatrixStack {
         if (index > 1) {
             index--;
         }
+        m = stack.get(index - 1);
     }
 
     public Matrix4f current() {
-        return stack.get(index - 1);
+        return m;
     }
 
     public int currentMatrixIndex() {
@@ -55,32 +58,36 @@ public class MatrixStack {
         return index;
     }
 
+    public void transform(LinearTransform transform) {
+        m.mul(transform.matrix());
+    }
+
     public void translate(float x, float y, float z) {
-        current().translate(x, y, z);
+        m.translate(x, y, z);
     }
 
     public void translate(float x, float y) {
-        current().translate(x, y, 0);
+        m.translate(x, y, 0);
     }
 
     public void rotate(float x, float y, float z) {
-        current().rotateXYZ(x, y, z);
+        m.rotateXYZ(x, y, z);
     }
 
     public void rotate(float z) {
-        current().rotateZ(z);
+        m.rotateZ(z);
     }
 
     public void scale(float s) {
-        current().scale(s);
+        m.scale(s);
     }
 
     public void scale(float x, float y, float z) {
-        current().scale(x, y, z);
+        m.scale(x, y, z);
     }
 
     public void shear(float x, float y, float z) {
-        // however you implement shear
+        transform(new Shear(x, y, z));
     }
 
     public void upload(BufferSlice sink) {
