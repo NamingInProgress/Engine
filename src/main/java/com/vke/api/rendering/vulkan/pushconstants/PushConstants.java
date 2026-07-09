@@ -26,7 +26,11 @@ public class PushConstants implements Disposable {
     public PushConstants(PushConstantLayout layout) {
         this.layout = layout;
 
-        this.data = alloc.allocByteBuffer(align16((int) layout.size)).getHeapObject();
+        if (layout != null) {
+            this.data = alloc.allocByteBuffer(align16((int) layout.size)).getHeapObject();
+        } else {
+            this.data = null;
+        }
     }
 
     public static int align16(int value) {
@@ -40,6 +44,8 @@ public class PushConstants implements Disposable {
     }
 
     public PushConstantHandle resolve(String name) {
+        if (data == null) throw new IllegalStateException("PC not present!");
+
         if (HANDLE_CACHE.containsKey(name)) return HANDLE_CACHE.get(name);
 
         PushConstantHandle handle = createHandle(name);

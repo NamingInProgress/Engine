@@ -5,10 +5,10 @@ import com.vke.core.Context;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.types.StaticFinal;
 
-public class DefaultVkeLoadingScene extends LoadingScene {
-    private static final StaticFinal<DefaultVkeLoadingScene> INSTANCE = new StaticFinal<>();
+public class ConsoleLoadingScene extends LoadingScene {
+    private static final StaticFinal<ConsoleLoadingScene> INSTANCE = new StaticFinal<>();
 
-    public DefaultVkeLoadingScene(Identifier name, Context context) {
+    public ConsoleLoadingScene(Identifier name, Context context) {
         super(name, context);
         INSTANCE.trySet(this);
     }
@@ -52,7 +52,7 @@ public class DefaultVkeLoadingScene extends LoadingScene {
 
     }
 
-    public static DefaultVkeLoadingScene getInstance() {
+    public static ConsoleLoadingScene getInstance() {
         return INSTANCE.getNullable();
     }
 }

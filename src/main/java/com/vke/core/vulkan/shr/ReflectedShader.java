@@ -19,6 +19,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ReflectedShader implements Disposable {
 
@@ -78,7 +79,13 @@ public class ReflectedShader implements Disposable {
     }
 
     public PushConstantsResource getPushConstants() {
-        if (resources.containsKey(ResourceType.PUSH_CONSTANT)) return (PushConstantsResource) getResource(ResourceType.PUSH_CONSTANT).get(0);
+        if (resources.containsKey(ResourceType.PUSH_CONSTANT)) {
+            try {
+                return (PushConstantsResource) getResource(ResourceType.PUSH_CONSTANT).getFirst();
+            } catch (NoSuchElementException e) {
+                return null;
+            }
+        }
 
         SPVCResource[] resources = getResourcesForType(ResourceType.PUSH_CONSTANT);
         ArrayList<PushConstantsResource> list = new ArrayList<>();

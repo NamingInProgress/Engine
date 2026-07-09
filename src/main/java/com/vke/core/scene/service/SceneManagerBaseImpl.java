@@ -111,6 +111,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         LoadingScene loadingScene = scene.getLoadingScene();
         if (loadingScene == null) throw new SceneException("Cannot find the LoadingScene of " + scene.getName() + ". Maybe your target SceneManager was not initialized yet to load it in?");
 
+        currentlyLoadedScene = loadingScene;
         try {
             loadingScene.loadBundles(xml.bundles, () -> {
                 scene.onLoad();
