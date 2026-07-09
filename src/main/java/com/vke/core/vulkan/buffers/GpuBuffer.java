@@ -26,6 +26,8 @@ public class GpuBuffer implements Buffer {
     private final VmaAllocationInfo info;
     private final VkDevice device;
 
+    private boolean free = false;
+
     private final long size;
     private final BufferUsage usage;
     private final MemoryUsage memUsage;
@@ -80,8 +82,11 @@ public class GpuBuffer implements Buffer {
 
     @Override
     public void free() {
-        Vma.vmaDestroyBuffer(allocator, buffer, allocation);
-        info.free();
+        if (!free) {
+            Vma.vmaDestroyBuffer(allocator, buffer, allocation);
+            info.free();
+            free = true;
+        }
     }
 
     @Override

@@ -72,6 +72,7 @@ public class CompiledDescriptorSetLayout implements Disposable {
             }
 
             handle = pLayout.get(0);
+            System.out.println("CREATING: " + Long.toHexString(handle));
         }
     }
 
@@ -89,6 +90,9 @@ public class CompiledDescriptorSetLayout implements Disposable {
 
     @Override
     public void free() {
-        VK14.vkDestroyDescriptorSetLayout(device.getLogicalDevice().getDevice(), handle, null);
+        if (handle != 0) {
+            VK14.vkDestroyDescriptorSetLayout(device.getLogicalDevice().getDevice(), handle, null);
+            handle = 0;
+        }
     }
 }
