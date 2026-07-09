@@ -72,7 +72,6 @@ public class CompiledDescriptorSetLayout implements Disposable {
             }
 
             handle = pLayout.get(0);
-            System.out.println("CREATING: " + Long.toHexString(handle));
         }
     }
 
