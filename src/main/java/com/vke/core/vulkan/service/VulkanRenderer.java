@@ -5,6 +5,7 @@ import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.enums.QueueType;
@@ -116,6 +117,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
                 .map(Map.Entry::getValue)
                 .toList());
+        engineSetsManager.makeFrameDataManager();
 
         this.immediateFrame = device.createImmediateFrame(swapchain);
         this.frames = device.createFrames(swapchain);
@@ -187,6 +189,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     public void endFrame(FrameData frameData, Framable f) {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
+        VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
+                layout.getGroup().getHandleCache().values().stream()
+                        .filter(e -> e instanceof BufferHandle)
+                        .forEach(uh -> ((BufferHandle) uh).nextFrame()));
+
         cmd.endRendering();
         f.postRendering(new FrameContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
         cmd.end();
@@ -246,6 +253,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     @Override
     public ITextureManager textureManager() {
         return getEngineSetsManager().textureManager;
+    }
+
+    @Override
+    public IFrameDataManager frameDataManager() {
+        return getEngineSetsManager().frameDataManager;
     }
 
     @Override

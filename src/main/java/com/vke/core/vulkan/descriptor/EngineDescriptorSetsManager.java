@@ -14,6 +14,7 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHan
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.core.Context;
+import com.vke.core.rendering.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import com.vke.core.vulkan.buffers.MappedBuffer;
@@ -37,7 +38,9 @@ public class EngineDescriptorSetsManager implements Disposable {
     private final HashMap<Long, MappedBuffer> BUFFERS = new HashMap<>(); // <Set, Binding>
 
     public final ArrayList<DescriptorSetInstance> INSTANCES = new ArrayList<>();
+
     public final VulkanTextureManager textureManager;
+    public VulkanFrameDataManager frameDataManager;
 
     public VulkanPipelineLayout ENGINE_PIPELINE_LAYOUT;
 
@@ -68,6 +71,10 @@ public class EngineDescriptorSetsManager implements Disposable {
             }
         }
         usedSets = Iter.of(ENGINE_LAYOUTS.keySet()).toArray();
+    }
+
+    public void makeFrameDataManager() {
+        this.frameDataManager = new VulkanFrameDataManager(this);
     }
 
     public List<Integer> getDynamicOffsets() {

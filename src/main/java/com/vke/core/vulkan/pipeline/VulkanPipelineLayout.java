@@ -13,6 +13,7 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
+import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.descriptor.DescriptorAllocator;
@@ -21,7 +22,6 @@ import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.service.VulkanRenderer;
-import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -32,6 +32,7 @@ import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class VulkanPipelineLayout implements PipelineLayout {
 
@@ -55,9 +56,8 @@ public class VulkanPipelineLayout implements PipelineLayout {
     public static VulkanPipelineLayout getLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, List<DescriptorSetLayout> layouts) {
         // TODO: Fix this making a new pipeline layout (This is technically fine but it is recommended to reuse)
         FrameCounter fc = device.getRenderer().getFrameCounter();
-        if (Utils.TRUE) return new VulkanPipelineLayout(engine, device, fc, pc, layouts);
 
-        LayoutCapabilities cap = new LayoutCapabilities();
+        LayoutCapabilities cap = new LayoutCapabilities(pc == null ? null : pc.getLayout(), layouts);
         if (LAYOUT_CACHE.containsKey(cap)) return LAYOUT_CACHE.get(cap);
         LAYOUT_CACHE.put(cap, new VulkanPipelineLayout(engine, device, fc, pc, layouts));
         return LAYOUT_CACHE.get(cap);
@@ -197,6 +197,18 @@ public class VulkanPipelineLayout implements PipelineLayout {
         return this.device.getRenderer();
     }
 
-    public record LayoutCapabilities() {}
+    public record LayoutCapabilities(PushConstantLayout pc, List<DescriptorSetLayout> ds) {
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            LayoutCapabilities that = (LayoutCapabilities) o;
+            return Objects.equals(pc, that.pc) && Objects.equals(ds, that.ds);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(pc, ds);
+        }
+    }
 
 }

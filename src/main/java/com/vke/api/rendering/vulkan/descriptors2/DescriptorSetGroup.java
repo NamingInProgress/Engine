@@ -114,7 +114,7 @@ public class DescriptorSetGroup {
         BindingLayout layout = binding.layout;
 
         if (res.finalType() instanceof ArrayType) {
-            if (binding.multiWrite != -1) {
+            if (binding.multiWrite != 0) {
                 return new MultiWriteFieldArrayHandle(this, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent,
                         res.offset(), (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
             }
@@ -123,7 +123,7 @@ public class DescriptorSetGroup {
                     (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
         }
 
-        if (binding.multiWrite != -1) {
+        if (binding.multiWrite != 0) {
             return new MultiWriteFieldHandle(this, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent, res.offset(), (int) res.finalType().size);
         }
 
@@ -147,7 +147,7 @@ public class DescriptorSetGroup {
             }
 
             var buf = binding.buffer;
-            if (binding.multiWrite == -1) {
+            if (binding.multiWrite == 0) {
                 return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, buf.getSize(), buf.getMappedAddress());
             } else {
                 return new MultiWriteBufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, binding.multiWrite,

@@ -16,4 +16,8 @@ public class DescriptorSetLayout {
         return bindings.equals(that.bindings);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(bindings);
+    }
 }
