@@ -30,7 +30,11 @@ public class DefaultVkeLoadingScene extends LoadingScene {
 
     @Override
     public void onLoadingComplete() {
-        completeLoading();
+        try {
+            completeLoading();
+        } catch (Exception e) {
+            context.throwException(e, "DefaultVkeLoadingScene#onLoadingComplete");
+        }
     }
 
     @Override

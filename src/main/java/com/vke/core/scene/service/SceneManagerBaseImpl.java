@@ -11,6 +11,7 @@ import com.vke.core.scene.SceneXML;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
+import jdk.jshell.execution.Util;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -98,9 +99,13 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
             throw new SceneException("Scene " + name + " does not exist! Did you forget to call SceneManager#initialize on the required namespace?");
         }
 
-        if (currentlyLoadedScene != null) {
-            currentlyLoadedScene.onUnload();
-            currentlyLoadedScene.free();
+        try {
+            if (currentlyLoadedScene != null) {
+                currentlyLoadedScene.onUnload();
+                currentlyLoadedScene.free();
+            }
+        } catch (Exception e) {
+            throw new SceneException(e);
         }
 
         LoadingScene loadingScene = scene.getLoadingScene();
@@ -111,7 +116,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
                 scene.onLoad();
                 currentlyLoadedScene = scene;
             });
-        } catch (AssetException e) {
+        } catch (Exception e) {
             throw new SceneException(e);
         }
     }
@@ -139,8 +144,12 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     @Override
     public void free() {
         if (currentlyLoadedScene != null) {
-            currentlyLoadedScene.onUnload();
-            currentlyLoadedScene.free();
+            try {
+                currentlyLoadedScene.onUnload();
+                currentlyLoadedScene.free();
+            } catch (Exception e) {
+                engine.throwException(e, "Scene#unload");
+            }
         }
     }
 

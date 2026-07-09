@@ -32,4 +32,15 @@ public abstract class CompoundPipelineStage implements PipelineStage {
             }
         }
     }
+
+    public static class Proxy extends CompoundPipelineStage {
+        public Proxy(ConfigArrayNode node, PipelineContext factories) throws AssetException {
+            super(node, factories);
+        }
+
+        @Override
+        public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetException {
+            processInnerPipeline(stageElement, executionTarget);
+        }
+    }
 }

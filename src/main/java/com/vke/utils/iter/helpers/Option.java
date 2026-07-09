@@ -172,4 +172,9 @@ public class Option<T> {
         if (clazz == String.class) return (T) "";
         return null;
     }
+
+    public T unwrapOrNull() {
+        if (isSome()) return value;
+        return null;
+    }
 }

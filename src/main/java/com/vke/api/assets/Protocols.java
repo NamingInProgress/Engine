@@ -15,7 +15,7 @@ public class Protocols {
     public static final String TEXTURE = "texture";
 
     public static final String RENDERPIPELINE = "pipeline";
-    public static final String FUNNY_STUFF = "funny_stuff";
+    public static final String COMPUTE_PIPELINE = "compute_pipeline";
 
     public static final String VERTSHADER = "vertshader";
     public static final String FRAGSHADER = "fragshader";
@@ -23,4 +23,8 @@ public class Protocols {
 
     public static final String OBJ = "obj";
     public static final String MESHPREFAB = "meshprefab";
+
+    public static final String AUDIO_PRELOADED = "audio_pre";
+    public static final String AUDIO_STREAMING = "audio_stream";
+    public static final String WAV = "wav";
 }

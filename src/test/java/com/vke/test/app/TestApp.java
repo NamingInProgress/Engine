@@ -12,7 +12,6 @@ import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.services2.Services;
-import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.texture.VulkanTexture;
@@ -25,19 +24,20 @@ import java.io.IOException;
 
 public class TestApp extends App {
     private StaticMeshBuffer mesh;
-    private StaticMeshBuffer mesh2;
 
     private AppTimer timer;
-    private VulkanTexture scaryVk;
+
+    PushConstantHandle vertexBufferPointer;
+
+    PushConstantHandle projMatrixHandle;
+    PushConstantHandle transformMatrixHandle;
+
+    AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline.json");
 
     @Override
     public void onInit(VKEngine engine) {
-        VertexFormatTexture[] scaryVkVertices = new VertexFormatTexture[]{
-                new VertexFormatTexture(0, 0, -50, 1, 0, 0, 1f, 0, 0),
-                new VertexFormatTexture(255, 0, -50, 0, 1, 0, 1f, 1, 0),
-                new VertexFormatTexture(255, 255, -50, 0, 0, 1, 1f, 1, 1),
-                new VertexFormatTexture(0, 255, -50, 1, 1, 0, 1f, 0, 1)
-        };
+        AssetManagerScopedImpl assetManager = engine.service(Services.ASSET_MANAGER);
+        assetManager.initAssets();
 
         CubeVertexFormat[] vf = new CubeVertexFormat[]{
                 // Front (red)
@@ -77,8 +77,7 @@ public class TestApp extends App {
                 new CubeVertexFormat(-25, -25,  25, 0, 1, 1, 0.5f),
         };
 
-        mesh = StaticMeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), scaryVkVertices, new int[]{0, 1, 2, 2, 3, 0});
-        mesh2 = StaticMeshBuffer.uploadOnce(engine, engine.service(Services.VULKAN_RENDERER), vf, new int[]{
+        mesh = StaticMeshBuffer.uploadOnce(engine, vf, new int[]{
                 // Front
                 0, 1, 2,
                 2, 3, 0,
@@ -106,20 +105,6 @@ public class TestApp extends App {
 
         timer = new AppTimer();
 
-        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-        AssetManagerScopedImpl assetManager = engine.service(Services.ASSET_MANAGER);
-        assetManager.initAssets();
-
-        try {
-            //scaryVk = (VulkanTexture) assetManager.getAsset(engine.id("texture.scaryvulkan")).acquire(engine);
-            scaryVk = (VulkanTexture) R.textures.get(engine.id("scaryvulkan.png")).acquire(engine);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        //scaryVk = renderer.getDevice().createTexture(new Identifier("scaryvulkan.png"), Texture.TextureDesc.albedo2D(1920, 1080));
-        //VKUtils.setDebugName(renderer.getDevice().getLogicalDevice(), "SCARY_VULKAN", scaryVk.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
-        VulkanRenderPipeline pipeline;
         VulkanRenderPipeline cubePipeline;
         try {
             pipeline = null; // (VulkanRenderPipeline) IDK.acquire(engine);
@@ -162,7 +147,7 @@ public class TestApp extends App {
             mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
 
             vertexBufferPointer.write(buf -> buf.putLong(mesh.verticesDeviceAddress()));
-            matrixHandle.write(buf -> buf.putMat4(mat));
+            projMatrixHandle.write(buf -> buf.putMat4(mat));
 
 
             // Set sampler (outside of render loop tho)
@@ -181,13 +166,13 @@ public class TestApp extends App {
 
             Matrix4f model = new Matrix4f();
 
-// time in seconds (you need to supply this)
+            // time in seconds (you need to supply this)
             float time = (System.nanoTime() / 1_000_000_000.0f);
 
-// rotation speed (radians per second)
+            // rotation speed (radians per second)
             float speed = 1.0f;
 
-// build transform
+            // build transform
             model.identity()
                     .translate(400.0f, 300.0f, -50) // move to center (adjust as needed)
                     .scale((float) (5 + 5 * Math.sin(Math.toRadians(time * 10))),
@@ -195,17 +180,16 @@ public class TestApp extends App {
                             (float) (5 + 5 * Math.sin(Math.toRadians(time * 10))))
                     .rotateXYZ(time * speed, time * speed, time * speed);
 
-            //cubeVertexBufferPointer.write(buf -> buf.putLong(mesh2.verticesDeviceAddress()));
             projMatrixHandle.write(buf -> buf.putMat4(mat));
             transformMatrixHandle.write(buf -> buf.putMat4(model));
 
-            //cmd.bindDescriptorSets(CUBE);
+            cmd.bindDescriptorSets(CUBE);
             cmd.setPushConstants(CUBE);
 
-            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh2.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
-            VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(mesh2.getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));
+            VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
+            VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, stack.longs(mesh.getVerticesBuf().getGpuBuffer().getBuffer()), stack.longs(0));
 
-            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh2.getIndexCount(), 1, 0, 0, 0);
+            VK14.vkCmdDrawIndexed(cmd.getBuffer(), mesh.getIndexCount(), 1, 0, 0, 0);
         }
 
         if (timer.onFrameComplete(AppTimer.DEFAULT_TEST_INTERVAL_BEING_THE_DURATION_OF_9192631770_PERIODS_OF_THE_RADIATION_CORRESPONDING_TO_THE_TRANSITION_BETWEEN_THE_TWO_HYPERFINE_LEVELS_OF_THE_GROUND_STATE_OF_THE_CAESIUM_133_ATOM_EXPRESSED_IN_MILLISECONDS)) {
@@ -220,69 +204,7 @@ public class TestApp extends App {
 
     @Override
     public void free() {
-        //scaryVk.free();
         mesh.free();
-        mesh2.free();
-    }
-
-    private static class VertexFormatTexture extends Vertex {
-        private final float x, y, z;
-        private final float r, g, b, a;
-        private final float u, v;
-
-        public VertexFormatTexture(float x, float y, float z, float r, float g, float b, float a, float u, float v) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-            this.u = u;
-            this.v = v;
-        }
-
-        @Override
-        public int getByteStride() {
-            return Float.BYTES * 12;
-        }
-
-
-        @Override
-        public void putSelf(VertexByteSink buf) {
-            //AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
-            buf.float3(x, y, z);
-            buf.float4(r, g, b, a);
-            buf.float2(u, v);
-        }
-
-    }
-
-    private static class VertexFormat extends Vertex {
-        private final float x, y, z;
-        private final float r, g, b, a;
-
-        public VertexFormat(float x, float y, float z, float r, float g, float b, float a) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-
-        @Override
-        public int getByteStride() {
-            return Float.BYTES * 8;
-        }
-
-        @Override
-        public void putSelf(VertexByteSink buf) {
-            //AlignedByteBuffer abb = new AlignedByteBuffer(buf, 16);
-            buf.float3(x, y, z);
-            buf.float4(r, g, b, a);
-        }
     }
 
     private static class CubeVertexFormat extends Vertex {

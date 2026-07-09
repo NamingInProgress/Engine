@@ -1,5 +1,6 @@
 package com.vke.core.file.utils;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +43,7 @@ public class Ascii4 {
 
     private static byte readOrThrow(InputStream stream) throws IOException {
         int r = stream.read();
-        if (r == -1) throw new IOException("unexpected EOF!");
+        if (r == -1) throw new EOFException();
         return (byte) r;
     }
 

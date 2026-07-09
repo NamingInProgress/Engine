@@ -13,18 +13,20 @@ import java.util.Objects;
 public class Identifier {
 
     private final String namespace, path;
-    private final String combined;
+    private final String combined, toString;
 
     public Identifier(String path) {
         this.namespace = VKEngine.VKE_NAMESPACE;
         this.path = path;
         this.combined = namespace.concat("/").concat(path).replace("//", "/");
+        this.toString = namespace.concat(":").concat(path).replace("//", "/");
     }
 
     public Identifier(String namespace, String path) {
         this.namespace = namespace;
         this.path = path;
         this.combined = namespace.concat("/").concat(path).replace("//", "/");
+        this.toString = namespace.concat(":").concat(path).replace("//", "/");
     }
 
     public static Identifier empty() {
@@ -104,7 +106,7 @@ public class Identifier {
 
     @Override
     public String toString() {
-        return combined;
+        return toString;
     }
 
     public String toSpecialVkzFormatCuzItsBad() { return (namespace + "_" + path).replaceAll("/", "_"); }

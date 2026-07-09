@@ -4,4 +4,8 @@ public class Unreachable extends RuntimeException {
     public Unreachable() {
         super("This path is unreachable");
     }
+
+    public Unreachable(String why) {
+        super(why);
+    }
 }

@@ -18,7 +18,7 @@ public class ConfigComputePipelineConverter implements AssetConverter {
 
     @Override
     public String to() {
-        return Protocols.FUNNY_STUFF;
+        return Protocols.COMPUTE_PIPELINE;
     }
 
     @Override

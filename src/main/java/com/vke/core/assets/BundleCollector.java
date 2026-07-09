@@ -6,12 +6,14 @@ import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
 import com.vke.core.assets.pipeline.AssetPipeline;
+import com.vke.core.assets.pipeline.AssetPipelinePhase;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.*;
+import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
@@ -42,18 +44,21 @@ public class BundleCollector {
                 System.exit(67);
             }
         }
+        try {
+            pipeline.forEachPhase(phase -> {
+                LoggerFactory.get("AssetPipeline").info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
 
-        for (Identifier file : ident.walkFiles()) {
-            if (file.equals(bundleXMLIdent)) continue;
+                for (Identifier file : ident.walkFiles()) {
+                    if (file.equals(bundleXMLIdent)) continue;
 
-            try {
-                StageElement element = new StageElement(file.toPath(), AssetData.plain(file));
-                pipeline.execute(element, PipelineStage.ExecutionTarget.Pseudo);
-                AssetHandle<?> handle = pipeline.extractHandle(element);
-                bundle.addAsset(element.getAssetName(), handle);
-            } catch (AssetException e) {
-                context.throwException(e, "AssetPipeline pseudoExecute");
-            }
+                    StageElement element = new StageElement(file.toPath(), AssetData.plain(file));
+                    phase.execute(element, PipelineStage.ExecutionTarget.Pseudo);
+                    AssetHandle<?> handle = phase.extractHandle(element);
+                    bundle.addAsset(element.getAssetName(), handle);
+                }
+            });
+        } catch (AssetException e) {
+            context.throwException(e, "AssetPipeline pseudoExecute");
         }
 
         return bundle;
@@ -93,9 +98,11 @@ public class BundleCollector {
             ConfigNode value = asset.values()[1];
 
             switch (asset.getNodeName()) {
-                case "bool" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_BOOL, value.asBoolean(), id));
+                case "bool" ->
+                        target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_BOOL, value.asBoolean(), id));
                 case "string" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PLAIN, value.asString(), id));
-                case "number" -> target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_NUMBER, value.asNumber(), id));
+                case "number" ->
+                        target.addAsset(id, new ResolvedAssetHandle<>(Protocols.PRIMITIVE_NUMBER, value.asNumber(), id));
                 default -> throw new IllegalStateException("Unknown asset type: " + asset.getNodeName());
             }
         }

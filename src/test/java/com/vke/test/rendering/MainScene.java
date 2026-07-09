@@ -44,7 +44,7 @@ public class MainScene extends Scene {
     private VulkanComputePipeline computePipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
     private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
-    //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
+    //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("compute_pipeline.compute_pipeline.json");
     //private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
 
 
@@ -119,7 +119,7 @@ public class MainScene extends Scene {
 
         float[] color = {1, 1, 1, 1};
 
-        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(), context.service(Services.VULKAN_RENDERER),
+        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(),
                 prefab.toMesh((prefabVertex -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],

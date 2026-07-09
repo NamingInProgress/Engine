@@ -19,9 +19,9 @@ public class HMSymbolDecoder {
     private final HuffmanBinaryTree tree;
     private final int maxUsedCodeLength;
     
-    public HMSymbolDecoder(int[] codeLengths) {
+    public HMSymbolDecoder(int[] codeLengths, Code[] codes) {
         this.codeLengths = codeLengths;
-        this.codes = createCodesFromLengths(codeLengths);
+        this.codes = codes;
 
         this.tree = new HuffmanBinaryTree(codes);
 
@@ -35,6 +35,23 @@ public class HMSymbolDecoder {
             maxUsedCodeLength = Math.max(maxUsedCodeLength, len);
         }
         this.maxUsedCodeLength = maxUsedCodeLength;
+    }
+
+    public HMSymbolDecoder(Code[] codes) {
+        this(lengthsFromCodes(codes), codes);
+    }
+
+    public HMSymbolDecoder(int[] codeLengths) {
+        this(codeLengths, createCodesFromLengths(codeLengths));
+    }
+
+    private static int[] lengthsFromCodes(Code[] codes) {
+        int[] lengths = new int[codes.length];
+        for (int i = 0; i < codes.length; i++) {
+            Code code = codes[i];
+            lengths[i] = code.codeLength();
+        }
+        return lengths;
     }
     
     public static Code[] createCodesFromLengths(int[] codeLengths) {

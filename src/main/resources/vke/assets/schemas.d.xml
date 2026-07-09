@@ -1,0 +1,8 @@
+<lolISpendTimeSoYouCanNameThisRootTagWHATEVEYouWantImSoProud>
+    <stage-filter uri="file://name" query="^.*\.schema\.json$" op="matches">
+        <log>
+            <static-part value="schema found: "/>
+            <uri-part uri="file://location/bundle"/>
+        </log>
+    </stage-filter>
+</lolISpendTimeSoYouCanNameThisRootTagWHATEVEYouWantImSoProud>

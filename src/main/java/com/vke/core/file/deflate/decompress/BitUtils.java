@@ -11,6 +11,10 @@ public class BitUtils {
         return (provided & wanted) == wanted;
     }
 
+    public static boolean bitSet(int bits, int position) {
+        return (((1 << position) & bits) >>> position) == 1;
+    }
+
     /**
      * Truncates the given integer so that `left` and `right` boundaries are respected
      * @param v

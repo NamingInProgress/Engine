@@ -28,19 +28,20 @@ public class StaticMeshBuffer implements Disposable, Drawable {
 
     private StaticMeshBuffer() {}
 
-    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh) {
-        return StaticMeshBuffer.uploadOnce(engine, renderer, mesh, false);
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, Mesh<?> mesh) {
+        return StaticMeshBuffer.uploadOnce(engine, mesh, false);
     }
 
-    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices) {
-        return StaticMeshBuffer.uploadOnce(engine, renderer, vertices, indices, false);
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, T[] vertices, int[] indices) {
+        return StaticMeshBuffer.uploadOnce(engine, vertices, indices, false);
     }
 
-    public static StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, Mesh mesh, boolean align16) {
-        return uploadOnce(engine, renderer, mesh.getVertices(), mesh.getIndices(), align16);
+    public static StaticMeshBuffer uploadOnce(VKEngine engine, Mesh<?> mesh, boolean align16) {
+        return uploadOnce(engine, mesh.getVertices(), mesh.getIndices(), align16);
     }
 
-    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, VulkanRenderer renderer, T[] vertices, int[] indices, boolean align16) {
+    public static <T extends Vertex> StaticMeshBuffer uploadOnce(VKEngine engine, T[] vertices, int[] indices, boolean align16) {
+        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
         if (vertices.length == 0) {
             engine.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }
