@@ -105,7 +105,11 @@ public class FileUtils {
                 fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
             }
 
-            Path root = fileSystem.getPath(uri.getPath().substring(uri.getPath().indexOf("!") + 1));
+            String ssp = uri.getRawSchemeSpecificPart();
+            int separatorIdx = ssp.indexOf("!");
+            String internalPath = separatorIdx != -1 ? ssp.substring(separatorIdx + 1) : "/";
+
+            Path root = fileSystem.getPath(internalPath);
             return processStream(root, maxDepth, fileSystem);
         }
 
