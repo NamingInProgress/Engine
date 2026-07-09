@@ -50,6 +50,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final List<DescriptorSetInstance> userSets = new ArrayList<>();
 
     private DescriptorSetGroup group;
+    private boolean free;
 
     public final DescriptorWriter writer;
 
@@ -184,13 +185,16 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     @Override
     public void free() {
-        // destroy descriptors and stuff
-        this.userSets.forEach(Disposable::free);
-        this.alloc.free();
-        if (pushConstants != null) {
-            pushConstants.free();
+        if (!free) {
+            // destroy descriptors and stuff
+            this.userSets.forEach(Disposable::free);
+            this.alloc.free();
+            if (pushConstants != null) {
+                pushConstants.free();
+            }
+            VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
+            free = true;
         }
-        VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
     }
 
     public VulkanRenderer getRenderer() {

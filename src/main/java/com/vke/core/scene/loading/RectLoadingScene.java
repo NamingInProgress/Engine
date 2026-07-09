@@ -27,6 +27,11 @@ public class RectLoadingScene extends LoadingScene {
     }
 
     @Override
+    public void onUnload() throws Exception {
+        free();
+    }
+
+    @Override
     public void onAssetStartLoad(AssetDesc desc) {
 
     }
@@ -68,7 +73,7 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void free() {
-
+        vc.free();
     }
 
     static class V extends Vertex {
