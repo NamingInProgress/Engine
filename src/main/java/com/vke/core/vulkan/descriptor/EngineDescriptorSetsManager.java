@@ -81,7 +81,6 @@ public class EngineDescriptorSetsManager implements Disposable {
                         .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset())
                         .sorted(Comparator.comparingInt(c -> c))
                 ).collect(Collectors.toCollection(ArrayList::new));
-
     }
 
     public void onFrame() {
