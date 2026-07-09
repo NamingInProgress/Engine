@@ -3,6 +3,8 @@ package com.vke.api.rendering.vulkan.pushconstants;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 
+import java.util.Objects;
+
 public class PushConstantLayout {
 
     public String name;
@@ -19,4 +21,15 @@ public class PushConstantLayout {
         this.packingType = packingType;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        PushConstantLayout that = (PushConstantLayout) o;
+        return offset == that.offset && size == that.size && Objects.equals(name, that.name) && Objects.equals(typeLayout, that.typeLayout) && packingType == that.packingType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, offset, size, typeLayout, packingType);
+    }
 }

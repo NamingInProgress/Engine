@@ -3,6 +3,7 @@ package com.vke.core.vulkan.service;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.ServiceAPI;
@@ -31,6 +32,11 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     @Override
     public ITextureManager textureManager() {
         return getImpl().textureManager();
+    }
+
+    @Override
+    public IFrameDataManager frameDataManager() {
+        return getImpl().frameDataManager();
     }
 
     @Override

@@ -37,6 +37,7 @@ public class MultiWriteBufferHandle extends BufferHandle {
         this.counter.reset();
     }
 
+    @Override
     public void nextFrame() {
         reset();
         ((MappedGpuRingBuffer) this.bufBinding.buffer).rotate();
