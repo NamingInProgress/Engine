@@ -5,14 +5,14 @@ import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -85,12 +85,7 @@ public class FileUtils {
 
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
-                Iter<WalkedFile> currentIter = switch (url.getProtocol()) {
-                    case "file" -> listFromFileSystem(url, maxDepth);
-                    case "jar"  -> listFromJar(url, maxDepth);
-                    default     -> Iter.of();
-                };
-                iters.add(currentIter);
+                iters.add(walkUrlResources(url, maxDepth));
             }
 
             return Iter.of(iters).flatMap(it -> it);
@@ -100,58 +95,43 @@ public class FileUtils {
         }
     }
 
-    public static Iter<WalkedFile> listFromFileSystem(URL url, int maxDepth) throws IOException, URISyntaxException {
-        Path root = Paths.get(url.toURI());
+    private static Iter<WalkedFile> walkUrlResources(URL url, int maxDepth) throws URISyntaxException, IOException {
+        URI uri = url.toURI();
+        if ("jar".equals(uri.getScheme())) {
+            FileSystem fileSystem;
+            try {
+                fileSystem = FileSystems.getFileSystem(uri);
+            } catch (FileSystemNotFoundException e) {
+                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            }
 
-        Stream<Path> stream = Files.walk(root, maxDepth);
-        return Iter.of(stream)
-                    .filter(p -> !p.equals(root))
-                    .map(p -> {
-                        String path = root.relativize(p).toString().replace('\\', '/');
-                        return new WalkedFile(path, Files.isRegularFile(p));
-                    })
-                    .finisher(stream::close);
-    }
-
-    public static Iter<WalkedFile> listFromJar(URL url, int maxDepth) throws IOException {
-        String path = url.getPath();
-        String jarPath = path.substring(5, path.indexOf("!"));
-        String rootEntry = path.substring(path.indexOf("!") + 2);
-
-        if (!rootEntry.endsWith("/")) {
-            rootEntry += "/";
+            Path root = fileSystem.getPath(uri.getPath().substring(uri.getPath().indexOf("!") + 1));
+            return processStream(root, maxDepth, fileSystem);
         }
 
-        JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
+        Path root = Paths.get(uri);
+        return processStream(root, maxDepth, null);
+    }
 
-        Enumeration<JarEntry> entries = jar.entries();
+    private static Iter<WalkedFile> processStream(Path root, int maxDepth, FileSystem closeableFs) throws IOException {
+        Stream<Path> stream = Files.walk(root, maxDepth);
 
-        String finalRootEntry = rootEntry;
-        return Iter.of(entries.asIterator())
-                .filterMap(jarEntry -> {
-                    String name = jarEntry.getName();
-
-                    if (!name.startsWith(finalRootEntry)) {
-                        return Option.none();
-                    }
-
-                    String relative = name.substring(finalRootEntry.length());
-
-                    if (relative.isEmpty()) {
-                        return Option.none();
-                    }
-
-                    int depth = relative.split("/").length;
-
-                    if (depth > maxDepth) {
-                        return Option.none();
-                    }
-
-                    return Option.some(
-                            new WalkedFile(relative, !jarEntry.isDirectory())
-                    );
+        return Iter.of(stream)
+                .filter(p -> !p.equals(root))
+                .map(p -> {
+                    String relativePath = root.relativize(p).toString().replace('\\', '/');
+                    return new WalkedFile(relativePath, Files.isRegularFile(p));
                 })
-                .faultyFinisher(jar::close);
+                .finisher(() -> {
+                    stream.close();
+                    if (closeableFs != null) {
+                        try {
+                            closeableFs.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
     public static String getComponent(Path path, int index) {
