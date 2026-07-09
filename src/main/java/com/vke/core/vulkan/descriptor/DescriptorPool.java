@@ -18,6 +18,8 @@ public class DescriptorPool implements Disposable {
     private final long handle;
     private final VulkanRenderDevice device;
 
+    private boolean free;
+
     public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight, boolean updateAfterBind) {
         this.device = device;
 
@@ -59,7 +61,10 @@ public class DescriptorPool implements Disposable {
 
     @Override
     public void free() {
-        VK14.vkDestroyDescriptorPool(device.getLogicalDevice().getDevice(), handle, null);
+        if (!free) {
+            VK14.vkDestroyDescriptorPool(device.getLogicalDevice().getDevice(), handle, null);
+            free = true;
+        }
     }
 
 }
