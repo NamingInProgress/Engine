@@ -1,0 +1,9 @@
+#extension GL_EXT_nonuniform_qualifier : require
+
+#MultipleWrites(100)
+layout (set = 0, binding = 0) uniform Camera {
+    mat4 proj;
+    mat4 view;
+} camera;
+
+layout (set = 1, binding = 0) uniform #DefaultSize(1024) sampler2D textures[];
