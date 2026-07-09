@@ -18,13 +18,13 @@ public class Identifier {
     public Identifier(String path) {
         this.namespace = VKEngine.VKE_NAMESPACE;
         this.path = path;
-        this.combined = namespace.concat("/").concat(path);
+        this.combined = namespace.concat("/").concat(path).replace("//", "/");
     }
 
     public Identifier(String namespace, String path) {
         this.namespace = namespace;
         this.path = path;
-        this.combined = namespace.concat("/").concat(path);
+        this.combined = namespace.concat("/").concat(path).replace("//", "/");
     }
 
     public static Identifier empty() {

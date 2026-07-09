@@ -1,10 +1,12 @@
 package com.vke.core.vulkan;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.command.CommandPool;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
@@ -18,15 +20,15 @@ public class VulkanFrame implements Disposable {
     private VulkanSemaphore imageSemaphore, presentSemaphore;
     private VulkanFence renderFence;
 
-    public VulkanFrame(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain) {
-        this(engine, device, swapchain, false);
+    public VulkanFrame(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, FrameCounter fc) {
+        this(engine, device, swapchain, fc, false);
     }
 
-    public VulkanFrame(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, boolean immediate) {
-        pool = new CommandPool(engine, device, immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
-        buffers = new VulkanCmdBuffers(engine, device, swapchain, pool);
+    public VulkanFrame(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, FrameCounter fc, boolean immediate) {
+        pool = new CommandPool(engine, device.getLogicalDevice(), immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
+        buffers = new VulkanCmdBuffers(engine, device, swapchain, pool, fc);
 
-        setupSyncStructures(engine, device, immediate);
+        setupSyncStructures(engine, device.getLogicalDevice(), immediate);
     }
 
     private void setupSyncStructures(VKEngine engine, LogicalDevice device, boolean immediate) {

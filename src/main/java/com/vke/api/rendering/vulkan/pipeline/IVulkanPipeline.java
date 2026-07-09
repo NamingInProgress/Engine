@@ -2,21 +2,20 @@ package com.vke.api.rendering.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
-import com.vke.api.rendering.vulkan.descriptors.BaseType;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
-import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
-import com.vke.api.rendering.vulkan.descriptors.types.PrimitiveType;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRendererAPI;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
-import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
 import com.vke.core.vulkan.shader.VulkanShader;
@@ -31,56 +30,38 @@ import java.util.*;
 public interface IVulkanPipeline extends Pipeline {
 
     long getHandle();
+    PipelineLayout layout();
 
     // Info create methods that are shared between compute and render pipelines
-    default DescriptorSets createDescriptorSets(Context ctx, VulkanRenderDevice device, DescriptorsInfo additionalDescInfo, ArrayList<ReflectedShader> shaders) {
+    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, ArrayList<ReflectedShader> shaders) {
         HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
         for (ReflectedShader shader : shaders) {
             var reflectedDescriptors = shader.getDescriptors();
 
-            for (ArrayList<ReflectedShader.DescriptorResource> value : reflectedDescriptors.values()) {
-                for (ReflectedShader.DescriptorResource resource : value) {
-                    if (!sets.containsKey(resource.set)) sets.put(resource.set, new DescriptorSetLayout());
-                }
-            }
-
             for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
                 for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
-                    descriptor.set = resource.set;
-                    if (resource.name.equals("TransformBuffer") || resource.name.equals("ClipBuffer")) {
-                        System.out.println("Something");
-                    }
 
-                    BindingLayout binding = new BindingLayout();
-                    binding.name = resource.name;
-                    binding.set = resource.set;
-                    binding.binding = resource.binding;
-                    binding.descriptorCount = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
-                    binding.isDynamic = additionalDescInfo.dynamicBuffers.contains(resource.name);
-                    binding.type = DescriptorType.fromBaseType(entry.getKey(), binding.isDynamic);
+                    BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(),
+                            shader.getMetadata().staticBuffers().contains(resource.name));
 
-                    if (resource.struct == null) {
-                        try {
-                            PrimitiveType primitiveType = new PrimitiveType();
-                            primitiveType.scalarType = BaseType.fromPipelineBaseType(resource.baseType);
-                            primitiveType.vecSize = resource.vecSize;
-                            primitiveType.size = resource.baseType.byteSize() * primitiveType.vecSize;
-                            binding.typeLayout = primitiveType;
-                        } catch (RuntimeException ignore) {}
-                    } else {
-                        binding.typeLayout = resource.struct;
-                    }
-                    System.out.println("this could be null and if its null we are fucked: " + binding.typeLayout);
-                    binding.packingType = PackingType.fromDescriptorType(binding.type);
+                    binding.resolveRuntimeSizeArrays(shader.getMetadata().defaultRuntimeSizes());
 
                     descriptor.bindings.add(binding);
                 }
             }
         }
 
-        return new DescriptorSets(ctx.getEngine(), device, (ArrayList<DescriptorSetLayout>) Iter.of(sets.values()).collectToList(), additionalDescInfo);
+        var mgr = ctx.<VulkanRendererAPI>service(Services.VULKAN_RENDERER).<VulkanRenderer>assumeImplementation().getEngineSetsManager();
+        var engineSets = mgr.getDefaults();
+
+        sets.putAll(engineSets);
+
+        return sets.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .map(Map.Entry::getValue)
+                .toList();
     }
 
     default PushConstants createPushConstants(ArrayList<ReflectedShader> shaders) {
@@ -91,8 +72,6 @@ public interface IVulkanPipeline extends Pipeline {
 
             layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
         }
-
-        if (layout == null) layout = new PushConstantLayout("", 0, 0, null, PackingType.STD140);
 
         return new PushConstants(layout);
     }
@@ -127,6 +106,10 @@ public interface IVulkanPipeline extends Pipeline {
                     .pName(Utils.ensureCStr(stage.pName()));
         }
         return stages;
+    }
+
+    default <T extends UniformHandle> T uniform(String name) {
+        return ((VulkanPipelineLayout) layout()).getGroup().resolve(name);
     }
 
 }

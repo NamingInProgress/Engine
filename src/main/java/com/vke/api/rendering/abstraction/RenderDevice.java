@@ -13,6 +13,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.png.Pixels;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;

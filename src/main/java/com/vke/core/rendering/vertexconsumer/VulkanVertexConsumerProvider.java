@@ -1,0 +1,30 @@
+package com.vke.core.rendering.vertexconsumer;
+
+import com.vke.api.draw.Vertex;
+import com.vke.api.draw.VertexConsumer;
+import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
+import com.vke.core.Context;
+import com.vke.core.VKEngine;
+import com.vke.core.vulkan.service.VulkanRenderer;
+
+public class VulkanVertexConsumerProvider implements VertexConsumerProvider {
+
+    private final VKEngine engine;
+    private final VulkanRenderer renderer;
+
+    public VulkanVertexConsumerProvider(Context ctx, VulkanRenderer renderer) {
+        this.engine = ctx.getEngine();
+        this.renderer = renderer;
+    }
+
+    @Override
+    public <T extends Vertex> VertexConsumer<T> get(T template) {
+        return new FastVertexConsumer<>(engine, renderer, template);
+    }
+
+    @Override
+    public <T extends Vertex> VertexConsumer<T> get(T template, int estVertexCount, int estIndexCount) {
+        return new FastVertexConsumer<>(engine, renderer, template, estVertexCount, estIndexCount);
+    }
+
+}

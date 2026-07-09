@@ -20,10 +20,10 @@ public class PushConstantLayoutBuilder {
         if (layout instanceof PrimitiveType || layout instanceof PointerType || layout instanceof MatrixType) {
             out.add(new PCField(baseOffset, layout.size, layout));
         } else if (layout instanceof ArrayType at) {
-            if (at.length == -1) {
+            if (at.elementCount == -1) {
                 throw new RuntimeException("Runtime-sized arrays not allowed in push constants");
             }
-            for (int i = 0; i < at.length; i++) {
+            for (int i = 0; i < at.elementCount; i++) {
                 long elementOffset = baseOffset + i * at.stride;
                 flatten(at.elementType, elementOffset, out);
             }

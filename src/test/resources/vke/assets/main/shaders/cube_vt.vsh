@@ -13,6 +13,15 @@ layout(push_constant) uniform constants {
     mat4 translation;
 } PushConstants;
 
+#MultipleWrites(100)
+layout (set = 0, binding = 0) uniform Camera {
+    mat4 proj;
+    mat4 view;
+} camera;
+
+layout (set = 1, binding = 0) uniform sampler2D textures[];
+
+
 void main() {
     gl_Position = PushConstants.world * PushConstants.translation * vec4(inPos, 1.0f);
     outColor = inColor;

@@ -19,6 +19,7 @@ public class VulkanShader implements Shader {
     private final long handle;
     private final LogicalDevice device;
     private final long id;
+    private boolean hasBeenFreed;
 
     public VulkanShader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, ShaderType type, long id) {
         this.device = device;
@@ -82,6 +83,9 @@ public class VulkanShader implements Shader {
 
     @Override
     public void free() {
-        VK14.vkDestroyShaderModule(device.getDevice(), handle, null);
+        if (!hasBeenFreed) {
+            VK14.vkDestroyShaderModule(device.getDevice(), handle, null);
+        }
+        hasBeenFreed = true;
     }
 }

@@ -2,8 +2,7 @@ package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
@@ -16,6 +15,7 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkComputePipelineCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.List;
 
 public class VulkanComputePipeline implements ComputePipeline, IVulkanPipeline {
 
@@ -33,7 +33,7 @@ public class VulkanComputePipeline implements ComputePipeline, IVulkanPipeline {
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shader);
 
         var shaders = getReflectedShaders(context, data.compiledShaders);
-        DescriptorSets ds = createDescriptorSets(context, device, data.additionalDescriptorInfo, shaders);
+        List<DescriptorSetLayout> ds = createDescriptorSets(context, shaders);
         PushConstants pc = createPushConstants(shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -56,16 +56,8 @@ public class VulkanComputePipeline implements ComputePipeline, IVulkanPipeline {
         }
     }
 
-    public <T extends UniformHandle> T resolveUniform(String path) {
-        return this.layout.descriptors().resolve(path);
-    }
-
     public PushConstantHandle resolvePushConstant(String path) {
         return this.layout.pushConstants().resolve(path);
-    }
-
-    public void updateUniforms(UniformHandle... uniforms) {
-        this.layout.descriptors().update(uniforms);
     }
 
     @Override

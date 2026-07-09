@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.device;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
@@ -17,14 +18,15 @@ import com.vke.api.logger.Logger;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
-import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
-import com.vke.core.vulkan.VKUtils;
+import com.vke.core.vulkan.utils.VKUtils;
 import com.vke.core.vulkan.buffers.GpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
@@ -33,13 +35,13 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.utils.Utils;
+import com.vke.utils.io.Disposable;
+import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
@@ -52,7 +54,10 @@ import com.vke.utils.io.Identifier;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class VulkanRenderDevice implements RenderDevice {
@@ -80,18 +85,22 @@ public class VulkanRenderDevice implements RenderDevice {
     private final VulkanCreateInfo vulkanCreateInfo;
     private final VKEngine engine;
     private final Context context;
+    private final VulkanRenderer renderer;
 
     private final AutoHeapAllocator alloc;
 
     private final Logger logger;
 
-    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo) {
+    private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
+
+    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo, VulkanRenderer renderer) {
         this.engine = context.getEngine();
         this.context = context;
         this.engineCreateInfo = engineCreateInfo;
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
         this.logger = LoggerFactory.get("Vulkan Setup");
+        this.renderer = renderer;
 
         initInstance();
         setupDebugMessenger(this.instance, engine);
@@ -239,7 +248,8 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
-        byte[] bytes = Utils.readAllBytesAndClose(identifier.asInputStream());
+        Pair<String, ShaderPreprocessor.ShaderMetadata> processed = ShaderPreprocessor.getInstance(getRenderer()).process(identifier);
+        byte[] bytes = processed.v1.getBytes(StandardCharsets.UTF_8);
 
         try {
             ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
@@ -249,7 +259,7 @@ public class VulkanRenderDevice implements RenderDevice {
             logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
-            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), spirv, shaderType);
+            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), identifier, spirv, shaderType, processed.v2);
 
             return shader;
         } catch (Exception e) {
@@ -324,14 +334,14 @@ public class VulkanRenderDevice implements RenderDevice {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(engine, logicalDevice, swapchain);
+            frames[i] = new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter());
         }
 
         return frames;
     }
 
     public VulkanFrame createImmediateFrame(VulkanSwapchain swapchain) {
-        return new VulkanFrame(engine, logicalDevice, swapchain, true);
+        return new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter(), true);
     }
 
     @Override
@@ -343,6 +353,7 @@ public class VulkanRenderDevice implements RenderDevice {
         logicalDevice.free();
         VK14.vkDestroyInstance(instance, null);
         alloc.close();
+        FREE_QUEUE.forEach(Disposable::free);
     }
 
     /** GETTERS **/
@@ -367,4 +378,8 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     public VKEngine getEngine() { return this.engine; }
+
+    public VulkanRenderer getRenderer() {
+        return renderer;
+    }
 }

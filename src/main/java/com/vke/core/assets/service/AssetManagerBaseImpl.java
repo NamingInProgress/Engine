@@ -14,6 +14,7 @@ import com.vke.core.thread.TaskProcessor;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -160,5 +161,9 @@ public class AssetManagerBaseImpl extends ScopedServiceImpl<AssetManagerScopedIm
             all = all.chain(b.allAssets());
         }
         return all;
+    }
+
+    public @Nullable BundleLoadingCallback getCallbacks() {
+        return loadingCallbacks;
     }
 }

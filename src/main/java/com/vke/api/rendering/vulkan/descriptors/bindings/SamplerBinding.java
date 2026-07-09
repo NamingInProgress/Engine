@@ -13,9 +13,4 @@ public class SamplerBinding extends DescriptorBinding {
         this.samplers = new VulkanSampler[layout.descriptorCount];
     }
 
-    @Override
-    public <T extends DescriptorBinding> T copy() {
-        return (T) new SamplerBinding(layout);
-    }
-
 }

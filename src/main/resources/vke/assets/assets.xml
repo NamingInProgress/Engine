@@ -41,6 +41,12 @@
             <uri-part uri="file://location/bundle"/>
         </rename>
     </stage-filter>
+    <stage-filter uri="file://extension" query="glsl" op="matches">
+        <convert to="vertshader"/>
+        <rename>
+            <uri-part uri="file://location/bundle"/>
+        </rename>
+    </stage-filter>
 
     <!-- =================== TEXTURES =================== -->
     <stage-filter uri="file://extension" query="png" op="equals">

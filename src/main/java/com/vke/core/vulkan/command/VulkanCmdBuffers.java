@@ -1,27 +1,34 @@
 package com.vke.core.vulkan.command;
 
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
+import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.vulkan.texture.VulkanTextureView;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
-import java.nio.LongBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class VulkanCmdBuffers implements CommandBuffer {
 
@@ -30,14 +37,21 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VkCommandBuffer vk;
     private final VulkanSwapchain swapchain;
     private final VKEngine engine;
+    private final FrameCounter fc;
+    private final int highestEngineSet;
+    private final EngineDescriptorSetsManager setsMgr;
 
     private boolean recording;
+    private boolean engineDescriptorSetsBound = false;
 
-    public VulkanCmdBuffers(VKEngine engine, LogicalDevice device, VulkanSwapchain swapchain, CommandPool pool) {
-        this.device = device;
+    public VulkanCmdBuffers(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, CommandPool pool, FrameCounter fc) {
+        this.device = device.getLogicalDevice();
         this.poolHandle = pool.getHandle();
         this.swapchain = swapchain;
         this.engine = engine;
+        this.fc = fc;
+        this.setsMgr = device.getRenderer().getEngineSetsManager();
+        this.highestEngineSet = setsMgr.highestSet;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc(stack)
@@ -48,11 +62,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             PointerBuffer pCommandBuffer = stack.mallocPointer(1);
 
-            if (VK14.vkAllocateCommandBuffers(device.getDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
+            if (VK14.vkAllocateCommandBuffers(this.device.getDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
                 throw new IllegalStateException("Failed to create command buffer!");
             }
 
-            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), device.getDevice());
+            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), this.device.getDevice());
         }
     }
 
@@ -196,7 +210,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
         VK14.vkCmdPushConstants(this.getBuffer(),
                 layout.getHandle(),
-                VK14.VK_SHADER_STAGE_ALL, // FIX THIS
+                VK14.VK_SHADER_STAGE_ALL,
                 0,
                 layout.pushConstants().getData()
         );
@@ -204,23 +218,31 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline) {
-        this.bindDescriptorSets(pipeline, ((VulkanPipelineLayout) unwrapPipeline(pipeline).layout()).descriptors().getDescriptorSetHandles());
-    }
+        IVulkanPipeline p = unwrapPipeline(pipeline);
+        VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
+        l.writeHandles();
 
-    @Override
-    public void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline, long... handles) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IVulkanPipeline p = unwrapPipeline(pipeline);
-            VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
+        long[] sets = new long[l.getUserSets().size()];
+        List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
 
-
-            LongBuffer sets = stack.longs(handles);
-
-            VK14.vkCmdBindDescriptorSets(this.getBuffer(),
-                    getBindPoint(p),
-                    l.getHandle(),
-                    0, sets, null);
+        List<DescriptorSetInstance> userSets = l.getUserSets();
+        for (int i = 0; i < userSets.size(); i++) {
+            DescriptorSetInstance userSet = userSets.get(i);
+            sets[i] = userSet.getSet().getHandle();
         }
+
+        l.getGroup().getHandleCache().values().stream()
+                .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
+                .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
+                .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
+
+        VK14.vkCmdBindDescriptorSets(this.getBuffer(),
+                getBindPoint(p),
+                l.getHandle(),
+                0, sets,
+                dynamicOffsets.stream()
+                        .mapToInt(Integer::intValue)
+                        .toArray());
     }
 
     @Override

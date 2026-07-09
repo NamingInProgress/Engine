@@ -32,11 +32,11 @@ public class ServiceManager implements Disposable {
         ServiceImpl impl = api.getImplementation();
         if (loadedServices.contains(impl)) return (T) api;
 
+        loadedServices.add(impl);
         if (!impl.isInitialized()) {
             impl.initialize();
         }
 
-        loadedServices.add(impl);
         api.dependencies().forEach(this::service);
 
         engine.EVENT_BUS.fire(new ServiceLoadEvent(key, api));

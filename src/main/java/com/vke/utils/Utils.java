@@ -17,14 +17,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Spliterator;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -90,6 +87,21 @@ public class Utils {
         try (stream) {
             return stream.readAllBytes();
         }
+    }
+
+    public static String arrayToString(Integer[] array) {
+        StringBuilder sb = new StringBuilder("[ ");
+
+        for (int i = 0; i < array.length; i++) {
+            sb.append(array[i]);
+
+            if (i < array.length - 1) {
+                sb.append(", ");
+            }
+        }
+
+        sb.append(" ]");
+        return sb.toString();
     }
 
     public static OSType getOSType() {
@@ -239,12 +251,19 @@ public class Utils {
             try {
                 @SuppressWarnings("unchecked")
                 Class<F> fClass = (Class<F>) ignore.getClass().getComponentType();
-                Constructor<F> c = fClass.getDeclaredConstructor(Throwable.class);
-                throw c.newInstance(e);
+                Constructor<F> c = fClass.getDeclaredConstructor(String.class);
+                F f = c.newInstance(e.getMessage());
+                f.setStackTrace(e.getStackTrace());
+                throw f;
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ex) {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /// MUST BE A POWER OF 2!!!
+    public static long alignUpFast(long value, long alignment) {
+        return (value + alignment - 1) & -alignment;
     }
 }

@@ -5,18 +5,16 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.draw.Vertex;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.service.AssetManagerScopedImpl;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.profiler.AppTimer;
 import org.joml.Matrix4f;
@@ -124,15 +122,15 @@ public class TestApp extends App {
         VulkanRenderPipeline pipeline;
         VulkanRenderPipeline cubePipeline;
         try {
-            pipeline = (VulkanRenderPipeline) IDK.acquire(engine);
+            pipeline = null; // (VulkanRenderPipeline) IDK.acquire(engine);
             cubePipeline = (VulkanRenderPipeline) CUBE.acquire(engine);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
-        sampl.set(scaryVk, Samplers.LINEAR);
-        pipeline.updateUniforms(sampl);
+        //CombinedImageSamplerHandle sampl = pipeline.resolveUniform("tex");
+        //sampl.set(scaryVk, Samplers.LINEAR);
+        //pipeline.updateUniforms(sampl);
 
         vertexBufferPointer = pipeline.resolvePushConstant("vertexBuffer");
         matrixHandle = pipeline.resolvePushConstant("world");
@@ -149,16 +147,16 @@ public class TestApp extends App {
     PushConstantHandle projMatrixHandle;
     PushConstantHandle transformMatrixHandle;
 
-    AssetHandle<RenderPipeline> IDK = R.pipelines.get("test.pipeline.json");
+    //AssetHandle<RenderPipeline> IDK = R.pipelines.get("test.pipeline.json");
     AssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
 
     @Override
-    public void onDraw(DrawContext ctx) {
+    public void onDraw(FrameContext ctx) {
         timer.onFrameStart();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
-            cmd.bindPipeline(IDK);
+            //cmd.bindPipeline(IDK);
 
             Matrix4f mat = new Matrix4f();
             mat.setOrtho(0, 800, 0, 600, 0, 1000, true);
@@ -169,9 +167,9 @@ public class TestApp extends App {
 
             // Set sampler (outside of render loop tho)
 
-            cmd.bindDescriptorSets(IDK);
+            //cmd.bindDescriptorSets(IDK);
 
-            cmd.setPushConstants(IDK);
+            //cmd.setPushConstants(IDK);
 
             VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), mesh.getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
 

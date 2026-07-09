@@ -13,9 +13,4 @@ public class CombinedImageSamplerBinding extends ImageBinding {
 
         this.samplers = new VulkanSampler[layout.descriptorCount];
     }
-
-    @Override
-    public <T extends DescriptorBinding> T copy() {
-        return (T) new CombinedImageSamplerBinding(layout);
-    }
 }

@@ -1,5 +1,0 @@
-
-
-struct Material {
-    int blackness;
-};

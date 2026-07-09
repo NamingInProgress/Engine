@@ -3,6 +3,7 @@ package com.vke.core.vulkan.sampler;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.enums.Filter;
+import com.vke.utils.io.Disposable;
 
 public class Samplers {
 
@@ -14,4 +15,8 @@ public class Samplers {
         LINEAR = device.createSampler(new Sampler.Description(Filter.LINEAR, Filter.LINEAR));
     }
 
+    public static void free() {
+        NEAREST.free();
+        LINEAR.free();
+    }
 }

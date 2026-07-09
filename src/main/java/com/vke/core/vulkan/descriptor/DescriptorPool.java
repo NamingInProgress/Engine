@@ -18,7 +18,9 @@ public class DescriptorPool implements Disposable {
     private final long handle;
     private final VulkanRenderDevice device;
 
-    public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight) {
+    private boolean free;
+
+    public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight, boolean updateAfterBind) {
         this.device = device;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -35,6 +37,10 @@ public class DescriptorPool implements Disposable {
                     .sType$Default()
                     .maxSets(numSets * framesInFlight)
                     .pPoolSizes(countsBuffer);
+
+            if (updateAfterBind) {
+                poolCreateInfo.flags(VK14.VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT);
+            }
 
             LongBuffer pPool = stack.mallocLong(1);
             if (VK14.vkCreateDescriptorPool(device.getLogicalDevice().getDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {
@@ -55,7 +61,10 @@ public class DescriptorPool implements Disposable {
 
     @Override
     public void free() {
-        VK14.vkDestroyDescriptorPool(device.getLogicalDevice().getDevice(), handle, null);
+        if (!free) {
+            VK14.vkDestroyDescriptorPool(device.getLogicalDevice().getDevice(), handle, null);
+            free = true;
+        }
     }
 
 }

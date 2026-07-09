@@ -6,21 +6,27 @@ import com.vke.core.vulkan.buffers.MappedBuffer;
 
 public class BufferBinding extends DescriptorBinding {
 
-    public final MappedBuffer buffer;
+    public MappedBuffer buffer;
     public final long singleBufferSize; // ALIGNED, Used for buffer arrays, if the descriptor is not an array set it to the size of the buffer
     public final int numBuffers;
     public final PackingType packingType;
+    public final int multiWrite;
 
-    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType) {
+    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType, int multiWrite) {
         super(layout);
         this.buffer = buffer;
         this.singleBufferSize = singleBufferSize;
         this.numBuffers = (int) (buffer.getSize() / singleBufferSize);
         this.packingType = packingType;
+        this.multiWrite = multiWrite;
+    }
+
+    public void setBuffer(MappedBuffer newBuffer) {
+        this.buffer = newBuffer;
     }
 
     @Override
-    public <T extends DescriptorBinding> T copy() {
-        return (T) new BufferBinding(layout, buffer, singleBufferSize, packingType);
+    public void free() {
+        this.buffer.free();
     }
 }

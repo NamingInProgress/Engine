@@ -1,13 +1,13 @@
 package com.vke.core.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.vulkan.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.vulkan.descriptors.DescriptorSets;
-import com.vke.api.rendering.vulkan.descriptors.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
@@ -38,7 +38,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
 
         var shaders = getReflectedShaders(context, data.compiledShaders);
-        DescriptorSets ds = createDescriptorSets(context, device, data.additionalDescriptorInfo, shaders);
+        List<DescriptorSetLayout> ds = createDescriptorSets(context, shaders);
         PushConstants pc = createPushConstants(shaders);
         data.vertexLayoutData = createVertexLayouts(data, shaders);
 
@@ -56,7 +56,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
             var renderInfo = getRenderingInfo(stack, data, colorAttachmentFormats);
             var shaderStages = getShaderStages(stack, data.shaders, data.compiledShaders);
             var viewportInfo = getViewportInfo(stack);
-            this.layout = getPipelineLayout(context.getEngine(), device, pc, ds);
+            this.layout = VulkanPipelineLayout.getLayout(engine, device, pc, ds);
 
             VkGraphicsPipelineCreateInfo.Buffer pipelineCreateInfo = VkGraphicsPipelineCreateInfo.calloc(1, stack);
             pipelineCreateInfo.get(0)
@@ -86,26 +86,16 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         }
     }
 
-    public <T extends UniformHandle> T resolveUniform(String path) {
-        return this.layout.descriptors().resolve(path);
-    }
-
     public PushConstantHandle resolvePushConstant(String path) {
         return this.layout.pushConstants().resolve(path);
     }
-
-    public void updateUniforms(UniformHandle... uniforms) {
-        this.layout.descriptors().update(uniforms);
-    }
-
-
 
     private VertexLayoutData createVertexLayouts(RenderPipelineData data, ArrayList<ReflectedShader> shaders) {
         ArrayList<VertexLayoutData.Attribute> attribs = new ArrayList<>();
 
         for (ReflectedShader shader : shaders) {
             if (shader.getShaderType() == ShaderType.FRAGMENT) continue;
-            var vaos = shader.getVAOs();
+            var vaos = shader.getVAOs().stream().sorted(Comparator.comparingInt(c -> c.location));
 
             vaos.forEach(resource -> attribs.add(
                     new VertexLayoutData.Attribute(resource.stride, Format.fromBaseType(resource.baseType, resource.vecSize))
@@ -259,10 +249,6 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
                 .sType$Default()
                 .viewportCount(1)
                 .scissorCount(1);
-    }
-
-    private VulkanPipelineLayout getPipelineLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, DescriptorSets ds) {
-        return VulkanPipelineLayout.getLayout(engine, device, pc, ds);
     }
     //endregion
 

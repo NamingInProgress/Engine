@@ -6,10 +6,10 @@ import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.file.deflate.decompress.BitUtils;
-import com.vke.core.vulkan.VKUtils;
 import com.vke.core.vulkan.utils.StructureChain3;
+import com.vke.core.vulkan.utils.VKUtils;
+import com.vke.core.vulkan.utils.StructureChain4;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -115,10 +115,16 @@ public class LogicalDevice implements Disposable {
         deviceFeaturesVK13.dynamicRendering(true);
         deviceFeaturesEXTDynamicState.extendedDynamicState(true);
 
+        deviceFeaturesVK12.runtimeDescriptorArray(true);
+        deviceFeaturesVK12.descriptorBindingPartiallyBound(true);
+        deviceFeaturesVK12.shaderSampledImageArrayNonUniformIndexing(true);
+        deviceFeaturesVK12.descriptorBindingSampledImageUpdateAfterBind(true);
+        deviceFeaturesVK12.descriptorBindingUpdateUnusedWhilePending(true);
 
 
         StructureChain3<VkPhysicalDeviceVulkan12Features, VkPhysicalDeviceVulkan13Features, VkPhysicalDeviceExtendedDynamicStateFeaturesEXT> chain =
-                new StructureChain3<>(deviceFeaturesVK12, deviceFeaturesVK13, deviceFeaturesEXTDynamicState, deviceFeaturesVK12::pNext, deviceFeaturesVK13::pNext);
+                new StructureChain3<>(deviceFeaturesVK12, deviceFeaturesVK13, deviceFeaturesEXTDynamicState,
+                        deviceFeaturesVK12::pNext, deviceFeaturesVK13::pNext);
 
         VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                 .sType$Default()

@@ -43,6 +43,7 @@ public class AssetManagerScopedImpl implements AssetManager {
         }
         Bundle globalBundle = BundleCollector.collectGlobalBundle(context, pipeline);
         base.globalBundle.extendBundle(globalBundle);
+        globalBundle.preloadAll(base.getCallbacks());
 
         Map<String, Bundle> bundleMap = BundleCollector.collectBundles(context, pipeline);
         base.mergeBundles(bundleMap);

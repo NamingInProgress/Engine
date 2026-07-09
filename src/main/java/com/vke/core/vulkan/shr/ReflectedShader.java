@@ -1,10 +1,13 @@
 package com.vke.core.vulkan.shr;
 
 import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.vulkan.descriptors.PrimitiveBaseType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.types.*;
+import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.Disposable;
+import com.vke.utils.io.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.spvc.Spv;
@@ -23,13 +26,17 @@ public class ReflectedShader implements Disposable {
     private final long context;
     private final long compiler;
     private final ShaderType shaderType;
+    private final ShaderPreprocessor.ShaderMetadata metadata;
+    public final Identifier shaderPath;
 
     private final HashMap<ResourceType, ArrayList<? extends Resource>> resources = new HashMap<>();
 
-    public ReflectedShader(long context, ByteBuffer spirv, ShaderType shaderType) {
+    public ReflectedShader(Identifier shaderPath, long context, ByteBuffer spirv, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         this.spv = spirv;
         this.context = context;
         this.shaderType = shaderType;
+        this.metadata = metadata;
+        this.shaderPath = shaderPath;
 
         IntBuffer iSpirv = spirv.asIntBuffer();
 
@@ -47,6 +54,10 @@ public class ReflectedShader implements Disposable {
 
     public ShaderType getShaderType() {
         return shaderType;
+    }
+
+    public ShaderPreprocessor.ShaderMetadata getMetadata() {
+        return metadata;
     }
 
     @SuppressWarnings("unchecked")
@@ -83,9 +94,6 @@ public class ReflectedShader implements Disposable {
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     res.struct = generateStruct(resource, pSize.get(0));
                     res.size = (int) pSize.get(0);
-                    if (res.size < res.struct.size) {
-                        res.size = (int) res.struct.size;
-                    }
                 }
             } else {
                 LoggerFactory.get("SPIR-V Reflect").error("Found PushConstants block that is not a struct");
@@ -119,12 +127,11 @@ public class ReflectedShader implements Disposable {
                     long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, resource.typeId);
                     Spvc.spvc_compiler_get_declared_struct_size(compiler, typeHandle, pSize);
                     descriptorResource.struct = generateStruct(resource, pSize.get(0));
-                    System.out.println("Debug debug debug: " + descriptorResource.struct.size);
+                    descriptorResource.multiWrite = this.getMetadata().multipleWrites().getOrDefault(resource.name, 1);
                 }
             }
             descriptorResource.baseTypeRaw = resource.baseType;
             descriptorResource.baseType = BaseType.fromSpvc(resource.baseType);
-            descriptorResource.vecSize = Spvc.spvc_type_get_vector_size(resource.typeHandle);
 
             descriptorResource.nArrayDim = Spvc.spvc_type_get_num_array_dimensions(resource.typeHandle);
             descriptorResource.arrayDim = new int[descriptorResource.nArrayDim];
@@ -173,7 +180,6 @@ public class ReflectedShader implements Disposable {
     }
 
     private StructType generateStruct(SPVCResource resource, long size) {
-        System.out.println("Initial size: " + size);
         StructType s = new StructType();
         s.name = resource.name;
         s.size = size;
@@ -201,7 +207,6 @@ public class ReflectedShader implements Disposable {
                 members[i] = member;
             }
 
-            long outerSize = 0;
             for (int i = 0; i < memberCount; i++) {
                 long expectedSize;
                 if (i + 1 < memberCount) {
@@ -212,30 +217,13 @@ public class ReflectedShader implements Disposable {
 
                 discoverMemberWithPotentiallyComplexType(members[i], expectedSize);
                 s.members.put(members[i].name, populateMember(members[i]));
-
-                if (i + 1 >= memberCount) {
-                    outerSize = members[i].offset + members[i].size;
-                    System.out.println("Setting outer size " + outerSize);
-                }
-            }
-
-            System.out.println("Debug: " + outerSize + " " + s.size);
-            if (outerSize > s.size) {
-                s.size = outerSize;
             }
         }
-
-        System.out.println("done");
 
         return s;
     }
 
     public StructType.Member populateMember(DiscoverableMember discoverableMember) {
-        StructType.Member member = new StructType.Member();
-        member.name = discoverableMember.name;
-        member.offset = discoverableMember.offset;
-        member.size = discoverableMember.size;
-
         BaseType type = BaseType.fromSpvc(discoverableMember.baseType);
 
         TypeLayout baseTypeLayout;
@@ -243,27 +231,28 @@ public class ReflectedShader implements Disposable {
         if (discoverableMember.isPointer) {
             baseTypeLayout = new PointerType();
         } else if (discoverableMember.matrixRows > 1 && discoverableMember.matrixColumns > 1) {
-            baseTypeLayout = new MatrixType();
-            ((MatrixType) baseTypeLayout).rows = discoverableMember.matrixRows;
-            ((MatrixType) baseTypeLayout).columns = discoverableMember.matrixColumns;
-            ((MatrixType) baseTypeLayout).stride = discoverableMember.matrixStride;
+            baseTypeLayout = new MatrixType(discoverableMember.matrixRows, discoverableMember.matrixColumns,
+                    discoverableMember.matrixStride, PrimitiveBaseType.fromPipelineBaseType(type));
         } else if (discoverableMember.struct != null) {
             baseTypeLayout = discoverableMember.struct;
         } else {
             baseTypeLayout = new PrimitiveType();
             ((PrimitiveType) baseTypeLayout).vecSize = discoverableMember.matrixRows > 1 ? discoverableMember.matrixRows : (Math.max(discoverableMember.matrixColumns, 1));
-            ((PrimitiveType) baseTypeLayout).scalarType = com.vke.api.rendering.vulkan.descriptors.BaseType.fromPipelineBaseType(type);
+            ((PrimitiveType) baseTypeLayout).scalarType = PrimitiveBaseType.fromPipelineBaseType(type);
         }
 
-        if (discoverableMember.nArrayDim > 1 || (discoverableMember.nArrayDim == 1 && discoverableMember.arrayDim[0] > 1)) {
-            member.type = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
-        } else {
-            member.type = baseTypeLayout;
+        if (discoverableMember.nArrayDim > 1) {
+            baseTypeLayout = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
+        } else if (discoverableMember.nArrayDim == 1) {
+            if ((discoverableMember.arrayDim[0] > 1) || (discoverableMember.arrayDim[0] == 0)) {
+                baseTypeLayout = compactArray(discoverableMember.arrayDim, discoverableMember.arrayStride, baseTypeLayout);
+            }
         }
 
         baseTypeLayout.size = discoverableMember.size;
+        baseTypeLayout.name = discoverableMember.name;
 
-        return member;
+        return new StructType.Member(discoverableMember.name, discoverableMember.offset, discoverableMember.size, baseTypeLayout);
     }
 
     public ArrayType compactArray(int[] arrayDim, long arrayStride, TypeLayout elementType) {
@@ -271,14 +260,14 @@ public class ReflectedShader implements Disposable {
 
         int length = 1;
         for (int d : arrayDim) {
-            if (d == -1) { // runtime-size array
-                length = -1;
+            if (d == 0) { // runtime-size array
+                length = 0;
                 break;
             }
             length *= d;
         }
 
-        result.length = length;
+        result.elementCount = length;
         result.stride = arrayStride;
         result.elementType = elementType;
         result.size = arrayStride * length;
@@ -330,10 +319,10 @@ public class ReflectedShader implements Disposable {
 
             IntBuffer buf = stack.callocInt(1);
 
-//            if (member.matrixRows > 1 && member.matrixColumns > 1) {
-//                Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
-//                member.matrixStride = buf.get(0);
-//            }
+            if (member.matrixRows > 1 || member.matrixColumns > 1) {
+                Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
+                member.matrixStride = buf.get(0);
+            }
 
             if (member.nArrayDim != 0) {
                 Spvc.spvc_compiler_type_struct_member_array_stride(compiler, member.typeHandle, member.idx, buf);
@@ -426,7 +415,7 @@ public class ReflectedShader implements Disposable {
             for (SpvcReflectedResource res : resourcesBuffer) {
                 long typeHandle = Spvc.spvc_compiler_get_type_handle(compiler, res.type_id());
                 int baseType = Spvc.spvc_type_get_basetype(typeHandle);
-                arr[i++] = new SPVCResource(res.nameString(), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
+                arr[i++] = new SPVCResource(Spvc.spvc_compiler_get_name(compiler, res.id()), res.id(), res.base_type_id(), res.type_id(), baseType, typeHandle);
             }
 
             return arr;
@@ -490,7 +479,7 @@ public class ReflectedShader implements Disposable {
         public StructType struct;
         public int baseTypeRaw;
         public BaseType baseType;
-        public int vecSize;
+        public int multiWrite;
 
     }
 
@@ -533,6 +522,8 @@ public class ReflectedShader implements Disposable {
         }
 
         public int getSpvc() { return this.spvc; }
+
+        public boolean isDescriptorBuffer() { return this == UBO || this == SSBO; }
 
     }
 

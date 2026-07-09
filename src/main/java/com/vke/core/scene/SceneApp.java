@@ -21,9 +21,9 @@ public class SceneApp extends App implements CompoundFramable {
     @Override
     public void onInit(VKEngine engine) {
         this.engine = engine;
-        engine.service(Services.VULKAN_RENDERER);
         SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
         sceneManager.initialize();
+        engine.service(Services.VULKAN_RENDERER);
 
         try {
             sceneManager.setScene(sceneName);

@@ -7,10 +7,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.ImageLayout;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.CombinedImageSamplerHandle;
-import com.vke.api.rendering.vulkan.descriptors.handles.single.ImageHandle;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
@@ -20,18 +17,17 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.utils.LazyAssetHandle;
 import com.vke.core.profiler.AppTimer;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.VulkanImage;
 import com.vke.core.vulkan.texture.VulkanTexture;
-import com.vke.core.vulkan.vertexconsumer.FastVertexConsumer;
+import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -48,10 +44,9 @@ public class MainScene extends Scene {
     private VulkanComputePipeline computePipeline;
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
     private LazyAssetHandle<RenderPipeline> DYNAMIC = R.pipelines.get("dynamic_vertices_test.pipeline.json");
-    private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
-    private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
+    //private LazyAssetHandle<ComputePipeline> COMPUTE = R.compute_pipelines.get("funny_stuff.funny_stuff.json");
+    //private LazyAssetHandle<RenderPipeline> QUAD = R.pipelines.get("fullscreen_quad.pipeline.json");
 
-    private ImageHandle compute_image;
 
     private PushConstantHandle projMatrixHandle;
     private PushConstantHandle transformMatrixHandle;
@@ -59,7 +54,6 @@ public class MainScene extends Scene {
     private PushConstantHandle dvProjMatrixHandle;
     private PushConstantHandle dvTransformMatrixHandle;
 
-    private CombinedImageSamplerHandle fullScreenSampler;
 
     private VertexConsumer<DynamicTestVertex> consumer;
 
@@ -92,8 +86,8 @@ public class MainScene extends Scene {
 
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
-        computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
-        fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
+        //computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
+        //fullScreenPipeline = (VulkanRenderPipeline) QUAD.assume(context);
         
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
@@ -102,19 +96,17 @@ public class MainScene extends Scene {
         dvTransformMatrixHandle = dynamicVertsPipeline.resolvePushConstant("translation");
 
 
-        sw = renderer.swapchain;
+        //sw = renderer.swapchain;
 
         renderer.immediateSubmit((stack, cmd) -> {
             tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
         });
 
-        compute_image = computePipeline.resolveUniform("image");
-        compute_image.set(tex);
-        computePipeline.updateUniforms(compute_image);
+        //compute_image = computePipeline.resolveUniform("image");
+        //compute_image.set(tex);
 
-        fullScreenSampler = fullScreenPipeline.resolveUniform("image");
-        fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
-        fullScreenPipeline.updateUniforms(fullScreenSampler);
+        //fullScreenSampler = fullScreenPipeline.resolveUniform("image");
+        //fullScreenSampler.set(R.textures.get("scaryvulkan.png").assume(context), Samplers.LINEAR);
 
         consumer = new FastVertexConsumer<>(context.getEngine(), context.service(Services.VULKAN_RENDERER), new DynamicTestVertex(0, 0, 0, 0, 0, 0, 0));
 
@@ -144,7 +136,7 @@ public class MainScene extends Scene {
     }
 
     @Override
-    public void onDraw(DrawContext ctx) {
+    public void onDraw(FrameContext ctx) {
         timer.onFrameStart();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();

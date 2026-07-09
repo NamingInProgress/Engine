@@ -1,42 +1,62 @@
 package com.vke.core.vulkan.service;
 
 import com.vke.api.app.Framable;
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.data.IFrameDataManager;
+import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.ImageHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.draw.DrawContext;
+import com.vke.core.rendering.draw.FrameContext;
+import com.vke.core.rendering.pipeline.RenderPipelines;
+import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.VulkanFrame;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.tuple.Pair;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static com.vke.core.VKEngine.profiler;
 
 public class VulkanRenderer extends ServiceImpl implements Renderer {
-    private static final String HERE = "VulkanRenderer";
 
-    private final int FRAMES_IN_FLIGHT;
-
-    public VulkanSwapchain swapchain;
+    // Vulkan Stuff
+    private VulkanSwapchain swapchain;
     private VulkanRenderDevice device;
     private VulkanFrame[] frames;
     private VulkanFence[] imagesInFlight;
@@ -44,28 +64,33 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     private VulkanFrame immediateFrame;
 
-    private int currentFrameIndex = 0;
+    private EngineDescriptorSetsManager engineSetsManager;
 
     // Engine infos
     private final VKEngine engine;
     private final Context context;
     private final EngineCreateInfo createInfo;
+    private final FrameCounter frameCounter;
+
+    private final VulkanVertexConsumerProvider vertexConsumerProvider;
+
+    private int bindlessTexturesCount;
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.VULKAN_RENDERER, context.getEngine());
-        this.FRAMES_IN_FLIGHT = createInfo.vulkanCreateInfo.framesInFlight;
+        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.context = context;
         this.createInfo = createInfo;
+        this.vertexConsumerProvider = new VulkanVertexConsumerProvider(context, this);
     }
 
     @Override
     protected void onInitialize() {
-        this.device = new VulkanRenderDevice(context, createInfo);
+        this.device = new VulkanRenderDevice(context, createInfo, this);
+        this.bindlessTexturesCount = Math.min(device.capabilities().maxBindlessSampledImages, 8192);
         this.swapchain = device.createSwapchain(
                 new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
-        this.frames = device.createFrames(swapchain);
-        this.immediateFrame = device.createImmediateFrame(swapchain);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
 
@@ -74,12 +99,35 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         }
 
         Samplers.init(device);
+
+        // VKE shader to set default descriptors via reflection instead of hard coding
+        var temp = R.shaders.get("shaders/vke_sets.vsh");
+        Shader s = null;
+        try {
+            s = temp.acquire(context);
+        } catch (IOException e) {
+            context.throwException(new IllegalStateException("Couldnt load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
+        }
+        engineSetsManager = new EngineDescriptorSetsManager(context, this, device,
+                context.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
+                        .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
+        s.free();
+        engineSetsManager.ENGINE_PIPELINE_LAYOUT = VulkanPipelineLayout.getLayout(context.getEngine(), device, null,
+                engineSetsManager.ENGINE_LAYOUTS.entrySet().stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .map(Map.Entry::getValue)
+                .toList());
+        engineSetsManager.makeFrameDataManager();
+
+        this.immediateFrame = device.createImmediateFrame(swapchain);
+        this.frames = device.createFrames(swapchain);
+        RenderPipelines.init(context);
     }
 
     public FrameData startFrame(Window window, Framable f) {
         MemoryStack stack = MemoryStack.stackPush();
 
-        VulkanFrame frame = frames[currentFrameIndex];
+        VulkanFrame frame = frames[frameCounter.currentIndex()];
         VulkanFence fence = frame.getRenderFence();
 
         profiler.begin("Frame Fence");
@@ -88,7 +136,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         profiler.begin("Image Acquire");
         int imageIndex = swapchain.acquireNextImage(frame.getImageSemaphore());
-        if (imageIndex < 0) {
+        if (imageIndex < 0 || imageIndex > imagesInFlight.length) {
             int errorCode = ~imageIndex;
             if (errorCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR) {
                 swapchain.recreate();
@@ -117,7 +165,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
         profiler.begin("Begin");
         cmd.begin();
-        f.preRendering(new DrawContext(cmd, swapchain.getExtent(), window));
+        f.preRendering(new FrameContext(cmd, swapchain.getExtent(), window));
         cmd.beginRendering();
         profiler.end();
         profiler.end();
@@ -131,15 +179,23 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         cmd.setViewport(wp);
         cmd.setScissor(sc);
 
-        DrawContext context = new DrawContext(cmd, swapchain.getExtent(), window);
+        FrameContext context = new FrameContext(cmd, swapchain.getExtent(), window);
+
+        getEngineSetsManager().onFrame();
+
         return new FrameData(frame, stack, imageIndex, context);
     }
 
     public void endFrame(FrameData frameData, Framable f) {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
+        //VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
+        //        layout.getGroup().getHandleCache().values().stream()
+        //                .filter(e -> e instanceof BufferHandle)
+        //                .forEach(uh -> ((BufferHandle) uh).nextFrame()));
+
         cmd.endRendering();
-        f.postRendering(new DrawContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
+        f.postRendering(new FrameContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
         cmd.end();
 
         device.submit(cmd, new CommandBuffer.SubmitInfo(
@@ -153,7 +209,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         swapchain.present(imagePresentInFlight[frameData.imageIndex]);
 
         frameData.stack().close();
-        currentFrameIndex = (currentFrameIndex + 1) % FRAMES_IN_FLIGHT;
+        this.frameCounter.nextFrame();
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
@@ -189,15 +245,39 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         return this.device;
     }
 
-    public int getFramesInFlight() { return this.FRAMES_IN_FLIGHT; }
+    @Override
+    public FrameCounter getFrameCounter() {
+        return this.frameCounter;
+    }
 
-    public int getCurrentFrameIndex() { return this.currentFrameIndex; }
+    @Override
+    public ITextureManager textureManager() {
+        return getEngineSetsManager().textureManager;
+    }
+
+    @Override
+    public IFrameDataManager frameDataManager() {
+        return getEngineSetsManager().frameDataManager;
+    }
+
+    @Override
+    public VertexConsumerProvider getVertexConsumerProvider() {
+        return this.vertexConsumerProvider;
+    }
+
+    public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }
+
+    public void scheduleDescriptorUpdate(VulkanPipelineLayout layout, UniformHandle handle) {
+        getEngineSetsManager().scheduleDescriptorUpdate(layout, handle, frameCounter);
+    }
+
+    public int getBindlessTexturesCount() { return this.bindlessTexturesCount; }
 
     @Override
     public void free() {
-        Samplers.NEAREST.free();
-        Samplers.LINEAR.free();
+        Samplers.free();
         // Pipelines get freed by the asset manager
+        engineSetsManager.free();
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
         this.immediateFrame.free();
@@ -205,6 +285,19 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         this.device.free();
     }
 
-    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, DrawContext context) {}
+    public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, FrameContext context) {}
+
+    public static class IntWrapper {
+
+        public IntWrapper() {
+            anInt = 0;
+        }
+
+        public IntWrapper(int val) {
+            anInt = val;
+        }
+
+        public int anInt;
+    }
 
 }
