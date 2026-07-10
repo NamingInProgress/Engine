@@ -3,6 +3,7 @@ package com.vke.test.rendering;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
@@ -17,6 +18,7 @@ import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
+import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
 import com.vke.utils.io.Identifier;
@@ -39,7 +41,7 @@ public class BatchedVertexConsumerTest extends Scene {
 
     private PushConstantHandle projMatrixHandle, transformMatrixHandle;
     private PushConstantHandle proj, transform;
-    private MultiWriteBufferHandle matricesBuf;
+    private BufferHandle matricesBuf;
 
     private StaticMeshBuffer mesh;
     private MeshPrefab prefab;
@@ -49,6 +51,7 @@ public class BatchedVertexConsumerTest extends Scene {
 
     @Override
     public void onLoad() {
+        getRenderer().textureManager().withSampler(Samplers.NEAREST);
         pipeline = (VulkanRenderPipeline) PL.assume(context);
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
 

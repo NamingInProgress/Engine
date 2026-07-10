@@ -3,6 +3,7 @@ package com.vke.core.rendering.texture;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.core.Context;
@@ -10,6 +11,7 @@ import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.core.vulkan.sampler.VulkanSampler;
 import com.vke.core.vulkan.service.VulkanRenderer;
 
 import java.util.HashMap;
@@ -26,12 +28,15 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
     private final Context ctx;
     private final VulkanRenderer renderer;
 
+    private Sampler sampler;
+
     public VulkanTextureManager(Context ctx, EngineDescriptorSetsManager mgr, VulkanRenderDevice device, int bindlessTexturesCount) {
         BINDLESS_TEXTURES_COUNT = bindlessTexturesCount;
         bindlessTextures = new Texture[BINDLESS_TEXTURES_COUNT];
         this.mgr = mgr;
         this.ctx = ctx;
         this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName).assumeImplementation();
+        this.sampler = Samplers.LINEAR;
     }
 
     @SubscribeEvent
@@ -58,7 +63,7 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
 
         bindlessTextures[firstFree] = tex;
         textures.put(tex, firstFree);
-        BINDLESS_HANDLE.set(tex, Samplers.LINEAR, firstFree);
+        BINDLESS_HANDLE.set(tex, sampler, firstFree);
         renderer.scheduleDescriptorUpdate(mgr.ENGINE_PIPELINE_LAYOUT, BINDLESS_HANDLE);
         return firstFree;
     }
@@ -74,6 +79,11 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
     @Override
     public void removeTexture(Texture tex) {
         // TODO: implement
+    }
+
+    @Override
+    public void withSampler(Sampler sampler) {
+        this.sampler = sampler;
     }
 
 }

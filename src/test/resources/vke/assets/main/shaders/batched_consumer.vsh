@@ -10,7 +10,7 @@ layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec2 UV;
 layout (location = 2) out flat int outTexId;
 
-#include("vke/assets/global/shaders/vke_sets.vsh")
+#include("vke:assets/global/shaders/vke_sets.gdef")
 
 layout (std430, set = 2, binding = 0) readonly buffer MatrixStack {
     #DefaultSize(1024)
