@@ -78,18 +78,8 @@ public class ShaderPreprocessor {
                         int includeStart = token.start;
                         int includeEnd = includeTokens.get(includeTokens.size() - 1).end;
                         modifications.add(new Modification(includeStart, includeEnd, replacement.text()));
-                    }
-                    else {
-                        Optional<PreprocessorCommand> cmd = Arrays.stream(PreprocessorCommand.values())
-                                .filter(c -> c.name.equals(command.value))
-                                .findFirst();
-
-                        if (cmd.isPresent()) {
-                            consume(remove, token);
-                            consume(remove, command);
-
-                            cmd.get().processFunction.accept(remove, lexer, meta);
-                        }
+                    } else {
+                        parseCommand(remove, lexer, meta, command, token);
                     }
                 }
             }
@@ -114,16 +104,30 @@ public class ShaderPreprocessor {
         return sb.toString();
     }
 
+    public void parseCommand(ArrayList<SPPLexer.SPPToken> remove, SPPLexer lexer, ShaderMetadata meta,
+                             SPPLexer.SPPToken command, SPPLexer.SPPToken token) {
+        Optional<PreprocessorCommand> cmd = Arrays.stream(PreprocessorCommand.values())
+                .filter(c -> c.name.equals(command.value))
+                .findFirst();
+
+        if (cmd.isPresent()) {
+            consume(remove, token);
+            consume(remove, command);
+
+            cmd.get().processFunction.accept(remove, lexer, meta);
+        }
+    }
+
     public void parseMultiWrite(ArrayList<SPPLexer.SPPToken> remove, SPPLexer lexer, ShaderMetadata meta) {
         consume(remove, expectAfter(lexer, SPPLexer.TokenType.LPAREN));
         int count = (int) consume(remove, expectAfter(lexer, SPPLexer.TokenType.NUM_LITERAL)).value;
         consume(remove, expectAfter(lexer, SPPLexer.TokenType.RPAREN));
-        String name = getStructNameAfterCommand(lexer);
+        String name = getStructNameAfterCommand(remove, meta, lexer);
         meta.multipleWrites.put(name, count);
     }
 
     public void parseStatic(ArrayList<SPPLexer.SPPToken> remove, SPPLexer lexer, ShaderMetadata meta) {
-        meta.staticBuffers.add(getStructNameAfterCommand(lexer));
+        meta.staticBuffers.add(getStructNameAfterCommand(remove, meta, lexer));
     }
 
     public void parseDefaultSize(ArrayList<SPPLexer.SPPToken> remove, SPPLexer lexer, ShaderMetadata meta) {
@@ -169,16 +173,22 @@ public class ShaderPreprocessor {
         return next;
     }
 
-    public String getStructNameAfterCommand(SPPLexer lexer) {
+    public String getStructNameAfterCommand(ArrayList<SPPLexer.SPPToken> remove, ShaderMetadata meta, SPPLexer lexer) {
         expectAfter(lexer, SPPLexer.TokenType.LITERAL);
         SPPLexer.SPPToken token;
         do {
             token = lexer.nextToken();
         } while (token.type != SPPLexer.TokenType.RPAREN);
-        expectAfter(lexer, SPPLexer.TokenType.LITERAL);
+        if (expectAfter(lexer, SPPLexer.TokenType.LITERAL).value.equals("readonly")) {
+            expectAfter(lexer, SPPLexer.TokenType.LITERAL);
+        }
         expectAfter(lexer, SPPLexer.TokenType.LITERAL);
         do {
             token = lexer.nextToken();
+            if (token.type == SPPLexer.TokenType.HASHTAG) {
+                SPPLexer.SPPToken command = lexer.nextToken();
+                parseCommand(remove, lexer, meta, command, token);
+            }
         } while (token.type != SPPLexer.TokenType.RBRACE);
         return (String) expectAfter(lexer, SPPLexer.TokenType.LITERAL).value;
     }

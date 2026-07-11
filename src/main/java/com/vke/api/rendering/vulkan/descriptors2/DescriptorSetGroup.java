@@ -77,7 +77,7 @@ public class DescriptorSetGroup {
         DescriptorBinding binding = null;
 
         for (int i = 0; i < parent.descriptorCount(); i++) {
-            DescriptorSetInstance descriptorSet = parent.getUserSets().get(i);
+            DescriptorSetInstance descriptorSet = parent.getSets().get(i);
             if (descriptorSet.bindings.containsKey(root.name)) {
                 binding = descriptorSet.bindings.get(root.name);
                 set = descriptorSet;

@@ -98,8 +98,14 @@ public class StaticMeshBuffer implements Disposable, Drawable {
         VulkanCmdBuffers cmd = (VulkanCmdBuffers) ctx.getCommandBuffer();
         bindIBO(ctx);
         bindVBO(ctx);
+        cmd.drawIndexed(this.getIndexCount(), 1, 0, 0, 0);
+    }
 
-        VK14.vkCmdDrawIndexed(cmd.getBuffer(), this.getIndexCount(), 1, 0, 0, 0);
+    @Override
+    public void drawInstanced(FrameContext ctx, int instanceCount) {
+        bindIBO(ctx);
+        bindVBO(ctx);
+        ctx.getCommandBuffer().drawIndexed(this.getIndexCount(), instanceCount, 0, 0, 0);
     }
 
     @Override

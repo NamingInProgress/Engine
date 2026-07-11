@@ -2,7 +2,6 @@ package com.vke.core.vulkan.command;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
@@ -26,7 +25,6 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -222,10 +220,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
         VulkanPipelineLayout l = (VulkanPipelineLayout) p.layout();
         l.writeHandles();
 
-        long[] sets = new long[l.getUserSets().size()];
+        long[] sets = new long[l.getSets().size()];
         List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
 
-        List<DescriptorSetInstance> userSets = l.getUserSets();
+        List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {
             DescriptorSetInstance userSet = userSets.get(i);
             sets[i] = userSet.getSet().getHandle();

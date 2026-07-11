@@ -46,8 +46,7 @@ public class BufferHandle extends UniformHandle {
     }
 
     public void nextFrame() {
-        if (this.bufBinding.buffer instanceof MappedGpuRingBuffer buf)
-            buf.rotate();
+        this.bufBinding.nextFrame();
     }
 
     public long getOffset() {

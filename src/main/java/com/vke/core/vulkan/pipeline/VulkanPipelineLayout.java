@@ -47,7 +47,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final PushConstants pushConstants;
 
     private final DescriptorAllocator alloc;
-    private final List<DescriptorSetInstance> userSets = new ArrayList<>();
+    private final List<DescriptorSetInstance> sets = new ArrayList<>();
 
     private DescriptorSetGroup group;
     private boolean free;
@@ -83,17 +83,17 @@ public class VulkanPipelineLayout implements PipelineLayout {
             for (int i = 0; i < layouts.size(); i++) {
                 var ds = new DescriptorSetInstance(engine, device, alloc, layouts.get(i), fc, i);
                 engineSets.INSTANCES.add(ds);
-                userSets.add(ds);
+                sets.add(ds);
             }
             engineSetsEnd = engineSets.highestSet + 1;
         } else {
-            userSets.addAll(engineSets.INSTANCES);
+            sets.addAll(engineSets.INSTANCES);
         }
 
         for (int i = engineSetsEnd; i < layouts.size(); i++) {
             DescriptorSetLayout layout = layouts.get(i);
             var ds = new DescriptorSetInstance(engine, device, alloc, layout, fc, i);
-            userSets.add(ds);
+            sets.add(ds);
         }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -109,10 +109,10 @@ public class VulkanPipelineLayout implements PipelineLayout {
                         .stageFlags(VK14.VK_SHADER_STAGE_ALL);
             }
 
-            LongBuffer pDescriptors = stack.longs(userSets.stream().mapToLong(set -> set.getCompiledLayout().getHandle()).toArray());
+            LongBuffer pDescriptors = stack.longs(sets.stream().mapToLong(set -> set.getCompiledLayout().getHandle()).toArray());
 
             createInfo.pSetLayouts(pDescriptors);
-            createInfo.setLayoutCount(userSets.size());
+            createInfo.setLayoutCount(sets.size());
             createInfo.pPushConstantRanges(pushConstantsBuffer);
 
             LongBuffer pLayout = stack.mallocLong(1);
@@ -133,12 +133,12 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     @Override
     public int descriptorCount() {
-        return userSets.size();
+        return sets.size();
     }
 
     public long getHandle() { return this.handle; }
 
-    public List<DescriptorSetInstance> getUserSets() { return this.userSets; }
+    public List<DescriptorSetInstance> getSets() { return this.sets; }
 
     public PushConstants pushConstants() {
         return pushConstants;
@@ -150,7 +150,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     }
 
     public long getSetHandle(int set) {
-        return getUserSets().get(set).getSet().getHandle();
+        return getSets().get(set).getSet().getHandle();
     }
 
     public void writeHandles() {
@@ -187,7 +187,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     public void free() {
         if (!free) {
             // destroy descriptors and stuff
-            this.userSets.forEach(Disposable::free);
+            this.sets.forEach(Disposable::free);
             this.alloc.free();
             if (pushConstants != null) {
                 pushConstants.free();

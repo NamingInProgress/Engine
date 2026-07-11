@@ -4,7 +4,6 @@ import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
-import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
@@ -18,14 +17,12 @@ import com.vke.core.Context;
 import com.vke.core.rendering.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
-import com.vke.core.vulkan.buffers.MappedBuffer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shr.ReflectedShader;
-import com.vke.core.vulkan.utils.VKUtils;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.tuple.Pair;
@@ -73,7 +70,7 @@ public class EngineDescriptorSetsManager implements Disposable {
     }
 
     public List<Integer> getDynamicOffsets() {
-        return ENGINE_PIPELINE_LAYOUT.getUserSets().stream()
+        return ENGINE_PIPELINE_LAYOUT.getSets().stream()
                 .flatMap(instance -> instance.bindings.values().stream()
                         .filter(binding -> binding instanceof BufferBinding)
                         .map(binding -> ((BufferBinding) binding).buffer)

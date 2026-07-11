@@ -105,7 +105,6 @@ public class BatchedVertexConsumerTest extends Scene {
         ctx.getCommandBuffer().bindPipeline(PL);
 
         ctx.getCommandBuffer().setPushConstants(PL);
-        consumer.beginFrame();
 
         var ms = shapeRenderer.getMatrixStack();
 
@@ -168,8 +167,6 @@ public class BatchedVertexConsumerTest extends Scene {
     }
 
     @Override
-    public void free() {
-        this.consumer.free();
-    }
+    public void free() {}
 
 }

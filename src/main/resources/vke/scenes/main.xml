@@ -1,5 +1,5 @@
 <scene>
-    <class name="com.vke.app.DemoScene"/>
+    <class name="com.vke.demo.DemoScene"/>
     <bundles>
         <bundle name="main"/>
     </bundles>

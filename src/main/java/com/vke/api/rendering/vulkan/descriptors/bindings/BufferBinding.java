@@ -3,6 +3,7 @@ package com.vke.api.rendering.vulkan.descriptors.bindings;
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.core.vulkan.buffers.MappedBuffer;
+import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 
 public class BufferBinding extends DescriptorBinding {
 
@@ -19,6 +20,11 @@ public class BufferBinding extends DescriptorBinding {
         this.numBuffers = (int) (buffer.getSize() / singleBufferSize);
         this.packingType = packingType;
         this.multiWrite = multiWrite;
+    }
+
+    public void nextFrame() {
+        if (this.buffer instanceof MappedGpuRingBuffer buf)
+            buf.rotate();
     }
 
     public void setBuffer(MappedBuffer newBuffer) {

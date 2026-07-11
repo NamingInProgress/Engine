@@ -166,6 +166,12 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         matrixStack.reset();
     }
 
+    @Override
+    public void drawInstanced(FrameContext ctx, int instanceCount) {
+        consumer.drawInstanced(ctx, instanceCount);
+        matrixStack.reset();
+    }
+
     public MatrixStack getMatrixStack() {
         return this.matrixStack;
     }

@@ -1,4 +1,4 @@
-package com.vke.app;
+package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
@@ -9,7 +9,6 @@ import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
-import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 

@@ -11,15 +11,8 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
+import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.ImageHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
@@ -40,10 +33,8 @@ import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
-import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
-import com.vke.utils.tuple.Pair;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
@@ -182,6 +173,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         FrameContext context = new FrameContext(cmd, swapchain.getExtent(), window);
 
         getEngineSetsManager().onFrame();
+        getVertexConsumerProvider().beginFrame();
 
         return new FrameData(frame, stack, imageIndex, context);
     }
@@ -189,10 +181,12 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     public void endFrame(FrameData frameData, Framable f) {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
-        //VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
-        //        layout.getGroup().getHandleCache().values().stream()
-        //                .filter(e -> e instanceof BufferHandle)
-        //                .forEach(uh -> ((BufferHandle) uh).nextFrame()));
+        try {
+            VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
+                    layout.getSets().forEach(set -> set.bindings.values()
+                            .stream().filter(binding -> binding instanceof BufferBinding)
+                            .forEach(b -> ((BufferBinding) b).nextFrame())));
+        } catch (ConcurrentModificationException _) {} // I think this happens when asset loader loads a pipeline off thread but whatever
 
         cmd.endRendering();
         f.postRendering(new FrameContext(cmd, swapchain.getExtent(), frameData.context().getWindow()));
@@ -275,6 +269,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     @Override
     public void free() {
+        getVertexConsumerProvider().free();
         Samplers.free();
         // Pipelines get freed by the asset manager
         engineSetsManager.free();
