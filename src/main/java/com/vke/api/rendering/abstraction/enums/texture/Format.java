@@ -107,6 +107,14 @@ public enum Format implements IntEnum {
         return Option.useIfNotFaulty(() -> Format.valueOf(name));
     }
 
+    public boolean isDepth() {
+        return this == DEPTH16 || this == DEPTH32F || this == DEPTH24_STENCIL8 || this == DEPTH32F_STENCIL8;
+    }
+
+    public boolean isStencil() {
+        return this == STENCIL8 || this == DEPTH24_STENCIL8 || this == DEPTH32F_STENCIL8;
+    }
+
     public static Format fromBaseType(BaseType type, int size) {
         return switch (type) {
             // --- FLOAT ---

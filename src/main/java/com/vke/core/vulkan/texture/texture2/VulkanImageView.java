@@ -1,0 +1,62 @@
+package com.vke.core.vulkan.texture.texture2;
+
+import com.vke.api.rendering.abstraction.data.ImageView;
+import com.vke.core.vulkan.device.VulkanRenderDevice;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK14;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
+import org.lwjgl.vulkan.VkImageViewCreateInfo;
+
+import java.nio.LongBuffer;
+
+public class VulkanImageView implements ImageView {
+
+    private final ImageViewDesc desc;
+    private final VulkanRenderDevice device;
+
+    private final long handle;
+
+    @SuppressWarnings("all")
+    public VulkanImageView(VulkanRenderDevice device, ImageViewDesc desc) {
+        this.desc = desc;
+        this.device = device;
+
+        if (desc.mipCount == -1) desc.mipCount = VK14.VK_REMAINING_MIP_LEVELS;
+        if (desc.layerCount == -1) desc.layerCount = VK14.VK_REMAINING_ARRAY_LAYERS;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
+                    .aspectMask(desc.aspect.getVkHandle())
+                    .baseMipLevel(desc.baseMip)
+                    .levelCount(desc.mipCount)
+                    .baseArrayLayer(desc.baseLayer)
+                    .layerCount(desc.layerCount);
+
+            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .image(((VulkanTexture) desc.tex).getHandle())
+                    .viewType(desc.type.getVkHandle())
+                    .format(desc.format.getVkHandle())
+                    .subresourceRange(subresourceRange);
+
+            LongBuffer pImageView = stack.mallocLong(1);
+            if (VK14.vkCreateImageView(device.getLogicalDevice().getDevice(), createInfo, null, pImageView) != VK14.VK_SUCCESS) {
+                throw new IllegalStateException("Failed to create image view");
+            }
+
+            handle = pImageView.get(0);
+        }
+    }
+
+    @Override
+    public ImageViewDesc description() {
+        return desc;
+    }
+
+    public long getHandle() { return handle; }
+
+    @Override
+    public void free() {
+        VK14.vkDestroyImageView(this.device.getLogicalDevice().getDevice(), this.handle, null);
+    }
+}
