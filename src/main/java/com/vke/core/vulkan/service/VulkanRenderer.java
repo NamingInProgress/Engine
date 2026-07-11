@@ -13,6 +13,7 @@ import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
@@ -182,10 +183,14 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
         try {
-            VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout ->
-                    layout.getSets().forEach(set -> set.bindings.values()
-                            .stream().filter(binding -> binding instanceof BufferBinding)
-                            .forEach(b -> ((BufferBinding) b).nextFrame())));
+            VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {
+                layout.getSets().forEach(set -> set.bindings.values()
+                        .stream().filter(binding -> binding instanceof BufferBinding)
+                        .forEach(b -> ((BufferBinding) b).nextFrame()));
+                layout.getGroup().getHandleCache().values().stream()
+                        .filter(uh -> uh instanceof BufferHandle)
+                        .forEach(uh -> ((BufferHandle) uh).nextFrame());
+            });
         } catch (ConcurrentModificationException _) {} // I think this happens when asset loader loads a pipeline off thread but whatever
 
         cmd.endRendering();

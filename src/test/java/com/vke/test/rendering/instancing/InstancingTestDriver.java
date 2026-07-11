@@ -4,6 +4,7 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.FrameContext;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 public class InstancingTestDriver extends PipelineDriver {
 
     private final VulkanRenderPipeline p;
-    private final BufferHandle matrixBuffer;
+    private final MultiWriteBufferHandle matrixBuffer;
     private final PushConstantHandle projection;
 
     private final ArrayList<Matrix4f> matrices = new ArrayList<>();
@@ -39,6 +40,10 @@ public class InstancingTestDriver extends PipelineDriver {
     public void clear() {
         this.matrices.clear();
     }
+
+    public void next() { matrixBuffer.advance(); }
+
+    public void reset() { matrixBuffer.reset(); }
 
     @Override
     public void use(FrameContext context) {

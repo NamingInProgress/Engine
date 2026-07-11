@@ -9,6 +9,7 @@ layout (location = 1) out vec3 outNormal;
 
 #include("vke:assets/global/shaders/vke_sets.gdef")
 
+#MultipleWrites(2)
 layout(std430, set = 2, binding = 0) readonly buffer SSBO {
     #DefaultSize(1024)
     mat4 matrices[];

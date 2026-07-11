@@ -62,46 +62,55 @@ public class InstancingTestScene extends Scene {
                 .translate(-400, 300, -550)
                 .scale(10, 10, 10)
                 .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(-200, 300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(0, 300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(200, 300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(400, 300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle)); //
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(-400, -300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(-200, -300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(0, -300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(200, -300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
-        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-                .translate(400, -300, -550)
-                .scale(10, 10, 10)
-                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(-200, 300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(0, 300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(200, 300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(400, 300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle)); //
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(-400, -300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(-200, -300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(0, -300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(200, -300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
+//        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+//                .translate(400, -300, -550)
+//                .scale(10, 10, 10)
+//                .rotateY(angle));
         TestRenderPipelines.INSTANCING.use(ctx);
         mesh.bindIBO(ctx);
         mesh.bindVBO(ctx);
-        mesh.drawInstanced(ctx, 10);
+        mesh.drawInstanced(ctx, 1);
+        TestRenderPipelines.INSTANCING.next();
+        TestRenderPipelines.INSTANCING.clear();
+
+        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+            .translate(400, -300, -550)
+            .scale(10, 10, 10)
+            .rotateY(angle));
+        TestRenderPipelines.INSTANCING.use(ctx);
+        mesh.drawInstanced(ctx, 1);
     }
 
     @Override
