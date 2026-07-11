@@ -126,4 +126,7 @@ public class Identifier {
                 Objects.equals(path, myKey.path);
     }
 
+    public Identifier extendRaw(String ext) {
+        return new Identifier(this.namespace, this.path + ext);
+    }
 }

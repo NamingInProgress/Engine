@@ -17,21 +17,30 @@ import java.util.List;
 public class SchemaObjectType extends SchemaType {
     @JsonMarker("fields")
     private final List<SchemaField> fields;
+    private boolean hasFieldRules;
 
     public SchemaObjectType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
         this.type = Type.Object;
         this.fields = new ArrayList<>();
-        ConfigArrayNode fieldsArray = Configs.getArray(node, "fields");
-        for (ConfigNode fieldNode : fieldsArray.values()) {
-            SchemaField field = new SchemaField(fieldNode, ctx);
-            this.fields.add(field);
+        if (node.hasField("fields")) {
+            this.hasFieldRules = true;
+
+            ConfigArrayNode fieldsArray = Configs.getArray(node, "fields");
+            for (ConfigNode fieldNode : fieldsArray.values()) {
+                SchemaField field = new SchemaField(fieldNode, ctx);
+                this.fields.add(field);
+            }
+        } else {
+            this.hasFieldRules = false;
         }
     }
 
     @Override
     public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (node instanceof ConfigObjectNode objectNode) {
+            if (!hasFieldRules) return;
+
             for (String fieldName : objectNode.getDescendants().keySet()) {
                 if (fields.stream().noneMatch(f -> f.getName().equals(fieldName))) {
                     result.addError(SchemaValidationResult.ValidationError.illegalField(fieldName, path));
@@ -57,6 +66,9 @@ public class SchemaObjectType extends SchemaType {
         super(null, null);
         this.type = Type.Object;
         this.fields = fields;
+        if (!fields.isEmpty()) {
+            this.hasFieldRules = true;
+        }
     }
 
     public List<SchemaField> getFields() {

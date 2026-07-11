@@ -15,7 +15,7 @@ import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
-import com.vke.core.assets.handles.utils.LazyAssetHandle;
+import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.profiler.AppTimer;
 import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;

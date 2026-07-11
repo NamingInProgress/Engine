@@ -1,26 +1,18 @@
-package com.vke.core.assets.handles.utils;
+package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.AssetMeta;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
 public class ResolvedAssetHandle<T> implements AssetHandle<T> {
-    private final String protocol;
     private final T data;
-    private final Identifier assetName;
+    private final AssetMeta meta;
 
-    public ResolvedAssetHandle(String protocol, T data, Identifier assetName) {
-        this.protocol = protocol;
+    public ResolvedAssetHandle(T data, AssetMeta meta) {
         this.data = data;
-        this.assetName = assetName;
-    }
-
-    @Override
-    public String getProtocol() {
-        return protocol;
+        this.meta = meta;
     }
 
     @Override
@@ -39,8 +31,8 @@ public class ResolvedAssetHandle<T> implements AssetHandle<T> {
     }
 
     @Override
-    public Identifier getAssetName() {
-        return assetName;
+    public AssetMeta getMeta() {
+        return meta;
     }
 
     @Override

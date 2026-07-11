@@ -7,8 +7,6 @@ import com.vke.utils.io.Identifier;
 import java.io.IOException;
 
 public interface AssetHandle<T> extends Disposable {
-    String getProtocol();
-
     /**
      * Returns the underlying asset and obtains it from the AssetManager if it's not available.
      * @return the asset
@@ -23,5 +21,5 @@ public interface AssetHandle<T> extends Disposable {
 
     boolean isAvailable();
 
-    Identifier getAssetName();
+    AssetMeta getMeta();
 }
