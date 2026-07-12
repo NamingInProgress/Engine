@@ -50,7 +50,11 @@ public class BufferHandle extends UniformHandle {
     }
 
     public long getOffset() {
-        return bufBinding.singleBufferSize * fc.currentIndex() + offset;
+        if (bufBinding.buffer instanceof MappedGpuRingBuffer rb) {
+            return rb.getOffset() + offset;
+        }
+        return 0;
+        //return bufBinding.singleBufferSize * fc.currentIndex() + offset;
     }
 
     public void write(Consumer<BufferSlice> writer) {

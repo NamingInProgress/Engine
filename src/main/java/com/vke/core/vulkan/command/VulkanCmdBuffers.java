@@ -6,6 +6,7 @@ import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
@@ -13,6 +14,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.LogicalDevice;
@@ -25,8 +27,10 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VulkanCmdBuffers implements CommandBuffer {
 
@@ -221,7 +225,14 @@ public class VulkanCmdBuffers implements CommandBuffer {
         l.writeHandles();
 
         long[] sets = new long[l.getSets().size()];
-        List<Integer> dynamicOffsets = setsMgr.getDynamicOffsets();
+        List<Integer> dynamicOffsets = l.getSets().stream()
+                .flatMap(instance -> instance.bindings.values().stream()
+                        .filter(binding -> binding instanceof BufferBinding)
+                        .map(binding -> ((BufferBinding) binding).buffer)
+                        .filter(buf -> buf instanceof MappedGpuRingBuffer)
+                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset())
+                        .sorted(Comparator.comparingInt(c -> c))
+                ).collect(Collectors.toCollection(ArrayList::new));;
 
         List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {
@@ -229,10 +240,12 @@ public class VulkanCmdBuffers implements CommandBuffer {
             sets[i] = userSet.getSet().getHandle();
         }
 
-        l.getGroup().getHandleCache().values().stream()
-                .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
-                .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
-                .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
+        //l.getGroup().getHandleCache().values().stream()
+        //        .filter(h -> h instanceof BufferHandle b && b.bufBinding.layout.type.isDynamic())
+        //        .sorted(Comparator.comparingInt((UniformHandle h) -> h.set).thenComparingInt(h -> h.binding))
+        //        .forEach(h -> dynamicOffsets.add((int) ((BufferHandle) h).getOffset()));
+
+
 
         VK14.vkCmdBindDescriptorSets(this.getBuffer(),
                 getBindPoint(p),
