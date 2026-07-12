@@ -8,6 +8,7 @@ import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.Objects;
 
 public class VulkanImageView implements ImageView {
 
@@ -58,5 +59,17 @@ public class VulkanImageView implements ImageView {
     @Override
     public void free() {
         VK14.vkDestroyImageView(this.device.getLogicalDevice().getDevice(), this.handle, null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanImageView that = (VulkanImageView) o;
+        return handle == that.handle && Objects.equals(desc, that.desc);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(desc, handle);
     }
 }

@@ -5,6 +5,8 @@ import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.utils.io.Disposable;
 
+import java.util.Objects;
+
 public interface ImageView extends Disposable {
 
     class ImageViewDesc {
@@ -20,7 +22,7 @@ public interface ImageView extends Disposable {
 
         public final ImageAspect aspect;
 
-        public ImageViewDesc(Texture tex, TextureType type, Format format, int baseMip, int mipCount, int baseLayer, int layerCount) {
+        public ImageViewDesc(Texture tex, TextureType type, Format format, int baseMip, int mipCount, int baseLayer, int layerCount, ImageAspect aspect) {
             this.tex = tex;
             this.type = type;
             this.format = format;
@@ -28,14 +30,19 @@ public interface ImageView extends Disposable {
             this.baseLayer = baseLayer;
             this.mipCount = mipCount;
             this.layerCount = layerCount;
-            if (format.isDepth()) {
-                this.aspect = new ImageAspect(ImageAspect.Bits.DEPTH);
-                if (format.isStencil()) {
-                    this.aspect.or(ImageAspect.Bits.STENCIL);
-                }
-            } else {
-                this.aspect = new ImageAspect(ImageAspect.Bits.COLOR);
-            }
+            this.aspect = aspect.resolve(format); // If the aspect is AUTO it generates based on the format
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            ImageViewDesc that = (ImageViewDesc) o;
+            return baseMip == that.baseMip && baseLayer == that.baseLayer && mipCount == that.mipCount && layerCount == that.layerCount && Objects.equals(tex, that.tex) && type == that.type && format == that.format && Objects.equals(aspect, that.aspect);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(tex, type, format, baseMip, baseLayer, mipCount, layerCount, aspect);
         }
     }
 
@@ -48,6 +55,8 @@ public interface ImageView extends Disposable {
 
         private int baseMip = 0, mipCount = -1;
         private int baseLayer = 0, layerCount = -1;
+
+        private ImageAspect aspect = ImageAspect.AUTO;
 
         public ImageViewDescriptionBuilder(Texture parent) {
             this.tex = parent;
@@ -83,8 +92,13 @@ public interface ImageView extends Disposable {
             return this;
         }
 
+        public ImageViewDescriptionBuilder aspect(ImageAspect aspect) {
+            this.aspect = aspect;
+            return this;
+        }
+
         public ImageViewDesc build() {
-            return new ImageViewDesc(tex, type, format, baseMip, mipCount, baseLayer, layerCount);
+            return new ImageViewDesc(tex, type, format, baseMip, mipCount, baseLayer, layerCount, aspect);
         }
 
     }

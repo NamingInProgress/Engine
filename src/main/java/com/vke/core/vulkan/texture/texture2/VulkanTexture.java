@@ -2,7 +2,9 @@ package com.vke.core.vulkan.texture.texture2;
 
 import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
@@ -16,6 +18,9 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class VulkanTexture implements Texture {
@@ -26,14 +31,22 @@ public class VulkanTexture implements Texture {
     private final long handle;
     private final long allocation;
 
-    private final ArrayList<ImageView> views = new ArrayList<>();
+    private final HashMap<ImageView.ImageViewDesc, ImageView> views = new HashMap<>();
 
     private ImageView defaultView;
-    private ImageLayout layout = ImageLayout.UNDEFINED;
+    private ImageState[][] state; // [mipLevel][arrayLayer]
+    private ImageAspect aspect = ImageAspect.AUTO;
 
     public VulkanTexture(VulkanRenderDevice device, TextureDesc desc) {
         this.desc = desc;
         this.device = device;
+        this.aspect = this.aspect.resolve(desc.format);
+
+        for (int mip = 0; mip < desc.mipLevels; mip++) {
+            for (int layer = 0; layer < desc.arrayLayers; layer++) {
+                state[mip][layer] = ImageState.UNDEFINED;
+            }
+        }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.calloc(stack)
@@ -65,54 +78,72 @@ public class VulkanTexture implements Texture {
     @Override
     public ImageView defaultView() {
         if (defaultView != null) return defaultView;
-        this.defaultView = new VulkanImageView(device, new ImageView.ImageViewDesc(this, desc.type, format(), 0,
-                VK14.VK_REMAINING_MIP_LEVELS, 0, VK14.VK_REMAINING_ARRAY_LAYERS));
-        this.views.add(defaultView);
+        var description = new ImageView.ImageViewDesc(this, desc.type, format(), 0,
+                desc.mipLevels, 0, desc.arrayLayers, ImageAspect.AUTO);
+        this.defaultView = new VulkanImageView(device, description);
+        this.views.put(description, defaultView);
         return defaultView;
     }
 
     @Override
-    public ImageView getView(Function<ImageView.ImageViewDescriptionBuilder, ImageView.ImageViewDesc> consumer) {
-        var view = new VulkanImageView(device, consumer.apply(new ImageView.ImageViewDescriptionBuilder(this)));
-        this.views.add(view);
+    public ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer) {
+        var builder = new ImageView.ImageViewDescriptionBuilder(this);
+        consumer.accept(builder);
+        var desc = builder.build();
+
+        if (views.containsKey(desc)) return views.get(desc);
+
+        var view = new VulkanImageView(device, desc);
+        this.views.put(desc, view);
         return view;
     }
 
     // region Transitions
-    public void transition(VulkanCmdBuffers cmd, ImageLayout newLayout) {
-
+    public void transition(VulkanCmdBuffers cmd, ImageState newState) {
+        transition(cmd, newState, 0, desc.mipLevels, 0, desc.arrayLayers);
     }
 
-    public void transition(VulkanCmdBuffers cmd, ImageLayout newLayout, int baseMip, int mipCount) {
-
+    public void transition(VulkanCmdBuffers cmd, ImageState newState, int baseMip, int mipCount) {
+        transition(cmd, newState, baseMip, mipCount, 0, desc.arrayLayers);
     }
 
-    public void transition(VulkanCmdBuffers cmd, ImageLayout newLayout, int baseMip, int mipCount, int baseLayer, int layerCount) {
-
+    public void transition(VulkanCmdBuffers cmd, ImageState newState, int baseMip, int mipCount, int baseLayer, int layerCount) {
+        transition(cmd, new VulkanImageBarrier(
+                state.getStageMask(),
+                newState.getStageMask(),
+                state.getAccessMask(),
+                newState.getAccessMask(),
+                state.getLayout(),
+                newState.getLayout(),
+                baseMip,
+                mipCount,
+                baseLayer,
+                layerCount,
+                aspect), newState);
     }
 
-    public void transition(VulkanCmdBuffers cmd, VulkanImageBarrier barrier) {
+    public void transition(VulkanCmdBuffers cmd, VulkanImageBarrier barrier, ImageState newState) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange range = VkImageSubresourceRange.calloc(stack)
-                    .aspectMask(barrier.aspectMask)
-                    .baseMipLevel(baseMip)
-                    .levelCount(levelCount)
-                    .baseArrayLayer(baseArray)
-                    .layerCount(layerCount);
+                    .aspectMask(barrier.aspect().getVkHandle())
+                    .baseMipLevel(barrier.baseMip())
+                    .levelCount(barrier.mipCount())
+                    .baseArrayLayer(barrier.baseLayer())
+                    .layerCount(barrier.layerCount());
 
 
             VkImageMemoryBarrier2.Buffer barriers = VkImageMemoryBarrier2.calloc(1, stack);
             barriers.get(0)
                     .sType$Default()
-                    .srcStageMask(srcStageMask)
-                    .srcAccessMask(srcAccessMask)
-                    .dstStageMask(dstStageMask)
-                    .dstAccessMask(dstAccessMask)
-                    .oldLayout(oldLayout.getVkHandle())
-                    .newLayout(newLayout.getVkHandle())
-                    .srcQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
-                    .dstQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
-                    .image(texture)
+                    .srcStageMask(barrier.srcStage())
+                    .srcAccessMask(barrier.srcAccess())
+                    .dstStageMask(barrier.dstStage())
+                    .dstAccessMask(barrier.dstAccess())
+                    .oldLayout(barrier.oldLayout().getVkHandle())
+                    .newLayout(barrier.newLayout().getVkHandle())
+                    .srcQueueFamilyIndex(barrier.srcQueueFamily())
+                    .dstQueueFamilyIndex(barrier.dstQueueFamily())
+                    .image(this.handle)
                     .subresourceRange(range);
 
             VkDependencyInfo dependencyInfo = VkDependencyInfo.calloc(stack)
@@ -120,7 +151,8 @@ public class VulkanTexture implements Texture {
                     .dependencyFlags(0)
                     .pImageMemoryBarriers(barriers);
 
-            VK14.vkCmdPipelineBarrier2(buffers.getBuffer(), dependencyInfo);
+            VK14.vkCmdPipelineBarrier2(cmd.getBuffer(), dependencyInfo);
+            this.state = newState;
         }
     }
     // endregion
@@ -136,7 +168,19 @@ public class VulkanTexture implements Texture {
 
     @Override
     public void free() {
-        views.forEach(Disposable::free);
+        views.values().forEach(Disposable::free);
         Vma.vmaDestroyImage(device.getVmaAllocator(), handle, allocation);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanTexture that = (VulkanTexture) o;
+        return handle == that.handle && allocation == that.allocation && Objects.equals(desc, that.desc) && state == that.state && Objects.equals(aspect, that.aspect);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(desc, handle, allocation, state, aspect);
     }
 }

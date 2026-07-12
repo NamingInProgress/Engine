@@ -6,7 +6,8 @@ import com.vke.api.rendering.abstraction.enums.texture.*;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
 
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public interface Texture extends Disposable, QuadTexture {
 
@@ -44,6 +45,18 @@ public interface Texture extends Disposable, QuadTexture {
             this.generateMips = generateMips;
             this.extent = new Extent3D(width, height, depth);
             this.cubeMap = type == TextureType.TEX_CUBE || type == TextureType.TEX_CUBE_ARRAY;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            TextureDesc that = (TextureDesc) o;
+            return width == that.width && height == that.height && depth == that.depth && mipLevels == that.mipLevels && arrayLayers == that.arrayLayers && generateMips == that.generateMips && cubeMap == that.cubeMap && format == that.format && Objects.equals(usage, that.usage) && samples == that.samples && type == that.type && Objects.equals(memUsage, that.memUsage) && tiling == that.tiling && Objects.equals(extent, that.extent);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(width, height, depth, mipLevels, arrayLayers, format, usage, samples, type, memUsage, tiling, generateMips, cubeMap, extent);
         }
 
         //        public int width, height, depth = 1;
@@ -240,7 +253,7 @@ public interface Texture extends Disposable, QuadTexture {
     default Format format() { return description().format; }
 
     ImageView defaultView();
-    ImageView getView(Function<ImageView.ImageViewDescriptionBuilder, ImageView.ImageViewDesc> consumer);
+    ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer);
     TextureDesc description();
 
     @Override
