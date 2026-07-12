@@ -24,6 +24,6 @@ public interface AssetManager extends Service {
     default String getAssetProtocol(Identifier id) {
         AssetHandle<?> handle = getAsset(id);
         if (handle == null) return Protocols.ANY;
-        return handle.getProtocol();
+        return handle.getMeta().getProtocol();
     }
 }

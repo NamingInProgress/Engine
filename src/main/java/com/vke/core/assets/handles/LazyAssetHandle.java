@@ -1,8 +1,9 @@
-package com.vke.core.assets.handles.utils;
+package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.AssetMeta;
+import com.vke.core.assets.meta.SpatialAssetMeta;
 import com.vke.core.assets.service.AssetManager;
-import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
@@ -10,20 +11,14 @@ import com.vke.utils.io.Identifier;
 import java.io.IOException;
 
 public class LazyAssetHandle<T> implements AssetHandle<T> {
+    private AssetMeta backupMeta;
     private Identifier identifier;
     private AssetHandle<T> cache;
 
     public LazyAssetHandle(Identifier identifier) {
+        this.backupMeta = new SpatialAssetMeta(identifier);
         this.identifier = identifier;
         this.cache = null;
-    }
-
-    @Override
-    public String getProtocol() {
-        if (cache != null) {
-            return cache.getProtocol();
-        }
-        return Protocols.ANY;
     }
 
     @Override
@@ -36,6 +31,7 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
         }
         if ("\0".equals(identifier.getNamespace())) {
             identifier = context.id(identifier.getPath());
+            backupMeta = new SpatialAssetMeta(identifier);
         }
         AssetManager manager = context.service(Services.ASSET_MANAGER);
         AssetHandle<T> assetHandle = manager.getAsset(identifier);
@@ -70,8 +66,11 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
     }
 
     @Override
-    public Identifier getAssetName() {
-        return identifier;
+    public AssetMeta getMeta() {
+        if (cache != null) {
+            return cache.getMeta();
+        }
+        return backupMeta;
     }
 
     @Override

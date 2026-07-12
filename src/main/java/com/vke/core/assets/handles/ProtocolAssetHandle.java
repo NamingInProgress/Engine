@@ -1,5 +1,6 @@
-package com.vke.core.assets.handles.utils;
+package com.vke.core.assets.handles;
 
+import com.vke.api.assets.AssetMeta;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -11,16 +12,14 @@ import com.vke.utils.io.Identifier;
 import java.io.IOException;
 
 public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
-    private final String protocol;
     private final Identifier identifier;
     private final AssetProtocol.Loader protocolLoader;
-    private final Identifier assetName;
+    private final AssetMeta meta;
 
-    public ProtocolAssetHandle(String protocol, Identifier identifier, AssetProtocol.Loader protocolLoader, Identifier assetName) {
-        this.protocol = protocol;
+    public ProtocolAssetHandle(Identifier identifier, AssetProtocol.Loader protocolLoader, AssetMeta meta) {
         this.identifier = identifier;
         this.protocolLoader = protocolLoader;
-        this.assetName = assetName;
+        this.meta = meta;
     }
 
     @Override
@@ -34,18 +33,13 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
     }
 
     @Override
-    public String getProtocol() {
-        return protocol;
-    }
-
-    @Override
-    public Identifier getAssetName() {
-        return assetName;
-    }
-
-    @Override
     public void free() {
         if (get() != null && get() instanceof Disposable d) d.free();
         setCache(null);
+    }
+
+    @Override
+    public AssetMeta getMeta() {
+        return meta;
     }
 }

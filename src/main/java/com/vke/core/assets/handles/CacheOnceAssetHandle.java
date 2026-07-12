@@ -1,8 +1,7 @@
-package com.vke.core.assets.handles.utils;
+package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 
 import java.io.IOException;
 

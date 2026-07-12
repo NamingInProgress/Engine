@@ -101,7 +101,6 @@ public class VulkanSwapchain implements Swapchain {
         VkSurfaceFormatKHR pickedFormat = SwapchainUtils.chooseFormat(formats);
         int presentMode = SwapchainUtils.choosePresentMode(modes, vsync);
         VkExtent2D extent2D = SwapchainUtils.chooseExtent(capabilities, alloc, windowHandle);
-        System.out.printf("%d:%d\n", extent2D.width(), extent2D.height());
         int minImageCount = Math.max(3, capabilities.minImageCount());
         minImageCount = ( capabilities.maxImageCount() > 0 && minImageCount > capabilities.maxImageCount() ) ? capabilities.maxImageCount() : minImageCount;
 

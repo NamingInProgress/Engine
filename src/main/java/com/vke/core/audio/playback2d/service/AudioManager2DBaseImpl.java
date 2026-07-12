@@ -56,7 +56,7 @@ public class AudioManager2DBaseImpl extends ScopedServiceImpl<AudioManager2DScop
             return playInternal(clip);
         } catch (IOException e) {
             //probably ignore for now
-            engine.getLogger().error("When playing audio " + audio.getAssetName(), e);
+            engine.getLogger().error("When playing audio " + audio.getMeta().getAssetName(), e);
             return null;
         }
     }

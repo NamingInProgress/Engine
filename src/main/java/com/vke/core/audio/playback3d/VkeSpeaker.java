@@ -39,7 +39,7 @@ public class VkeSpeaker extends AbstractPositionable implements Speaker {
         try {
             return play(audio.acquire(context));
         } catch (IOException e) {
-            context.getLogger().error("When playing audio " + audio.getAssetName(), e);
+            context.getLogger().error("When playing audio " + audio.getMeta().getAssetName(), e);
             return null;
         }
     }

@@ -54,7 +54,7 @@ public interface ConfigParser {
         if (Utils.seqContainsIgnoreCase(filename, "json")) {
             return new JsonParser();
         }
-        if (Utils.seqContainsIgnoreCase(filename, "xml")) {
+        if (Utils.seqContainsAnyIgnoreCase(filename, "xml", "vka", "vcl")) {
             return new XmlParser();
         }
         return null;

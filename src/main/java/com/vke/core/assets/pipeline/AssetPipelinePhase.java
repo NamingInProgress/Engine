@@ -1,8 +1,11 @@
 package com.vke.core.assets.pipeline;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.AssetMeta;
 import com.vke.api.assets.Protocols;
 import com.vke.core.assets.AssetException;
+import com.vke.core.assets.meta.AssetMetaAttributes;
+import com.vke.core.assets.meta.FullAssetMeta;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.protocols.loader.PipelinedLoader;
 import com.vke.core.assets.pipeline.stages.CompoundPipelineStage;
@@ -29,20 +32,13 @@ public class AssetPipelinePhase extends CompoundPipelineStage {
         return context;
     }
 
-    public AssetHandle<?> extractHandle(StageElement stageElement) throws AssetException {
+    public AssetHandle<?> extractHandle(StageElement stageElement, AssetMetaAttributes attributes) throws AssetException {
         //assets always start as PLAIN
         String protocolName = Protocols.PLAIN;
         AssetProtocol<?> protocol = context.getProtocol(protocolName);
         Identifier assetName = stageElement.getAssetName();
-        String rawAssetName = assetName.getPath();
-        return protocol.createAssetHandle(stageElement.getAssetData(), assetName, new PipelinedLoader(this, protocolName, rawAssetName));
-
-        //TODO for tmr:
-        //also implement the <include> tag in asset pipeline to split stuff. when parsing a PipelineStage, just parse a whole new file instead and put the shit in. maybe even make IncludeStage its own thing idk
-
-        //now where the filter-else and phase thingy works, make the schemas load in a separate phase before and perform optional validation in the
-        //plain->config converter
-
+        AssetMeta meta = new FullAssetMeta(protocolName, assetName, attributes);
+        return protocol.createAssetHandle(stageElement, assetName, new PipelinedLoader(this, meta));
     }
 
     public String getName() {
