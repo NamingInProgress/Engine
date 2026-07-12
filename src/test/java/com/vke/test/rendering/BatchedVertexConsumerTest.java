@@ -178,13 +178,15 @@ public class BatchedVertexConsumerTest extends Scene {
         fsqc.vertices(new FullscreenQuadVertex(-1.0f,  1.0f, 0.0f, 1.0f)); // 3
         fsqc.indices(0, 1, 2, 0, 2, 3);
 
-        var tex = (VulkanTexture) getRenderer().depthTarget();
-        tex.transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
+        //var tex = (VulkanTexture) getRenderer().depthTarget();
+        //tex.transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
+        var tex = getRenderer().depthTarget();
+        tex.useInShader(ctx);
 
         depthTexFSQ.set(tex, Samplers.LINEAR);
         ctx.getCommandBuffer().bindPipeline(FSQ);
         ctx.getCommandBuffer().bindDescriptorSets(FSQ);
-        //fsqc.draw(ctx);
+        fsqc.draw(ctx);
     }
 
     @Override

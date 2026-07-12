@@ -11,6 +11,7 @@ import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.StagedBuffer;
 import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
@@ -203,6 +204,11 @@ public class VulkanTexture implements Texture {
     @Override
     public TextureDesc description() {
         return desc;
+    }
+
+    @Override
+    public void useInShader(FrameContext ctx) {
+        transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
     }
 
     public long getHandle() {

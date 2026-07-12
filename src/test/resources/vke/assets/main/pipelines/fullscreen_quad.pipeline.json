@@ -12,8 +12,8 @@
       "type": "DEPTH",
       "format": "DEPTH32F",
       "depthCompareOperation": "LESS",
-      "depthTestEnable": false,
-      "depthWriteEnable": false
+      "depthTestEnable": true,
+      "depthWriteEnable": true
     }
   ],
   "shaders": [

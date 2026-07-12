@@ -3,6 +3,7 @@ package com.vke.api.rendering.abstraction.data;
 import com.vke.api.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.*;
+import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.extent.Extent2D;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
@@ -275,6 +276,8 @@ public interface Texture extends Disposable, QuadTexture {
     ImageView defaultView();
     ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer);
     TextureDesc description();
+
+    void useInShader(FrameContext ctx);
 
     @Override
     default Texture texture() {
