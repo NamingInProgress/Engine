@@ -1,6 +1,5 @@
 package com.vke.core.assets.meta;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
@@ -54,7 +53,6 @@ public class AssetMetaAttributes {
             this.tag = getVclString(pipelineConfig, "tag").unwrapOrNull();
             this.overrideName = getVclString(pipelineConfig, "override-name").map(context::id).unwrapOrNull();
             this.phaseFilter = new PhaseFilter(pipelineConfig.getObject("phase-filter"));
-            System.out.println(this);
         } else {
             this.tag = null;
             this.overrideName = null;
@@ -83,6 +81,22 @@ public class AssetMetaAttributes {
         return file.extendRaw(".vka");
     }
 
+    public String getTag() {
+        return tag;
+    }
+
+    public Identifier getOverrideName() {
+        return overrideName;
+    }
+
+    public PhaseFilter getPhaseFilter() {
+        return phaseFilter;
+    }
+
+    public ConfigNode getAssetConfig() {
+        return assetConfig;
+    }
+
     public static class PhaseFilter {
         private boolean containsAllow;
         private final List<String> allowed;
@@ -109,6 +123,25 @@ public class AssetMetaAttributes {
                     }
                 }
             }
+        }
+
+        public boolean containsAllow() {
+            return containsAllow;
+        }
+
+        public List<String> getAllowed() {
+            return allowed;
+        }
+
+        public List<String> getBanned() {
+            return banned;
+        }
+
+        public boolean isAccepted(String phaseName) {
+            if (containsAllow) {
+                return allowed.contains(phaseName) && !banned.contains(phaseName);
+            }
+            return !banned.contains(phaseName);
         }
     }
 }

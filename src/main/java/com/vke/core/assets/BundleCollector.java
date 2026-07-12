@@ -3,6 +3,7 @@ package com.vke.core.assets;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.Bundle;
 import com.vke.api.assets.Protocols;
+import com.vke.api.logger.Logger;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.ResolvedAssetHandle;
 import com.vke.core.assets.meta.BasicAssetMeta;
@@ -46,9 +47,10 @@ public class BundleCollector {
                 System.exit(67);
             }
         }
+        Logger logger = LoggerFactory.get("AssetPipeline");
         try {
             pipeline.forEachPhase(phase -> {
-                LoggerFactory.get("AssetPipeline").info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
+                logger.info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
 
                 for (Identifier file : ident.walkFiles()) {
                     if (file.equals(bundleVCLIdent)) continue;
@@ -56,9 +58,23 @@ public class BundleCollector {
                     StageElement element = new StageElement(file.toPath(), AssetData.plain(file), null);
                     phase.execute(element, PipelineStage.ExecutionTarget.Pseudo);
                     if (element.wasProcessed()) {
-                        AssetMetaAttributes meta = new AssetMetaAttributes(context, file);
-                        AssetHandle<?> handle = phase.extractHandle(element, meta);
-                        bundle.addAsset(element.getAssetName(), handle);
+                        AssetMetaAttributes attribs = new AssetMetaAttributes(context, file);
+                        AssetMetaAttributes.PhaseFilter phaseFilter = attribs.getPhaseFilter();
+                        if (phaseFilter != null) {
+                            if (!phaseFilter.isAccepted(phase.getName())) {
+                                logger.info("Asset '%s' would be added to the current phase '%s', but its pipeline-config's phase-filter blocked it.", file, phase.getName());
+                                continue;
+                            }
+                        }
+
+                        AssetHandle<?> handle = phase.extractHandle(element, attribs);
+                        Identifier overrideName = attribs.getOverrideName();
+                        if (overrideName != null) {
+                            logger.info("Asset '%s' got renamed by their vka config: '%s' -> '%s'", file, element.getAssetName(), overrideName);
+                            bundle.addAsset(overrideName, handle);
+                        } else {
+                            bundle.addAsset(element.getAssetName(), handle);
+                        }
                     }
                 }
 

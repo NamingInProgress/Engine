@@ -1,10 +1,9 @@
 <asset-meta>
     <pipeline-config>
         <tag>vke_sets</tag>
-        <override-name>VKESETS</override-name>
+        <override-name>vke_sets</override-name>
         <phase-filter>
-            <ban-phase>shaders</ban-phase>
-            <allow-phase>critical_vk</allow-phase>
+            <allow-phase>critical-vk</allow-phase>
         </phase-filter>
     </pipeline-config>
     <asset-config>
