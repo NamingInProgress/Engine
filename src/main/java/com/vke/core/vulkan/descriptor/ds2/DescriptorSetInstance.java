@@ -91,7 +91,7 @@ public class DescriptorSetInstance implements Disposable {
             return new MappedBuffer(engine, device, layout.typeLayout.size, usage);
         } else {
             return new MappedGpuRingBuffer(engine, device, Utils.alignUpFast(layout.typeLayout.size,
-                    getAlign(device, layout)) * layout.multiWrite, framesInFlight, usage);
+                    getAlign(device, layout)), framesInFlight * layout.multiWrite, usage);
         }
     }
 

@@ -17,12 +17,6 @@ public class MultiWriteBufferHandle extends BufferHandle {
     private final long singleBufferSize;
 
     public MultiWriteBufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
-                                  int maxRotations, long fullBufferSize, long singleBufferSize, long cpuAddress) {
-        this(group, set, binding, type, bufBinding, fc,
-                maxRotations, fullBufferSize, singleBufferSize, cpuAddress, 0);
-    }
-
-    public MultiWriteBufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
                                   int maxRotations, long fullBufferSize, long singleBufferSize, long cpuAddress, long gpuAddress) {
         super(group, set, binding, type, bufBinding, fc, 0, fullBufferSize, cpuAddress, gpuAddress);
         this.counter = new MultiWriteCounter(maxRotations);
@@ -31,6 +25,7 @@ public class MultiWriteBufferHandle extends BufferHandle {
 
     public void advance() {
         this.counter.advance();
+        ((MappedGpuRingBuffer) bufBinding.buffer).rotate();
     }
 
     public void reset() {
@@ -42,9 +37,6 @@ public class MultiWriteBufferHandle extends BufferHandle {
         reset();
         ((MappedGpuRingBuffer) this.bufBinding.buffer).rotate();
     }
-
-    @Override
-    public long getOffset() { return super.getOffset() + this.singleBufferSize * this.counter.getCurrentRotation(); }
 
     @Override
     public void write(Consumer<BufferSlice> writer) {

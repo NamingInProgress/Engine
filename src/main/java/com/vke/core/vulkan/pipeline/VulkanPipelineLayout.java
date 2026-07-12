@@ -154,8 +154,6 @@ public class VulkanPipelineLayout implements PipelineLayout {
     }
 
     public void writeHandles() {
-        //getGroup().getDirtyHandles().addAll(engineSets.ENGINE_PIPELINE_LAYOUT.getGroup().getDirtyHandles());
-
         if (!getGroup().getDirtyHandles().isEmpty()) {
             for (UniformHandle uh : getGroup().getDirtyHandles()) {
                 long dsh = getSetHandle(uh.set);
