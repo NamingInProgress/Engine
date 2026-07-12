@@ -4,6 +4,7 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.EmptyConfigArray;
 import com.vke.core.assets.AssetException;
+import com.vke.core.assets.meta.AssetMetaAttributes;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -115,16 +116,17 @@ public class StageFilter extends CompoundPipelineStage {
 
         dataProtocolName = data.getProtocol();
         dataProtocol = context.getProtocol(dataProtocolName);
-        StageElement dataElement = new StageElement(stageElement.getPath(), data);
+        StageElement dataElement = new StageElement(stageElement.getPath(), data, stageElement.getMetaAttributes());
 
         String queryProtocolName = Protocols.PLAIN;
         AssetProtocol<?> queryProtocol = context.getProtocol(queryProtocolName);
         AssetData queryData = AssetData.plain(query);
-        StageElement queryElement = new StageElement(queryData);
+        StageElement queryElement = new StageElement(queryData, new AssetMetaAttributes());
 
         if (queryProtocolName.equals(dataProtocolName)) {
             if (dataProtocol.applies(data, queryData, op)) {
                 wasSuccessful = true;
+                stageElement.setProcessed();
                 processInnerPipeline(stageElement, target);
             }
         } else {
@@ -134,6 +136,7 @@ public class StageFilter extends CompoundPipelineStage {
                 AssetData data2 = converter.performConversion(context.context(), queryElement, new EmptyConfigArray());
                 if (dataProtocol.applies(data, data2, op)) {
                     wasSuccessful = true;
+                    stageElement.setProcessed();
                     processInnerPipeline(stageElement, target);
                 }
                 return;
@@ -146,6 +149,7 @@ public class StageFilter extends CompoundPipelineStage {
             AssetData query2 = converter.performConversion(context.context(), dataElement, new EmptyConfigArray());
             if (queryProtocol.applies(data, query2, op)) {
                 wasSuccessful = true;
+                stageElement.setProcessed();
                 processInnerPipeline(stageElement, target);
             }
         }

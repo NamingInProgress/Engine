@@ -56,6 +56,7 @@ public class PipelineContext extends ContextWrapper {
         registerProtocol(new PlainProtocol());
         registerProtocol(new ConfigProtocol());
         registerProtocol(new LangProtocol());
+        registerProtocol(new SchemaProtocol());
 
         registerProtocol(new FragmentShaderProtocol());
         registerProtocol(new VertexShaderProtocol());
@@ -88,6 +89,7 @@ public class PipelineContext extends ContextWrapper {
         registerConverter(new PlainPathConverter());
         registerConverter(new PlainConfigConverter());
         registerConverter(new ConfigLangConverter());
+        registerConverter(new ConfigSchemaConverter());
         registerConverter(new ConfigRenderPipelineConverter());
         registerConverter(new ConfigComputePipelineConverter());
         registerConverter(new ObjMeshprefabConverter());

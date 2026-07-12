@@ -42,9 +42,11 @@ public class AssetManagerScopedImpl implements AssetManager {
         init = true;
         initPipeline();
         if (pipeline == null) {
-            context.throwException(new AssetException("No assets.xml specified!"), "Init AssetManager");
+            context.throwException(new AssetException("No assets.vcl specified!"), "Init AssetManager");
         }
-        Bundle globalBundle = BundleCollector.collectGlobalBundle(context, pipeline);
+        Bundle globalBundle = BundleCollector.collectGlobalBundle(context, pipeline, afterPhase -> {
+            base.globalBundle.extendBundle(afterPhase);
+        });
         base.globalBundle.extendBundle(globalBundle);
         globalBundle.preloadAll(base.getCallbacks());
 
@@ -53,12 +55,12 @@ public class AssetManagerScopedImpl implements AssetManager {
     }
 
     private void initPipeline() {
-        Identifier assetsXMLIdent = context.id("assets/assets.xml");
+        Identifier assetsXMLIdent = context.id("assets/assets.vcl");
         if (assetsXMLIdent.existsFile()) {
             try {
                 ConfigDocument document = parseXml(assetsXMLIdent);
                 ConfigArrayNode assetsNode = document.getRoot().getArray("assets");
-                //i will probably validate the assets.xml against a schema so thats probably fine here lmao
+                //i will probably validate the assets.vcl against a schema so thats probably fine here lmao
 
                 AssetPipeline pipeline = new AssetPipeline(base.getPipelineContext());
                 for (ConfigNode phaseNode : assetsNode.values()) {

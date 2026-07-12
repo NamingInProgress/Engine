@@ -210,6 +210,21 @@ public class Utils {
                 .all(p -> Character.toLowerCase(p.v1) == Character.toLowerCase(p.v2));
     }
 
+    public static boolean seqEqualsAnyIgnoreCase(CharSequence a, CharSequence... bs) {
+        return Iter.of(bs)
+                .any(b -> seqEqualsIgnoreCase(a, b));
+    }
+
+    public static boolean seqContainsAnyIgnoreCase(CharSequence source, CharSequence... seqs) {
+        int searchSize = Iter.of(seqs).map(CharSequence::length).maxInt();
+        int maxI = source.length() - searchSize;
+        for (int i = 0; i <= maxI; i++) {
+            CharSequence sub = source.subSequence(i, i + searchSize);
+            if (seqEqualsAnyIgnoreCase(sub, seqs)) return true;
+        }
+        return false;
+    }
+
     public static boolean seqContainsIgnoreCase(CharSequence source, CharSequence seq) {
         int searchSize = seq.length();
         int maxI = source.length() - searchSize;

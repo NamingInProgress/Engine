@@ -99,8 +99,6 @@ public class InstancingTestScene extends Scene {
 //                .scale(10, 10, 10)
 //                .rotateY(angle));
         TestRenderPipelines.INSTANCING.use(ctx);
-        mesh.bindIBO(ctx);
-        mesh.bindVBO(ctx);
         mesh.drawInstanced(ctx, 1);
         TestRenderPipelines.INSTANCING.next();
         TestRenderPipelines.INSTANCING.clear();

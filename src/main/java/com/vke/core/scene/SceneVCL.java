@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SceneXML {
+public class SceneVCL {
     public final Identifier name;
     public final Class<?> clazz;
     public final List<String> bundles;
     public final Identifier loadingScene;
 
-    public SceneXML(Identifier file, Context context) throws SceneException {
+    public SceneVCL(Identifier file, Context context) throws SceneException {
         try {
             String filename = FileUtils.getFileNickname(file.toPath());
             this.name = new Identifier(file.getNamespace(), filename);

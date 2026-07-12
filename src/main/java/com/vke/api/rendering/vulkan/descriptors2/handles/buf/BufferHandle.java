@@ -24,11 +24,6 @@ public class BufferHandle extends UniformHandle {
     private final FrameCounter fc;
 
     public BufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
-                        long bufferSize, long cpuAddress) {
-        this(group, set, binding, type, bufBinding, fc, 0, bufferSize, cpuAddress, 0);
-    }
-
-    public BufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
                         long bufferSize, long cpuAddress, long gpuAddress) {
         this(group, set, binding, type, bufBinding, fc, 0, bufferSize, cpuAddress, gpuAddress);
     }
@@ -50,7 +45,11 @@ public class BufferHandle extends UniformHandle {
     }
 
     public long getOffset() {
-        return bufBinding.singleBufferSize * fc.currentIndex() + offset;
+        if (bufBinding.buffer instanceof MappedGpuRingBuffer rb) {
+            return rb.getOffset() + offset;
+        }
+        return 0;
+        //return bufBinding.singleBufferSize * fc.currentIndex() + offset;
     }
 
     public void write(Consumer<BufferSlice> writer) {

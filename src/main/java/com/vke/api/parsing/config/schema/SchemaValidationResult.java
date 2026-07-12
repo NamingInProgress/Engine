@@ -47,7 +47,7 @@ public class SchemaValidationResult {
         }
 
         public static ValidationError illegalType(ConfigNode node, ConfigNode.Type expected, SchemaElementLocation path) {
-            String msg = String.format("Illegal node type found \"%s\", expected \"%s\"!", node.getType(), expected);
+            String msg = String.format("Illegal node type -> found \"%s\", expected \"%s\"!", node.getType(), expected);
             return new ValidationError(msg, path);
         }
 

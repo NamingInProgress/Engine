@@ -6,12 +6,10 @@ import com.vke.api.scene.SceneException;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.AssetException;
-import com.vke.core.scene.SceneXML;
+import com.vke.core.scene.SceneVCL;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
-import jdk.jshell.execution.Util;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -43,17 +41,17 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
 
     private void registerScene(Identifier sceneFile, Context context) {
         try {
-            SceneXML sceneXML = new SceneXML(sceneFile, context);
-            Identifier thisName = sceneXML.name;
+            SceneVCL sceneVCL = new SceneVCL(sceneFile, context);
+            Identifier thisName = sceneVCL.name;
 
-            Class<?> clazz = sceneXML.clazz;
+            Class<?> clazz = sceneVCL.clazz;
             verifyClassHierarchy(clazz);
 
             @SuppressWarnings("unchecked")
             Class<? extends Scene> actualSceneClass = (Class<? extends Scene>) clazz;
             Scene instance = createInstance(actualSceneClass, thisName, context);
 
-            Identifier loadingSceneName = sceneXML.loadingScene;
+            Identifier loadingSceneName = sceneVCL.loadingScene;
             if (loadingSceneName == null && !(instance instanceof LoadingScene)) {
                 loadingSceneName = new Identifier(VKEngine.VKE_NAMESPACE, "default_loading");
             }
@@ -70,7 +68,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
                 awaitingDependencies.remove(thisName);
             }
 
-            sceneRegistry.put(thisName, new SceneEntry(instance, sceneXML));
+            sceneRegistry.put(thisName, new SceneEntry(instance, sceneVCL));
         } catch (SceneException e) {
             engine.throwException(e, "Loading scene " + sceneFile);
         }
@@ -93,7 +91,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     public void setScene(Identifier name) throws SceneException {
         SceneEntry sceneEntry = sceneRegistry.get(name);
         Scene scene = sceneEntry.scene();
-        SceneXML xml = sceneEntry.sceneXML();
+        SceneVCL xml = sceneEntry.sceneVCL();
 
         if (scene == null) {
             throw new SceneException("Scene " + name + " does not exist! Did you forget to call SceneManager#initialize on the required namespace?");
@@ -155,10 +153,10 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     }
 
     private boolean isSceneFile(Identifier identifier) {
-        return "xml".equals(identifier.getExtensionLower());
+        return "vcl".equals(identifier.getExtensionLower());
     }
 
-    private record SceneEntry(Scene scene, SceneXML sceneXML) {}
+    private record SceneEntry(Scene scene, SceneVCL sceneVCL) {}
 
     private record AwaitingDependency(Scene waiting, Identifier targetName) {
         public boolean tryParent(Scene parent) {

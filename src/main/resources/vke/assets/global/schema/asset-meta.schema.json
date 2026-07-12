@@ -1,0 +1,73 @@
+{
+  "typedefs": [
+    {
+      "name": "pipeline-config",
+      "type": "object",
+      "fields": [
+        {
+          "name": "tag",
+          "type": "str-value",
+          "required": false
+        },
+        {
+          "name": "override-name",
+          "type": "str-value",
+          "required": false
+        },
+        {
+          "name": "phase-filter",
+          "type": "phase-filter",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "phase-filter",
+      "type": "array",
+      "items": {
+        "type": "str-value"
+      }
+    },
+    {
+      "name": "str-value",
+      "type": "multi",
+      "allowed": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  ],
+
+
+  "fields": [
+    {
+      "name": "xml",
+      "type": "meta",
+      "required": false
+    },
+    {
+      "name": "asset-meta",
+      "type": "object",
+      "required": true,
+      "fields": [
+        {
+          "name": "pipeline-config",
+          "type": "pipeline-config",
+          "required": true
+        },
+        {
+          "name": "asset-config",
+          "type": "object",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -8,18 +8,18 @@ import org.lwjgl.system.MemoryUtil;
 public class MappedGpuRingBuffer extends MappedBuffer {
 
     private final long singleSize;
-    private final int framesInFlight;
+    private final int rings;
 
     private int frameIndex;
 
-    public MappedGpuRingBuffer(VKEngine engine, VulkanRenderDevice device, long singleSize, int framesInFlight, BufferUsage usage, int... flags) {
-        super(engine, device, singleSize * framesInFlight, usage, flags);
+    public MappedGpuRingBuffer(VKEngine engine, VulkanRenderDevice device, long singleSize, int rings, BufferUsage usage, int... flags) {
+        super(engine, device, singleSize * rings, usage, flags);
         this.singleSize = singleSize;
-        this.framesInFlight = framesInFlight;
+        this.rings = rings;
     }
 
-    public long getOffset() { return (frameIndex % framesInFlight) * singleSize; }
-    public long getLastOffset() { return ((Math.abs(frameIndex - 1)) % framesInFlight) * singleSize; }
+    public long getOffset() { return (frameIndex % rings) * singleSize; }
+    public long getLastOffset() { return ((Math.abs(frameIndex - 1)) % rings) * singleSize; }
 
     @Override
     public void write(long srcAddress, long offset, long numBytes) {
@@ -27,11 +27,11 @@ public class MappedGpuRingBuffer extends MappedBuffer {
             throw new IllegalArgumentException("Write exceeds buffer size");
         }
 
-        long frameOffset = (frameIndex % framesInFlight) * singleSize;
+        long frameOffset = (frameIndex % rings) * singleSize;
         MemoryUtil.memCopy(srcAddress, mappedAddress + frameOffset + offset, numBytes);
     }
 
     public void rotate() {
-        frameIndex = (frameIndex + 1) % framesInFlight;
+        frameIndex = (frameIndex + 1) % rings;
     }
 }

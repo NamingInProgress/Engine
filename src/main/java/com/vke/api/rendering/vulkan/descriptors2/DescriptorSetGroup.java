@@ -148,10 +148,11 @@ public class DescriptorSetGroup {
 
             var buf = binding.buffer;
             if (binding.multiWrite == 1) {
-                return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, buf.getSize(), buf.getMappedAddress());
+                return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, buf.getSize(),
+                        buf.getMappedAddress(), buf.getGpuBuffer().getBuffer());
             } else {
                 return new MultiWriteBufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, binding.multiWrite,
-                        buf.getSize(), binding.singleBufferSize, buf.getMappedAddress());
+                        buf.getSize(), binding.singleBufferSize, buf.getMappedAddress(), buf.getGpuBuffer().getBuffer());
             }
         }
     }
