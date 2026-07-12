@@ -54,6 +54,10 @@ public class VulkanImageView implements ImageView {
         return desc;
     }
 
+    public VulkanTexture parent() {
+        return (VulkanTexture) this.desc.tex;
+    }
+
     public long getHandle() { return handle; }
 
     @Override

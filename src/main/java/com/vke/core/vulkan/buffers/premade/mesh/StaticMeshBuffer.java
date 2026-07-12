@@ -86,8 +86,8 @@ public class StaticMeshBuffer implements Disposable, Drawable {
             );
             self.indices = new StagedBuffer(engine, d, ibo, indexBufUsage, indexMemUsage);
 
-            self.vertices.uploadViaStaging(engine, d, vbo::free);
-            self.indices.uploadViaStaging(engine, d, ibo::free);
+            self.vertices.uploadViaStaging(vbo::free);
+            self.indices.uploadViaStaging(ibo::free);
 
             return self;
         }

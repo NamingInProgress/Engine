@@ -73,7 +73,7 @@ public interface IVulkanPipeline extends Pipeline {
             layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
         }
 
-        return new PushConstants(layout);
+        return layout == null ? null : new PushConstants(layout);
     }
 
     default ArrayList<ReflectedShader> getReflectedShaders(Context context, VKShaderProgram program) {

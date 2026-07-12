@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.utils.io.Disposable;
 
-public interface Buffer extends Disposable {
+public interface GpuBuffer extends Disposable {
 
     record Description(long size, BufferUsage usage, MemoryUsage memUsage, int... flags) {}
 

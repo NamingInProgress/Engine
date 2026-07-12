@@ -74,11 +74,11 @@ public class BindingLayout {
     }
 
     public void resolveRuntimeSizeArrays(HashMap<String, Integer> runtimeSizes) {
-        if (typeLayout == null && runtimeSizes.containsKey(name)) {
+        if (typeLayout != null) {
+            typeLayout.size += rrsaInternal(typeLayout, runtimeSizes);
+        } else if (runtimeSizes.containsKey(name)) {
             descriptorCount = runtimeSizes.get(name);
-            return;
         }
-        typeLayout.size += rrsaInternal(typeLayout, runtimeSizes);
     }
 
     private long rrsaInternal(TypeLayout typeLayout, HashMap<String, Integer> runtimeSizes) {

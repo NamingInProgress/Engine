@@ -2,24 +2,28 @@ package com.vke.core.vulkan.command;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
-import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.vulkan.texture.VulkanTexture;
+//import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -27,6 +31,8 @@ import org.lwjgl.vulkan.*;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+
+import static org.lwjgl.vulkan.VK10.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
 public class VulkanCmdBuffers implements CommandBuffer {
 
@@ -87,24 +93,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
     public void beginRendering() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
-            currentColorImage.getImage().transitionLayout(
-                    this,
-                    ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
-                    0,
-                    VK14.VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
-                    VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-                    VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT
-            );
+            currentColorImage.transition(this, ImageState.COLOR_ATTACHMENT);
 
             VulkanTexture currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
-            currentDepthImage.getImage().transitionLayout(
-                    this,
-                    ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                    0,
-                    VK14.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK14.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                    VK14.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                    VK14.VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT
-            );
+            currentDepthImage.transition(this, ImageState.DEPTH_ATTACHMENT);
 
             VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
                     .float32(0, 0.2f).float32(1, 0.3f).float32(2, 0.3f).float32(3, 1.0f));
@@ -112,7 +104,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
             VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(1, stack);
             buffer.get(0)
                     .sType$Default()
-                    .imageView(currentColorImage.getView().getHandle())
+                    .imageView(currentColorImage.defaultView().getHandle())
                     .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
                     .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
@@ -120,7 +112,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             VkRenderingAttachmentInfo depth = VkRenderingAttachmentInfo.calloc(stack)
                     .sType$Default()
-                    .imageView(currentDepthImage.getView().getHandle())
+                    .imageView(currentDepthImage.defaultView().getHandle())
                     .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
                     .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
@@ -161,14 +153,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
         this.recording = false;
 
         VulkanTexture currentImage = swapchain.getColorImage(swapchain.currentImageIndex());
-        currentImage.getImage().transitionLayout(
-                this,
-                ImageLayout.PRESENT_SRC_KHR,
-                VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                0,
-                VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-                VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT
-        );
+        currentImage.transition(this, ImageState.PRESENT);
 
         VK14.vkEndCommandBuffer(vk);
     }
@@ -205,6 +190,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void setPushConstants(AssetHandle<? extends Pipeline> pipeline) {
         VulkanPipelineLayout layout = (VulkanPipelineLayout) unwrapPipeline(pipeline).layout();
+        if (layout.pushConstants() == null) return;
 
         VK14.vkCmdPushConstants(this.getBuffer(),
                 layout.getHandle(),
@@ -270,7 +256,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
         }
     }
 
-    public void bindIndexBuffer(GpuBuffer buffer, int offset) {
+    public void bindIndexBuffer(VulkanGpuBuffer buffer, int offset) {
         VK14.vkCmdBindIndexBuffer(this.getBuffer(), buffer.getBuffer(), offset, VK14.VK_INDEX_TYPE_UINT32);
     }
 
@@ -282,6 +268,38 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance) {
         VK14.vkCmdDrawIndexed(this.getBuffer(), indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+
+    @Override
+    public void copyBufferToImage(GpuBuffer buffer, Texture image, int mip, int layer) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack);
+
+            region.get(0)
+                    .bufferOffset(0)
+                    .bufferRowLength(0)
+                    .bufferImageHeight(0)
+                    .imageSubresource()
+                    .aspectMask(((VulkanTexture) image).getAspect().getVkHandle())
+                    .mipLevel(mip)
+                    .baseArrayLayer(layer)
+                    .layerCount(1);
+
+            region.imageOffset().set(0, 0, 0);
+            region.imageExtent().set(
+                    image.width(mip),
+                    image.height(mip),
+                    1
+            );
+
+            VK14.vkCmdCopyBufferToImage(
+                    this.getBuffer(),
+                    ((VulkanGpuBuffer) buffer).getBuffer(),
+                    ((VulkanTexture) image).getHandle(),
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    region
+            );
+        }
     }
 
     public VkCommandBuffer getBuffer() { return this.vk; }

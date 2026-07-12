@@ -2,10 +2,18 @@ package com.vke.core.vulkan.texture.texture2;
 
 import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
+import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.core.file.png.Pixels;
+import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.vulkan.buffers.StagedBuffer;
+import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
+import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
@@ -16,6 +24,7 @@ import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.*;
 
+import java.awt.*;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,20 +42,27 @@ public class VulkanTexture implements Texture {
 
     private final HashMap<ImageView.ImageViewDesc, ImageView> views = new HashMap<>();
 
-    private ImageView defaultView;
-    private ImageState[][] state; // [mipLevel][arrayLayer]
+    private VulkanImageView defaultView;
+    private ImageState state = ImageState.UNDEFINED; // [mipLevel][arrayLayer]
     private ImageAspect aspect = ImageAspect.AUTO;
+
+    public VulkanTexture(VulkanRenderDevice device, long handle, TextureDesc desc, ImageAspect aspect) {
+        this.desc = desc;
+        this.device = device;
+        this.handle = handle;
+        this.allocation = 0;
+    }
 
     public VulkanTexture(VulkanRenderDevice device, TextureDesc desc) {
         this.desc = desc;
         this.device = device;
         this.aspect = this.aspect.resolve(desc.format);
 
-        for (int mip = 0; mip < desc.mipLevels; mip++) {
-            for (int layer = 0; layer < desc.arrayLayers; layer++) {
-                state[mip][layer] = ImageState.UNDEFINED;
-            }
-        }
+//        for (int mip = 0; mip < desc.mipLevels; mip++) {
+//            for (int layer = 0; layer < desc.arrayLayers; layer++) {
+//                state[mip][layer] = ImageState.UNDEFINED;
+//            }
+//        }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.calloc(stack)
@@ -76,7 +92,7 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public ImageView defaultView() {
+    public VulkanImageView defaultView() {
         if (defaultView != null) return defaultView;
         var description = new ImageView.ImageViewDesc(this, desc.type, format(), 0,
                 desc.mipLevels, 0, desc.arrayLayers, ImageAspect.AUTO);
@@ -96,6 +112,29 @@ public class VulkanTexture implements Texture {
         var view = new VulkanImageView(device, desc);
         this.views.put(desc, view);
         return view;
+    }
+
+    public void upload(Pixels pixels) {
+        var alloc = new AutoHeapAllocator();
+
+        GeneralBuffer cpuBuf = new GeneralBuffer(pixels.argbToByteBuffer(alloc), true);
+        StagedBuffer buf = new StagedBuffer(device.getEngine(), device, cpuBuf,
+                BufferUsage.Bits.TRANSFER_SRC.into(), MemoryUsage.Bits.CPU_TO_GPU.into());
+
+        device.getRenderer().immediateSubmit((stack, cmd) -> {
+            transition(cmd, ImageState.TRANSFER_DST);
+
+            return buf.uploadViaStaging(() -> {}, stack, cmd);
+        });
+
+        device.getRenderer().immediateSubmit((stack, cmd) -> {
+            cmd.copyBufferToImage(buf.getGpuBuffer(), this, 0, 0);
+            transition(cmd, ImageState.FRAGMENT_SHADER_READ);
+        });
+
+        // TODO: generate mips
+
+        alloc.close();
     }
 
     // region Transitions
@@ -157,6 +196,10 @@ public class VulkanTexture implements Texture {
     }
     // endregion
 
+    public ImageAspect getAspect() {
+        return aspect;
+    }
+
     @Override
     public TextureDesc description() {
         return desc;
@@ -166,10 +209,15 @@ public class VulkanTexture implements Texture {
         return handle;
     }
 
+    public ImageState getState() {
+        return state;
+    }
+
     @Override
     public void free() {
         views.values().forEach(Disposable::free);
-        Vma.vmaDestroyImage(device.getVmaAllocator(), handle, allocation);
+        if (allocation != 0)
+            Vma.vmaDestroyImage(device.getVmaAllocator(), handle, allocation);
     }
 
     @Override

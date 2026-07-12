@@ -4,7 +4,8 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.core.vulkan.texture.texture2.VulkanImageView;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.StructBuffer;
@@ -50,25 +51,25 @@ public class DescriptorWriter implements Disposable {
 
     /// [ ----- COMBINED IMAGE SAMPLERS ----- ]
 
-    public void writeCombinedImageSampler(long setHandle, int binding, VulkanTexture texture, VulkanSampler sampler) {
-        writeCombinedImageSampler(setHandle, binding, texture, sampler, 0);
+    public void writeCombinedImageSampler(long setHandle, int binding, VulkanImageView view, VulkanSampler sampler) {
+        writeCombinedImageSampler(setHandle, binding, view, sampler, 0);
     }
 
-    public void writeCombinedImageSampler(long setHandle, int binding, VulkanTexture texture, VulkanSampler sampler, int arrayIndex) {
+    public void writeCombinedImageSampler(long setHandle, int binding, VulkanImageView view, VulkanSampler sampler, int arrayIndex) {
         VkDescriptorImageInfo.Buffer imageInfos = alloc.allocBuffer(VkDescriptorImageInfo.SIZEOF, 1, VkDescriptorImageInfo.Buffer::new);
         imageInfos.get(0)
-                .imageView(texture.getView().getHandle())
+                .imageView(view.getHandle())
                 .sampler(sampler.getHandle())
-                .imageLayout(texture.getImage().layout().getVkHandle());
+                .imageLayout(view.parent().getState().getLayoutHandle());
 
         writeData.add(new WriteData(imageInfos, setHandle, binding, DescriptorType.COMBINED_IMAGE_SAMPLER, 1, arrayIndex));
     }
 
-    public void writeCombinedImageSamplers(long setHandle, int binding, VulkanTexture[] textures, VulkanSampler[] samplers) {
-        if (textures.length != samplers.length) throw new IllegalStateException("Textures and Samplers array sizes do not match!");
+    public void writeCombinedImageSamplers(long setHandle, int binding, VulkanImageView[] views, VulkanSampler[] samplers) {
+        if (views.length != samplers.length) throw new IllegalStateException("Textures and Samplers array sizes do not match!");
 
         for (int i = 0; i < samplers.length; i++) {
-            VulkanTexture tex = textures[i];
+            VulkanImageView tex = views[i];
             VulkanSampler sampler = samplers[i];
 
             if (tex == null || sampler == null) continue;
@@ -101,24 +102,24 @@ public class DescriptorWriter implements Disposable {
 
     /// [ ----- IMAGES ----- ]
 
-    public void writeImage(long setHandle, int binding, VulkanTexture texture, DescriptorType type) {
-        writeImage(setHandle, binding, texture, type, 0);
+    public void writeImage(long setHandle, int binding, VulkanImageView view, DescriptorType type) {
+        writeImage(setHandle, binding, view, type, 0);
     }
 
-    public void writeImage(long setHandle, int binding, VulkanTexture texture, DescriptorType type, int arrayIndex) {
+    public void writeImage(long setHandle, int binding, VulkanImageView view, DescriptorType type, int arrayIndex) {
         VkDescriptorImageInfo.Buffer imageInfos = alloc.allocBuffer(VkDescriptorImageInfo.SIZEOF, 1, VkDescriptorImageInfo.Buffer::new);
         imageInfos.get(0)
-                .imageView(texture.getView().getHandle())
+                .imageView(view.getHandle())
                 .sampler(VK14.VK_NULL_HANDLE)
-                .imageLayout(texture.getImage().layout().getVkHandle());
+                .imageLayout(view.parent().getState().getLayoutHandle());
 
         writeData.add(new WriteData(imageInfos, setHandle, binding, type, 1, arrayIndex));
     }
 
-    public void writeImages(long setHandle, int binding, VulkanTexture[] textures, DescriptorType type) {
-        for (int i = 0; i < textures.length; i++) {
-            if (textures[i] == null) continue;
-            writeImage(setHandle, binding, textures[i], type, i);
+    public void writeImages(long setHandle, int binding, VulkanImageView[] views, DescriptorType type) {
+        for (int i = 0; i < views.length; i++) {
+            if (views[i] == null) continue;
+            writeImage(setHandle, binding, views[i], type, i);
         }
     }
 

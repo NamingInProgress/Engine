@@ -5,6 +5,9 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
+import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
@@ -32,7 +35,14 @@ public class PngTextureConverter implements AssetConverter {
         EngineCreateInfo.RendererType rt = context.getEngine().rendererType();
         Renderer renderer = context.service(rt.serviceName);
         RenderDevice device = renderer.getDevice();
-        Texture texture = device.createTexture(png.getOutput(), Texture.TextureDesc.albedo2D(info.width, info.height));
+        Texture.TextureDesc desc = Texture.TextureDesc.builder()
+                .width(info.width)
+                .height(info.height)
+                .format(Format.RGBA8_SRGB)
+                .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
+                .type(TextureType.TEX_2D)
+                .build();
+        Texture texture = device.createTexture(png.getOutput(), desc);
         return new AssetData(Protocols.TEXTURE, texture);
     }
 }

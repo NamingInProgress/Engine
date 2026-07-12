@@ -5,10 +5,12 @@ import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 
 public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     public VulkanRendererAPI(ServiceImpl baseImpl) {
@@ -42,5 +44,15 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     @Override
     public VertexConsumerProvider getVertexConsumerProvider() {
         return getImpl().getVertexConsumerProvider();
+    }
+
+    @Override
+    public VulkanTexture renderTarget() {
+        return (VulkanTexture) getImpl().renderTarget();
+    }
+
+    @Override
+    public VulkanTexture depthTarget() {
+        return (VulkanTexture) getImpl().depthTarget();
     }
 }

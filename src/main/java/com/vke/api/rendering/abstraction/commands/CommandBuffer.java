@@ -1,9 +1,8 @@
 package com.vke.api.rendering.abstraction.commands;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.sync.Fence;
 import com.vke.api.rendering.abstraction.sync.Semaphore;
@@ -73,5 +72,7 @@ public interface CommandBuffer extends Disposable {
 
     void draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance);
     void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance);
+
+    void copyBufferToImage(GpuBuffer buffer, Texture image, int mip, int layer);
 
 }

@@ -1,12 +1,12 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.other;
 
+import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
-import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
-import com.vke.core.vulkan.texture.VulkanTexture;
+import com.vke.core.vulkan.texture.texture2.VulkanImageView;
 
 public class ImageHandle extends UniformHandle {
 
@@ -20,7 +20,12 @@ public class ImageHandle extends UniformHandle {
     }
 
     public void set(Texture tex) {
-        this.imgBinding.textures[index] = (VulkanTexture) tex;
+        this.imgBinding.views[index] = (VulkanImageView) tex.defaultView();
+        setDirty();
+    }
+
+    public void set(ImageView view) {
+        this.imgBinding.views[index] = (VulkanImageView) view;
         setDirty();
     }
 

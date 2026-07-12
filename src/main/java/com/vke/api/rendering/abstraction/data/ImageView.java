@@ -103,7 +103,7 @@ public interface ImageView extends Disposable {
 
     }
 
-    default Texture texture() { return description().tex; }
+    default Texture parent() { return description().tex; }
 
     default TextureType type() { return description().type; }
 

@@ -25,9 +25,8 @@ import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.vulkan.texture.VulkanImage;
-import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -72,18 +71,6 @@ public class MainScene extends Scene {
         renderer = context.service(Services.VULKAN_RENDERER);
         var device = renderer.getDevice();
 
-        var desc = new Texture.TextureDesc();
-        desc.type = TextureType.TEX_2D;
-        desc.format = Format.RGBA8;
-        desc.mipLevels = 1;
-        desc.depth = 1;
-        desc.usage = new ImageUsage(ImageUsage.Bits.STORAGE_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.SAMPLED_BIT);
-        desc.width = 800;
-        desc.height = 600;
-
-        VulkanImage image = new VulkanImage(device, desc, MemoryUsage.Bits.GPU_ONLY.into());
-        tex = new VulkanTexture(image, true);
-
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         dynamicVertsPipeline = (VulkanRenderPipeline) DYNAMIC.assume(context);
         //computePipeline = (VulkanComputePipeline) COMPUTE.assume(context);
@@ -98,9 +85,6 @@ public class MainScene extends Scene {
 
         //sw = renderer.swapchain;
 
-        renderer.immediateSubmit((stack, cmd) -> {
-            tex.getImage().transitionLayout(cmd, ImageLayout.GENERAL);
-        });
 
         //compute_image = computePipeline.resolveUniform("image");
         //compute_image.set(tex);

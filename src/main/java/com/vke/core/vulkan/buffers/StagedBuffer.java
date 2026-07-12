@@ -1,6 +1,6 @@
 package com.vke.core.vulkan.buffers;
 
-import com.vke.api.rendering.abstraction.data.Buffer;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
@@ -16,18 +16,30 @@ import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class StagedBuffer implements Disposable {
-    private final GpuBuffer gpuBuffer;
+    private final VulkanGpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
+    private final VKEngine engine;
+    private final VulkanRenderDevice device;
 
     public StagedBuffer(VKEngine engine, VulkanRenderDevice device, CpuBuffer buffer,
                         BufferUsage usage, MemoryUsage memoryUsage) {
         this.cpuBuffer = buffer;
+        this.engine = engine;
+        this.device = device;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
-        gpuBuffer = device.createBuffer(new Buffer.Description(allocSize, usage, memoryUsage));
+        gpuBuffer = device.createBuffer(new GpuBuffer.Description(allocSize, usage, memoryUsage));
     }
 
-    public void uploadViaStaging(VKEngine engine, VulkanRenderDevice device, Runnable postUpload) {
+    public void uploadViaStaging(Runnable postUpload) {
+        device.getRenderer().immediateSubmit((stack, cmd) -> {
+            return uploadViaStaging(postUpload, stack, cmd);
+        });
+    }
+
+    public Runnable uploadViaStaging(Runnable postUpload, MemoryStack stack, VulkanCmdBuffers cmd) {
         long size = cpuBuffer.getSizeBytes();
 
         BufferUsage bufUsage = new BufferUsage(
@@ -38,30 +50,26 @@ public class StagedBuffer implements Disposable {
                 MemoryUsage.Bits.CPU_TO_GPU
         );
 
-        GpuBuffer staging = device.createBuffer(new Buffer.Description(size, bufUsage, memUsage));
+        VulkanGpuBuffer staging = device.createBuffer(new GpuBuffer.Description(size, bufUsage, memUsage));
 
         long gpuAddress = staging.getInfo().pMappedData();
         long cpuAddress = cpuBuffer.getAddress();
         MemoryUtil.memCopy(cpuAddress, gpuAddress, size);
 
-        VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER).assumeImplementation();
-        renderer.immediateSubmit((MemoryStack stack, VulkanCmdBuffers vkeCmd) -> {
-            VkCommandBuffer cmd = vkeCmd.getBuffer();
+        VkBufferCopy.Buffer pRegions = VkBufferCopy.calloc(1, stack);
+        pRegions.get(0)
+                .size(size)
+                .srcOffset(0)
+                .dstOffset(0);
 
-            VkBufferCopy.Buffer pRegions = VkBufferCopy.calloc(1, stack);
-            pRegions.get(0)
-                    .size(size)
-                    .srcOffset(0)
-                    .dstOffset(0);
-
-            VK14.vkCmdCopyBuffer(cmd, staging.getBuffer(), gpuBuffer.getBuffer(), pRegions);
-        }, () -> {
+        VK14.vkCmdCopyBuffer(cmd.getBuffer(), staging.getBuffer(), gpuBuffer.getBuffer(), pRegions);
+        return () -> {
             staging.free();
             postUpload.run();
-        });
+        };
     }
 
-    public GpuBuffer getGpuBuffer() {
+    public VulkanGpuBuffer getGpuBuffer() {
         return gpuBuffer;
     }
 

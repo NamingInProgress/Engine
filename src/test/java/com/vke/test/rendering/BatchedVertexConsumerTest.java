@@ -1,10 +1,14 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
+import com.vke.api.rendering.vulkan.ImageState;
+import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.data.Texture;
@@ -17,10 +21,12 @@ import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
+import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
@@ -34,7 +40,8 @@ public class BatchedVertexConsumerTest extends Scene {
 
     private LazyAssetHandle<RenderPipeline> PL = R.pipelines.get("batched_consumer_test.pipeline.json");
     private LazyAssetHandle<RenderPipeline> CUBE = R.pipelines.get("spinny_cub.pipeline_vt.json");
-    private VulkanRenderPipeline pipeline, cubePipeline;
+    private LazyAssetHandle<RenderPipeline> FSQ = R.pipelines.get("fullscreen_quad.pipeline.json");
+    private VulkanRenderPipeline pipeline, cubePipeline, fullscreenQuadPipeline;
     private Texture scaryVK;
     private Texture missing;
     private Texture bear_performance;
@@ -43,20 +50,27 @@ public class BatchedVertexConsumerTest extends Scene {
     private PushConstantHandle proj, transform;
     private BufferHandle matricesBuf;
 
+    private CISHandle depthTexFSQ;
+
     private StaticMeshBuffer mesh;
     private MeshPrefab prefab;
 
     private VertexConsumer<ShapeRendererVertex> consumer;
     private ShapeRenderer<ShapeRendererVertex> shapeRenderer;
+    private VertexConsumer<FullscreenQuadVertex> fsqc;
 
     @Override
     public void onLoad() {
         getRenderer().textureManager().withSampler(Samplers.NEAREST);
         pipeline = (VulkanRenderPipeline) PL.assume(context);
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
+        fullscreenQuadPipeline = (VulkanRenderPipeline) FSQ.assume(context);
+        fsqc = getRenderer().getVertexConsumerProvider().get(FullscreenQuadVertex.TEMPLATE);
 
         projMatrixHandle = cubePipeline.resolvePushConstant("world");
         transformMatrixHandle = cubePipeline.resolvePushConstant("translation");
+
+        this.depthTexFSQ = fullscreenQuadPipeline.uniform("tex");
 
 //        proj = pipeline.uniform("stuff.world");
 //        transform = pipeline.uniform("stuff.translation");
@@ -159,7 +173,19 @@ public class BatchedVertexConsumerTest extends Scene {
 
         mesh.draw(ctx);
 
-        matricesBuf.nextFrame();
+        fsqc.vertices(new FullscreenQuadVertex(-1.0f, -1.0f, 0.0f, 0.0f)); // 0
+        fsqc.vertices(new FullscreenQuadVertex( 1.0f, -1.0f, 1.0f, 0.0f)); // 1
+        fsqc.vertices(new FullscreenQuadVertex( 1.0f,  1.0f, 1.0f, 1.0f)); // 2
+        fsqc.vertices(new FullscreenQuadVertex(-1.0f,  1.0f, 0.0f, 1.0f)); // 3
+        fsqc.indices(0, 1, 2, 0, 2, 3);
+
+        var tex = (VulkanTexture) getRenderer().depthTarget();
+        tex.transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
+
+        depthTexFSQ.set(tex, Samplers.LINEAR);
+        ctx.getCommandBuffer().bindPipeline(FSQ);
+        ctx.getCommandBuffer().bindDescriptorSets(FSQ);
+        //fsqc.draw(ctx);
     }
 
     @Override
@@ -168,5 +194,30 @@ public class BatchedVertexConsumerTest extends Scene {
 
     @Override
     public void free() {}
+
+    public static class FullscreenQuadVertex extends Vertex {
+
+        public static final FullscreenQuadVertex TEMPLATE = new FullscreenQuadVertex(0, 0, 0, 0);
+
+        private float x, y, u, v;
+
+        public FullscreenQuadVertex(float x, float y, float u, float v) {
+            this.x = x;
+            this.y = y;
+            this.u = u;
+            this.v = v;
+        }
+
+        @Override
+        public int getByteStride() {
+            return 4 * Float.BYTES;
+        }
+
+        @Override
+        public void putSelf(VertexByteSink buf) {
+            buf.float2(x, y);
+            buf.float2(u, v);
+        }
+    }
 
 }

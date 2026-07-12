@@ -16,6 +16,18 @@ public class GeneralBuffer extends CpuBuffer {
         alloc(baseCap * getByteStride());
     }
 
+    public GeneralBuffer(ByteBuffer data, boolean copy) {
+        super(data.capacity(), false);
+        this.stride = 1;
+        if (copy) {
+            alloc(data.capacity());
+            MemoryUtil.memCopy(MemoryUtil.memAddress(data), MemoryUtil.memAddress(this.data), data.remaining());
+        } else {
+            this.data = data;
+        }
+        this.elementCount = data.remaining();
+    }
+
     @Override
     protected void alloc(int size) {
         data = MemoryUtil.memAlloc(size);

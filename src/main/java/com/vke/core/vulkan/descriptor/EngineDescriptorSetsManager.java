@@ -111,13 +111,13 @@ public class EngineDescriptorSetsManager implements Disposable {
         var writer = layout.writer;
         switch (uh) {
             case CISHandle handle ->
-                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.views, handle.cisBinding.samplers);
             case CISArrayHandle handle ->
-                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.textures, handle.cisBinding.samplers);
+                    writer.writeCombinedImageSamplers(dsh, handle.binding, handle.cisBinding.views, handle.cisBinding.samplers);
             case ImageHandle handle ->
-                    writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                    writer.writeImages(dsh, handle.binding, handle.imgBinding.views, handle.type);
             case ImageArrayHandle handle ->
-                    writer.writeImages(dsh, handle.binding, handle.imgBinding.textures, handle.type);
+                    writer.writeImages(dsh, handle.binding, handle.imgBinding.views, handle.type);
             case SamplerHandle handle ->
                     writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
             case SamplerArrayHandle handle ->

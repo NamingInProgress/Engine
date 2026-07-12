@@ -3,6 +3,7 @@ package com.vke.api.rendering.abstraction.data;
 import com.vke.api.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.*;
+import com.vke.core.vulkan.extent.Extent2D;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
 
@@ -234,7 +235,22 @@ public interface Texture extends Disposable, QuadTexture {
             return this;
         }
 
+        public TextureDescriptorBuilder size(Extent2D ext) {
+            this.width = ext.width;
+            this.height = ext.height;
+            return this;
+        }
+
+        public TextureDescriptorBuilder size(Extent3D ext) {
+            this.width = ext.width;
+            this.height = ext.height;
+            this.depth = ext.depth;
+            return this;
+        }
+
         public TextureDesc build() {
+            if (width == 0 || height == 0 || format == null || usage == null || type == null)
+                throw new IllegalStateException("Cannot build image without one of these: width, height, format, usage, type");
             return new TextureDesc(width, height, depth, mipLevels, arrayLayers,
                     format, usage, samples, type, memUsage, tiling, generateMips);
         }
@@ -246,6 +262,10 @@ public interface Texture extends Disposable, QuadTexture {
     default int width() { return description().width; }
     default int height() { return description().height; }
     default int depth() { return description().depth; }
+
+    default int width(int mip) { return (int) (description().width / Math.pow(2, mip)); }
+    default int height(int mip) { return (int) (description().height / Math.pow(2, mip)); }
+    default int depth(int mip) { return (int) (description().depth / Math.pow(2, mip)); }
 
     default int mipLevels() { return description().mipLevels; }
     default int arrayLayers() { return description().arrayLayers; }

@@ -20,6 +20,12 @@ public class ImageUsage implements IntBitEnum<ImageUsage, ImageUsage.Bits> {
         return this;
     }
 
+    public static ImageUsage of(int mask) {
+        ImageUsage self = new ImageUsage();
+        self.mask = mask;
+        return self;
+    }
+
     @Override
     public int getVkHandle() {
         return mask;

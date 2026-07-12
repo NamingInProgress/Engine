@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.data.Buffer;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
 import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.BackendType;
@@ -13,7 +13,6 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
-import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.png.Pixels;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
@@ -26,7 +25,7 @@ public interface RenderDevice extends Disposable {
     DeviceCapabilities capabilities();
 
     /** MEMORY ALLOC **/
-    Buffer createBuffer(Buffer.Description info);
+    GpuBuffer createBuffer(GpuBuffer.Description info);
     Texture createTexture(Pixels pixels, Texture.TextureDesc info);
     Sampler createSampler(Sampler.Description info);
     Shader createShader(Identifier identifier, ShaderType type) throws IOException;

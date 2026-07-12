@@ -4,6 +4,9 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
+import com.vke.api.rendering.abstraction.enums.texture.TextureType;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
@@ -45,7 +48,13 @@ public class PngProtocol implements AssetProtocol<Texture> {
             return Utils.chainExceptions(() -> {
                 PngFile pngFile = new PngFile(identifier.asInputStream());
                 Pixels pixels = pngFile.getOutput();
-                Texture.TextureDesc desc = Texture.TextureDesc.albedo2D(pngFile.getPngInfo().width, pngFile.getPngInfo().height);
+                Texture.TextureDesc desc = Texture.TextureDesc.builder()
+                        .width(pngFile.getPngInfo().width)
+                        .height(pngFile.getPngInfo().height)
+                        .format(Format.RGBA8_SRGB)
+                        .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
+                        .type(TextureType.TEX_2D)
+                        .build();
 
                 EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
                 Renderer renderer = context.service(rendererType.serviceName);

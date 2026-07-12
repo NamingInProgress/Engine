@@ -1,12 +1,11 @@
 package com.vke.core.vulkan.buffers;
 
-import com.vke.api.rendering.abstraction.data.Buffer;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.utils.VKUtils;
-import com.vke.utils.iter.Iter;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;
@@ -19,7 +18,7 @@ import org.lwjgl.vulkan.VkDevice;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 
-public class GpuBuffer implements Buffer {
+public class VulkanGpuBuffer implements GpuBuffer {
     private static final String HERE = "Buffer@VulkanImpl/GPUBuffer";
 
     public static int counter = 0;
@@ -37,11 +36,11 @@ public class GpuBuffer implements Buffer {
 
     private int idx;
 
-    public GpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
+    public VulkanGpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
         this(engine, device, info.size(), info.usage(), info.memUsage(), info.flags());
     }
 
-    private GpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage, int... flags) {
+    private VulkanGpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage, int... flags) {
         this.size = size;
         this.usage = usageFlags;
         this.memUsage = memoryUsage;

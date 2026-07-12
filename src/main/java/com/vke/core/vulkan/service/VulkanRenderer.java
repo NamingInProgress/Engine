@@ -7,6 +7,7 @@ import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.shader.Shader;
@@ -34,6 +35,7 @@ import com.vke.core.vulkan.shr.service.ShaderReflector;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;
 import org.lwjgl.system.MemoryStack;
@@ -42,6 +44,7 @@ import org.lwjgl.vulkan.KHRSwapchain;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static com.vke.core.VKEngine.profiler;
 
@@ -216,6 +219,13 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     }
 
     public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer, Runnable finisher) {
+        immediateSubmit((stack, cmd) -> {
+            consumer.accept(stack, cmd);
+            return finisher;
+        });
+    }
+
+    public void immediateSubmit(BiFunction<MemoryStack, VulkanCmdBuffers, Runnable> func) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanFence fence = immediateFrame.getRenderFence();
             VulkanCmdBuffers cmd = immediateFrame.getBuffers();
@@ -224,7 +234,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
             cmd.reset();
 
             cmd.beginImmediate();
-            consumer.accept(stack, cmd);
+            Runnable finisher = func.apply(stack, cmd);
             cmd.endImmediate();
 
             device.submit(cmd, CommandBuffer.SubmitInfo.immediate(fence));
@@ -264,6 +274,16 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
         return this.vertexConsumerProvider;
     }
 
+    @Override
+    public VulkanTexture renderTarget() {
+        return swapchain.getColorImage();
+    }
+
+    @Override
+    public VulkanTexture depthTarget() {
+        return swapchain.getDepthImage();
+    }
+
     public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }
 
     public void scheduleDescriptorUpdate(VulkanPipelineLayout layout, UniformHandle handle) {
@@ -288,7 +308,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     public record FrameData(VulkanFrame frame, MemoryStack stack, int imageIndex, FrameContext context) {}
 
     public static class IntWrapper {
-
         public IntWrapper() {
             anInt = 0;
         }

@@ -1,0 +1,29 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "lineWidth": 4,
+  "attachments": [
+    {
+      "type": "COLOR",
+      "blendEnable": true
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F",
+      "depthCompareOperation": "LESS",
+      "depthTestEnable": false,
+      "depthWriteEnable": false
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/fullscreen_quad.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/fullscreen_quad.fsh"
+    }
+  ]
+}

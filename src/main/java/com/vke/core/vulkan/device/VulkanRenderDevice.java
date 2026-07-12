@@ -1,11 +1,10 @@
 package com.vke.core.vulkan.device;
 
-import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.data.Buffer;
+import com.vke.api.rendering.abstraction.data.GpuBuffer;
 import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.BackendType;
@@ -26,8 +25,9 @@ import com.vke.core.services2.Services;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
+import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.core.vulkan.utils.VKUtils;
-import com.vke.core.vulkan.buffers.GpuBuffer;
+import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.vulkan.createInfos.LogicalDeviceCreateInfo;
 import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.core.vulkan.VulkanFrame;
@@ -39,7 +39,6 @@ import com.vke.core.vulkan.shader.VulkanShader;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
-import com.vke.core.vulkan.texture.VulkanTexture;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
@@ -232,13 +231,15 @@ public class VulkanRenderDevice implements RenderDevice {
         return cachedCapabilities;
     }
 
-    public GpuBuffer createBuffer(Buffer.Description info) {
-        return new GpuBuffer(this.engine, this, info);
+    public VulkanGpuBuffer createBuffer(GpuBuffer.Description info) {
+        return new VulkanGpuBuffer(this.engine, this, info);
     }
 
     @Override
     public VulkanTexture createTexture(Pixels pixels, Texture.TextureDesc info) {
-        return new VulkanTexture(this, pixels, info);
+        var texture = new VulkanTexture(this, info);
+        texture.upload(pixels);
+        return texture;
     }
 
     @Override
