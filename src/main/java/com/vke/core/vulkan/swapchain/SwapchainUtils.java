@@ -40,7 +40,6 @@ public class SwapchainUtils {
             IntBuffer pHeight = stack.mallocInt(1);
             GLFW.glfwGetFramebufferSize(windowHandle, pWidth, pHeight);
             VkExtent2D e = VKUtils.clampExtent(alloc, pWidth.get(0), pHeight.get(0), capabilities.minImageExtent(), capabilities.maxImageExtent());
-            System.out.println(e);
             return e;
         }
     }
