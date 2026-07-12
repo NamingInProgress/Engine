@@ -33,16 +33,9 @@ public class BundleCollector {
 
         if (bundleVCLIdent.existsFile()) {
             try {
-                InputStream vclStream = bundleVCLIdent.asInputStream();
-                ConfigParser parser = ConfigParser.forFileType(bundleVCLIdent.getPath());
-                if (parser == null) {
-                    throw new Unreachable();
-                }
-                parser.setSource(Utils.readCharsFromInputStream(vclStream));
-                ConfigDocument document = parser.parse(ConfigParser.ATTRIBS_TO_FIELDS | ConfigParser.PARSE_LITERALS);
-
+                ConfigDocument document = ConfigDocument.parseIdentifier(bundleVCLIdent);
                 readBundleXml(context, bundle, document);
-            } catch (ConfigParser.ConfigParseException | IOException e) {
+            } catch (IOException e) {
                 context.throwException(e, "BundleVCL");
                 System.exit(67);
             }

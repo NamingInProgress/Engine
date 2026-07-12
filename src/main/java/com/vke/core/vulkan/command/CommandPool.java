@@ -15,6 +15,7 @@ public class CommandPool implements Disposable {
 
     private final long handle;
     private LogicalDevice device;
+    private boolean hasBeenFreed;
 
     public CommandPool(VKEngine engine, LogicalDevice device, QueueType type) {
         this.device = device;
@@ -39,6 +40,9 @@ public class CommandPool implements Disposable {
 
     @Override
     public void free() {
-        VK14.vkDestroyCommandPool(device.getDevice(), handle, null);
+        if (!hasBeenFreed) {
+            VK14.vkDestroyCommandPool(device.getDevice(), handle, null);
+        }
+        hasBeenFreed = true;
     }
 }
