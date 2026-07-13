@@ -2,22 +2,23 @@ package com.vke.core.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.services2.Services;
 import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 
-public class VulkanRendererAPI extends ServiceAPI implements LowRenderer {
+public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     public VulkanRendererAPI(ServiceImpl baseImpl) {
         super(Services.VULKAN_RENDERER, baseImpl);
     }
 
-    private LowRenderer getImpl() {
-        return (LowRenderer) getImplementation();
+    private Renderer getImpl() {
+        return (Renderer) getImplementation();
     }
 
     @Override

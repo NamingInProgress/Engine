@@ -3,7 +3,7 @@ package com.vke.core.scene.loading;
 import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
@@ -23,7 +23,7 @@ public class RectLoadingScene extends LoadingScene {
     @Override
     public void onLoad() throws Exception {
         System.out.println("RECTECAJSDFASJKDJASKDJ");
-        LowRenderer renderer = context.service(context.getEngine().rendererType().serviceName);
+        Renderer renderer = context.service(context.getEngine().rendererType().serviceName);
         this.vc = renderer.getVertexConsumerProvider().get(V.TEMPLATE);
     }
 

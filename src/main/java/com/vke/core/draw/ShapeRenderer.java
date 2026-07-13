@@ -1,7 +1,7 @@
 package com.vke.core.draw;
 
 import com.vke.api.draw.*;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.core.Context;
@@ -16,7 +16,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;
     private final Context ctx;
-    private final LowRenderer renderer;
+    private final Renderer renderer;
     private final ITextureManager texManager;
     private final MatrixStack matrixStack = new MatrixStack();
 

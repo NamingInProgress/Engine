@@ -7,7 +7,7 @@ import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.Service;
 
-public interface LowRenderer extends Service {
+public interface Renderer extends Service {
     RenderDevice getDevice();
     FrameCounter getFrameCounter();
     ITextureManager textureManager();

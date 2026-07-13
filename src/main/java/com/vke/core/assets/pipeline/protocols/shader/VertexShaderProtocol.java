@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.protocols.shader;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.Context;
@@ -44,7 +44,7 @@ public class VertexShaderProtocol implements AssetProtocol<Shader> {
             if (!executionTarget.isUsable(PipelineStage.ExecutionTarget.Main)) return null;
 
             EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-            LowRenderer renderer = context.service(rendererType.serviceName);
+            Renderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
             return Utils.chainExceptions(() ->

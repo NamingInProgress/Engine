@@ -3,10 +3,11 @@ package com.vke.core.vulkan.service;
 import com.vke.api.app.Framable;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.api.rendering.abstraction.shader.Shader;
@@ -47,7 +48,7 @@ import java.util.function.BiFunction;
 
 import static com.vke.core.VKEngine.profiler;
 
-public class VulkanRenderer extends ServiceImpl implements LowRenderer {
+public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     // Vulkan Stuff
     private VulkanSwapchain swapchain;

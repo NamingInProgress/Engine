@@ -3,7 +3,7 @@ package com.vke.core;
 import com.vke.api.app.App;
 import com.vke.api.app.Framable;
 import com.vke.api.app.Version;
-import com.vke.api.rendering.abstraction.LowRenderer;
+import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
@@ -122,7 +122,7 @@ public class VKEngine extends Context {
         }
 
         // TODO: Fix me
-        ((LowRenderer) this.service(Services.VULKAN_RENDERER)).getDevice().waitIdle();
+        ((Renderer) this.service(Services.VULKAN_RENDERER)).getDevice().waitIdle();
         free();
     }
 
