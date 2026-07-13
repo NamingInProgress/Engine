@@ -8,7 +8,6 @@ import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.*;
 import com.vke.core.input.mouse.Button;
 import com.vke.core.input.mouse.MouseScrollState;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.io.Identifier;
@@ -49,7 +48,7 @@ public class InputScene extends Scene {
     }
 
     @Override
-    public void onDraw(FrameContext ctx) {
+    public void onDraw() {
         if (kb.key(Key.W).isPressed()) {
             System.out.println("FORWARD!");
         }

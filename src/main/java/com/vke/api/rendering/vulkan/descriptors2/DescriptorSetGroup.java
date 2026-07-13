@@ -25,6 +25,7 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArra
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 
 import java.util.*;
 
@@ -36,19 +37,21 @@ public class DescriptorSetGroup {
     private final HandleParser parser = new HandleParser();
     private final LayoutResolver layoutResolver = new LayoutResolver();
 
+    private final VulkanRenderSystem ctx;
     private final VulkanPipelineLayout parent;
     private final FrameCounter fc;
 
     private final DescriptorWriter writer;
 
-    public DescriptorSetGroup(VulkanPipelineLayout parent, FrameCounter fc) {
+    public DescriptorSetGroup(VulkanRenderSystem ctx, VulkanPipelineLayout parent, FrameCounter fc) {
+        this.ctx = ctx;
         this.parent = parent;
         this.fc = fc;
         this.writer = parent.writer;
     }
 
     public void scheduleUpdate(UniformHandle handle) {
-        parent.getRenderer().scheduleDescriptorUpdate(parent, handle);
+        ctx.renderer().scheduleDescriptorUpdate(parent, handle);
     }
 
     public void setDirty(UniformHandle handle) {
@@ -143,7 +146,7 @@ public class DescriptorSetGroup {
             if (hasIndex) throw new IllegalStateException("Requested buffer with index from a non-array buffer!");
 
             for (DescriptorSet ds : set.getAllSets()) {
-                writer.writeBuffer(ds.getHandle(), layout.binding, layout.typeLayout.size, 0, binding.buffer.getGpuBuffer().getBuffer(), layout.type);
+                writer.writeBuffer(ds.handle(), layout.binding, layout.typeLayout.size, 0, binding.buffer.getGpuBuffer().getBuffer(), layout.type);
             }
 
             var buf = binding.buffer;

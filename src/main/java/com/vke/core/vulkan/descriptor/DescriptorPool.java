@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.cursors.ObjectIntCursor;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -16,12 +17,12 @@ import java.nio.LongBuffer;
 public class DescriptorPool implements Disposable {
 
     private final long handle;
-    private final VulkanRenderDevice device;
+    private final VulkanRenderSystem ctx;
 
     private boolean free;
 
-    public DescriptorPool(VKEngine engine, VulkanRenderDevice device, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight, boolean updateAfterBind) {
-        this.device = device;
+    public DescriptorPool(VulkanRenderSystem ctx, ObjectIntHashMap<DescriptorType> counts, int numSets, int framesInFlight, boolean updateAfterBind) {
+        this.ctx = ctx;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDescriptorPoolSize.Buffer countsBuffer = VkDescriptorPoolSize.calloc(counts.size(), stack);
@@ -43,8 +44,8 @@ public class DescriptorPool implements Disposable {
             }
 
             LongBuffer pPool = stack.mallocLong(1);
-            if (VK14.vkCreateDescriptorPool(device.getLogicalDevice().getDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create descriptor pool!"), "Descriptor Pool");
+            if (VK14.vkCreateDescriptorPool(ctx.device().vkLogicalDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create descriptor pool!"), "Descriptor Pool");
             }
 
             this.handle = pPool.get(0);
@@ -56,13 +57,13 @@ public class DescriptorPool implements Disposable {
     }
 
     public void reset() {
-        VK14.vkResetDescriptorPool(device.getLogicalDevice().getDevice(), handle, 0);
+        VK14.vkResetDescriptorPool(ctx.device().vkLogicalDevice(), handle, 0);
     }
 
     @Override
     public void free() {
         if (!free) {
-            VK14.vkDestroyDescriptorPool(device.getLogicalDevice().getDevice(), handle, null);
+            VK14.vkDestroyDescriptorPool(ctx.device().vkLogicalDevice(), handle, null);
             free = true;
         }
     }

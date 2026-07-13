@@ -2,6 +2,7 @@ package com.vke.core.vulkan.texture.texture2;
 
 import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
@@ -13,14 +14,14 @@ import java.util.Objects;
 public class VulkanImageView implements ImageView {
 
     private final ImageViewDesc desc;
-    private final VulkanRenderDevice device;
+    private final VulkanRenderSystem ctx;
 
     private final long handle;
 
     @SuppressWarnings("all")
-    public VulkanImageView(VulkanRenderDevice device, ImageViewDesc desc) {
+    public VulkanImageView(VulkanRenderSystem ctx, ImageViewDesc desc) {
         this.desc = desc;
-        this.device = device;
+        this.ctx = ctx;
 
         if (desc.mipCount == -1) desc.mipCount = VK14.VK_REMAINING_MIP_LEVELS;
         if (desc.layerCount == -1) desc.layerCount = VK14.VK_REMAINING_ARRAY_LAYERS;
@@ -41,7 +42,7 @@ public class VulkanImageView implements ImageView {
                     .subresourceRange(subresourceRange);
 
             LongBuffer pImageView = stack.mallocLong(1);
-            if (VK14.vkCreateImageView(device.getLogicalDevice().getDevice(), createInfo, null, pImageView) != VK14.VK_SUCCESS) {
+            if (VK14.vkCreateImageView(ctx.device().vkLogicalDevice(), createInfo, null, pImageView) != VK14.VK_SUCCESS) {
                 throw new IllegalStateException("Failed to create image view");
             }
 
@@ -62,7 +63,7 @@ public class VulkanImageView implements ImageView {
 
     @Override
     public void free() {
-        VK14.vkDestroyImageView(this.device.getLogicalDevice().getDevice(), this.handle, null);
+        VK14.vkDestroyImageView(ctx.device().vkLogicalDevice(), this.handle, null);
     }
 
     @Override

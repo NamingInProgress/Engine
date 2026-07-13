@@ -14,14 +14,13 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
-import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
-import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services2.Services;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.vulkan.shr.service.ShaderReflector;
@@ -83,7 +82,7 @@ public class VulkanRenderDevice implements RenderDevice {
     private final EngineCreateInfo engineCreateInfo;
     private final VulkanCreateInfo vulkanCreateInfo;
     private final VKEngine engine;
-    private final Context context;
+    private final VulkanRenderSystem context;
     private final VulkanRenderer renderer;
 
     private final AutoHeapAllocator alloc;
@@ -92,14 +91,14 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
 
-    public VulkanRenderDevice(Context context, EngineCreateInfo engineCreateInfo, VulkanRenderer renderer) {
+    public VulkanRenderDevice(VulkanRenderSystem context) {
         this.engine = context.getEngine();
         this.context = context;
-        this.engineCreateInfo = engineCreateInfo;
+        this.renderer = context.renderer();
+        this.engineCreateInfo = renderer.getCreateInfo();
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
         this.logger = LoggerFactory.get("Vulkan Setup");
-        this.renderer = renderer;
 
         initInstance();
         setupDebugMessenger(this.instance, engine);
@@ -232,19 +231,17 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     public VulkanGpuBuffer createBuffer(GpuBuffer.Description info) {
-        return new VulkanGpuBuffer(this.engine, this, info);
+        return new VulkanGpuBuffer(context, info);
     }
 
     @Override
-    public VulkanTexture createTexture(Pixels pixels, Texture.TextureDesc info) {
-        var texture = new VulkanTexture(this, info);
-        texture.upload(pixels);
-        return texture;
+    public VulkanTexture createTexture(Texture.TextureDesc info) {
+        return new VulkanTexture(this.context, info);
     }
 
     @Override
     public VulkanSampler createSampler(Sampler.Description info) {
-        return new VulkanSampler(this, info);
+        return new VulkanSampler(this.context, info);
     }
 
     @Override
@@ -256,7 +253,7 @@ public class VulkanRenderDevice implements RenderDevice {
             ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
                     .compileGlslToSpirV(bytes, shaderType, identifier);
 
-            VulkanShader shader = new VulkanShader(engine, logicalDevice, spirv, shaderType, SHADER_ID.get());
+            VulkanShader shader = new VulkanShader(context, spirv, shaderType, SHADER_ID.get());
             logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
 
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
@@ -313,12 +310,12 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanRenderPipeline createRenderPipeline(RenderPipelineData data) {
-        return new VulkanRenderPipeline(context, this, data);
+        return new VulkanRenderPipeline(context, data);
     }
 
     @Override
     public VulkanComputePipeline createComputePipeline(ComputePipelineData data) {
-        return new VulkanComputePipeline(context, this, data);
+        return new VulkanComputePipeline(context, data);
     }
 
     @Override
@@ -328,21 +325,21 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public VulkanSwapchain createSwapchain(Swapchain.Description info) {
-        return new VulkanSwapchain(info, this, engine);
+        return new VulkanSwapchain(info, context);
     }
 
-    public VulkanFrame[] createFrames(VulkanSwapchain swapchain) {
+    public VulkanFrame[] createFrames() {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter());
+            frames[i] = new VulkanFrame(context, getRenderer().getFrameCounter());
         }
 
         return frames;
     }
 
-    public VulkanFrame createImmediateFrame(VulkanSwapchain swapchain) {
-        return new VulkanFrame(engine, this, swapchain, getRenderer().getFrameCounter(), true);
+    public VulkanFrame createImmediateFrame() {
+        return new VulkanFrame(context, getRenderer().getFrameCounter(), true);
     }
 
     @Override
@@ -365,6 +362,9 @@ public class VulkanRenderDevice implements RenderDevice {
     public LogicalDevice getLogicalDevice() {
         return logicalDevice;
     }
+
+    public VkDevice vkLogicalDevice() { return logicalDevice.getDevice(); }
+    public VkPhysicalDevice physicalDevice() { return physicalDevice.getDevice(); }
 
     public long getSurface() {
         return surface;

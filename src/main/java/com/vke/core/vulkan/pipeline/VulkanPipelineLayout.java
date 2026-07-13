@@ -21,6 +21,7 @@ import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
@@ -40,9 +41,8 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     private final long handle;
 
-    private final VulkanRenderDevice device;
-    private final VKEngine engine;
     private final EngineDescriptorSetsManager engineSets;
+    private final VulkanRenderSystem ctx;
 
     private final PushConstants pushConstants;
 
@@ -54,34 +54,33 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
     public final DescriptorWriter writer;
 
-    public static VulkanPipelineLayout getLayout(VKEngine engine, VulkanRenderDevice device, PushConstants pc, List<DescriptorSetLayout> layouts) {
+    public static VulkanPipelineLayout getLayout(VulkanRenderSystem ctx, PushConstants pc, List<DescriptorSetLayout> layouts) {
         // TODO: Fix this making a new pipeline layout (This is technically fine but it is recommended to reuse)
-        FrameCounter fc = device.getRenderer().getFrameCounter();
+        FrameCounter fc = ctx.renderer().getFrameCounter();
 
         LayoutCapabilities cap = new LayoutCapabilities(pc == null ? null : pc.getLayout(), layouts);
         if (LAYOUT_CACHE.containsKey(cap)) return LAYOUT_CACHE.get(cap);
-        LAYOUT_CACHE.put(cap, new VulkanPipelineLayout(engine, device, fc, pc, layouts));
+        LAYOUT_CACHE.put(cap, new VulkanPipelineLayout(ctx, fc, pc, layouts));
         return LAYOUT_CACHE.get(cap);
     }
 
-    private VulkanPipelineLayout(VKEngine engine, VulkanRenderDevice device, FrameCounter fc, PushConstants pc, List<DescriptorSetLayout> layouts) {
-        this.engine = engine;
-        this.device = device;
+    private VulkanPipelineLayout(VulkanRenderSystem ctx, FrameCounter fc, PushConstants pc, List<DescriptorSetLayout> layouts) {
         this.pushConstants = pc;
-        this.writer = new DescriptorWriter(device);
-        this.engineSets = device.getRenderer().getEngineSetsManager();
+        this.ctx = ctx;
+        this.writer = new DescriptorWriter(ctx);
+        this.engineSets = ctx.renderer().getEngineSetsManager();
 
         ObjectIntHashMap<DescriptorType> counts = new ObjectIntHashMap<>();
         layouts.forEach(setLayout -> setLayout.bindings.forEach(bindingLayout ->
                 counts.addTo(bindingLayout.type, bindingLayout.descriptorCount)));
 
-        this.alloc = new DescriptorAllocator(engine, device, counts, layouts.size(), fc.framesInFlight(), false);
+        this.alloc = new DescriptorAllocator(ctx, counts, layouts.size(), fc.framesInFlight(), false);
 
         int engineSetsEnd = engineSets.ENGINE_PIPELINE_LAYOUT == null ? 0 : engineSets.highestSet + 1;
 
         if (engineSetsEnd == 0) {
             for (int i = 0; i < layouts.size(); i++) {
-                var ds = new DescriptorSetInstance(engine, device, alloc, layouts.get(i), fc, i);
+                var ds = new DescriptorSetInstance(ctx, alloc, layouts.get(i), fc, i);
                 engineSets.INSTANCES.add(ds);
                 sets.add(ds);
             }
@@ -92,7 +91,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
         for (int i = engineSetsEnd; i < layouts.size(); i++) {
             DescriptorSetLayout layout = layouts.get(i);
-            var ds = new DescriptorSetInstance(engine, device, alloc, layout, fc, i);
+            var ds = new DescriptorSetInstance(ctx, alloc, layout, fc, i);
             sets.add(ds);
         }
 
@@ -116,8 +115,8 @@ public class VulkanPipelineLayout implements PipelineLayout {
             createInfo.pPushConstantRanges(pushConstantsBuffer);
 
             LongBuffer pLayout = stack.mallocLong(1);
-            if (VK14.vkCreatePipelineLayout(device.getLogicalDevice().getDevice(), createInfo, null, pLayout) != VK14.VK_SUCCESS) {
-                engine.throwException(new RuntimeException("Failed to create Pipeline Layout"), "PipelineLayout@VulkanImpl");
+            if (VK14.vkCreatePipelineLayout(ctx.device().vkLogicalDevice(), createInfo, null, pLayout) != VK14.VK_SUCCESS) {
+                ctx.throwException(new RuntimeException("Failed to create Pipeline Layout"), "PipelineLayout@VulkanImpl");
             }
 
             this.handle = pLayout.get(0);
@@ -145,12 +144,12 @@ public class VulkanPipelineLayout implements PipelineLayout {
     }
 
     public DescriptorSetGroup getGroup() {
-        if (group == null) group = new DescriptorSetGroup(this, device.getRenderer().getFrameCounter());
+        if (group == null) group = new DescriptorSetGroup(ctx, this, ctx.renderer().getFrameCounter());
         return group;
     }
 
     public long getSetHandle(int set) {
-        return getSets().get(set).getSet().getHandle();
+        return getSets().get(set).getSet().handle();
     }
 
     public void writeHandles() {
@@ -190,13 +189,9 @@ public class VulkanPipelineLayout implements PipelineLayout {
             if (pushConstants != null) {
                 pushConstants.free();
             }
-            VK14.vkDestroyPipelineLayout(device.getLogicalDevice().getDevice(), this.handle, null);
+            VK14.vkDestroyPipelineLayout(ctx.device().vkLogicalDevice(), this.handle, null);
             free = true;
         }
-    }
-
-    public VulkanRenderer getRenderer() {
-        return this.device.getRenderer();
     }
 
     public record LayoutCapabilities(PushConstantLayout pc, List<DescriptorSetLayout> ds) {

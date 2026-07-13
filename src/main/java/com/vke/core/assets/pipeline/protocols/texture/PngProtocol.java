@@ -60,7 +60,7 @@ public class PngProtocol implements AssetProtocol<Texture> {
                 Renderer renderer = context.service(rendererType.serviceName);
                 RenderDevice device = renderer.getDevice();
 
-                return new AssetData(Protocols.PNG, device.createTexture(pixels, desc));
+                return new AssetData(Protocols.PNG, device.createTexture(desc).upload(pixels));
             });
         }
     }

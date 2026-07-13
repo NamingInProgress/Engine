@@ -4,6 +4,7 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.texture.texture2.VulkanImageView;
 import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.utils.io.Disposable;
@@ -24,8 +25,8 @@ public class DescriptorWriter implements Disposable {
     private final VulkanRenderDevice device;
     private AutoHeapAllocator alloc;
 
-    public DescriptorWriter(VulkanRenderDevice device) {
-        this.device = device;
+    public DescriptorWriter(VulkanRenderSystem ctx) {
+        this.device = ctx.device();
         this.alloc = new AutoHeapAllocator();
     }
 
@@ -144,7 +145,7 @@ public class DescriptorWriter implements Disposable {
                 }
             }
 
-            VK14.vkUpdateDescriptorSets(this.device.getLogicalDevice().getDevice(), buf, null);
+            VK14.vkUpdateDescriptorSets(device.vkLogicalDevice(), buf, null);
             clear();
         }
     }

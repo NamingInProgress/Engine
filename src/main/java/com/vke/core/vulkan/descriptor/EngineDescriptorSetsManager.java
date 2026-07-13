@@ -14,13 +14,14 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHan
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
 import com.vke.core.Context;
-import com.vke.core.rendering.draw.VulkanFrameDataManager;
+import com.vke.core.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.utils.io.Disposable;
@@ -47,9 +48,9 @@ public class EngineDescriptorSetsManager implements Disposable {
     private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, VulkanRenderer.IntWrapper> scheduledBindingUpdates = new HashMap<>();
     private final RecyclerArrayList<Pair<VulkanPipelineLayout, UniformHandle>> toRemoveBindingUpdates = new RecyclerArrayList<>(20);
 
-    public EngineDescriptorSetsManager(Context context, VulkanRenderer renderer, VulkanRenderDevice device, ReflectedShader truth) {
-        this.textureManager = new VulkanTextureManager(context, this, device, renderer.getBindlessTexturesCount());
-        context.getEngine().EVENT_BUS.register(textureManager);
+    public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader truth) {
+        this.textureManager = new VulkanTextureManager(ctx, this, ctx.renderer().getBindlessTexturesCount());
+        ctx.getEngine().EVENT_BUS.register(textureManager);
 
         for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : truth.getDescriptors().entrySet()) {
             for (ReflectedShader.DescriptorResource descriptorResource : entry.getValue()) {

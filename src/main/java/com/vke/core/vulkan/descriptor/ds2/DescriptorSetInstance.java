@@ -13,6 +13,7 @@ import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorAllocator;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 
@@ -25,18 +26,16 @@ public class DescriptorSetInstance implements Disposable {
     private final int set;
     private final CompiledDescriptorSetLayout compiledLayout;
     private final FrameCounter fc;
-    private final VKEngine engine;
-    private final VulkanRenderDevice device;
+    private final VulkanRenderSystem ctx;
 
-    public DescriptorSetInstance(VKEngine engine, VulkanRenderDevice device, DescriptorAllocator alloc,
+    public DescriptorSetInstance(VulkanRenderSystem ctx, DescriptorAllocator alloc,
                                  DescriptorSetLayout setLayout, FrameCounter fc, int set) {
         this.fc = fc;
         this.set = set;
         this.setObjects = new DescriptorSet[fc.framesInFlight()];
-        this.engine = engine;
-        this.device = device;
+        this.ctx = ctx;
 
-        this.compiledLayout = new CompiledDescriptorSetLayout(engine, device, setLayout, null);
+        this.compiledLayout = new CompiledDescriptorSetLayout(ctx, setLayout, null);
 
         setLayout.bindings.forEach(bindingLayout -> {
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
@@ -44,7 +43,7 @@ public class DescriptorSetInstance implements Disposable {
         });
 
         for (int i = 0; i < fc.framesInFlight(); i++) {
-            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout), device, engine);
+            setObjects[i] = new DescriptorSet(alloc.allocate(this.compiledLayout));
         }
     }
 
@@ -69,7 +68,7 @@ public class DescriptorSetInstance implements Disposable {
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
         return switch (layout.type) {
             case UNIFORM_BUFFER, STORAGE_BUFFER, UNIFORM_BUFFER_DYNAMIC, STORAGE_BUFFER_DYNAMIC -> {
-                var buffer = generateBuffer(engine, device, layout);
+                var buffer = generateBuffer(ctx, layout);
 
                 if (buffer == null) throw new RuntimeException("Failed to create buffer while making descriptor bindings!");
 
@@ -83,15 +82,15 @@ public class DescriptorSetInstance implements Disposable {
         };
     }
 
-    public static MappedBuffer generateBuffer(VKEngine engine, VulkanRenderDevice device, BindingLayout layout) {
+    public static MappedBuffer generateBuffer(VulkanRenderSystem ctx, BindingLayout layout) {
         BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();
-        int framesInFlight = device.getRenderer().getFrameCounter().framesInFlight();
+        int framesInFlight = ctx.renderer().getFrameCounter().framesInFlight();
 
         if (layout.staticBuffer) {
-            return new MappedBuffer(engine, device, layout.typeLayout.size, usage);
+            return new MappedBuffer(ctx, layout.typeLayout.size, usage);
         } else {
-            return new MappedGpuRingBuffer(engine, device, Utils.alignUpFast(layout.typeLayout.size,
-                    getAlign(device, layout)), framesInFlight * layout.multiWrite, usage);
+            return new MappedGpuRingBuffer(ctx, Utils.alignUpFast(layout.typeLayout.size,
+                    getAlign(ctx.device(), layout)), framesInFlight * layout.multiWrite, usage);
         }
     }
 

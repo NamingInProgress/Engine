@@ -2,10 +2,11 @@ package com.vke.core.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.RenderDevice;
+import com.vke.api.rendering.abstraction.RenderResourceManager;
+import com.vke.api.rendering.abstraction.RenderSystem;
 import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.data.IFrameDataManager;
-import com.vke.api.rendering.abstraction.data.ITextureManager;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.data.FrameDataManager;
+import com.vke.api.rendering.abstraction.data.TextureManager;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
@@ -32,13 +33,13 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     }
 
     @Override
-    public ITextureManager textureManager() {
-        return getImpl().textureManager();
+    public RenderSystem renderSystem() {
+        return getImpl().renderSystem();
     }
 
     @Override
-    public IFrameDataManager frameDataManager() {
-        return getImpl().frameDataManager();
+    public RenderResourceManager resourceManager() {
+        return getImpl().resourceManager();
     }
 
     @Override
@@ -46,13 +47,4 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
         return getImpl().getVertexConsumerProvider();
     }
 
-    @Override
-    public VulkanTexture renderTarget() {
-        return (VulkanTexture) getImpl().renderTarget();
-    }
-
-    @Override
-    public VulkanTexture depthTarget() {
-        return (VulkanTexture) getImpl().depthTarget();
-    }
 }

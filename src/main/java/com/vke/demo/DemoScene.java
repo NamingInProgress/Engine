@@ -2,25 +2,28 @@ package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
+import com.vke.api.rendering.abstraction.RenderResourceManager;
+import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.data.StaticMesh;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.scene.RenderingScene;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.rendering.pipeline.RenderPipelines;
-import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
+import com.vke.core.vulkan.buffers.premade.mesh.VulkanStaticMesh;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
 
-public class DemoScene extends Scene {
+public class DemoScene extends RenderingScene {
 
     public DemoScene(Identifier name, Context context) {
         super(name, context);
     }
 
-    private StaticMeshBuffer mesh;
+    private StaticMesh mesh;
 
     @Override
     public void onLoad() {
@@ -33,7 +36,9 @@ public class DemoScene extends Scene {
 
         float[] color = {1, 1, 1, 1};
 
-        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(),
+        RenderResourceManager resManager = getRenderer().resourceManager();
+
+        mesh = resManager.uploadStaticMesh(
                 prefab.toMesh((prefabVertex -> new CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
@@ -46,11 +51,12 @@ public class DemoScene extends Scene {
                         color[0],
                         color[1],
                         color[2],
-                        color[3]))));
+                        color[3])))
+        );
     }
 
     @Override
-    public void onDraw(FrameContext ctx) {
+    public void onDraw() {
         Matrix4f model = new Matrix4f();
 
         float time = (System.nanoTime() / 1_000_000_000.0f);
@@ -64,16 +70,16 @@ public class DemoScene extends Scene {
                 .rotateY(time * speed);
 
         RenderPipelines.DEMO.setLocal(model);
-        RenderPipelines.DEMO.use(ctx);
-        mesh.draw(ctx);
+        RenderPipelines.DEMO.use();
+        mesh.draw();
     }
 
     @Override
     public void free() {
-        mesh.free();
+
     }
 
-    public static class CubeVertexFormat extends Vertex {
+    public static class CubeVertexFormat implements Vertex {
 
         private float x, y, z;
         private float nx, ny, nz;
@@ -98,7 +104,7 @@ public class DemoScene extends Scene {
         }
 
         @Override
-        public void putSelf(VertexEcoder buf) {
+        public void putSelf(VertexEncoder buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);

@@ -1,17 +1,19 @@
 package com.vke.core.rendering.bytesenik;
 
 import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 
 import java.nio.ByteBuffer;
 
-public class VulkanVertexEncoder implements VertexEcoder {
+public class VulkanVertexEncoder implements VertexEncoder {
 
     private final ByteBuffer buffer;
+    private final VulkanRenderSystem vkCtx;
 
-    public VulkanVertexEncoder(ByteBuffer buffer) {
+    public VulkanVertexEncoder(VulkanRenderSystem vkCtx, ByteBuffer buffer) {
         this.buffer = buffer;
+        this.vkCtx = vkCtx;
     }
 
     @Override
@@ -36,6 +38,6 @@ public class VulkanVertexEncoder implements VertexEcoder {
 
     @Override
     public void sampler2D(Texture texture) {
-        //buffer.putInt(context.)
+        buffer.putInt(vkCtx.textureManager().texture(texture));
     }
 }

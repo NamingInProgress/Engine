@@ -1,9 +1,8 @@
-package com.vke.api.rendering.vulkan.buffer;
+package com.vke.api.rendering.abstraction.data;
 
-import com.vke.api.rendering.abstraction.data.Texture;
 import org.joml.*;
 
-public interface VertexEcoder {
+public interface ByteEncoder {
     // float
     void float1(float x);
 
@@ -162,6 +161,4 @@ public interface VertexEcoder {
     default void double4(double[] v) {
         double4(v[0], v[1], v[2], v[3]);
     }
-
-    void sampler2D(Texture texture);
 }

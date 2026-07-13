@@ -3,6 +3,7 @@ package com.vke.core.vulkan.sync;
 import com.vke.api.rendering.abstraction.sync.Semaphore;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
@@ -15,9 +16,9 @@ public class VulkanSemaphore implements Semaphore {
     private final long handle;
     private final LogicalDevice device;
 
-    private VulkanSemaphore(LogicalDevice device, long handle) {
+    private VulkanSemaphore(VulkanRenderSystem ctx, long handle) {
         this.handle = handle;
-        this.device = device;
+        this.device = ctx.device().getLogicalDevice();
     }
 
     public long getHandle() { return this.handle; }
@@ -39,29 +40,29 @@ public class VulkanSemaphore implements Semaphore {
         return submitInfo;
     }
 
-    public static VulkanSemaphore createSemaphore(VKEngine engine, LogicalDevice device, VkSemaphoreCreateInfo createInfo) {
+    public static VulkanSemaphore createSemaphore(VulkanRenderSystem ctx, VkSemaphoreCreateInfo createInfo) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pSemaphore = stack.mallocLong(1);
-            if (VK14.vkCreateSemaphore(device.getDevice(), createInfo, null, pSemaphore) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
+            if (VK14.vkCreateSemaphore(ctx.device().vkLogicalDevice(), createInfo, null, pSemaphore) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new VulkanSemaphore(device, pSemaphore.get(0));
+            return new VulkanSemaphore(ctx, pSemaphore.get(0));
         }
     }
 
-    public static VulkanSemaphore createSemaphore(VKEngine engine, LogicalDevice device) {
+    public static VulkanSemaphore createSemaphore(VulkanRenderSystem ctx) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var i = VkSemaphoreCreateInfo.calloc(stack);
             i.flags(0);
             i.sType$Default();
 
             LongBuffer pSemaphore = stack.mallocLong(1);
-            if (VK14.vkCreateSemaphore(device.getDevice(), i, null, pSemaphore) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
+            if (VK14.vkCreateSemaphore(ctx.device().vkLogicalDevice(), i, null, pSemaphore) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create semaphore!"), "SEMAPHORE_createSemaphore");
             }
 
-            return new VulkanSemaphore(device, pSemaphore.get(0));
+            return new VulkanSemaphore(ctx, pSemaphore.get(0));
         }
     }
 

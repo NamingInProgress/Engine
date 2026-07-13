@@ -1,22 +1,17 @@
 package com.vke.core.vulkan.swapchain;
 
 import com.vke.api.rendering.abstraction.IntEnum;
-import com.vke.api.rendering.abstraction.RenderDevice;
 import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.BackendType;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.*;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 import com.vke.api.rendering.abstraction.sync.Semaphore;
-import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.device.VulkanQueue;
-import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import org.lwjgl.system.MemoryStack;
@@ -45,29 +40,25 @@ public class VulkanSwapchain implements Swapchain {
     private final ArrayList<VulkanTexture> colorImages = new ArrayList<>();
     private final ArrayList<VulkanTexture> depthImages = new ArrayList<>();
 
-    private int currentImageIndex;
+    private final VulkanRenderSystem ctx;
 
-    // Engine Infos
-    private final VKEngine engine;
-    private final VulkanRenderDevice device;
-    private final long windowHandle;
+    private int currentImageIndex;
 
     private final AutoHeapAllocator alloc;
 
-    public VulkanSwapchain(Description description, VulkanRenderDevice device, VKEngine engine) {
-        this.device = device;
-        this.engine = engine;
+    public VulkanSwapchain(Description description, VulkanRenderSystem ctx) {
+        this.ctx = ctx;
         this.vsync = description.vsync();
-        this.windowHandle = description.windowHandle();
-        this.surface = this.device.getSurface();
+        this.surface = ctx.device().getSurface();
         this.alloc = new AutoHeapAllocator();
 
-        setupInfoStructs(this.device.getPhysicalDevice().getDevice(), this.device.getSurface());
-        createSwapchain(this.device.getLogicalDevice());
+        setupInfoStructs();
+        createSwapchain();
     }
 
-    private void setupInfoStructs(VkPhysicalDevice device, long surface) {
+    private void setupInfoStructs() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkPhysicalDevice device = ctx.device().getPhysicalDevice().getDevice();
             VkSurfaceCapabilitiesKHR pCap = alloc.allocStruct(VkSurfaceCapabilitiesKHR.SIZEOF, VkSurfaceCapabilitiesKHR::new);
 
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, pCap);
@@ -96,7 +87,7 @@ public class VulkanSwapchain implements Swapchain {
 
         VkSurfaceFormatKHR pickedFormat = SwapchainUtils.chooseFormat(formats);
         int presentMode = SwapchainUtils.choosePresentMode(modes, vsync);
-        VkExtent2D extent2D = SwapchainUtils.chooseExtent(capabilities, alloc, windowHandle);
+        VkExtent2D extent2D = SwapchainUtils.chooseExtent(capabilities, alloc, ctx.windowHandle());
         int minImageCount = Math.max(3, capabilities.minImageCount());
         minImageCount = ( capabilities.maxImageCount() > 0 && minImageCount > capabilities.maxImageCount() ) ? capabilities.maxImageCount() : minImageCount;
 
@@ -114,8 +105,8 @@ public class VulkanSwapchain implements Swapchain {
                 .oldSwapchain(VK14.VK_NULL_HANDLE)
                 .clipped(true);
 
-        VulkanQueue graphicsQueue = device.getQueue(QueueType.GRAPHICS);
-        VulkanQueue presentQueue = device.getQueue(QueueType.PRESENT);
+        VulkanQueue graphicsQueue = ctx.device().getQueue(QueueType.GRAPHICS);
+        VulkanQueue presentQueue = ctx.device().getQueue(QueueType.PRESENT);
 
         if (!graphicsQueue.equals(presentQueue)) {
             IntBuffer queueIndices = stack.ints(graphicsQueue.index(), presentQueue.index()); // replaced alloc!
@@ -137,22 +128,23 @@ public class VulkanSwapchain implements Swapchain {
         return info;
     }
 
-    private void createSwapchain(LogicalDevice device) {
+    private void createSwapchain() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pSwapChain = stack.callocLong(1);
             VkSwapchainCreateInfoKHR createInfo = getCreateInfo(stack);
 
-            if (KHRSwapchain.vkCreateSwapchainKHR(device.getDevice(), createInfo, null, pSwapChain) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create Swap Chain!"), HERE);
+            if (KHRSwapchain.vkCreateSwapchainKHR(ctx.device().vkLogicalDevice(), createInfo, null, pSwapChain) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create Swap Chain!"), HERE);
             }
 
             this.swapchain = pSwapChain.get(0);
 
-            createImages(stack, device);
+            createImages(stack);
         }
     }
 
-    private void createImages(MemoryStack stack, LogicalDevice device) {
+    private void createImages(MemoryStack stack) {
+        LogicalDevice device = ctx.device().getLogicalDevice();
         // COLOR
         IntBuffer count = stack.mallocInt(1);
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, null);
@@ -161,7 +153,7 @@ public class VulkanSwapchain implements Swapchain {
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, images);
 
         for (int i = 0; i < count.get(0); i++) {
-            VulkanTexture image = new VulkanTexture(this.device, images.get(i),
+            VulkanTexture image = new VulkanTexture(this.ctx, images.get(i),
                     Texture.TextureDesc.builder()
                             .size(VulkanExtentUtils.ofVk(extent))
                             .format(format)
@@ -178,7 +170,7 @@ public class VulkanSwapchain implements Swapchain {
 
         // DEPTH
         for (int i = 0; i < count.get(0); i++) {
-            VulkanTexture depthImage = new VulkanTexture(this.device,
+            VulkanTexture depthImage = new VulkanTexture(this.ctx,
                     Texture.TextureDesc.builder()
                             .size(VulkanExtentUtils.ofVk(extent))
                             .format(Format.DEPTH32F)
@@ -219,7 +211,7 @@ public class VulkanSwapchain implements Swapchain {
                     .semaphore(((VulkanSemaphore) imageAvailable).getHandle())
                     .sType$Default();
             IntBuffer pNextImageIndex = stack.mallocInt(1);
-            int VK_RESULT = KHRSwapchain.vkAcquireNextImage2KHR(device.getLogicalDevice().getDevice(), acquireInfo, pNextImageIndex);
+            int VK_RESULT = KHRSwapchain.vkAcquireNextImage2KHR(ctx.device().vkLogicalDevice(), acquireInfo, pNextImageIndex);
             // VK_SUCCESS and VK_SUBOPTIMAL_KHR both signal the semaphore/fence and return a valid
             // image index; only genuine error codes (negative) must skip consuming them.
             if (VK_RESULT != VK14.VK_SUCCESS && VK_RESULT != KHRSwapchain.VK_SUBOPTIMAL_KHR) {
@@ -246,12 +238,12 @@ public class VulkanSwapchain implements Swapchain {
             presentInfo.pWaitSemaphores(stack.longs(((VulkanSemaphore) renderFinished).getHandle()));
             presentInfo.swapchainCount(1);
 
-            int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(device.getQueue(QueueType.PRESENT).vk(), presentInfo);
+            int VK_RESULT = KHRSwapchain.vkQueuePresentKHR(ctx.device().getQueue(QueueType.PRESENT).vk(), presentInfo);
             if (VK_RESULT != VK14.VK_SUCCESS) {
                 if (VK_RESULT == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || VK_RESULT == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
                     recreate();
                 } else {
-                    engine.getLogger().warn("Failed to present queue!");
+                    ctx.getLogger().warn("Failed to present queue!");
                 }
             }
         }
@@ -266,15 +258,15 @@ public class VulkanSwapchain implements Swapchain {
     public void recreate() {
         destroy();
 
-        KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice().getDevice(), device.getSurface(), capabilities);
+        KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(ctx.device().getPhysicalDevice().getDevice(), ctx.device().getSurface(), capabilities);
 
-        createSwapchain(device.getLogicalDevice());
+        createSwapchain();
     }
 
     @Override
     public void destroy() {
-        this.device.waitIdle();
-        KHRSwapchain.vkDestroySwapchainKHR(device.getLogicalDevice().getDevice(), this.swapchain, null);
+        this.ctx.device().waitIdle();
+        KHRSwapchain.vkDestroySwapchainKHR(this.ctx.device().vkLogicalDevice(), this.swapchain, null);
 
         this.colorImages.forEach(VulkanTexture::free);
         this.depthImages.forEach(VulkanTexture::free);

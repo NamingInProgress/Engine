@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -17,13 +18,14 @@ public class VulkanShader implements Shader {
 
     private final ShaderType type;
     private final long handle;
-    private final LogicalDevice device;
+    private final VulkanRenderSystem ctx;
     private final long id;
     private boolean hasBeenFreed;
 
-    public VulkanShader(VKEngine engine, LogicalDevice device, ByteBuffer sourceCode, ShaderType type, long id) {
-        this.device = device;
+    public VulkanShader(VulkanRenderSystem ctx, ByteBuffer sourceCode, ShaderType type, long id) {
         this.id = id;
+        this.ctx = ctx;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkShaderModuleCreateInfo shaderCreateInfo = VkShaderModuleCreateInfo.calloc(stack)
                     .sType$Default()
@@ -31,8 +33,8 @@ public class VulkanShader implements Shader {
 
             LongBuffer pShaderModule = stack.mallocLong(1);
 
-            if (VK14.vkCreateShaderModule(device.getDevice(), shaderCreateInfo, null, pShaderModule) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create shader module!"), "SHADER_INIT");
+            if (VK14.vkCreateShaderModule(ctx.device().vkLogicalDevice(), shaderCreateInfo, null, pShaderModule) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create shader module!"), "SHADER_INIT");
             }
             this.handle = pShaderModule.get(0);
         }
@@ -84,7 +86,7 @@ public class VulkanShader implements Shader {
     @Override
     public void free() {
         if (!hasBeenFreed) {
-            VK14.vkDestroyShaderModule(device.getDevice(), handle, null);
+            VK14.vkDestroyShaderModule(ctx.device().vkLogicalDevice(), handle, null);
         }
         hasBeenFreed = true;
     }

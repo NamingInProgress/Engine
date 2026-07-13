@@ -1,8 +1,7 @@
 package com.vke.core.vulkan.command;
 
-import com.vke.core.VKEngine;
 import com.vke.api.rendering.abstraction.enums.QueueType;
-import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -14,21 +13,21 @@ public class CommandPool implements Disposable {
     private static final String HERE = "CommandPool";
 
     private final long handle;
-    private LogicalDevice device;
     private boolean hasBeenFreed;
+    private final VulkanRenderSystem vkCtx;
 
-    public CommandPool(VKEngine engine, LogicalDevice device, QueueType type) {
-        this.device = device;
+    public CommandPool(VulkanRenderSystem vkCtx, QueueType type) {
+        this.vkCtx = vkCtx;
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandPoolCreateInfo poolCreateInfo = VkCommandPoolCreateInfo.calloc(stack)
                     .sType$Default()
                     .flags(VK14.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-                    .queueFamilyIndex(device.getQueue(type).index());
+                    .queueFamilyIndex(vkCtx.device().getQueue(type).index());
 
             LongBuffer pPool = stack.mallocLong(1);
-            if (VK14.vkCreateCommandPool(device.getDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create command pool for type %s".formatted(type)), HERE);
+            if (VK14.vkCreateCommandPool(vkCtx.device().vkLogicalDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {
+                vkCtx.throwException(new IllegalStateException("Failed to create command pool for type %s".formatted(type)), HERE);
             }
             this.handle = pPool.get(0);
         }
@@ -41,7 +40,7 @@ public class CommandPool implements Disposable {
     @Override
     public void free() {
         if (!hasBeenFreed) {
-            VK14.vkDestroyCommandPool(device.getDevice(), handle, null);
+            VK14.vkDestroyCommandPool(vkCtx.device().vkLogicalDevice(), handle, null);
         }
         hasBeenFreed = true;
     }

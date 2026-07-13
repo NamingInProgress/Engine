@@ -42,7 +42,8 @@ public class PngTextureConverter implements AssetConverter {
                 .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
                 .type(TextureType.TEX_2D)
                 .build();
-        Texture texture = device.createTexture(png.getOutput(), desc);
+        Texture texture = device.createTexture(desc);
+        texture.upload(png.getOutput());
         return new AssetData(Protocols.TEXTURE, texture);
     }
 }

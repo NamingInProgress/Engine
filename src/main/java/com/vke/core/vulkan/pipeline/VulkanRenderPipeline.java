@@ -1,5 +1,6 @@
 package com.vke.core.vulkan.pipeline;
 
+import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.ShaderType;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
@@ -12,6 +13,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.shr.ReflectedShader;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.shader.VKShaderProgram;
@@ -24,26 +26,25 @@ import java.util.*;
 
 public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
-    private final Context context;
-    private final VulkanRenderDevice device;
+    private final VulkanRenderSystem ctx;
 
     private final VulkanPipelineLayout layout;
+    private final RenderPipelineData data;
 
     private final long handle;
 
-    public VulkanRenderPipeline(Context context, VulkanRenderDevice device, RenderPipelineData data) {
-        this.context = context;
-        this.device = device;
+    public VulkanRenderPipeline(VulkanRenderSystem ctx, RenderPipelineData data) {
+        this.ctx = ctx;
+        this.data = data;
 
-        data.compiledShaders = VKShaderProgram.asVkShaderProgram(context, data.shaders);
+        data.compiledShaders = VKShaderProgram.asVkShaderProgram(ctx, data.shaders);
 
-        var shaders = getReflectedShaders(context, data.compiledShaders);
-        List<DescriptorSetLayout> ds = createDescriptorSets(context, shaders);
+        var shaders = getReflectedShaders(ctx, data.compiledShaders);
+        List<DescriptorSetLayout> ds = createDescriptorSets(ctx, shaders);
         PushConstants pc = createPushConstants(shaders);
         data.vertexLayoutData = createVertexLayouts(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VKEngine engine = context.getEngine();
             var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(RenderPipelineData.DynamicState::getVkHandle).toArray());
             var vertexInputs = getVertexInputs(stack, data.vertexLayoutData);
             var rasterInfo = getRasterInfo(stack, data);
@@ -56,7 +57,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
             var renderInfo = getRenderingInfo(stack, data, colorAttachmentFormats);
             var shaderStages = getShaderStages(stack, data.shaders, data.compiledShaders);
             var viewportInfo = getViewportInfo(stack);
-            this.layout = VulkanPipelineLayout.getLayout(engine, device, pc, ds);
+            this.layout = VulkanPipelineLayout.getLayout(ctx, pc, ds);
 
             VkGraphicsPipelineCreateInfo.Buffer pipelineCreateInfo = VkGraphicsPipelineCreateInfo.calloc(1, stack);
             pipelineCreateInfo.get(0)
@@ -77,9 +78,9 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
             LongBuffer pHandle = stack.mallocLong(1);
 
-            if (VK14.vkCreateGraphicsPipelines(device.getLogicalDevice().getDevice(),
+            if (VK14.vkCreateGraphicsPipelines(ctx.device().vkLogicalDevice(),
                     VK14.VK_NULL_HANDLE, pipelineCreateInfo, null, pHandle) != VK14.VK_SUCCESS) {
-                context.throwException(new IllegalStateException("Couldn't create graphics pipeline"), "GraphicsPipeline@VulkanImpl");
+                ctx.throwException(new IllegalStateException("Couldn't create graphics pipeline"), "GraphicsPipeline@VulkanImpl");
             }
 
             this.handle = pHandle.get(0);
@@ -264,8 +265,17 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
     @Override
     public void free() {
-        VK14.vkDestroyPipeline(device.getLogicalDevice().getDevice(), handle, null);
+        VK14.vkDestroyPipeline(ctx.device().vkLogicalDevice(), handle, null);
         layout.free();
     }
 
+    @Override
+    public Texture getDepthTarget() {
+        return ctx.swapchain().depthTarget();
+    }
+
+    @Override
+    public Texture getColorTarget(int index) {
+        return ctx.swapchain().getColorImage();
+    }
 }

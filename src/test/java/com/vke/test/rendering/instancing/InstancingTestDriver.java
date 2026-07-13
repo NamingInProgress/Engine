@@ -1,13 +1,12 @@
 package com.vke.test.rendering.instancing;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.rendering.abstraction.RenderSystem;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.Context;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import org.joml.Matrix4f;
 
@@ -22,8 +21,8 @@ public class InstancingTestDriver extends PipelineDriver {
 
     private final ArrayList<Matrix4f> matrices = new ArrayList<>();
 
-    public InstancingTestDriver(Context context, AssetHandle<? extends Pipeline> pipeline) {
-        super(pipeline);
+    public InstancingTestDriver(RenderSystem context, AssetHandle<? extends Pipeline> pipeline) {
+        super(context, pipeline);
         try {
             this.p = (VulkanRenderPipeline) pipeline.acquire(context);
         } catch (IOException e) {
@@ -46,12 +45,12 @@ public class InstancingTestDriver extends PipelineDriver {
     public void reset() { matrixBuffer.reset(); }
 
     @Override
-    public void use(FrameContext context) {
-        bind(context);
+    public void use() {
+        bind();
         projection.write((slice) -> slice.putMat4(new Matrix4f().setPerspective((float) Math.toRadians(90),
                 (float) 800 / 600, 0.1f, 1000, true)));
         matrixBuffer.write(slice -> matrices.forEach(slice::putMat4));
-        bindDescriptorSets(context);
-        bindPushConstants(context);
+        bindDescriptorSets();
+        bindPushConstants();
     }
 }

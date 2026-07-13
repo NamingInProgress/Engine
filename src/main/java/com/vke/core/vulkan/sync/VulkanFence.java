@@ -2,6 +2,7 @@ package com.vke.core.vulkan.sync;
 
 import com.vke.api.rendering.abstraction.sync.Fence;
 import com.vke.core.vulkan.device.LogicalDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
@@ -13,8 +14,8 @@ public class VulkanFence implements Fence {
     private final long handle;
     private final LogicalDevice device;
 
-    public VulkanFence(LogicalDevice device) {
-        this.device = device;
+    public VulkanFence(VulkanRenderSystem ctx) {
+        this.device = ctx.device().getLogicalDevice();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer pFence = stack.mallocLong(1);

@@ -4,11 +4,11 @@ import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 
 import com.vke.api.rendering.vulkan.descriptors.sets.DescriptorSet;
-import com.vke.core.Context;
 import com.vke.core.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.vulkan.descriptor.DescriptorPool;
 import com.vke.core.vulkan.descriptor.DescriptorWriter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -17,6 +17,7 @@ import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 
+@Deprecated
 public class DynamicDescriptorAllocator implements Disposable {
 
     private final ArrayList<DescriptorPool> fullPools = new ArrayList<>();
@@ -25,7 +26,7 @@ public class DynamicDescriptorAllocator implements Disposable {
 
     private final ArrayList<DescriptorSet> allocatedSets = new ArrayList<>();
 
-    private final Context context;
+    private final VulkanRenderSystem sys;
     private final VulkanRenderDevice device;
     private final DescriptorWriter writer;
 
@@ -33,12 +34,12 @@ public class DynamicDescriptorAllocator implements Disposable {
 
     private int setsPerPool;
 
-    public DynamicDescriptorAllocator(Context context, VulkanRenderDevice device, int initialSets, ObjectIntHashMap<DescriptorType> counts, boolean updateAfterBind) {
-        this.context = context;
-        this.device = device;
+    public DynamicDescriptorAllocator(VulkanRenderSystem sys, int initialSets, ObjectIntHashMap<DescriptorType> counts, boolean updateAfterBind) {
+        this.sys = sys;
+        this.device = sys.device();
         this.counts = counts;
         this.setsPerPool = initialSets;
-        this.writer = new DescriptorWriter(device);
+        this.writer = new DescriptorWriter(sys);
         this.updateAfterBind = updateAfterBind;
 
         readyPools.add(createPool(initialSets));
@@ -54,20 +55,20 @@ public class DynamicDescriptorAllocator implements Disposable {
                     .pSetLayouts(stack.longs(layout.getHandle()));
 
             LongBuffer pSet = stack.mallocLong(1);
-            int result = VK14.vkAllocateDescriptorSets(device.getLogicalDevice().getDevice(), info, pSet);
+            int result = VK14.vkAllocateDescriptorSets(sys.device().vkLogicalDevice(), info, pSet);
 
             if (result == VK14.VK_ERROR_OUT_OF_POOL_MEMORY || result == VK14.VK_ERROR_FRAGMENTED_POOL) {
                 fullPools.add(pool);
 
                 pool = getPool();
                 info.descriptorPool(pool.getHandle());
-                if (VK14.vkAllocateDescriptorSets(device.getLogicalDevice().getDevice(), info, pSet) != VK14.VK_SUCCESS) {
-                    context.throwException(new IllegalStateException("Failed to create descriptor set! (You know its bad when the tutorial says this case is so bad you're better off crashing) " + result), "DynamicDescriptorAllocator");
+                if (VK14.vkAllocateDescriptorSets(sys.device().vkLogicalDevice(), info, pSet) != VK14.VK_SUCCESS) {
+                    sys.throwException(new IllegalStateException("Failed to create descriptor set! (You know its bad when the tutorial says this case is so bad you're better off crashing) " + result), "DynamicDescriptorAllocator");
                 }
             }
             readyPools.add(pool);
 
-            DescriptorSet ds = new DescriptorSet(pSet.get(0), device, context.getEngine());
+            DescriptorSet ds = new DescriptorSet(pSet.get(0));
             allocatedSets.add(ds);
 
             return ds;
@@ -91,7 +92,7 @@ public class DynamicDescriptorAllocator implements Disposable {
     }
 
     protected DescriptorPool createPool(int sets) {
-        return new DescriptorPool(context.getEngine(), device, counts, sets, 1, this.updateAfterBind);
+        return new DescriptorPool(sys, counts, sets, 1, this.updateAfterBind);
     }
 
     public void clear() {

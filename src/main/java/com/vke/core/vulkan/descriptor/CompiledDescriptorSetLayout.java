@@ -5,6 +5,7 @@ import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
@@ -17,22 +18,20 @@ import java.nio.LongBuffer;
 
 public class CompiledDescriptorSetLayout implements Disposable {
 
-    private final VKEngine engine;
-    private final VulkanRenderDevice device;
     private final DescriptorSetLayout layout;
     private final DescriptorsInfo additionalInfo;
+    private final VulkanRenderSystem ctx;
 
     private long handle;
 
-    public CompiledDescriptorSetLayout(VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout, DescriptorsInfo additionalInfo) {
-        this(engine, device, layout, additionalInfo, false);
+    public CompiledDescriptorSetLayout(VulkanRenderSystem ctx, DescriptorSetLayout layout, DescriptorsInfo additionalInfo) {
+        this(ctx, layout, additionalInfo, false);
     }
 
-    public CompiledDescriptorSetLayout(VKEngine engine, VulkanRenderDevice device, DescriptorSetLayout layout, DescriptorsInfo additionalInfo, boolean partialBinding) {
-        this.engine = engine;
-        this.device = device;
+    public CompiledDescriptorSetLayout(VulkanRenderSystem ctx, DescriptorSetLayout layout, DescriptorsInfo additionalInfo, boolean partialBinding) {
         this.layout = layout;
         this.additionalInfo = additionalInfo;
+        this.ctx = ctx;
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDescriptorSetLayoutBinding.Buffer buf = null;
@@ -67,8 +66,8 @@ public class CompiledDescriptorSetLayout implements Disposable {
             }
 
             LongBuffer pLayout = stack.mallocLong(1);
-            if (VK14.vkCreateDescriptorSetLayout(device.getLogicalDevice().getDevice(), createInfo, null, pLayout) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Failed to create descriptor set layout!"), "CompiledDescriptorSetLayout");
+            if (VK14.vkCreateDescriptorSetLayout(ctx.device().vkLogicalDevice(), createInfo, null, pLayout) != VK14.VK_SUCCESS) {
+                ctx.throwException(new IllegalStateException("Failed to create descriptor set layout!"), "CompiledDescriptorSetLayout");
             }
 
             handle = pLayout.get(0);
@@ -90,7 +89,7 @@ public class CompiledDescriptorSetLayout implements Disposable {
     @Override
     public void free() {
         if (handle != 0) {
-            VK14.vkDestroyDescriptorSetLayout(device.getLogicalDevice().getDevice(), handle, null);
+            VK14.vkDestroyDescriptorSetLayout(ctx.device().vkLogicalDevice(), handle, null);
             handle = 0;
         }
     }

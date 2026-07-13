@@ -3,28 +3,29 @@ package com.vke.test.rendering;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
-import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
+import com.vke.api.rendering.abstraction.RenderResourceManager;
+import com.vke.api.rendering.abstraction.data.StaticMesh;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
+import com.vke.api.scene.RenderingScene;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
-import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.draw.FrameContext;
-import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.sampler.Samplers;
+import com.vke.core.rendering.Samplers;
+import com.vke.demo.DemoScene;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
 
-public class BatchedVertexConsumerTest extends Scene {
+public class BatchedVertexConsumerTest extends RenderingScene {
 
     public BatchedVertexConsumerTest(Identifier name, Context context) {
         super(name, context);
@@ -44,7 +45,7 @@ public class BatchedVertexConsumerTest extends Scene {
 
     private CISHandle depthTexFSQ;
 
-    private StaticMeshBuffer mesh;
+    private StaticMesh mesh;
     private MeshPrefab prefab;
 
     private VertexConsumer<ShapeRendererVertex> consumer;
@@ -53,7 +54,6 @@ public class BatchedVertexConsumerTest extends Scene {
 
     @Override
     public void onLoad() {
-        getRenderer().textureManager().withSampler(Samplers.NEAREST);
         pipeline = (VulkanRenderPipeline) PL.assume(context);
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);
         fullscreenQuadPipeline = (VulkanRenderPipeline) FSQ.assume(context);
@@ -71,7 +71,7 @@ public class BatchedVertexConsumerTest extends Scene {
         matricesBuf = pipeline.uniform("matrixStack");
 
         this.consumer = getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE);
-        this.shapeRenderer = new ShapeRenderer<>(this.context, consumer, ShapeRendererVertex.FACTORY);
+        this.shapeRenderer = new ShapeRenderer<>(consumer, ShapeRendererVertex.FACTORY);
 
         this.scaryVK = R.textures.get("scaryvulkan.png").assume(context);
         this.missing = R.textures.get("missing.png").assume(context);
@@ -85,8 +85,10 @@ public class BatchedVertexConsumerTest extends Scene {
 
         float[] color = {1, 1, 1, 1};
 
-        mesh = StaticMeshBuffer.uploadOnce(context.getEngine(),
-                prefab.toMesh((prefabVertex -> new MainScene.CubeVertexFormat(
+        RenderResourceManager resManager = getRenderer().resourceManager();
+
+        mesh = resManager.uploadStaticMesh(
+                prefab.toMesh((prefabVertex -> new DemoScene.CubeVertexFormat(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
@@ -98,19 +100,20 @@ public class BatchedVertexConsumerTest extends Scene {
                         color[0],
                         color[1],
                         color[2],
-                        color[3]))));
+                        color[3])))
+        );
     }
 
     @Override
-    public void onDraw(FrameContext ctx) {
+    public void onDraw() {
         // Draw
         Matrix4f mat = new Matrix4f();
-        mat.setOrtho(0, ctx.getWindow().getSize().width(), 0, ctx.getWindow().getSize().height(), 0, 1000, true);
+        mat.setOrtho(0, context.getEngine().getWindow().getSize().width(), 0, context.getEngine().getWindow().getSize().height(), 0, 1000, true);
         proj.write(slice -> slice.putMat4(mat));
         transform.write(slice -> slice.putMat4(new Matrix4f().translate(0, 0, 0)));
-        ctx.getCommandBuffer().bindPipeline(PL);
+        getRenderSystem().getCurrentCommandBuffer().bindPipeline(PL);
 
-        ctx.getCommandBuffer().setPushConstants(PL);
+        getRenderSystem().getCurrentCommandBuffer().setPushConstants(PL);
 
         var ms = shapeRenderer.getMatrixStack();
 
@@ -141,11 +144,11 @@ public class BatchedVertexConsumerTest extends Scene {
         matricesBuf.write((slice) -> {
             shapeRenderer.getMatrixStack().upload(slice);
         });
-        ctx.getCommandBuffer().bindDescriptorSets(PL);
-        shapeRenderer.draw(ctx);
+        getRenderSystem().getCurrentCommandBuffer().bindDescriptorSets(PL);
+        shapeRenderer.draw();
 
-        ctx.getCommandBuffer().bindPipeline(CUBE);
-        ctx.getCommandBuffer().bindDescriptorSets(CUBE);
+        getRenderSystem().getCurrentCommandBuffer().bindPipeline(CUBE);
+        getRenderSystem().getCurrentCommandBuffer().bindDescriptorSets(CUBE);
         Matrix4f model = new Matrix4f();
 
         float time = (System.nanoTime() / 1_000_000_000.0f);
@@ -161,9 +164,9 @@ public class BatchedVertexConsumerTest extends Scene {
         projMatrixHandle.write(buf -> buf.putMat4(new Matrix4f().setPerspective((float) Math.toRadians(90), (float) 800 / 600, 0.1f, 1000, true)));
         transformMatrixHandle.write(buf -> buf.putMat4(model));
 
-        ctx.getCommandBuffer().setPushConstants(CUBE);
+        getRenderSystem().getCurrentCommandBuffer().setPushConstants(CUBE);
 
-        mesh.draw(ctx);
+        mesh.draw();
 
         fsqc.vertices(new FullscreenQuadVertex(-1.0f, -1.0f, 0.0f, 0.0f)); // 0
         fsqc.vertices(new FullscreenQuadVertex( 1.0f, -1.0f, 1.0f, 0.0f)); // 1
@@ -171,15 +174,13 @@ public class BatchedVertexConsumerTest extends Scene {
         fsqc.vertices(new FullscreenQuadVertex(-1.0f,  1.0f, 0.0f, 1.0f)); // 3
         fsqc.indices(0, 1, 2, 0, 2, 3);
 
-        //var tex = (VulkanTexture) getRenderer().depthTarget();
-        //tex.transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
-        var tex = getRenderer().depthTarget();
-        tex.useInShader(ctx);
+        var tex = getRenderSystem().swapchain().depthTarget();
+        tex.useInShader();
 
         depthTexFSQ.set(tex, Samplers.LINEAR);
-        ctx.getCommandBuffer().bindPipeline(FSQ);
-        ctx.getCommandBuffer().bindDescriptorSets(FSQ);
-        fsqc.draw(ctx);
+        getRenderSystem().getCurrentCommandBuffer().bindPipeline(FSQ);
+        getRenderSystem().getCurrentCommandBuffer().bindDescriptorSets(FSQ);
+        fsqc.draw();
     }
 
     @Override
@@ -189,7 +190,7 @@ public class BatchedVertexConsumerTest extends Scene {
     @Override
     public void free() {}
 
-    public static class FullscreenQuadVertex extends Vertex {
+    public static class FullscreenQuadVertex implements Vertex {
 
         public static final FullscreenQuadVertex TEMPLATE = new FullscreenQuadVertex(0, 0, 0, 0);
 
@@ -208,7 +209,7 @@ public class BatchedVertexConsumerTest extends Scene {
         }
 
         @Override
-        public void putSelf(VertexEcoder buf) {
+        public void putSelf(VertexEncoder buf) {
             buf.float2(x, y);
             buf.float2(u, v);
         }

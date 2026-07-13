@@ -3,7 +3,7 @@ package com.vke.api.rendering.abstraction.data;
 import com.vke.api.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.*;
-import com.vke.core.rendering.draw.FrameContext;
+import com.vke.core.file.png.Pixels;
 import com.vke.core.vulkan.extent.Extent2D;
 import com.vke.core.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
@@ -260,6 +260,8 @@ public interface Texture extends Disposable, QuadTexture {
 
     float[] DEFAULT_UVWH = new float[]{ 0, 0, 1, 1 };
 
+    Texture upload(Pixels pixels);
+
     default int width() { return description().width; }
     default int height() { return description().height; }
     default int depth() { return description().depth; }
@@ -277,7 +279,7 @@ public interface Texture extends Disposable, QuadTexture {
     ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer);
     TextureDesc description();
 
-    void useInShader(FrameContext ctx);
+    void useInShader();
 
     @Override
     default Texture texture() {

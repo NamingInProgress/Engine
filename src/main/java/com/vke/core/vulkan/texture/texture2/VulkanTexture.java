@@ -5,19 +5,16 @@ import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
-import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
-import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.memory.AutoHeapAllocator;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.StagedBuffer;
-import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -25,18 +22,16 @@ import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.*;
 
-import java.awt.*;
 import java.nio.LongBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class VulkanTexture implements Texture {
 
     private final TextureDesc desc;
     private final VulkanRenderDevice device;
+    private final VulkanRenderSystem ctx;
 
     private final long handle;
     private final long allocation;
@@ -47,16 +42,19 @@ public class VulkanTexture implements Texture {
     private ImageState state = ImageState.UNDEFINED; // [mipLevel][arrayLayer]
     private ImageAspect aspect = ImageAspect.AUTO;
 
-    public VulkanTexture(VulkanRenderDevice device, long handle, TextureDesc desc, ImageAspect aspect) {
+    public VulkanTexture(VulkanRenderSystem ctx, long handle, TextureDesc desc, ImageAspect aspect) {
         this.desc = desc;
-        this.device = device;
+        this.ctx = ctx;
+        this.device = ctx.device();
         this.handle = handle;
         this.allocation = 0;
+        this.aspect = aspect;
     }
 
-    public VulkanTexture(VulkanRenderDevice device, TextureDesc desc) {
+    public VulkanTexture(VulkanRenderSystem ctx, TextureDesc desc) {
         this.desc = desc;
-        this.device = device;
+        this.device = ctx.device();
+        this.ctx = ctx;
         this.aspect = this.aspect.resolve(desc.format);
 
 //        for (int mip = 0; mip < desc.mipLevels; mip++) {
@@ -97,7 +95,7 @@ public class VulkanTexture implements Texture {
         if (defaultView != null) return defaultView;
         var description = new ImageView.ImageViewDesc(this, desc.type, format(), 0,
                 desc.mipLevels, 0, desc.arrayLayers, ImageAspect.AUTO);
-        this.defaultView = new VulkanImageView(device, description);
+        this.defaultView = new VulkanImageView(ctx, description);
         this.views.put(description, defaultView);
         return defaultView;
     }
@@ -110,16 +108,17 @@ public class VulkanTexture implements Texture {
 
         if (views.containsKey(desc)) return views.get(desc);
 
-        var view = new VulkanImageView(device, desc);
+        var view = new VulkanImageView(ctx, desc);
         this.views.put(desc, view);
         return view;
     }
 
-    public void upload(Pixels pixels) {
+    @Override
+    public VulkanTexture upload(Pixels pixels) {
         var alloc = new AutoHeapAllocator();
 
         GeneralBuffer cpuBuf = new GeneralBuffer(pixels.argbToByteBuffer(alloc), true);
-        StagedBuffer buf = new StagedBuffer(device.getEngine(), device, cpuBuf,
+        StagedBuffer buf = new StagedBuffer(ctx, cpuBuf,
                 BufferUsage.Bits.TRANSFER_SRC.into(), MemoryUsage.Bits.CPU_TO_GPU.into());
 
         device.getRenderer().immediateSubmit((stack, cmd) -> {
@@ -136,6 +135,7 @@ public class VulkanTexture implements Texture {
         // TODO: generate mips
 
         alloc.close();
+        return this;
     }
 
     // region Transitions
@@ -207,8 +207,8 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public void useInShader(FrameContext ctx) {
-        transition((VulkanCmdBuffers) ctx.getCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
+    public void useInShader() {
+        transition(ctx.getCurrentCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
     }
 
     public long getHandle() {
