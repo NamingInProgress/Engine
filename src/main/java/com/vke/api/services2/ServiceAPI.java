@@ -34,6 +34,13 @@ public abstract class ServiceAPI implements Service, Lifecycle {
 
     @SuppressWarnings("unchecked")
     public void replaceImplementation(@NotNull ServiceImpl newImpl) {
+        if (implementation instanceof PinnedService) {
+            String name = implementation.getId();
+            String msg = String.format("Attempted to replace implementation of '%s' with %s, but '%s' is a PinnedService and cannot be altered!", name, newImpl.getClass(), name);
+            newImpl.engine.throwException(new UnsupportedOperationException(msg), "ServiceAPI#replaceImplementation");
+            return;
+        }
+
         synchronized (lock) {
             Object transferState = null;
 
