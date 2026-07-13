@@ -101,4 +101,32 @@ public class BindingLayout {
         return 0;
     }
 
+    public void resizeRSA(int newElementCount) {
+        ArrayType ar = findLastArrayType();
+        if (ar == null) return; // Or throw, im not sure
+
+        long oldSize = ar.size;
+        long stride = ar.stride;
+
+        ar.size = stride * newElementCount;
+        ar.elementCount = newElementCount;
+
+        long additionalSize = ar.size - oldSize;
+        this.typeLayout.size += additionalSize;
+    }
+
+    public @Nullable ArrayType findLastArrayType() {
+        return findLast(typeLayout);
+    }
+
+    private @Nullable ArrayType findLast(TypeLayout layout) {
+        if (layout instanceof ArrayType at) {
+            return at;
+        } else if (layout instanceof StructType struct) {
+            return findLast(struct.members.lastEntry().getValue().type);
+        }
+
+        return null;
+    }
+
 }

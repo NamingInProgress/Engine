@@ -1,11 +1,11 @@
 package com.vke.api.rendering.vulkan.descriptors.types;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 public class StructType extends TypeLayout {
 
-    public HashMap<String, Member> members = new HashMap<>();
+    public LinkedHashMap<String, Member> members = new LinkedHashMap<>();
 
     @Override
     public boolean equals(Object o) {

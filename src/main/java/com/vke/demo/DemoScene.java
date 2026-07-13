@@ -27,6 +27,10 @@ public class DemoScene extends RenderingScene {
 
     @Override
     public void onLoad() {
+        Renderer r = context.service("sss");
+        StaticMesh mesh = r.getResourceManager().uploadStaticMesh(adasd);
+
+
         MeshPrefab prefab;
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);
