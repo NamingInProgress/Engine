@@ -1,7 +1,7 @@
 package com.vke.core.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.IRendererContext;
+import com.vke.api.rendering.IRenderSystem;
 import com.vke.core.Context;
 import com.vke.core.ContextWrapper;
 import com.vke.core.rendering.draw.VulkanFrameDataManager;
@@ -9,17 +9,13 @@ import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 
-public class VulkanContext extends ContextWrapper implements IRendererContext {
+public class VulkanContext extends ContextWrapper implements IRenderSystem {
     private final long windowHandle;
     private final VulkanRenderer renderer;
-    private final VulkanSwapchain swapchain;
-    private final VulkanRenderDevice device;
 
     public VulkanContext(Context baseContext, VulkanRenderer renderer) {
         super(baseContext);
         this.renderer = renderer;
-        this.swapchain = renderer.swapchain;
-        this.device = renderer.device;
         this.windowHandle = getEngine().getWindow().getHandle();
     }
 
@@ -30,12 +26,12 @@ public class VulkanContext extends ContextWrapper implements IRendererContext {
 
     @Override
     public VulkanRenderDevice device() {
-        return this.device;
+        return this.renderer.device;
     }
 
     @Override
     public VulkanSwapchain swapchain() {
-        return this.swapchain;
+        return this.renderer.swapchain;
     }
 
     @Override

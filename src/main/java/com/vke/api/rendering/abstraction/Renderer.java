@@ -10,6 +10,8 @@ import com.vke.api.services2.Service;
 public interface Renderer extends Service {
     RenderDevice getDevice();
     FrameCounter getFrameCounter();
+    // IRendererContext renderContext(); // Bridge to lower level
+    // RenderResourceManager resourceManager(); // Example implementation: resourceManager = new VulkanResourceManager(renderContext());
 
     VertexConsumerProvider getVertexConsumerProvider();
 }

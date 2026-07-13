@@ -6,7 +6,7 @@ import com.vke.api.rendering.abstraction.data.IFrameDataManager;
 import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.swapchain.Swapchain;
 
-public interface IRendererContext {
+public interface IRenderSystem {
 
     Renderer renderer();
     RenderDevice device();
