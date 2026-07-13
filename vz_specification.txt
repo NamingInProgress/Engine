@@ -1,0 +1,90 @@
+GENERAL
+The .vz archive format was designed to provide a design to store file trees and be random access compatible.
+The programmer can access any file's contents individually without loading other entries. even modifying or
+appending content works in this manner. The format itself was inspired by random access memory itself and how
+allocations can be split into multiple sections. this approach is also implemented here.
+to find a file, look at the FILE INDEXING section.
+Following FDATA chunks might then be checked for their fid. note that FDATA chunks can NEVER appear before their FCHNK.
+the ordering must not be contiguous though, so a files chunks might be distributed in a random order. the ord field indicates that.
+keep in mind, that the ord sequence is just a way to order chunks, it can contain gaps!
+In order to traverse chunks faster, the nskip and nprev fields might be used.
+This format uses little endian for all kind of integers.
+
+MODIFICATIONS
+Appending new content to a file is achieved by simply
+adding a new chunk at the end of the archive and writing data into it. deleting or modifying content is possible by invalidating the
+target chunk and adding a new one. It is recommended to setup the ord values of file chunks in such a way, that large enough gaps
+are available for inserts. the basic implementation might choose to divide the uint64 range into all the chunks needed. if data has
+to be inserted, the current gap can be split in half by the new chunk. once there is no more room for more insertion points, a complete
+rebalancing/joining of the files chunks is a valid strategy.
+
+INVALIDATIONS
+FDATA Chunks might be invalidated by setting the flag0 to 1 which causes them to not be treated as "reserved" space anymore.
+other chunks can - as long as the space is sufficient - be inserted over an invalidated chunk or multiple in a row. the resulting
+fragmentation of the archive must be cleaned up every once in a while.
+
+FILE INDEXING
+To find a fid by the path, the programmer can use the INDEX, IPATH and ILINK chunks at the end of the archive. they form a complete
+hash table to map paths to indices. first, the path in the format "dir1/dir2/dir3/fname.fext" must be reversed. The bytes are extracted using UTF8 and then hashed with
+the FNV-1a (64-bit) hash function. you can then bit & with the ntable field to get an index into the IPATH array. there the hashes must be
+compared and then the actual path itself. the resulting fid is in the field. hash collisions can be resolved by following the pnext chain
+into the ILINK array, where other candidates are listed.
+
+RUNTIME OPTIMIZATION
+in order to make finding files and their chunks faster, a .vzd file might be created alongside the archive.
+this external file is meant to act as a dictionary to find all chunks of a certain file and is in its own tiny, human readable DSL format.
+
+===== VZD DSL =====
+each VZD command starts with a single letter which is followed DIRECTLY by the data. each command takes one line.
+V specifies the version of this file to be synced with the vz field. this statement has to be first. ex: "V12"
+D descends into the following path. ex: "Dimg/test.png" or "Dimg" "Dtest.png" will have the same effect
+U ascends one step up the tree
+F holds the offset of this FCHNK. ex: "F164237"
+A holds all FDATA chunk offsets in order. ex: "A512,13573,96238"
+I ignores the rest of the line. ex: "Ihello world, this is a comment!"
+
+===== ACTUAL VZ FILE STRUCTURE =====
+
+HEADER:
+uint32  magic   //magic bytes
+uint16  version //version number of vz impl
+uint32  vzdver  //version number to sync with a .vzd file
+uint64  pindex  //absolute pointer to the INDEX chunk at the end of the archive
+uint32  nfiles  //amount of files
+
+FCHNK:          //holds the path of this file
+uint8  ctype    //type = 0
+uint32 nskip    //an absolute nunber of bytes to skip to the next chunk
+uint64 nprev    //an absolute nunber of bytes to skip to the previous chunk
+uint32  fid     //id given to this file referenced by FDATA
+uint64 fsize    //the size of this file entry in bytes
+uint16 nchunks  //the amount of chunks used by this file
+uint32 npath    //index into the IPATH table
+uint32 nlink   //index into the ILINK linked list + 1. If 0, then ignore this
+
+FDATA:          //these chunks hold the actual data for a previously seen FCHNK
+uint8   ctype   //type = 1
+uint32  fid     //reference to the parent FCHNK.
+uint64  nskip   //an absolute nunber of bytes to skip to the next chunk
+uint64  nprev    //an absolute nunber of bytes to skip to the previous chunk
+uint8   flags    //flags for this chunk
+uint64  ord     //which chunks this one is for the specified file
+uint32 adler32  //the adler32 checksum for this chunk
+uint32  udata   //uncompressed size of this chunk
+uint32  ldata   //length of this blob. use more chunks to cover larger files.
+uint8[ldata] vdata    //the data of this chunk in the deflate compressed data format
+
+INDEX:
+uint32 ntable   //the size of the path table. this must be a power of 2
+uint32 nlinks   //size of the total linked nodes (also IPATH chunks)
+
+IPATH:
+uint64 phash   //the reversed paths hash value computed by the FNV-1a (64-bit) function
+uint8   npath   //amount of path components
+uint8[npath] lpath   //lengths for each path component
+uint8[npath][lpath] pseg  //actual path segment in UTF8
+uint32 fid      //the file id used in FCHNK and FDATA
+uint32 pnext   //index into the linked list pool of IPATHgit  entries + 1. 0 means no next link
+
+===== EXAMPLE FILE =====
+[HEADER] [FCHNK] [FDATA, ...] [FCHNK] [FDATA, ...] [INDEX] [IPATH, ...] [IPATH, ...]

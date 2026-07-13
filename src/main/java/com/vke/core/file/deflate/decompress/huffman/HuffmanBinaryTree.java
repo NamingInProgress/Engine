@@ -1,13 +1,14 @@
 package com.vke.core.file.deflate.decompress.huffman;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.vke.core.file.deflate.decompress.BitUtils;
+import com.carrotsearch.hppc.LongArrayList;
 
 public class HuffmanBinaryTree {
-    private final int[] tree;
+    private final long[] tree;
 
     public HuffmanBinaryTree(Code[] codes) {
-        IntArrayList buildTree = new IntArrayList();
+        //TODO: FIX THIS CLASS IS DOESNT SEEM TO WORK WITH THE ADAPTION OF LONG
+
+        LongArrayList buildTree = new LongArrayList();
 
         for (Code c : codes) {
             int len = c.codeLength();
@@ -21,9 +22,19 @@ public class HuffmanBinaryTree {
                 int bit = (code & (1 << i)) >>> i;
 
                 if (treeIndex >= buildTree.size()) {
+                    // //node doesnt even exist
+                    // //allocated 2 new nodes as children
+                    //buildTree.add(0, 0);
+                    // //since insert will take up 1 space here, l and r need a + 1 each
+                    //int l = buildTree.size() - 1;
+                    //int r = buildTree.size();
+                    //buildTree.insert(treeIndex, makeNode(l, r));
+
+                    //NEW FIXED VERSION
+
                     //node doesnt even exist
                     //allocated 2 new nodes as children
-                    buildTree.add(0, 0);
+                    buildTree.add(0, 0, 0);
                     //since insert will take up 1 space here, l and r need a + 1 each
                     int l = buildTree.size() - 1;
                     int r = buildTree.size();
@@ -38,7 +49,7 @@ public class HuffmanBinaryTree {
                     buildTree.buffer[treeIndex] = makeNode(l, r);
                 }
 
-                int node = buildTree.buffer[treeIndex];
+                long node = buildTree.buffer[treeIndex];
 
                 //nodes should exist in theory
                 int oldIndex = treeIndex;
@@ -51,7 +62,7 @@ public class HuffmanBinaryTree {
                 }
             }
 
-            int leafNode = makeLeaf(symbol);
+            long leafNode = makeLeaf(symbol);
             buildTree.buffer[treeIndex] = leafNode;
         }
 
@@ -68,7 +79,7 @@ public class HuffmanBinaryTree {
         int index = 0;
         while (true) {
             int bit = (bitPath >>> cursor) & 1;
-            int node = tree[index];
+            long node = tree[index];
             if (isLeaf(node)) {
                 //msb set, so this is a leaf
                 return getValue(node);
@@ -84,28 +95,28 @@ public class HuffmanBinaryTree {
         }
     }
 
-    private int getLeft(int node) {
-        return (node >>> 15) & 0x7FFF;
+    private int getLeft(long node) {
+        return (int) ((node >>> 31) & 0x7FFFFFFF);
     }
 
-    private int getRight(int node) {
-        return node & 0x7FFF;
+    private int getRight(long node) {
+        return (int) (node & 0x7FFFFFFF);
     }
 
-    private boolean isLeaf(int node) {
-        return (node & 0x80000000) != 0;
+    private boolean isLeaf(long node) {
+        return (node & 0x8000000000000000L) != 0;
     }
 
-    private int getValue(int node) {
-        return node & 0x7FFFFFFF;
+    private int getValue(long node) {
+        return (int) (node & 0xFFFFFFFFL);
     }
 
-    private int makeLeaf(int value) {
-        return 0x80000000 | BitUtils.lowBits(value, 31);
+    private long makeLeaf(int value) {
+        return 0x8000000000000000L | (value & 0xFFFFFFFFL);
     }
 
-    private int makeNode(int left, int right) {
-        return ((left & 0x7FFF) << 15) | (right & 0x7FFF);
+    private long makeNode(int left, int right) {
+        return (((long) (left & 0x7FFFFFFF)) << 31) | ((long) (right & 0x7FFFFFFF));
     }
 
     @Override
@@ -116,7 +127,7 @@ public class HuffmanBinaryTree {
     }
 
     private void printNode(int nodeIndex, int depth, StringBuilder builder) {
-        int node = tree[nodeIndex];
+        long node = tree[nodeIndex];
         if (node == 0) {
             builder.append("-".repeat(depth)).append("<invalid>").append(System.lineSeparator());
             return;
@@ -130,7 +141,7 @@ public class HuffmanBinaryTree {
     }
 
     private void testMakeNode(int l, int r) {
-        int n = makeNode(l, r);
+        long n = makeNode(l, r);
         int gl = getLeft(n);
         int gr = getRight(n);
         if (gl != l || gr != r) {

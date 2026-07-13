@@ -96,7 +96,7 @@ public class VorbisDecoder implements AudioDecoder {
         return new VorbisHeaderPacketHeader(type);
     }
 
-    private Object decodeAudioPacket() throws IOException {
+    public Object decodeAudioPacket() throws IOException {
         setupPacket();
 
         boolean isntAudioPacket = BitStreamUtils.readFlag(bitStream);

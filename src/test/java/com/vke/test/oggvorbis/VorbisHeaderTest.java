@@ -12,6 +12,7 @@ public class VorbisHeaderTest {
         try(InputStream stream = new FileInputStream("Audio_test_german.ogg")) {
             VorbisDecoder decoder = new VorbisDecoder(stream);
             PCMInfo info = decoder.decodeMeta();
+            decoder.decodeAudioPacket();
             System.out.println(info);
         }
     }
