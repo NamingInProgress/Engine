@@ -85,7 +85,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         baseContext.getEngine().registerFramable(this);
 
         this.device = new VulkanRenderDevice(ctx);
-        this.bindlessTexturesCount = Math.min(device.capabilities().maxBindlessSampledImages, 8192);
+        int devImgs = device.capabilities().maxBindlessSampledImages;
+        System.out.println(devImgs);
+        int imgs = Math.min(devImgs, 8192);
+        this.bindlessTexturesCount = imgs < 0 ? 8192 : imgs;
         this.swapchain = device.createSwapchain(new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
