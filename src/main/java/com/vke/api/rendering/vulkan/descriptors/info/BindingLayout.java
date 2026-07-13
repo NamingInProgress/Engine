@@ -101,4 +101,26 @@ public class BindingLayout {
         return 0;
     }
 
+    public TypeLayout findLast() {
+        TypeLayout type;
+        while (true) {
+            if (typeLayout instanceof ArrayType array) {
+                type = array.elementType();
+            } else if (typeLayout instanceof StructType struct) {
+                if (struct.members().isEmpty()) {
+                    return struct;
+                }
+
+                StructType.Member last = null;
+                for (StructType.Member member : struct.members.values()) {
+                    last = member;
+                }
+
+                type = last.type();
+            } else {
+                return type;
+            }
+        }
+    }
+
 }

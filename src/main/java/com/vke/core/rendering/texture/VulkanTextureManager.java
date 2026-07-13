@@ -21,7 +21,7 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
     public static int BINDLESS_TEXTURES_COUNT;
 
     private final HashMap<Texture, Integer> textures = new HashMap<>();
-    private final Texture[] bindlessTextures;
+    private final Texture[] bindlessTextures; // TODO: Make this include samplers
     private CISArrayHandle BINDLESS_HANDLE;
 
     private final EngineDescriptorSetsManager mgr;
