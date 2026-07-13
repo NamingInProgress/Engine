@@ -101,26 +101,32 @@ public class BindingLayout {
         return 0;
     }
 
-    public TypeLayout findLast() {
-        TypeLayout type;
-        while (true) {
-            if (typeLayout instanceof ArrayType array) {
-                type = array.elementType();
-            } else if (typeLayout instanceof StructType struct) {
-                if (struct.members().isEmpty()) {
-                    return struct;
-                }
+    public void resizeRSA(int newElementCount) {
+        ArrayType ar = findLastArrayType();
+        if (ar == null) return; // Or throw, im not sure
 
-                StructType.Member last = null;
-                for (StructType.Member member : struct.members.values()) {
-                    last = member;
-                }
+        long oldSize = ar.size;
+        long stride = ar.stride;
 
-                type = last.type();
-            } else {
-                return type;
-            }
+        ar.size = stride * newElementCount;
+        ar.elementCount = newElementCount;
+
+        long additionalSize = ar.size - oldSize;
+        this.typeLayout.size += additionalSize;
+    }
+
+    public @Nullable ArrayType findLastArrayType() {
+        return findLast(typeLayout);
+    }
+
+    private @Nullable ArrayType findLast(TypeLayout layout) {
+        if (layout instanceof ArrayType at) {
+            return at;
+        } else if (layout instanceof StructType struct) {
+            return findLast(struct.members.lastEntry().getValue().type);
         }
+
+        return null;
     }
 
 }
