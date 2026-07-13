@@ -17,7 +17,7 @@ import com.vke.core.rendering.vulkan.buffers.premade.mesh.VulkanStaticMesh;
 import com.vke.core.rendering.vulkan.pipeline.VulkanComputePipeline;
 import com.vke.core.rendering.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.rendering.vulkan.texture.texture2.VulkanTexture;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.utils.io.Identifier;
 import org.lwjgl.system.MemoryStack;
 

@@ -13,7 +13,7 @@ import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
-import com.vke.core.rendering.vulkan.texture.texture2.VulkanTexture;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

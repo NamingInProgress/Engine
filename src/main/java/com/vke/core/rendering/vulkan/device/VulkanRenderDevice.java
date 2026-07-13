@@ -24,7 +24,7 @@ import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.service.ShaderCompiler;
 import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
-import com.vke.core.rendering.vulkan.texture.texture2.VulkanTexture;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.rendering.vulkan.utils.VKUtils;
 import com.vke.core.rendering.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.rendering.vulkan.createInfos.LogicalDeviceCreateInfo;

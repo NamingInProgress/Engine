@@ -20,7 +20,7 @@ import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
-import com.vke.core.rendering.vulkan.texture.texture2.VulkanTexture;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

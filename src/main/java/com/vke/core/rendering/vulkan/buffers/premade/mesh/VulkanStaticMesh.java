@@ -24,7 +24,6 @@ import java.util.Arrays;
 public class VulkanStaticMesh implements Disposable, StaticMesh {
     private StagedBuffer vertices;
     private StagedBuffer indices;
-    private long verticesDeviceAddress;
 
     private final VulkanRenderSystem sys;
 
@@ -49,9 +48,6 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
             StaticVertexBuffer<T> vbo = new StaticVertexBuffer<>(sys, template, Arrays.asList(vertices));
 
             BufferUsage vertexBufUsage = new BufferUsage(
-                    BufferUsage.Bits.SSBO,
-                    BufferUsage.Bits.TRANSFER_DST,
-                    BufferUsage.Bits.SHADER_DEVICE_ADDRESS,
                     BufferUsage.Bits.VBO
             );
             MemoryUsage vertexMemUsage = new MemoryUsage(
@@ -59,21 +55,12 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
             );
             self.vertices = new StagedBuffer(sys, vbo, vertexBufUsage, vertexMemUsage);
 
-            VkBufferDeviceAddressInfo deviceAddressInfo = VkBufferDeviceAddressInfo.calloc(stack)
-                    .sType$Default()
-                    .buffer(self.vertices.getGpuBuffer().getBuffer());
-
-            VkDevice device = sys.device().vkLogicalDevice();
-
-            self.verticesDeviceAddress = VK14.vkGetBufferDeviceAddress(device, deviceAddressInfo);
-
             IndexBuffer ibo = new IndexBuffer(indices.length);
             ibo.put(indices);
 
 
             BufferUsage indexBufUsage = new BufferUsage(
-                    BufferUsage.Bits.IBO,
-                    BufferUsage.Bits.TRANSFER_DST
+                    BufferUsage.Bits.IBO
             );
             MemoryUsage indexMemUsage = new MemoryUsage(
                     MemoryUsage.Bits.GPU_ONLY
@@ -120,10 +107,6 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
 
     public StagedBuffer getIndicesBuf() {
         return indices;
-    }
-
-    public long verticesDeviceAddress() {
-        return verticesDeviceAddress;
     }
 
     public int getIndexCount() {

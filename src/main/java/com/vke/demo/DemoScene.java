@@ -2,12 +2,17 @@ package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
+import com.vke.api.game.camera.Camera;
+import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.RenderResourceManager;
 import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.StaticMesh;
 import com.vke.api.rendering.abstraction.data.VertexEncoder;
 import com.vke.api.scene.RenderingScene;
 import com.vke.core.Context;
+import com.vke.core.game.camera.PerspectiveCamera;
+import com.vke.core.game.camera.controllers.FreecamController;
+import com.vke.core.game.camera.controllers.PoopWASDController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.io.Identifier;
@@ -25,10 +30,6 @@ public class DemoScene extends RenderingScene {
 
     @Override
     public void onLoad() {
-        Renderer r = context.service("sss");
-        StaticMesh mesh = r.getResourceManager().uploadStaticMesh(adasd);
-
-
         MeshPrefab prefab;
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);
@@ -55,6 +56,12 @@ public class DemoScene extends RenderingScene {
                         color[2],
                         color[3])))
         );
+
+        Camera camera = new PerspectiveCamera(context, 90);
+        CameraController controller = new FreecamController(context);
+        camera.setController(controller);
+
+        RenderPipelines.DEMO.setCamera(camera);
     }
 
     @Override

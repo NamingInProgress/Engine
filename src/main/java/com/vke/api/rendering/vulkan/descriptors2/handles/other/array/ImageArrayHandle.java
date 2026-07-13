@@ -6,7 +6,7 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
-import com.vke.core.rendering.vulkan.texture.texture2.VulkanImageView;
+import com.vke.core.rendering.vulkan.texture.VulkanImageView;
 
 public class ImageArrayHandle extends UniformHandle {
 

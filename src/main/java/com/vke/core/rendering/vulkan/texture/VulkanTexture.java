@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.texture.texture2;
+package com.vke.core.rendering.vulkan.texture;
 
 import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.api.rendering.abstraction.data.Texture;
@@ -119,7 +119,8 @@ public class VulkanTexture implements Texture {
 
         GeneralBuffer cpuBuf = new GeneralBuffer(pixels.argbToByteBuffer(alloc), true);
         StagedBuffer buf = new StagedBuffer(ctx, cpuBuf,
-                BufferUsage.Bits.TRANSFER_SRC.into(), MemoryUsage.Bits.CPU_TO_GPU.into());
+                new BufferUsage(BufferUsage.Bits.TRANSFER_SRC),
+                MemoryUsage.Bits.CPU_TO_GPU.into());
 
         device.getRenderer().immediateSubmit((stack, cmd) -> {
             transition(cmd, ImageState.TRANSFER_DST);
@@ -129,8 +130,8 @@ public class VulkanTexture implements Texture {
 
         device.getRenderer().immediateSubmit((stack, cmd) -> {
             cmd.copyBufferToImage(buf.getGpuBuffer(), this, 0, 0);
-            transition(cmd, ImageState.FRAGMENT_SHADER_READ);
-        });
+            transition(cmd, ImageState.GENERAL_SHADER_READ);
+        }, buf::free);
 
         // TODO: generate mips
 

@@ -21,7 +21,6 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void onLoad() throws Exception {
-        System.out.println("RECTECAJSDFASJKDJASKDJ");
         Renderer renderer = context.service(context.getEngine().rendererType().serviceName);
         this.vc = renderer.getVertexConsumerProvider().get(V.TEMPLATE);
     }

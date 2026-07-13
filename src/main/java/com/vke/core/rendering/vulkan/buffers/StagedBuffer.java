@@ -22,7 +22,7 @@ public class StagedBuffer implements Disposable {
         this.cpuBuffer = buffer;
         this.vkCtx = vkCtx;
         int allocSize = buffer.getByteStride() * buffer.elementCount;
-        gpuBuffer = vkCtx.device().createBuffer(new GpuBuffer.Description(allocSize, usage, memoryUsage));
+        gpuBuffer = vkCtx.device().createBuffer(new GpuBuffer.Description(allocSize, usage.or(BufferUsage.Bits.TRANSFER_DST), memoryUsage));
     }
 
     public void uploadViaStaging(Runnable postUpload) {

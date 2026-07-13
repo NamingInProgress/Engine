@@ -1,4 +1,4 @@
-package com.vke.core.rendering.vulkan.texture.texture2;
+package com.vke.core.rendering.vulkan.texture;
 
 import com.vke.api.rendering.abstraction.data.ImageView;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;

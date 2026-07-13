@@ -11,11 +11,12 @@ layout (location = 1) out vec3 outNormal;
 
 layout(push_constant) uniform constants {
     mat4 projection;
+    mat4 view;
     mat4 local;
 } PushConstants;
 
 void main() {
-    gl_Position = PushConstants.projection * PushConstants.local * vec4(inPos, 1.0f);
+    gl_Position = PushConstants.projection * PushConstants.view * PushConstants.local * vec4(inPos, 1.0f);
     outColor = inColor;
     outNormal = inNormal;
 }

@@ -58,4 +58,9 @@ public class VulkanRenderSystem extends RenderSystem {
     public long windowHandle() {
         return this.windowHandle;
     }
+
+    @Override
+    public boolean zZeroToOne() {
+        return true;
+    }
 }

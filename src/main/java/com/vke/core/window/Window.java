@@ -100,6 +100,10 @@ public class Window {
 
     public long getHandle() { return this.window; }
 
+    public void disableCursor() {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
     @Override
     public String toString() { return "Window@" + glfwGetWindowTitle(this.window); }
 

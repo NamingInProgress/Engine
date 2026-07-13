@@ -1,6 +1,7 @@
 package com.vke.core.rendering.pipeline.driver;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.RenderSystem;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
@@ -13,9 +14,11 @@ import java.io.IOException;
 public class DemoPipelineDriver extends PipelineDriver {
 
     private final VulkanRenderPipeline p;
-    private final PushConstantHandle projection, local;
+    private final PushConstantHandle projection, view, local;
 
     private Matrix4f mat;
+
+    private Camera camera;
 
     public DemoPipelineDriver(RenderSystem context, AssetHandle<? extends Pipeline> pipeline) {
         super(context, pipeline);
@@ -26,6 +29,11 @@ public class DemoPipelineDriver extends PipelineDriver {
         }
         this.projection = p.resolvePushConstant("projection");
         this.local = p.resolvePushConstant("local");
+        this.view = p.resolvePushConstant("view");
+    }
+
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 
     public void setLocal(Matrix4f mat) {
@@ -36,8 +44,8 @@ public class DemoPipelineDriver extends PipelineDriver {
     public void use() {
         bind();
         bindDescriptorSets();
-        projection.write((slice) -> slice.putMat4(new Matrix4f().setPerspective((float) Math.toRadians(90),
-                (float) 800 / 600, 0.1f, 1000, true)));
+        projection.write((slice) -> slice.putMat4(camera.projectionMatrix()));
+        view.write((slice) -> slice.putMat4(camera.viewMatrix()));
         local.write((slice) -> slice.putMat4(mat));
         bindPushConstants();
     }
