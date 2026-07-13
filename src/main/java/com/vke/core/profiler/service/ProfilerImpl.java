@@ -30,7 +30,7 @@ public class ProfilerImpl extends ServiceImpl implements Profiler {
     public ProfilerImpl(VKEngine engine) {
         super(Services.PROFILER, engine);
 
-        VKEngine.profiler = this;
+        VKEngine.PROFILER = this;
     }
 
     @Override

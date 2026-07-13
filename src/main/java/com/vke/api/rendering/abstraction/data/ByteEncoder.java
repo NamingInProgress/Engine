@@ -1,8 +1,8 @@
-package com.vke.api.rendering.vulkan.buffer;
+package com.vke.api.rendering.abstraction.data;
 
 import org.joml.*;
 
-public interface VertexByteSink {
+public interface ByteEncoder {
     // float
     void float1(float x);
 

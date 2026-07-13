@@ -4,6 +4,7 @@ import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.enums.CompareOp;
 import com.vke.api.rendering.abstraction.enums.Filter;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;
@@ -20,15 +21,15 @@ public class VulkanSampler implements Sampler {
 
     private final VulkanRenderDevice device;
 
-    public VulkanSampler(VulkanRenderDevice device, Description info) {
-        this(device, info.magFilter(), info.minFilter(), info.compareOp());
+    public VulkanSampler(VulkanRenderSystem ctx, Description info) {
+        this(ctx, info.magFilter(), info.minFilter(), info.compareOp());
     }
 
-    public VulkanSampler(VulkanRenderDevice device, Filter magFilter, Filter minFilter, CompareOp compareOp) {
+    public VulkanSampler(VulkanRenderSystem ctx, Filter magFilter, Filter minFilter, CompareOp compareOp) {
         this.magFilter = magFilter;
         this.minFilter = minFilter;
         this.compareOp = compareOp;
-        this.device = device;
+        this.device = ctx.device();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSamplerCreateInfo info = VkSamplerCreateInfo.calloc(stack)
@@ -42,7 +43,7 @@ public class VulkanSampler implements Sampler {
             }
 
             LongBuffer pSampler = stack.mallocLong(1);
-            VK14.vkCreateSampler(device.getLogicalDevice().getDevice(), info, null, pSampler);
+            VK14.vkCreateSampler(device.vkLogicalDevice(), info, null, pSampler);
             this.handle = pSampler.get(0);
         }
     }
@@ -54,7 +55,7 @@ public class VulkanSampler implements Sampler {
 
     @Override
     public void free() {
-        VK14.vkDestroySampler(device.getLogicalDevice().getDevice(), handle, null);
+        VK14.vkDestroySampler(device.vkLogicalDevice(), handle, null);
     }
 
     @Override

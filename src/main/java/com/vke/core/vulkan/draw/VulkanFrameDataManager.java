@@ -1,10 +1,10 @@
-package com.vke.core.rendering.draw;
+package com.vke.core.vulkan.draw;
 
-import com.vke.api.rendering.abstraction.data.IFrameDataManager;
+import com.vke.api.rendering.abstraction.data.FrameDataManager;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 
-public class VulkanFrameDataManager implements IFrameDataManager {
+public class VulkanFrameDataManager implements FrameDataManager {
 
     private final EngineDescriptorSetsManager mgr;
 

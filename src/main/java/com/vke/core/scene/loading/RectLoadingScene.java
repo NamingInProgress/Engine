@@ -4,10 +4,9 @@ import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.io.Identifier;
 
@@ -57,10 +56,10 @@ public class RectLoadingScene extends LoadingScene {
     }
 
     @Override
-    public void onDraw(FrameContext ctx) {
+    public void onDraw() {
         float right = -1.0f + 2.0f * p;
 
-        RenderPipelines.LOAD.use(ctx);
+        RenderPipelines.LOAD.use();
         vc.beginFrame();
 
         vc.vertices(new V(-1, -1, 1, 0, 0, 1));
@@ -69,7 +68,7 @@ public class RectLoadingScene extends LoadingScene {
         vc.vertices(new V(-1,  1, 1, 0, 0, 1));
 
         vc.indices(0, 1, 2, 2, 0, 3);
-        vc.draw(ctx);
+        vc.draw();
     }
 
     @Override
@@ -77,7 +76,7 @@ public class RectLoadingScene extends LoadingScene {
         vc.free();
     }
 
-    static class V extends Vertex {
+    static class V implements Vertex {
         public static final V TEMPLATE = new V(0, 0, 0, 0, 0, 0);
         public static final VertexFactory<V> FACTORY = (x, y, z, r, g, b, a, u, v, matId, texture) -> new V(x, y, r, g, b, a);
 
@@ -99,7 +98,7 @@ public class RectLoadingScene extends LoadingScene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEncoder buf) {
             buf.float2(x, y);
             buf.float4(r, g, b, a);
         }

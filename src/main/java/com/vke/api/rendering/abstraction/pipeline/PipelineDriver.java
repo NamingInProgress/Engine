@@ -1,43 +1,45 @@
 package com.vke.api.rendering.abstraction.pipeline;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.core.rendering.draw.FrameContext;
+import com.vke.api.rendering.abstraction.RenderSystem;
 
 public abstract class PipelineDriver {
 
     public static class DefaultPipelineDriver extends PipelineDriver {
 
-        public DefaultPipelineDriver(AssetHandle<? extends Pipeline> pipeline) {
-            super(pipeline);
+        public DefaultPipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
+            super(sys, pipeline);
         }
 
         @Override
-        public void use(FrameContext context) {
-            bind(context);
-            bindDescriptorSets(context);
-            bindPushConstants(context);
+        public void use() {
+            bind();
+            bindDescriptorSets();
+            bindPushConstants();
         }
 
     }
 
     private final AssetHandle<? extends Pipeline> pipeline;
+    private final RenderSystem sys;
 
-    public PipelineDriver(AssetHandle<? extends Pipeline> pipeline) {
+    public PipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
         this.pipeline = pipeline;
+        this.sys = sys;
     }
 
-    public void bind(FrameContext ctx) {
-        ctx.getCommandBuffer().bindPipeline(pipeline);
+    public void bind() {
+        sys.getCurrentCommandBuffer().bindPipeline(pipeline);
     }
 
-    public void bindDescriptorSets(FrameContext ctx) {
-        ctx.getCommandBuffer().bindDescriptorSets(pipeline);
+    public void bindDescriptorSets() {
+        sys.getCurrentCommandBuffer().bindDescriptorSets(pipeline);
     }
 
-    public void bindPushConstants(FrameContext ctx) {
-        ctx.getCommandBuffer().setPushConstants(pipeline);
+    public void bindPushConstants() {
+        sys.getCurrentCommandBuffer().setPushConstants(pipeline);
     }
 
-    public abstract void use(FrameContext context);
+    public abstract void use();
 
 }

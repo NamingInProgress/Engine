@@ -1,11 +1,7 @@
 package com.vke.core.draw;
 
 import com.vke.api.draw.*;
-import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.data.ITextureManager;
 import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.core.Context;
-import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.rendering.transform.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,9 +11,6 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private static final float[] DEFAULT_UV = { 0,0,1,1 };
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;
-    private final Context ctx;
-    private final Renderer renderer;
-    private final ITextureManager texManager;
     private final MatrixStack matrixStack = new MatrixStack();
 
     //mutable state
@@ -26,12 +19,9 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     private Texture t;
     private float z;
 
-    public ShapeRenderer(Context ctx, VertexConsumer<T> consumer, VertexFactory<T> factory) {
+    public ShapeRenderer(VertexConsumer<T> consumer, VertexFactory<T> factory) {
         this.consumer = consumer;
         this.factory = factory;
-        this.ctx = ctx;
-        this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName);
-        this.texManager = this.renderer.textureManager();
     }
 
     public void color(float r, float g, float b, float a) {
@@ -55,9 +45,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     }
 
     private T v(float x, float y, float z, float u, float v) {
-        var vert = factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
-        vert.setTextureId(texManager.texture(t));
-        return vert;
+        return factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
     }
 
     /**
@@ -70,9 +58,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float u = bu + nx * btw;
         float v = bv + ny * bth;
 
-        var vert = factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
-        vert.setTextureId(texManager.texture(t));
-        return vert;
+        return factory.apply(x, y, z, r, g, b, a, u, v, currentStackIndex(), t);
     }
     
     private float[] uvwh() {
@@ -161,14 +147,14 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
     }
 
     @Override
-    public void draw(FrameContext ctx) {
-        consumer.draw(ctx);
+    public void draw() {
+        consumer.draw();
         matrixStack.reset();
     }
 
     @Override
-    public void drawInstanced(FrameContext ctx, int instanceCount) {
-        consumer.drawInstanced(ctx, instanceCount);
+    public void drawInstanced(int instanceCount) {
+        consumer.drawInstanced(instanceCount);
         matrixStack.reset();
     }
 

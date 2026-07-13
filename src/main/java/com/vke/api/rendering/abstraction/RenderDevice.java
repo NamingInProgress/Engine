@@ -26,7 +26,7 @@ public interface RenderDevice extends Disposable {
 
     /** MEMORY ALLOC **/
     GpuBuffer createBuffer(GpuBuffer.Description info);
-    Texture createTexture(Pixels pixels, Texture.TextureDesc info);
+    Texture createTexture(Texture.TextureDesc info);
     Sampler createSampler(Sampler.Description info);
     Shader createShader(Identifier identifier, ShaderType type) throws IOException;
 

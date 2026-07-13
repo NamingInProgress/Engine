@@ -2,21 +2,20 @@ package com.vke.core.rendering.texture;
 
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
-import com.vke.api.rendering.abstraction.data.ITextureManager;
+import com.vke.api.rendering.abstraction.data.TextureManager;
 import com.vke.api.rendering.abstraction.data.Sampler;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
-import com.vke.core.vulkan.device.VulkanRenderDevice;
-import com.vke.core.vulkan.sampler.Samplers;
-import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.rendering.Samplers;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.service.VulkanRenderer;
 
 import java.util.HashMap;
 
-public class VulkanTextureManager implements ITextureManager, EventListener {
+public class VulkanTextureManager implements TextureManager, EventListener {
 
     public static int BINDLESS_TEXTURES_COUNT;
 
@@ -30,7 +29,7 @@ public class VulkanTextureManager implements ITextureManager, EventListener {
 
     private Sampler sampler;
 
-    public VulkanTextureManager(Context ctx, EngineDescriptorSetsManager mgr, VulkanRenderDevice device, int bindlessTexturesCount) {
+    public VulkanTextureManager(VulkanRenderSystem ctx, EngineDescriptorSetsManager mgr, int bindlessTexturesCount) {
         BINDLESS_TEXTURES_COUNT = bindlessTexturesCount;
         bindlessTextures = new Texture[BINDLESS_TEXTURES_COUNT];
         this.mgr = mgr;

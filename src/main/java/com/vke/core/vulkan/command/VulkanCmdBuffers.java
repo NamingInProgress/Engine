@@ -11,16 +11,14 @@ import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
-import com.vke.core.VKEngine;
 import com.vke.core.vulkan.Scissor;
 import com.vke.core.vulkan.Viewport;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.VulkanGpuBuffer;
 import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
-import com.vke.core.vulkan.device.LogicalDevice;
-import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import org.lwjgl.PointerBuffer;
@@ -36,25 +34,18 @@ import java.util.stream.Collectors;
 public class VulkanCmdBuffers implements CommandBuffer {
 
     private final long poolHandle;
-    private final LogicalDevice device;
     private final VkCommandBuffer vk;
-    private final VulkanSwapchain swapchain;
-    private final VKEngine engine;
-    private final FrameCounter fc;
-    private final int highestEngineSet;
     private final EngineDescriptorSetsManager setsMgr;
+    private final VulkanRenderSystem ctx;
+    private final VulkanSwapchain swapchain;
 
     private boolean recording;
-    private boolean engineDescriptorSetsBound = false;
 
-    public VulkanCmdBuffers(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, CommandPool pool, FrameCounter fc) {
-        this.device = device.getLogicalDevice();
+    public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
         this.poolHandle = pool.getHandle();
-        this.swapchain = swapchain;
-        this.engine = engine;
-        this.fc = fc;
-        this.setsMgr = device.getRenderer().getEngineSetsManager();
-        this.highestEngineSet = setsMgr.highestSet;
+        this.setsMgr = ctx.renderer().getEngineSetsManager();
+        this.ctx = ctx;
+        this.swapchain = ctx.swapchain();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc(stack)
@@ -65,11 +56,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
             PointerBuffer pCommandBuffer = stack.mallocPointer(1);
 
-            if (VK14.vkAllocateCommandBuffers(this.device.getDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
+            if (VK14.vkAllocateCommandBuffers(ctx.device().vkLogicalDevice(), allocInfo, pCommandBuffer) != VK14.VK_SUCCESS) {
                 throw new IllegalStateException("Failed to create command buffer!");
             }
 
-            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), this.device.getDevice());
+            this.vk = new VkCommandBuffer(pCommandBuffer.get(0), ctx.device().vkLogicalDevice());
         }
     }
 
@@ -169,7 +160,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     private IVulkanPipeline unwrapPipeline(AssetHandle<? extends Pipeline> pipeline) {
         try {
-            return (IVulkanPipeline) pipeline.acquire(engine);
+            return (IVulkanPipeline) pipeline.acquire(ctx);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -218,7 +209,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
         List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {
             DescriptorSetInstance userSet = userSets.get(i);
-            sets[i] = userSet.getSet().getHandle();
+            sets[i] = userSet.getSet().handle();
         }
 
         //l.getGroup().getHandleCache().values().stream()
@@ -314,6 +305,6 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void free() {
-        VK14.vkFreeCommandBuffers(device.getDevice(), poolHandle, vk);
+        VK14.vkFreeCommandBuffers(ctx.device().vkLogicalDevice(), poolHandle, vk);
     }
 }

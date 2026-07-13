@@ -1,8 +1,7 @@
 package com.vke.core.vulkan.buffers;
 
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
-import com.vke.core.VKEngine;
-import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryUtil;
 
 public class MappedGpuRingBuffer extends MappedBuffer {
@@ -12,8 +11,8 @@ public class MappedGpuRingBuffer extends MappedBuffer {
 
     private int frameIndex;
 
-    public MappedGpuRingBuffer(VKEngine engine, VulkanRenderDevice device, long singleSize, int rings, BufferUsage usage, int... flags) {
-        super(engine, device, singleSize * rings, usage, flags);
+    public MappedGpuRingBuffer(VulkanRenderSystem vkCtx, long singleSize, int rings, BufferUsage usage, int... flags) {
+        super(vkCtx, singleSize * rings, usage, flags);
         this.singleSize = singleSize;
         this.rings = rings;
     }

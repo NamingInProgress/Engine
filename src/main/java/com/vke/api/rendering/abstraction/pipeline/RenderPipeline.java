@@ -1,3 +1,8 @@
 package com.vke.api.rendering.abstraction.pipeline;
 
-public interface RenderPipeline extends Pipeline { }
+import com.vke.api.rendering.abstraction.data.Texture;
+
+public interface RenderPipeline extends Pipeline {
+    Texture getDepthTarget();
+    Texture getColorTarget(int index);
+}

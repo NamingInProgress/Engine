@@ -1,11 +1,14 @@
 package com.vke.core.rendering.bytesenik;
 
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.abstraction.data.ByteEncoder;
+import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
 import com.vke.api.utils.AlignedByteBuffer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class AlignedBBSink implements VertexByteSink {
+public class AlignedBBSink implements ByteEncoder {
     private final AlignedByteBuffer abb;
 
     public AlignedBBSink(AlignedByteBuffer abb) {
@@ -92,4 +95,5 @@ public class AlignedBBSink implements VertexByteSink {
     public void double1(double x) {
         abb.double1(x);
     }
+
 }

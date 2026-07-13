@@ -7,6 +7,7 @@ import com.vke.core.vulkan.device.LogicalDevice;
 import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.vulkan.sync.VulkanFence;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
@@ -19,28 +20,30 @@ public class VulkanFrame implements Disposable {
     private VulkanCmdBuffers buffers;
     private VulkanSemaphore imageSemaphore, presentSemaphore;
     private VulkanFence renderFence;
+    private final VulkanRenderSystem sys;
 
-    public VulkanFrame(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, FrameCounter fc) {
-        this(engine, device, swapchain, fc, false);
+    public VulkanFrame(VulkanRenderSystem sys, FrameCounter fc) {
+        this(sys, fc, false);
     }
 
-    public VulkanFrame(VKEngine engine, VulkanRenderDevice device, VulkanSwapchain swapchain, FrameCounter fc, boolean immediate) {
-        pool = new CommandPool(engine, device.getLogicalDevice(), immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
-        buffers = new VulkanCmdBuffers(engine, device, swapchain, pool, fc);
+    public VulkanFrame(VulkanRenderSystem sys, FrameCounter fc, boolean immediate) {
+        this.sys = sys;
+        pool = new CommandPool(sys, immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
+        buffers = new VulkanCmdBuffers(sys, pool, fc);
 
-        setupSyncStructures(engine, device.getLogicalDevice(), immediate);
+        setupSyncStructures(immediate);
     }
 
-    private void setupSyncStructures(VKEngine engine, LogicalDevice device, boolean immediate) {
+    private void setupSyncStructures(boolean immediate) {
         try {
             if (!immediate) {
-                imageSemaphore = VulkanSemaphore.createSemaphore(engine, device);
-                presentSemaphore = VulkanSemaphore.createSemaphore(engine, device);
+                imageSemaphore = VulkanSemaphore.createSemaphore(sys);
+                presentSemaphore = VulkanSemaphore.createSemaphore(sys);
             }
 
-            renderFence = new VulkanFence(device);
+            renderFence = new VulkanFence(sys);
         } catch (Throwable t) {
-            engine.throwException(t, "VulkanFrame");
+            sys.throwException(t, "VulkanFrame");
         }
     }
 

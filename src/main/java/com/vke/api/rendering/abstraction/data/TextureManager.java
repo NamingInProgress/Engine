@@ -1,6 +1,6 @@
 package com.vke.api.rendering.abstraction.data;
 
-public interface ITextureManager {
+public interface TextureManager {
 
     int registerTexture(Texture tex);
     int texture(Texture tex);

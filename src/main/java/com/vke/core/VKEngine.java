@@ -12,9 +12,9 @@ import com.vke.api.registry.VKERegistries;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.profiler.service.Profiler;
 import com.vke.core.services2.ServiceManager;
 import com.vke.core.profiler.DummyProfilerImpl;
-import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
@@ -25,12 +25,13 @@ import com.vke.utils.iter.Iter;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
-    public static ProfilerImpl profiler;
+    public static Profiler PROFILER;
 
     private final Logger soutLogger;
 
@@ -44,6 +45,7 @@ public class VKEngine extends Context {
     private final List<String> namespaces;
 
     private final Framable.Glossary framables;
+    private final AtomicBoolean skipThisFrame = new AtomicBoolean();
 
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
@@ -62,7 +64,7 @@ public class VKEngine extends Context {
 
         SOUT.redirect(soutLogger);
 
-        profiler = new DummyProfilerImpl();
+        PROFILER = new DummyProfilerImpl();
         EVENT_BUS = service(Services.EVENT_BUS);
 
         this.framables = new Framable.Glossary();
@@ -97,25 +99,24 @@ public class VKEngine extends Context {
 
                 lastFrameTime = now;
 
-                profiler.beginFrame();
-                profiler.begin("Render", AnsiColors.RED);
-                profiler.push();
-                profiler.begin("Frame Setup");
+                PROFILER.beginFrame();
+                PROFILER.begin("Render", AnsiColors.RED);
+                PROFILER.push();
+                PROFILER.begin("Frame Setup");
+                skipThisFrame.setRelease(false);
                 framables.preFrame();
-                VulkanRenderer.FrameData bfd = renderer.startFrame(window, framables);
-                profiler.end();
-                profiler.pop();
-                if (bfd != null) {
-                    profiler.begin("App Draw", AnsiColors.GREEN);
-                    framables.onDraw(bfd.context());
-                    profiler.end();
-                    profiler.begin("Frame End");
-                    renderer.endFrame(bfd, framables);
+                PROFILER.end();
+                PROFILER.pop();
+                if (!skipThisFrame.get()) {
+                    PROFILER.begin("App Draw", AnsiColors.GREEN);
+                    framables.onDraw();
+                    PROFILER.end();
+                    PROFILER.begin("Frame End");
                     framables.postFrame();
-                    profiler.end();
+                    PROFILER.end();
                 }
-                profiler.end();
-                profiler.endFrame();
+                PROFILER.end();
+                PROFILER.endFrame();
             }
 
             GLFW.glfwPollEvents();
@@ -189,6 +190,14 @@ public class VKEngine extends Context {
 
     public void removeFramable(Framable f) {
         this.framables.removeEntry(f);
+    }
+
+    public void skipThisFrame() {
+        skipThisFrame.setRelease(true);
+    }
+
+    public Framable.Glossary getFramables() {
+        return this.framables;
     }
 
     public EngineCreateInfo getCreateInfo() {

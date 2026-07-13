@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.core.VKEngine;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.utils.VKUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -36,11 +37,11 @@ public class VulkanGpuBuffer implements GpuBuffer {
 
     private int idx;
 
-    public VulkanGpuBuffer(VKEngine engine, VulkanRenderDevice device, Description info) {
-        this(engine, device, info.size(), info.usage(), info.memUsage(), info.flags());
+    public VulkanGpuBuffer(VulkanRenderSystem vkCtx, Description info) {
+        this(vkCtx, info.size(), info.usage(), info.memUsage(), info.flags());
     }
 
-    private VulkanGpuBuffer(VKEngine engine, VulkanRenderDevice rd, long size, BufferUsage usageFlags, MemoryUsage memoryUsage, int... flags) {
+    private VulkanGpuBuffer(VulkanRenderSystem vkCtx, long size, BufferUsage usageFlags, MemoryUsage memoryUsage, int... flags) {
         this.size = size;
         this.usage = usageFlags;
         this.memUsage = memoryUsage;
@@ -60,19 +61,19 @@ public class VulkanGpuBuffer implements GpuBuffer {
             PointerBuffer pAllocation = stack.mallocPointer(1);
             VmaAllocationInfo allocationInfo = VmaAllocationInfo.calloc();
 
-            device = rd.getLogicalDevice().getDevice();
-            if (Vma.vmaCreateBuffer(rd.getVmaAllocator(), bufferCreateInfo, allocationCreateInfo, pBuffer, pAllocation, allocationInfo) != VK14.VK_SUCCESS) {
-                engine.throwException(new IllegalStateException("Unable to allocate mapped gpu memory"), HERE);
+            device = vkCtx.device().vkLogicalDevice();
+            if (Vma.vmaCreateBuffer(vkCtx.device().getVmaAllocator(), bufferCreateInfo, allocationCreateInfo, pBuffer, pAllocation, allocationInfo) != VK14.VK_SUCCESS) {
+                vkCtx.throwException(new IllegalStateException("Unable to allocate mapped gpu memory"), HERE);
             }
 
-            allocator = rd.getVmaAllocator();
+            allocator = vkCtx.device().getVmaAllocator();
             buffer = pBuffer.get(0);
             allocation = pAllocation.get(0);
             info = allocationInfo;
 
-            if (engine.isDebugMode()) {
+            if (vkCtx.getEngine().isDebugMode()) {
                 this.idx = counter;
-                VKUtils.setDebugName(rd.getLogicalDevice(), "Gpu Buffer #" + counter, this.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
+                VKUtils.setDebugName(vkCtx.device().getLogicalDevice(), "Gpu Buffer #" + counter, this.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
                 counter++;
             }
         }

@@ -6,7 +6,7 @@ import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.VKEngine;
-import com.vke.core.rendering.draw.FrameContext;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
@@ -27,8 +27,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     private final DynamicVertexBuffer<T> _cpuVertices;
     private final DynamicIndexBuffer _cpuIndices;
 
-    private final VKEngine _engine;
-    private final VulkanRenderer _renderer;
+    private final VulkanRenderSystem sys;
 
     private final T _template;
 
@@ -48,18 +47,17 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     private final HashMap<MappedGpuRingBuffer, Integer> _gpuBuffersOld = new HashMap<>();
 
-    public AbstractVertexConsumer(VKEngine engine, VulkanRenderer renderer, T template) {
-        this(engine, renderer, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
+    public AbstractVertexConsumer(VulkanRenderSystem sys, T template) {
+        this(sys, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
     }
 
-    public AbstractVertexConsumer(VKEngine engine, VulkanRenderer renderer, T template, int estVertexCount, int estIndexCount) {
+    public AbstractVertexConsumer(VulkanRenderSystem sys, T template, int estVertexCount, int estIndexCount) {
         this.maxVertexCount = estVertexCount;
         this.maxIndexCount = estIndexCount;
-        this._engine = engine;
-        this._renderer = renderer;
+        this.sys = sys;
         this._template = template;
 
-        this._cpuVertices = new DynamicVertexBuffer<>(template, estVertexCount);
+        this._cpuVertices = new DynamicVertexBuffer<>(sys, template, estVertexCount);
         this._cpuIndices = new DynamicIndexBuffer(estIndexCount);
 
         this._gpuVertices = genVertexBuffer(estVertexCount);
@@ -110,11 +108,11 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         putIndices(mesh.getIndices());
     }
 
-    protected void submitDraw(FrameContext ctx, int instanceCount) {
-        VulkanCmdBuffers buf = (VulkanCmdBuffers) ctx.getCommandBuffer();
+    protected void submitDraw(int instanceCount) {
+        VulkanCmdBuffers buf = sys.getCurrentCommandBuffer();
         this.upload();
-        this.bindIBO(ctx);
-        this.bindVBO(ctx);
+        this.bindIBO();
+        this.bindVBO();
 
         VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), instanceCount, 0, 0, 0);
 
@@ -128,13 +126,13 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     }
 
     @Override
-    public void draw(FrameContext ctx) {
-        submitDraw(ctx, 1);
+    public void draw() {
+        submitDraw(1);
     }
 
     @Override
-    public void drawInstanced(FrameContext ctx, int instanceCount) {
-        submitDraw(ctx, instanceCount);
+    public void drawInstanced(int instanceCount) {
+        submitDraw(instanceCount);
     }
 
     @Override
@@ -153,15 +151,15 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     public int getWrittenIndices(){ return this.currentIndexCount; }
     public int getWrittenVertices(){ return this.currentVertexCount; }
 
-    public void bindIBO(FrameContext ctx) {
-        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
+    public void bindIBO() {
+        VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(),
                 this.getRingIndicesOffset() + currentMaxIndex * 4L, VK14.VK_INDEX_TYPE_UINT32);
     }
 
-    public void bindVBO(FrameContext ctx) {
-        VulkanCmdBuffers cmd =  (VulkanCmdBuffers) ctx.getCommandBuffer();
+    public void bindVBO() {
+        VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() },
                 new long[]{ getRingVerticesOffset() + (long) lastVertexCount * _template.getByteStride()});
@@ -170,7 +168,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     private void handleOldBuffers() {
         ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
         for (Map.Entry<MappedGpuRingBuffer, Integer> entry : _gpuBuffersOld.entrySet()) {
-            if (entry.getValue() > _renderer.getFrameCounter().framesInFlight()) {
+            if (entry.getValue() > sys.getFrameCounter().framesInFlight()) {
                 entry.getKey().free();
                 toRemove.add(entry.getKey());
             }
@@ -214,16 +212,16 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         BufferUsage vboUsage = new BufferUsage(
                 BufferUsage.Bits.VBO
         );
-       return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), (long) vertexCount * _template.getByteStride(),
-               _renderer.getFrameCounter().framesInFlight(), vboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+       return new MappedGpuRingBuffer(sys, (long) vertexCount * _template.getByteStride(),
+               sys.getFrameCounter().framesInFlight(), vboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
     protected MappedGpuRingBuffer genIndexBuffer(int indexCount) {
         BufferUsage iboUsage = new BufferUsage(
                 BufferUsage.Bits.IBO
         );
-        return new MappedGpuRingBuffer(_engine, _renderer.getDevice(), indexCount * 4L,
-                _renderer.getFrameCounter().framesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+        return new MappedGpuRingBuffer(sys, indexCount * 4L,
+                sys.getFrameCounter().framesInFlight(), iboUsage, Vma.VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
 }

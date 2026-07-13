@@ -2,17 +2,20 @@ package com.vke.core.vulkan.buffers.premade.vbo;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
-import com.vke.core.rendering.bytesenik.ByteBufferSink;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.core.rendering.bytesenik.VulkanVertexEncoder;
+import com.vke.core.vulkan.service.VulkanRenderSystem;
 
 public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T _template;
+    private final VulkanRenderSystem vkCtx;
 
-    public DynamicVertexBuffer(T template, int expectedVertexCount) {
+    public DynamicVertexBuffer(VulkanRenderSystem vkCtx, T template, int expectedVertexCount) {
         super(expectedVertexCount, false);
         this._template = template;
+        this.vkCtx = vkCtx;
         this.alloc(expectedVertexCount * getByteStride());
-        this.sink = generateSink();
+        this.encoder = generateEncoder();
     }
 
     public void clear() {
@@ -28,14 +31,14 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     public void putVertex(T vertex) {
         ensureSpace(1);
         elementCount++;
-        vertex.putSelf(this.sink);
+        vertex.putSelf(this.encoder);
     }
 
     public void putVertices(T... vertices) {
         ensureSpace(vertices.length);
         elementCount += vertices.length;
         for (T vertex : vertices) {
-            vertex.putSelf(this.sink);
+            vertex.putSelf(this.encoder);
         }
     }
 
@@ -45,8 +48,8 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     @Override
-    protected VertexByteSink generateSink() {
-        return new ByteBufferSink(data);
+    protected VertexEncoder generateEncoder() {
+        return new VulkanVertexEncoder(vkCtx, data);
     }
 
 }

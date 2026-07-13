@@ -1,9 +1,9 @@
 package com.vke.test.rendering;
 
 import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.abstraction.data.VertexEncoder;
 
-public class DynamicTestVertex extends Vertex {
+public class DynamicTestVertex implements Vertex {
 
     private final float x, y, z;
     private final float r, g, b, a;
@@ -24,7 +24,7 @@ public class DynamicTestVertex extends Vertex {
     }
 
     @Override
-    public void putSelf(VertexByteSink buf) {
+    public void putSelf(VertexEncoder buf) {
         buf.float3(x, y, z);
         buf.float4(r, g, b, a);
     }
