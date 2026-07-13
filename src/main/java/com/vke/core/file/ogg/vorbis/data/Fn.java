@@ -92,7 +92,7 @@ public class Fn {
     }
 
     public static double linearFloor(int amplitude, int amplitudeBits, int amplitudeOffset, double p, double q) {
-        double denom = (amplitudeBits << 2 - 1) * sqrt(p + q);
+        double denom = ((1 << amplitudeBits) - 1) * sqrt(p + q);
         return exp(0.11512925 * (dv(amplitude * amplitudeOffset, denom) - amplitudeOffset));
     }
 }

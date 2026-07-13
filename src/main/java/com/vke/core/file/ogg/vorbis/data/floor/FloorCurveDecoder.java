@@ -24,7 +24,7 @@ public class FloorCurveDecoder {
         this.mapping = setup.mappings[mode.mapping()];
     }
 
-    private FloorCurveData[] decodeCurves() throws IOException {
+    public FloorCurveData[] decodeCurves() throws IOException {
         FloorCurveData[] curves = new FloorCurveData[ident.channels];
         for (int i = 0; i < ident.channels; i++) {
             curves[i] = new FloorCurveData(this, i);

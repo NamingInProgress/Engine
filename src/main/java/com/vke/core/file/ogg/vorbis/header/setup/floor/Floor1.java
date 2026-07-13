@@ -9,5 +9,5 @@ public record Floor1(
         int[][] subclassBooks,
         int multiplier,
         int rangeBits,
-        int[] xList
-) {}
+        int[] xList,
+        int values) {}

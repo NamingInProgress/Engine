@@ -217,7 +217,7 @@ public class SetupHeader {
 
             floor = new Floor1(
                     partitions, partitionClassList, classDimensions, classSubclasses,
-                    classMasterbooks, subclassBooks, multiplier, rangeBits, xList
+                    classMasterbooks, subclassBooks, multiplier, rangeBits, xList, floor1Values
             );
         } else {
             throw new VorbisStreamUndecodableException("Illegal floor type");

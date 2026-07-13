@@ -2,6 +2,7 @@ package com.vke.core.file.ogg.vorbis.data;
 
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.ogg.vorbis.Helpers;
+import com.vke.core.file.ogg.vorbis.data.floor.FloorCurveData;
 import com.vke.core.file.ogg.vorbis.data.floor.FloorCurveDecoder;
 import com.vke.core.file.ogg.vorbis.data.window.WindowData;
 import com.vke.core.file.ogg.vorbis.data.window.WindowDecoder;
@@ -38,7 +39,22 @@ public class VorbisAudioPacketDecoder {
         WindowData windowData = windowDecoder.decodeWindow();
 
         FloorCurveDecoder floorCurve = new FloorCurveDecoder(info, bitStream, mode);
+        FloorCurveData[] curveDatas = floorCurve.decodeCurves();
+        for (int i = 0; i < curveDatas.length; i++) {
+            FloorCurveData data = curveDatas[i];
+            float[] output = null;
+            if (data.floor0Data != null) {
+                output = data.floor0Data.compute(windowData);
+            } else if (data.floor1Data != null) {
+                output = data.floor1Data.compute(windowData);
+            }
 
+            if (output != null) {
+
+            }
+        }
+
+        return null;
     }
 
 
