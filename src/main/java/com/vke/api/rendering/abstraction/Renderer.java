@@ -10,9 +10,6 @@ import com.vke.api.services2.Service;
 public interface Renderer extends Service {
     RenderDevice getDevice();
     FrameCounter getFrameCounter();
-    ITextureManager textureManager();
-    IFrameDataManager frameDataManager();
+
     VertexConsumerProvider getVertexConsumerProvider();
-    Texture renderTarget();
-    Texture depthTarget();
 }

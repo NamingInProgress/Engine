@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 
 public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
-    protected VertexByteSink sink;
+    protected VertexEcoder sink;
 
     public VertexBuffer(int baseVertexCount) {
         super(baseVertexCount);
@@ -48,7 +48,7 @@ public abstract class VertexBuffer extends CpuBuffer {
 
     public abstract int getByteStride();
 
-    protected abstract VertexByteSink generateSink();
+    protected abstract VertexEcoder generateSink();
 
     public static int t_float() {
         return 4;

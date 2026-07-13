@@ -16,6 +16,7 @@ import com.vke.api.rendering.abstraction.enums.QueueType;
 import com.vke.core.vulkan.device.VulkanQueue;
 import com.vke.core.vulkan.device.VulkanRenderDevice;
 import com.vke.core.vulkan.extent.VulkanExtentUtils;
+import com.vke.core.vulkan.service.VulkanRenderer;
 import com.vke.core.vulkan.sync.VulkanSemaphore;
 import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import org.lwjgl.system.MemoryStack;
@@ -53,11 +54,8 @@ public class VulkanSwapchain implements Swapchain {
 
     private final AutoHeapAllocator alloc;
 
-    public VulkanSwapchain(Description description, RenderDevice device, VKEngine engine) {
-        if (!(device instanceof VulkanRenderDevice)) engine
-                .throwException(new IllegalStateException("Provided incorrect device for backend type: %s (Provided: %s)".formatted(BackendType.VULKAN, device.backend())), HERE);
-
-        this.device = (VulkanRenderDevice) device;
+    public VulkanSwapchain(Description description, VulkanRenderDevice device, VKEngine engine) {
+        this.device = device;
         this.engine = engine;
         this.vsync = description.vsync();
         this.windowHandle = description.windowHandle();
@@ -283,6 +281,16 @@ public class VulkanSwapchain implements Swapchain {
 
         this.colorImages.clear();
         this.depthImages.clear();
+    }
+
+    @Override
+    public Texture renderTarget() {
+        return getColorImage();
+    }
+
+    @Override
+    public Texture depthTarget() {
+        return getDepthImage();
     }
 
     public int getImageCount() { return this.colorImages.size(); }

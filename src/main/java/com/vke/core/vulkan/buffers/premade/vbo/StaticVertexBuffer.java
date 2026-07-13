@@ -2,10 +2,10 @@ package com.vke.core.vulkan.buffers.premade.vbo;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.utils.AlignedByteBuffer;
 import com.vke.core.rendering.bytesenik.AlignedBBSink;
-import com.vke.core.rendering.bytesenik.ByteBufferSink;
+import com.vke.core.rendering.bytesenik.VulkanVertexEncoder;
 
 import java.util.List;
 
@@ -27,8 +27,8 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     @Override
-    protected VertexByteSink generateSink() {
-        return align16 ? new AlignedBBSink(new AlignedByteBuffer(data, 16)) : new ByteBufferSink(data);
+    protected VertexEcoder generateSink() {
+        return align16 ? new AlignedBBSink(new AlignedByteBuffer(data, 16)) : new VulkanVertexEncoder(data);
     }
 
     private void putVertex(T v) {

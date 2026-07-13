@@ -4,7 +4,7 @@ import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
 import com.vke.core.rendering.draw.FrameContext;
@@ -99,7 +99,7 @@ public class RectLoadingScene extends LoadingScene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEcoder buf) {
             buf.float2(x, y);
             buf.float4(r, g, b, a);
         }

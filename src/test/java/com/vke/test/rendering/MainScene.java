@@ -2,16 +2,10 @@ package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.api.rendering.abstraction.enums.texture.Format;
-import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
-import com.vke.api.rendering.abstraction.enums.texture.TextureType;
-import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
@@ -244,7 +238,7 @@ public class MainScene extends Scene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEcoder buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);

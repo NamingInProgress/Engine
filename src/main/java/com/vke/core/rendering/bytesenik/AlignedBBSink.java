@@ -1,11 +1,11 @@
 package com.vke.core.rendering.bytesenik;
 
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.utils.AlignedByteBuffer;
 
 import java.util.Objects;
 
-public class AlignedBBSink implements VertexByteSink {
+public class AlignedBBSink implements VertexEcoder {
     private final AlignedByteBuffer abb;
 
     public AlignedBBSink(AlignedByteBuffer abb) {

@@ -51,8 +51,8 @@ import static com.vke.core.VKEngine.profiler;
 public class VulkanRenderer extends ServiceImpl implements Renderer {
 
     // Vulkan Stuff
-    private VulkanSwapchain swapchain;
-    private VulkanRenderDevice device;
+    VulkanSwapchain swapchain;
+    VulkanRenderDevice device;
     private VulkanFrame[] frames;
     private VulkanFence[] imagesInFlight;
     private VulkanSemaphore[] imagePresentInFlight;
@@ -62,10 +62,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     private EngineDescriptorSetsManager engineSetsManager;
 
     // Engine infos
+    final FrameCounter frameCounter;
     private final VKEngine engine;
     private final Context context;
     private final EngineCreateInfo createInfo;
-    private final FrameCounter frameCounter;
 
     private final VulkanVertexConsumerProvider vertexConsumerProvider;
 
@@ -260,28 +260,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer {
     }
 
     @Override
-    public ITextureManager textureManager() {
-        return getEngineSetsManager().textureManager;
-    }
-
-    @Override
-    public IFrameDataManager frameDataManager() {
-        return getEngineSetsManager().frameDataManager;
-    }
-
-    @Override
     public VertexConsumerProvider getVertexConsumerProvider() {
         return this.vertexConsumerProvider;
-    }
-
-    @Override
-    public VulkanTexture renderTarget() {
-        return swapchain.getColorImage();
-    }
-
-    @Override
-    public VulkanTexture depthTarget() {
-        return swapchain.getDepthImage();
     }
 
     public EngineDescriptorSetsManager getEngineSetsManager() { return this.engineSetsManager; }

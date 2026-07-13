@@ -3,11 +3,8 @@ package com.vke.test.rendering;
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
-import com.vke.api.draw.VertexFactory;
-import com.vke.api.rendering.vulkan.ImageState;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
@@ -20,12 +17,8 @@ import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.draw.FrameContext;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
-import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.vulkan.sampler.Samplers;
-import com.vke.core.vulkan.service.VulkanRenderer;
-import com.vke.core.rendering.vertexconsumer.FastVertexConsumer;
-import com.vke.core.vulkan.texture.texture2.VulkanTexture;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
@@ -215,7 +208,7 @@ public class BatchedVertexConsumerTest extends Scene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEcoder buf) {
             buf.float2(x, y);
             buf.float2(u, v);
         }

@@ -2,8 +2,8 @@ package com.vke.core.vulkan.buffers.premade.vbo;
 
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
-import com.vke.core.rendering.bytesenik.ByteBufferSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
+import com.vke.core.rendering.bytesenik.VulkanVertexEncoder;
 
 public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T _template;
@@ -45,8 +45,8 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     @Override
-    protected VertexByteSink generateSink() {
-        return new ByteBufferSink(data);
+    protected VertexEcoder generateSink() {
+        return new VulkanVertexEncoder(data);
     }
 
 }

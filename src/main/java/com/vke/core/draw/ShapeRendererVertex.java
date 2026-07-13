@@ -3,7 +3,7 @@ package com.vke.core.draw;
 import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import org.jetbrains.annotations.Nullable;
 
 public class ShapeRendererVertex extends Vertex {
@@ -42,7 +42,7 @@ public class ShapeRendererVertex extends Vertex {
     }
 
     @Override
-    public void putSelf(VertexByteSink buf) {
+    public void putSelf(VertexEcoder buf) {
         buf.float3(x, y, z);
         buf.float4(r, g, b, a);
         buf.float2(u, v);

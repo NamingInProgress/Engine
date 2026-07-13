@@ -2,19 +2,16 @@ package com.vke.test.rendering.instancing;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.draw.FrameContext;
-import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.vulkan.buffers.premade.mesh.StaticMeshBuffer;
-import com.vke.core.vulkan.command.VulkanCmdBuffers;
 import com.vke.demo.DemoScene;
 import com.vke.test.rendering.TestRenderPipelines;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
-import org.lwjgl.vulkan.VK14;
 
 import java.io.IOException;
 
@@ -141,7 +138,7 @@ public class InstancingTestScene extends Scene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEcoder buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);

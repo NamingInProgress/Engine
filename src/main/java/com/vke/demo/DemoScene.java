@@ -2,7 +2,7 @@ package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
+import com.vke.api.rendering.vulkan.buffer.VertexEcoder;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
@@ -98,7 +98,7 @@ public class DemoScene extends Scene {
         }
 
         @Override
-        public void putSelf(VertexByteSink buf) {
+        public void putSelf(VertexEcoder buf) {
             buf.float3(x, y, z);
             buf.float3(nx, ny, nz);
             buf.float4(r, g, b, a);
