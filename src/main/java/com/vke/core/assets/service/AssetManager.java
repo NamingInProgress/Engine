@@ -3,12 +3,13 @@ package com.vke.core.assets.service;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.BundleExchange;
 import com.vke.api.assets.Protocols;
+import com.vke.api.services2.PinnedService;
 import com.vke.api.services2.Service;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
-public interface AssetManager extends Service {
+public interface AssetManager extends PinnedService {
     PipelineContext getPipelineContext();
 
     void initAssets();
