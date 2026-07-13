@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.protocols.texture;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
@@ -57,7 +57,7 @@ public class PngProtocol implements AssetProtocol<Texture> {
                         .build();
 
                 EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-                Renderer renderer = context.service(rendererType.serviceName);
+                LowRenderer renderer = context.service(rendererType.serviceName);
                 RenderDevice device = renderer.getDevice();
 
                 return new AssetData(Protocols.PNG, device.createTexture(pixels, desc));

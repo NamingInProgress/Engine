@@ -3,7 +3,7 @@ package com.vke.core.assets.pipeline.converters;
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
@@ -33,7 +33,7 @@ public class PngTextureConverter implements AssetConverter {
         PngFile png = input.getAssetData().getDataAs();
         PngInfo info = png.getPngInfo();
         EngineCreateInfo.RendererType rt = context.getEngine().rendererType();
-        Renderer renderer = context.service(rt.serviceName);
+        LowRenderer renderer = context.service(rt.serviceName);
         RenderDevice device = renderer.getDevice();
         Texture.TextureDesc desc = Texture.TextureDesc.builder()
                 .width(info.width)

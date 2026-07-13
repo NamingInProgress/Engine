@@ -1,7 +1,7 @@
 package com.vke.api.scene;
 
 import com.vke.api.app.Framable;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
@@ -10,7 +10,7 @@ public abstract class Scene implements Disposable, Framable {
     private final Identifier name;
     protected final Context context;
     private LoadingScene loadingScene;
-    private final Renderer renderer;
+    private final LowRenderer renderer;
 
     public Scene(Identifier name, Context context) {
         this.name = name;
@@ -35,5 +35,5 @@ public abstract class Scene implements Disposable, Framable {
         this.loadingScene = loadingScene;
     }
 
-    public Renderer getRenderer() { return this.renderer; }
+    public LowRenderer getRenderer() { return this.renderer; }
 }

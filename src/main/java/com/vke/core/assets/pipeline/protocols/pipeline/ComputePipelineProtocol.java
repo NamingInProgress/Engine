@@ -3,7 +3,7 @@ package com.vke.core.assets.pipeline.protocols.pipeline;
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.core.Context;
@@ -45,7 +45,7 @@ public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
             ComputePipelineData data = ComputePipelineData.fromConfig(configDocument);
 
             EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-            Renderer renderer = context.service(rendererType.serviceName);
+            LowRenderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
             return new AssetData(Protocols.COMPUTE_PIPELINE, device.createComputePipeline(data));

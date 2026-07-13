@@ -2,6 +2,7 @@ package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.draw.Vertex;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.api.rendering.vulkan.buffer.VertexByteSink;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
@@ -24,6 +25,10 @@ public class DemoScene extends Scene {
 
     @Override
     public void onLoad() {
+        LowRenderer r = context.service("sss");
+        StaticMesh mesh = r.getResourceManager().uploadStaticMesh(adasd);
+
+
         MeshPrefab prefab;
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);

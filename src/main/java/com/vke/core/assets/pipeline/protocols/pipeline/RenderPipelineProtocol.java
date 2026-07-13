@@ -4,7 +4,7 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.LowRenderer;
 import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
@@ -45,7 +45,7 @@ public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
             RenderPipelineData data = RenderPipelineData.fromConfig(configDocument);
 
             EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-            Renderer renderer = context.service(rendererType.serviceName);
+            LowRenderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
             return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
