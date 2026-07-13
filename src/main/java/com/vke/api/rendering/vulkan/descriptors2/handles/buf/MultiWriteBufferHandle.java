@@ -6,8 +6,8 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.util.MultiWriteCounter;
-import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
-import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 

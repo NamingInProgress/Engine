@@ -1,6 +1,6 @@
 package com.vke.core.rendering.transform;
 
-import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import org.joml.Matrix4f;
 

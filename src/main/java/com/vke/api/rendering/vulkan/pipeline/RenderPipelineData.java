@@ -10,7 +10,7 @@ import com.vke.api.rendering.abstraction.enums.texture.Format;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
-import com.vke.core.vulkan.shader.VKShaderProgram;
+import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;

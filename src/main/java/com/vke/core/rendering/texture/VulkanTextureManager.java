@@ -8,10 +8,10 @@ import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
-import com.vke.core.vulkan.descriptor.EngineDescriptorSetsManager;
+import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.Samplers;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 
 import java.util.HashMap;
 

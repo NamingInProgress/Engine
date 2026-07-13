@@ -4,8 +4,8 @@ import com.vke.api.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.enums.texture.*;
 import com.vke.core.file.png.Pixels;
-import com.vke.core.vulkan.extent.Extent2D;
-import com.vke.core.vulkan.extent.Extent3D;
+import com.vke.core.rendering.vulkan.extent.Extent2D;
+import com.vke.core.rendering.vulkan.extent.Extent3D;
 import com.vke.utils.io.Disposable;
 
 import java.util.Objects;

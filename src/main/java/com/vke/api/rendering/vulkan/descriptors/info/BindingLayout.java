@@ -5,7 +5,7 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors.types.StructType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
-import com.vke.core.vulkan.shr.ReflectedShader;
+import com.vke.core.rendering.vulkan.shr.ReflectedShader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

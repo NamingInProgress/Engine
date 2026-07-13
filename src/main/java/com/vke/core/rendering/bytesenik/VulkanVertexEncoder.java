@@ -2,7 +2,7 @@ package com.vke.core.rendering.bytesenik;
 
 import com.vke.api.rendering.abstraction.data.Texture;
 import com.vke.api.rendering.abstraction.data.VertexEncoder;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 import java.nio.ByteBuffer;
 

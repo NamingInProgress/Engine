@@ -1,7 +1,7 @@
 package com.vke.api.rendering.vulkan.descriptors.bindings;
 
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
-import com.vke.core.vulkan.sampler.VulkanSampler;
+import com.vke.core.rendering.vulkan.sampler.VulkanSampler;
 
 public class SamplerBinding extends DescriptorBinding {
 

@@ -1,7 +1,7 @@
 package com.vke.api.rendering.vulkan.pushconstants;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.core.vulkan.buffers.premade.slice.BufferSlice;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 

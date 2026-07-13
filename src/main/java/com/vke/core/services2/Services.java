@@ -18,16 +18,16 @@ import com.vke.core.input.service.InputManagerAPI;
 import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.profiler.service.ProfilerAPI;
 import com.vke.core.scene.service.SceneManagerAPI;
-import com.vke.core.vulkan.shr.service.ShaderReflectorAPI;
-import com.vke.core.vulkan.shr.service.ShaderReflectorImpl;
+import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorAPI;
+import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.scene.service.SceneManagerBaseImpl;
 import com.vke.core.vkz.service.VkzAPI;
 import com.vke.core.vkz.service.VkzImpl;
-import com.vke.core.vulkan.service.VulkanRendererAPI;
-import com.vke.core.vulkan.shader.service.ShaderCompilerAPI;
-import com.vke.core.vulkan.shader.service.ShaderCompilerImpl;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.service.VulkanRendererAPI;
+import com.vke.core.rendering.vulkan.shader.service.ShaderCompilerAPI;
+import com.vke.core.rendering.vulkan.shader.service.ShaderCompilerImpl;
+import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 
 public class Services {
     public static final String VULKAN_RENDERER = "vkr";

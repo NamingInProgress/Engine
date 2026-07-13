@@ -3,7 +3,6 @@ package com.vke.api.rendering.vulkan.descriptors2.handles;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
-import com.vke.core.vulkan.descriptor.DescriptorWriter;
 
 public class UniformHandle {
 

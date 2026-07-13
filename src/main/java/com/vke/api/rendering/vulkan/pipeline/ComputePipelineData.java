@@ -1,16 +1,13 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
-import com.vke.api.parsing.config.node.ConfigValueNode;
-import com.vke.api.rendering.abstraction.shader.Shader;
 import com.vke.api.rendering.abstraction.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
-import com.vke.core.vulkan.shader.VKShaderProgram;
+import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 

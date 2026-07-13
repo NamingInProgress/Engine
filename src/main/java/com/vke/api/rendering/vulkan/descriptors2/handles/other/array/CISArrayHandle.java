@@ -7,8 +7,8 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
-import com.vke.core.vulkan.sampler.VulkanSampler;
-import com.vke.core.vulkan.texture.texture2.VulkanImageView;
+import com.vke.core.rendering.vulkan.sampler.VulkanSampler;
+import com.vke.core.rendering.vulkan.texture.texture2.VulkanImageView;
 
 public class CISArrayHandle extends UniformHandle {
 

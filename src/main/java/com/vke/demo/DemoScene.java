@@ -7,11 +7,9 @@ import com.vke.api.rendering.abstraction.Renderer;
 import com.vke.api.rendering.abstraction.data.StaticMesh;
 import com.vke.api.rendering.abstraction.data.VertexEncoder;
 import com.vke.api.scene.RenderingScene;
-import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.pipeline.RenderPipelines;
-import com.vke.core.vulkan.buffers.premade.mesh.VulkanStaticMesh;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 

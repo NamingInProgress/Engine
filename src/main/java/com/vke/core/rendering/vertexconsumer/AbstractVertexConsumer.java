@@ -5,13 +5,11 @@ import com.vke.core.mesh.Mesh;
 import com.vke.api.draw.Vertex;
 import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
-import com.vke.core.VKEngine;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
-import com.vke.core.vulkan.service.VulkanRenderer;
-import com.vke.core.vulkan.buffers.MappedGpuRingBuffer;
-import com.vke.core.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
-import com.vke.core.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
-import com.vke.core.vulkan.command.VulkanCmdBuffers;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
+import com.vke.core.rendering.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
+import com.vke.core.rendering.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
+import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK14;
 

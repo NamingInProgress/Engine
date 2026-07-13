@@ -15,7 +15,7 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.profiler.service.Profiler;
 import com.vke.core.services2.ServiceManager;
 import com.vke.core.profiler.DummyProfilerImpl;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.services2.Services;
 import com.vke.core.window.Window;
 import com.vke.utils.console.AnsiColors;

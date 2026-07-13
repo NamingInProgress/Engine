@@ -17,7 +17,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
+import com.vke.core.rendering.vulkan.pipeline.VulkanRenderPipeline;
 import com.vke.core.rendering.Samplers;
 import com.vke.demo.DemoScene;
 import com.vke.utils.io.Identifier;

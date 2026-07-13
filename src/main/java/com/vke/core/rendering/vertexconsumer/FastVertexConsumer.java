@@ -1,10 +1,8 @@
 package com.vke.core.rendering.vertexconsumer;
 
 import com.vke.api.draw.Vertex;
-import com.vke.core.VKEngine;
 import com.vke.core.mesh.Mesh;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 public class FastVertexConsumer<T extends Vertex> extends AbstractVertexConsumer<T> {
 

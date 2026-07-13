@@ -22,10 +22,10 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
-import com.vke.core.vulkan.descriptor.DescriptorWriter;
-import com.vke.core.vulkan.descriptor.ds2.DescriptorSetInstance;
-import com.vke.core.vulkan.pipeline.VulkanPipelineLayout;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.descriptor.DescriptorWriter;
+import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 import java.util.*;
 

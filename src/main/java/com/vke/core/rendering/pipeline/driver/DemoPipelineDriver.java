@@ -5,9 +5,7 @@ import com.vke.api.rendering.abstraction.RenderSystem;
 import com.vke.api.rendering.abstraction.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
-import com.vke.core.Context;
-import com.vke.core.vulkan.pipeline.VulkanRenderPipeline;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.pipeline.VulkanRenderPipeline;
 import org.joml.Matrix4f;
 
 import java.io.IOException;

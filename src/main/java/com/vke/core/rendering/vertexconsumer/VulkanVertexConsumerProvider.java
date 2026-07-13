@@ -3,10 +3,7 @@ package com.vke.core.rendering.vertexconsumer;
 import com.vke.api.draw.Vertex;
 import com.vke.api.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
-import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.vulkan.service.VulkanRenderSystem;
-import com.vke.core.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
