@@ -27,7 +27,6 @@ public class MultiWriteBufferHandle extends BufferHandle {
         if (!this.counter.advance()) {
             this.grow();
             this.counter = new MultiWriteCounter(this.counter.getMaxRotations() * 2);
-            System.out.println("Growing!!!!!");
         }
         ((MappedGpuRingBuffer) bufBinding.buffer).rotate();
     }
