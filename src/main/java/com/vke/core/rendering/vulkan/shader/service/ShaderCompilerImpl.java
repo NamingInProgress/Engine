@@ -104,7 +104,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
         if (engine.isDebugMode()) return;
 
         try {
-            Path cacheFolder = FileUtils.getCacheFolder(engine.getApp().getName(), false);
+            Path cacheFolder = FileUtils.getCacheFolder(engine.getName(), false);
             Path archivePath = Path.of(cacheFolder + "/shaders.vkz");
             if (!archivePath.toFile().exists()) return;
 
@@ -131,7 +131,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     public void dumpCacheToArchive() {
         try {
             VkzArchive archive = vkz.createNew();
-            Path cacheFolder = FileUtils.getCacheFolder(engine.getApp().getName());
+            Path cacheFolder = FileUtils.getCacheFolder(engine.getName());
             Path archivePath = Path.of(cacheFolder + "/shaders.vkz");
             if (!archivePath.toFile().exists()) Files.createFile(archivePath);
 
