@@ -1,9 +1,9 @@
 package com.vke.core.input.mouse;
 
-import com.vke.api.app.Framable;
+import com.vke.api.window.Window;
 import com.vke.core.VKEngine;
 import com.vke.core.input.PressableState;
-import com.vke.core.window.Window;
+import com.vke.core.window.GlfwWindow;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;

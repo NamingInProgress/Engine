@@ -12,7 +12,7 @@ import java.util.List;
 
 public class DummyRenderer extends ServiceImpl implements Renderer {
     public DummyRenderer(VKEngine engine) {
-        super(Services.VULKAN_RENDERER, engine);
+        super(Services.RENDERER, engine);
     }
 
     @Override

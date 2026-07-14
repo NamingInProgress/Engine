@@ -1,7 +1,7 @@
-package com.vke.core.callbacks;
+package com.vke.core.window.callbacks;
 
-import com.vke.api.callbacks.window.FramebufferCallback;
-import com.vke.api.callbacks.window.MinimizeCallback;
+import com.vke.api.window.callbacks.window.FramebufferCallback;
+import com.vke.api.window.callbacks.window.MinimizeCallback;
 
 import java.util.HashSet;
 import java.util.Set;

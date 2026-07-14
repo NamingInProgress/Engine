@@ -12,4 +12,6 @@ public interface Renderer extends PinnedService {
     RenderResourceManager resourceManager(); // Example implementation: resourceManager = new VulkanResourceManager(renderContext());
 
     VertexConsumerProvider getVertexConsumerProvider();
+
+    void beforeTerminate();
 }

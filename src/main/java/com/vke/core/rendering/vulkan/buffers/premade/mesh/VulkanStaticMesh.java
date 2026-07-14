@@ -16,8 +16,6 @@ import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
-import org.lwjgl.vulkan.VkBufferDeviceAddressInfo;
-import org.lwjgl.vulkan.VkDevice;
 
 import java.util.Arrays;
 
@@ -35,7 +33,7 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
         T[] vertices = mesh.getVertices();
         int[] indices = mesh.getIndices();
 
-        VulkanRenderer renderer = sys.service(Services.VULKAN_RENDERER).assumeImplementation();
+        VulkanRenderer renderer = sys.service(Services.RENDERER).assumeImplementation();
         if (vertices.length == 0) {
             sys.throwException(new IllegalStateException("Tried to upload empty buffer"), "MeshBuffer");
         }

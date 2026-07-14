@@ -4,8 +4,10 @@ import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.RenderSystem;
 import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.window.Window;
 import com.vke.core.Context;
-import com.vke.core.window.Window;
+import com.vke.core.services2.Services;
+import com.vke.core.window.GlfwWindow;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -33,14 +35,14 @@ public class PerspectiveCamera implements Camera {
         this.near = near;
         this.far = far;
         this.context = context;
-        this.renderSystem = context.<Renderer>service("vkr").renderSystem();
+        this.renderSystem = context.<Renderer>service(Services.RENDERER).renderSystem();
         this.remakeViewMatrix();
         onWindowChange(context.getEngine().getWindow());
     }
 
     @Override
     public void onWindowChange(Window window) {
-        Window.WindowSize size = window.getSize();
+        Window.Size size = window.getSize();
         this.projection = new Matrix4f()
                 .perspective(FOV, (float) size.width() / size.height(), near, far, renderSystem.zZeroToOne());
     }

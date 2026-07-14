@@ -1,9 +1,11 @@
 package com.vke.core.game.camera.controllers;
 
-import com.vke.api.app.Framable;
+import com.vke.api.framable.Framable;
 import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
+import com.vke.api.window.Window;
 import com.vke.core.Context;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
@@ -11,7 +13,7 @@ import com.vke.core.input.mouse.MouseInput;
 import com.vke.core.input.mouse.MousePositionState;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.services2.Services;
-import com.vke.core.window.Window;
+import com.vke.core.window.GlfwWindow;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -22,6 +24,7 @@ public class FreecamController implements CameraController, Framable {
     private static final float MAX_PITCH = (float) Math.toRadians(89);
 
     private final Context context;
+    private final FramableManager framableManager;
 
     private final PressableState w;
     private final PressableState a;
@@ -50,6 +53,8 @@ public class FreecamController implements CameraController, Framable {
         this.context = context;
         this.speed = speed;
         this.sensitivity = sensitivity;
+
+        this.framableManager = context.service(Services.FRAMABLE_MANAGER);
 
         InputManager input = context.service(Services.INPUT_MANAGER);
 
@@ -114,14 +119,14 @@ public class FreecamController implements CameraController, Framable {
 
         Window window = context.getEngine().getWindow();
 
-        context.getEngine().registerFramable(this);
+        framableManager.registerFramable(this);
 
-        window.disableCursor();
+        //window.disableCursor();
     }
 
     @Override
     public void detachCamera() {
         camera = null;
-        context.getEngine().removeFramable(this);
+        framableManager.removeFramable(this);
     }
 }

@@ -1,7 +1,7 @@
 package com.vke.core.scene.service;
 
-import com.vke.api.app.CompoundFramable;
-import com.vke.api.app.Framable;
+import com.vke.api.framable.CompoundFramable;
+import com.vke.api.framable.Framable;
 import com.vke.core.assets.service.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;

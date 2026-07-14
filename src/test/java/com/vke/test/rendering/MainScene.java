@@ -58,7 +58,7 @@ public class MainScene extends Scene {
 
     @Override
     public void onLoad() {
-        renderer = context.service(Services.VULKAN_RENDERER);
+        renderer = context.service(Services.RENDERER);
         var device = renderer.getDevice();
 
         cubePipeline = (VulkanRenderPipeline) CUBE.assume(context);

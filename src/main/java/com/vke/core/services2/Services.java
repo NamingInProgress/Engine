@@ -14,6 +14,8 @@ import com.vke.core.audio.playback3d.service.AudioManager3DAPI;
 import com.vke.core.audio.playback3d.service.AudioManager3DBaseImpl;
 import com.vke.core.event.service.EventBusAPI;
 import com.vke.core.event.service.EventBusImpl;
+import com.vke.core.framable.service.FramableManagerAPI;
+import com.vke.core.framable.service.FramableManagerImpl;
 import com.vke.core.input.service.InputManagerAPI;
 import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.profiler.service.ProfilerAPI;
@@ -28,9 +30,11 @@ import com.vke.core.rendering.vulkan.service.VulkanRendererAPI;
 import com.vke.core.rendering.vulkan.shader.service.ShaderCompilerAPI;
 import com.vke.core.rendering.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
+import com.vke.core.window.service.WindowManagerAPI;
+import com.vke.core.window.service.WindowManagerImpl;
 
 public class Services {
-    public static final String VULKAN_RENDERER = "vkr";
+    public static final String RENDERER = "rnd";
     public static final String SHADER_COMPILER = "shc";
     public static final String PROFILER = "prf";
     public static final String EVENT_BUS = "evt";
@@ -43,10 +47,12 @@ public class Services {
     public static final String AUDIO_MANAGER_2D = "au2";
     public static final String AUDIO_MANAGER_3D = "au3";
     public static final String AUDIO_MANAGER_MASTER = "aum";
+    public static final String WINDOW_MANAGER = "wnd";
+    public static final String FRAMABLE_MANAGER = "frm";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
-        manager.registerNewService(VULKAN_RENDERER, new VulkanRendererAPI(new VulkanRenderer(engine, createInfo)));
+        manager.registerNewService(RENDERER, new VulkanRendererAPI(new VulkanRenderer(engine, createInfo)));
         manager.registerNewService(SHADER_COMPILER, new ShaderCompilerAPI(new ShaderCompilerImpl(engine)));
         manager.registerNewService(PROFILER, new ProfilerAPI(new ProfilerImpl(engine)));
         manager.registerNewService(EVENT_BUS, new EventBusAPI(new EventBusImpl(engine)));
@@ -59,6 +65,8 @@ public class Services {
         manager.registerNewService(AUDIO_MANAGER_2D, new AudioManager2DAPI(new AudioManager2DBaseImpl(engine)));
         manager.registerNewService(AUDIO_MANAGER_3D, new AudioManager3DAPI(new AudioManager3DBaseImpl(engine)));
         manager.registerNewService(AUDIO_MANAGER_MASTER, new AudioManagerMasterAPI(new AudioManagerMasterImpl(engine)));
+        manager.registerNewService(WINDOW_MANAGER, new WindowManagerAPI(new WindowManagerImpl(engine)));
+        manager.registerNewService(FRAMABLE_MANAGER, new FramableManagerAPI(new FramableManagerImpl(engine)));
     }
 
 }

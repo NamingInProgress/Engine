@@ -9,7 +9,7 @@ import com.vke.core.input.keyboard.*;
 import com.vke.core.input.mouse.Button;
 import com.vke.core.input.mouse.MouseScrollState;
 import com.vke.core.services2.Services;
-import com.vke.core.window.Window;
+import com.vke.core.window.GlfwWindow;
 import com.vke.utils.io.Identifier;
 
 public class InputScene extends Scene {
@@ -22,7 +22,7 @@ public class InputScene extends Scene {
 
     @Override
     public void onLoad() {
-        Window window = context.getEngine().getWindow();
+        GlfwWindow window = context.getEngine().getWindow();
 
         InputManager inputManager = context.service(Services.INPUT_MANAGER);
         this.kb = inputManager.keyboard();

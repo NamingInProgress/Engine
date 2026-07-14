@@ -1,4 +1,4 @@
-package com.vke.api.callbacks.window;
+package com.vke.api.window.callbacks.window;
 
 @FunctionalInterface
 public interface FramebufferCallback {

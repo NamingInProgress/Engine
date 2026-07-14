@@ -2,6 +2,7 @@ package com.vke.core.input.service;
 
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.input.keyboard.KeyboardInputImpl;
 import com.vke.core.input.mouse.MouseInputImpl;
 import com.vke.core.services2.Services;
@@ -10,6 +11,8 @@ import java.util.List;
 
 public class InputManagerImpl extends ServiceImpl implements InputManager {
     private final VKEngine engine;
+    private FramableManager framableManager;
+
     private KeyboardInputImpl keyboardInput;
     private MouseInputImpl mouseInput;
 
@@ -20,9 +23,13 @@ public class InputManagerImpl extends ServiceImpl implements InputManager {
 
     @Override
     protected void onInitialize() {
+        framableManager = engine.service(Services.FRAMABLE_MANAGER);
+
         keyboardInput = new KeyboardInputImpl(engine);
         mouseInput = new MouseInputImpl(engine);
-        engine.registerFramable(this);
+
+
+        framableManager.registerFramable(this);
     }
 
     @Override
@@ -48,6 +55,6 @@ public class InputManagerImpl extends ServiceImpl implements InputManager {
 
     @Override
     public void free() {
-        engine.removeFramable(this);
+        framableManager.removeFramable(this);
     }
 }
