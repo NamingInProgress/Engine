@@ -1,6 +1,7 @@
 package com.vke.test.input;
 
 import com.vke.api.scene.Scene;
+import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.input.mouse.MouseInput;
 import com.vke.core.input.service.InputManager;
@@ -22,7 +23,7 @@ public class InputScene extends Scene {
 
     @Override
     public void onLoad() {
-        GlfwWindow window = context.getEngine().getWindow();
+        Window window = context.getEngine().getWindow();
 
         InputManager inputManager = context.service(Services.INPUT_MANAGER);
         this.kb = inputManager.keyboard();

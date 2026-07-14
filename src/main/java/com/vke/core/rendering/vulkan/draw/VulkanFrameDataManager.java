@@ -34,41 +34,6 @@ public class VulkanFrameDataManager implements FrameDataManager {
                 slice.putMat4(camera.projectionMatrix());
                 slice.putMat4(camera.viewMatrix());
             });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
-            cameraHandle.advanceBuffer();
-            cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-            });
         }
     }
 }
