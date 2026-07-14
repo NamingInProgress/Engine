@@ -17,7 +17,7 @@ import org.joml.Vector3f;
 
 public class FreecamController implements CameraController, Framable {
 
-    private static final float DEFAULT_SPEED = 0.15f;
+    private static final float DEFAULT_SPEED = 10.15f;
     private static final float DEFAULT_SENSITIVITY = 0.0025f;
     private static final float MAX_PITCH = (float) Math.toRadians(89);
 
@@ -42,9 +42,6 @@ public class FreecamController implements CameraController, Framable {
     private float yaw = 0;
     private float pitch = 0;
 
-    private int centerX;
-    private int centerY;
-
     public FreecamController(Context context) {
         this(context, DEFAULT_SPEED, DEFAULT_SENSITIVITY);
     }
@@ -66,11 +63,6 @@ public class FreecamController implements CameraController, Framable {
 
         MouseInput mouse = input.mouse();
         mousePosition = mouse.position();
-
-        Window window = context.getEngine().getWindow();
-        Window.WindowSize size = window.getSize();
-        centerX = size.width() / 2;
-        centerY = size.height() / 2;
     }
 
     @Override
@@ -78,12 +70,6 @@ public class FreecamController implements CameraController, Framable {
         if (camera == null) {
             return;
         }
-
-        Window window = context.getEngine().getWindow();
-
-        Window.WindowSize size = window.getSize();
-        centerX = size.width() / 2;
-        centerY = size.height() / 2;
 
         int dx = mousePosition.getX() - lastX;
         int dy = mousePosition.getY() - lastY;
@@ -100,28 +86,20 @@ public class FreecamController implements CameraController, Framable {
 
         camera.setRotation(rotation);
 
-        Vector3f forward = new Vector3f(
-                (float) (Math.sin(yaw) * Math.cos(pitch)),
-                (float) Math.sin(pitch),
-                (float) (-Math.cos(yaw) * Math.cos(pitch))
-        ).normalize();
-
-        Vector3f right = new Vector3f(forward)
-                .cross(0, 1, 0)
-                .normalize();
-
-        Vector3f up = new Vector3f(right)
-                .cross(forward)
-                .normalize();
+        Vector3f forward = new Vector3f(0, 0, -1).rotate(rotation);
+        Vector3f right   = new Vector3f(1, 0, 0).rotate(rotation);
+        Vector3f up      = new Vector3f(0, 1, 0).rotate(rotation);
 
         Vector3f position = new Vector3f(camera.position());
 
-        if (w.isPressed()) position.fma(speed, forward);
-        if (s.isPressed()) position.fma(-speed, forward);
-        if (d.isPressed()) position.fma(speed, right);
-        if (a.isPressed()) position.fma(-speed, right);
+        if (w.isPressed())     position.fma(speed, forward);
+        if (s.isPressed())     position.fma(-speed, forward);
+        if (d.isPressed())     position.fma(speed, right);
+        if (a.isPressed())     position.fma(-speed, right);
         if (space.isPressed()) position.fma(speed, up);
         if (shift.isPressed()) position.fma(-speed, up);
+
+        camera.setPosition(position);
 
         camera.setPosition(position);
 
@@ -135,9 +113,6 @@ public class FreecamController implements CameraController, Framable {
         this.camera = camera;
 
         Window window = context.getEngine().getWindow();
-        Window.WindowSize size = window.getSize();
-        centerX = size.width() / 2;
-        centerY = size.height() / 2;
 
         context.getEngine().registerFramable(this);
 
