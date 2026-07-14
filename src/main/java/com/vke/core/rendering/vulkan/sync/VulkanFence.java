@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.sync;
 
-import com.vke.api.rendering.abstraction.sync.Fence;
+import com.vke.api.rendering.abstraction.renderer.sync.Fence;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;

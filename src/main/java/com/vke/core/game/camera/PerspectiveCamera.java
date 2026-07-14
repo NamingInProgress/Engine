@@ -2,12 +2,11 @@ package com.vke.core.game.camera;
 
 import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
-import com.vke.core.window.GlfwWindow;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

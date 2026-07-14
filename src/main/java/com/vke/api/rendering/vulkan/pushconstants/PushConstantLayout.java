@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.pushconstants;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
 
 import java.util.Objects;

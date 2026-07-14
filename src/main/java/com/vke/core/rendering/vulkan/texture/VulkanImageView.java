@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.texture;
 
-import com.vke.api.rendering.abstraction.data.ImageView;
+import com.vke.api.rendering.abstraction.renderer.data.ImageView;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;

@@ -1,6 +1,7 @@
 package com.vke.api.scene;
 
 import com.vke.api.framable.Framable;
+import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
@@ -32,4 +33,6 @@ public abstract class Scene implements Disposable, Framable {
     public void setLoadingScene(LoadingScene loadingScene) {
         this.loadingScene = loadingScene;
     }
+
+    public void acceptConfig(ConfigNode node) {}
 }

@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.shader.service;
 
-import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.services2.Services;

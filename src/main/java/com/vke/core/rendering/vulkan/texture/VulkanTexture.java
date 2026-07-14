@@ -1,10 +1,10 @@
 package com.vke.core.rendering.vulkan.texture;
 
-import com.vke.api.rendering.abstraction.data.ImageView;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
-import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
+import com.vke.api.rendering.abstraction.renderer.data.ImageView;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.core.file.png.Pixels;

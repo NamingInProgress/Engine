@@ -65,6 +65,8 @@ public class DescriptorSetGroup {
         return ctx;
     }
 
+    public DescriptorSetInstance getSet(int set) { return this.parent.getSets().get(set); }
+
     @SuppressWarnings("unchecked")
     public <T extends UniformHandle> T resolve(String path) {
         if (handleCache.containsKey(path)) return (T) handleCache.get(path);

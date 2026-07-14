@@ -5,7 +5,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
-import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.api.rendering.abstraction.renderer.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.utils.io.Identifier;

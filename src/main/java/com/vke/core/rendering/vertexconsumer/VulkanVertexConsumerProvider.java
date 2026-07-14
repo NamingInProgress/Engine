@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vertexconsumer;
 
-import com.vke.api.draw.Vertex;
-import com.vke.api.draw.VertexConsumer;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;

@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.shr;
 
-import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.rendering.vulkan.descriptors.PrimitiveBaseType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
 import com.vke.api.rendering.vulkan.descriptors.types.*;

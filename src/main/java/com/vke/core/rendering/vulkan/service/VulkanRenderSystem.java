@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.core.Context;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;

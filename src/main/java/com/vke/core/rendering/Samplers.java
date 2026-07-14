@@ -1,9 +1,9 @@
 package com.vke.core.rendering;
 
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.enums.Filter;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.enums.Filter;
 
 public class Samplers {
 

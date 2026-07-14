@@ -2,9 +2,9 @@ package com.vke.core.rendering.texture;
 
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
-import com.vke.api.rendering.abstraction.data.TextureManager;
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;

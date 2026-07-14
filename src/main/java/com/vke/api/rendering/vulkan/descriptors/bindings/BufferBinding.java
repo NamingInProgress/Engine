@@ -1,8 +1,7 @@
 package com.vke.api.rendering.vulkan.descriptors.bindings;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
-import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
 import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 

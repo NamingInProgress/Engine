@@ -1,11 +1,11 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.VertexConsumer;
+import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;

@@ -1,8 +1,8 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.other.array;
 
-import com.vke.api.rendering.abstraction.data.ImageView;
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.ImageView;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -29,6 +29,10 @@ public class CISArrayHandle extends UniformHandle {
         this.cisBinding.views[index] = (VulkanImageView) view;
         this.cisBinding.samplers[index] = (VulkanSampler) sampler;
         setDirty();
+    }
+
+    public void nextWrite() {
+        this.group.getSet(this.set).requestNewDescriptorSet();
     }
 
 }

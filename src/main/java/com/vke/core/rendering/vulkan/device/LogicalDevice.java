@@ -16,7 +16,7 @@ import org.lwjgl.vulkan.*;
 import java.nio.FloatBuffer;
 import java.util.*;
 
-import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 
 public class LogicalDevice implements Disposable {
 

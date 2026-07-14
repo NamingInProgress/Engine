@@ -1,7 +1,7 @@
 package com.vke.core.draw;
 
-import com.vke.api.draw.*;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.draw.*;
 import com.vke.core.rendering.transform.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 

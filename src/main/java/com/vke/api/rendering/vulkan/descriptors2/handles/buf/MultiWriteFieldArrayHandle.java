@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;

@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.memory;
 
-import com.vke.api.rendering.abstraction.enums.texture.ImageAspect;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import org.lwjgl.vulkan.VK14;
 

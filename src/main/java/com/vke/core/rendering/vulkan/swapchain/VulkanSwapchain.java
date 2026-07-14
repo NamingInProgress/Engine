@@ -1,14 +1,14 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
-import com.vke.api.rendering.abstraction.IntEnum;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.texture.*;
-import com.vke.api.rendering.abstraction.swapchain.Swapchain;
-import com.vke.api.rendering.abstraction.sync.Semaphore;
+import com.vke.api.rendering.abstraction.renderer.IntEnum;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
+import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
+import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
-import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;

@@ -1,10 +1,9 @@
 package com.vke.core.draw;
 
-import com.vke.api.draw.Vertex;
-import com.vke.api.draw.VertexFactory;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
-import org.jetbrains.annotations.Nullable;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.VertexFactory;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 
 public class ShapeRendererVertex implements Vertex {
 

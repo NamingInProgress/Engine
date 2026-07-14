@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.vke.core.mesh;
 
-import com.vke.api.draw.Vertex;
-import com.vke.api.draw.MeshVertexFactory;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.MeshVertexFactory;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;

@@ -1,8 +1,8 @@
 package com.vke.core.rendering.vulkan.data;
 
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.core.mesh.Mesh;
 import com.vke.core.rendering.vulkan.buffers.premade.mesh.VulkanStaticMesh;
 import com.vke.core.rendering.Samplers;

@@ -2,7 +2,7 @@ package com.vke.core.rendering.vulkan;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.core.rendering.vulkan.command.CommandPool;
-import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;

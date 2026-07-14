@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.shader;
 
-import com.vke.api.rendering.abstraction.enums.ShaderType;
-import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.shader.ShaderProgram;
 import com.vke.core.Context;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.utils.io.Disposable;

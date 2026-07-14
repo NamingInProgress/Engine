@@ -1,10 +1,10 @@
 package com.vke.core.assets.pipeline.protocols.shader;
 
 import com.vke.api.assets.Protocols;
-import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.enums.ShaderType;
-import com.vke.api.rendering.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.renderer.RenderDevice;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;

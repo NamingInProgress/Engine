@@ -1,9 +1,9 @@
 package com.vke.test.rendering.instancing;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.pipeline.Pipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteBufferHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.rendering.vulkan.pipeline.VulkanRenderPipeline;

@@ -1,10 +1,7 @@
 package com.vke.core.rendering.bytesenik;
 
-import com.vke.api.rendering.abstraction.data.ByteEncoder;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
 import com.vke.api.utils.AlignedByteBuffer;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 

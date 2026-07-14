@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.descriptors.info;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors.types.StructType;

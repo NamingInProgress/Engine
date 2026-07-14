@@ -1,6 +1,6 @@
 package com.vke.core.mesh;
 
-import com.vke.api.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.Vertex;
 
 public class Mesh<T extends Vertex> {
     private final T[] vertices;

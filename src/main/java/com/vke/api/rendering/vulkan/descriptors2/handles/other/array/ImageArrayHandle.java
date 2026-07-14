@@ -1,7 +1,7 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.other.array;
 
-import com.vke.api.rendering.abstraction.data.ImageView;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.ImageView;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.image.ImageBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -25,6 +25,10 @@ public class ImageArrayHandle extends UniformHandle {
     public void set(ImageView view, int index) {
         this.imgBinding.views[index] = (VulkanImageView) view;
         setDirty();
+    }
+
+    public void nextWrite() {
+        this.group.getSet(this.set).requestNewDescriptorSet();
     }
 
 }

@@ -1,9 +1,8 @@
 package com.vke.core.rendering.vulkan.draw;
 
 import com.vke.api.game.camera.Camera;
-import com.vke.api.rendering.abstraction.data.FrameDataManager;
+import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteFieldHandle;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 

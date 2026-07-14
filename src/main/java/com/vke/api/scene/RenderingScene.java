@@ -1,7 +1,8 @@
 package com.vke.api.scene;
 
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.core.Context;
 import com.vke.utils.io.Identifier;
 
@@ -21,5 +22,10 @@ public abstract class RenderingScene extends Scene {
     }
 
     public Renderer getRenderer() { return this.renderer; }
+
+    @Override
+    public void acceptConfig(ConfigNode node) {
+
+    }
 
 }

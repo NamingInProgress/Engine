@@ -1,9 +1,9 @@
 package com.vke.core.rendering.vulkan.buffers;
 
-import com.vke.api.rendering.abstraction.data.GpuBuffer;
+import com.vke.api.rendering.abstraction.renderer.data.GpuBuffer;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
-import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.utils.io.Disposable;

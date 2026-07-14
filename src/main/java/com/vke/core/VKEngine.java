@@ -1,9 +1,8 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
-import com.vke.api.framable.Framable;
 import com.vke.api.app.Version;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.window.Window;
 import com.vke.core.framable.service.FramableManager;
 import com.vke.core.mesh.MeshPrefab;
@@ -17,18 +16,13 @@ import com.vke.core.logger.LoggerFactory;
 import com.vke.core.profiler.service.Profiler;
 import com.vke.core.services2.ServiceManager;
 import com.vke.core.profiler.DummyProfilerImpl;
-import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.services2.Services;
-import com.vke.core.window.GlfwWindow;
 import com.vke.core.window.service.WindowManager;
-import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
 import com.vke.api.app.Namespace;
 import com.vke.utils.iter.Iter;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";

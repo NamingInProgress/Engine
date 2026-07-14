@@ -1,10 +1,10 @@
 package com.vke.test.rendering.instancing;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.data.StaticMesh;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.scene.RenderingScene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;

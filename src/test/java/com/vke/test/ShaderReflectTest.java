@@ -1,6 +1,6 @@
 package com.vke.test;
 
-import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.app.App;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;

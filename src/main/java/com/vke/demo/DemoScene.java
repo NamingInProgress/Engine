@@ -1,17 +1,17 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.Vertex;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.data.StaticMesh;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.rendergraph.RenderGraphDefinition;
 import com.vke.api.scene.RenderingScene;
 import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
-import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.game.camera.controllers.PoopWASDController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.pipeline.RenderPipelines;
@@ -32,6 +32,11 @@ public class DemoScene extends RenderingScene {
 
     @Override
     public void onLoad() {
+        try {
+            RenderGraphDefinition rgd = new RenderGraphDefinition(context, new Identifier("renderpasses/3d.vcl"));
+        } catch (IOException | SchemaMismatchException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         MeshPrefab prefab;
         try {
             prefab = R.meshprefabs.get("bear.obj").acquire(context);

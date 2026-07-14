@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.command;
 
-import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.system.MemoryStack;

@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;

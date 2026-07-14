@@ -17,6 +17,7 @@ public class SceneVCL {
     public final Class<?> clazz;
     public final List<String> bundles;
     public final Identifier loadingScene;
+    public final ConfigNode config;
 
     public SceneVCL(Identifier file, Context context) throws SceneException {
         try {
@@ -26,6 +27,12 @@ public class SceneVCL {
             ConfigDocument document = ConfigDocument.parseIdentifier(file);
             ConfigNode root = document.getRoot();
             ConfigNode sceneTag = root.getObject("scene");
+
+            if (sceneTag.hasField("config")) {
+                this.config = sceneTag.getObject("config");
+            } else {
+                this.config = null;
+            }
 
             ConfigNode classTag = sceneTag.getObject("class");
             String className = classTag.getString("name");

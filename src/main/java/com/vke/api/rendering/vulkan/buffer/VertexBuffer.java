@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.buffer;
 
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;

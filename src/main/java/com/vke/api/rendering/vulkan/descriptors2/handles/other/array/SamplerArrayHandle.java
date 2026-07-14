@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.other.array;
 
-import com.vke.api.rendering.abstraction.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.SamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -19,6 +19,10 @@ public class SamplerArrayHandle extends UniformHandle {
     public void set(Sampler sampler, int index) {
         this.samplBinding.samplers[index] = (VulkanSampler) sampler;
         setDirty();
+    }
+
+    public void nextWrite() {
+        this.group.getSet(this.set).requestNewDescriptorSet();
     }
 
 }

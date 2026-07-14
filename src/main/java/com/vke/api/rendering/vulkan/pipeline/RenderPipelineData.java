@@ -1,12 +1,12 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.rendering.abstraction.IntEnum;
-import com.vke.api.rendering.abstraction.shader.Shader;
-import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.api.rendering.abstraction.renderer.IntEnum;
+import com.vke.api.rendering.abstraction.renderer.shader.Shader;
+import com.vke.api.rendering.abstraction.renderer.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
-import com.vke.api.rendering.abstraction.enums.CompareOp;
-import com.vke.api.rendering.abstraction.enums.texture.Format;
+import com.vke.api.rendering.abstraction.renderer.enums.CompareOp;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;

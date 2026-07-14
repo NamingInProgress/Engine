@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan;
 
-import com.vke.api.rendering.abstraction.IntEnum;
+import com.vke.api.rendering.abstraction.renderer.IntEnum;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK14;
 

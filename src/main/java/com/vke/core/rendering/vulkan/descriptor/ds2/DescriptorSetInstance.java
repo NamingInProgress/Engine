@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.descriptor.ds2;
 
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.*;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
@@ -11,12 +11,16 @@ import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
 import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.rendering.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorAllocator;
+import com.vke.core.rendering.vulkan.descriptor.DynamicDescriptorAllocator;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class DescriptorSetInstance implements Disposable {
 
@@ -26,13 +30,20 @@ public class DescriptorSetInstance implements Disposable {
     private final CompiledDescriptorSetLayout compiledLayout;
     private final FrameCounter fc;
     private final VulkanRenderSystem ctx;
+    private final DynamicDescriptorAllocator dynAlloc;
 
-    public DescriptorSetInstance(VulkanRenderSystem ctx, DescriptorAllocator alloc,
+    private final LinkedList<DescriptorSet> readySets = new LinkedList<>();
+    private final ArrayList<DescriptorSet> usedSets = new ArrayList<>();
+
+    private DescriptorSet overrideNextSet;
+
+    public DescriptorSetInstance(VulkanRenderSystem ctx, DescriptorAllocator alloc, DynamicDescriptorAllocator dynAlloc,
                                  DescriptorSetLayout setLayout, FrameCounter fc, int set) {
         this.fc = fc;
         this.set = set;
         this.setObjects = new DescriptorSet[fc.framesInFlight()];
         this.ctx = ctx;
+        this.dynAlloc = dynAlloc;
 
         this.compiledLayout = new CompiledDescriptorSetLayout(ctx, setLayout, null);
 
@@ -47,7 +58,22 @@ public class DescriptorSetInstance implements Disposable {
     }
 
     public DescriptorSet getSet() {
-        return setObjects[fc.currentIndex()];
+        return getSet(false);
+    }
+
+    public DescriptorSet getSet(boolean resetOverride) {
+        if (overrideNextSet != null) {
+            var temp = overrideNextSet;
+
+            if (resetOverride) {
+                usedSets.add(overrideNextSet);
+                overrideNextSet = null;
+            }
+
+            return temp;
+        } else {
+            return setObjects[fc.currentIndex()];
+        }
     }
 
     public DescriptorSet[] getAllSets() { return this.setObjects; }
@@ -56,6 +82,19 @@ public class DescriptorSetInstance implements Disposable {
 
     public CompiledDescriptorSetLayout getCompiledLayout() {
         return this.compiledLayout;
+    }
+
+    public void onNewFrame() {
+        this.readySets.addAll(this.usedSets);
+        this.usedSets.clear();
+    }
+
+    public void requestNewDescriptorSet() {
+        if (readySets.isEmpty()) {
+            this.overrideNextSet = dynAlloc.allocate(compiledLayout);
+        } else {
+            this.overrideNextSet = readySets.pop();
+        }
     }
 
     @Override

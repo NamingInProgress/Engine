@@ -1,9 +1,9 @@
 package com.vke.core.rendering.pipeline.driver;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.pipeline.Pipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
 
 public class ShapePipelineDriver extends PipelineDriver {
 

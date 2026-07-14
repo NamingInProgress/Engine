@@ -1,18 +1,18 @@
 package com.vke.test.rendering;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.draw.Vertex;
-import com.vke.api.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.data.StaticMesh;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.VertexConsumer;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
 import com.vke.api.scene.RenderingScene;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;

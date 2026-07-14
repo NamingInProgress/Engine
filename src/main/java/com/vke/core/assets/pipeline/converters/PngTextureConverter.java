@@ -2,12 +2,12 @@ package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
-import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.enums.texture.Format;
-import com.vke.api.rendering.abstraction.enums.texture.ImageUsage;
-import com.vke.api.rendering.abstraction.enums.texture.TextureType;
+import com.vke.api.rendering.abstraction.renderer.RenderDevice;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.TextureType;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;

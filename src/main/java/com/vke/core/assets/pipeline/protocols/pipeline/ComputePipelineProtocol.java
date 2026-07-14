@@ -2,9 +2,9 @@ package com.vke.core.assets.pipeline.protocols.pipeline;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.Renderer;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.abstraction.renderer.RenderDevice;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;

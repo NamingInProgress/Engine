@@ -2,7 +2,7 @@ package com.vke.test.shader;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
-import com.vke.api.rendering.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;

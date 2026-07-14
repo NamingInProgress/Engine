@@ -1,8 +1,8 @@
 package com.vke.core.rendering.vulkan.sampler;
 
-import com.vke.api.rendering.abstraction.data.Sampler;
-import com.vke.api.rendering.abstraction.enums.CompareOp;
-import com.vke.api.rendering.abstraction.enums.Filter;
+import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.enums.CompareOp;
+import com.vke.api.rendering.abstraction.renderer.enums.Filter;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;

@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.device;
 
-import com.vke.api.rendering.abstraction.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import org.lwjgl.vulkan.*;
 
 import java.util.Objects;

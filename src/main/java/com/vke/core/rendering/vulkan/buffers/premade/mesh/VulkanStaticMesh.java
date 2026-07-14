@@ -1,14 +1,14 @@
 package com.vke.core.rendering.vulkan.buffers.premade.mesh;
 
-import com.vke.api.rendering.abstraction.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.core.mesh.Mesh;
-import com.vke.api.draw.Vertex;
+import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
-import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
-import com.vke.api.rendering.abstraction.enums.buffer.MemoryUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.core.rendering.vulkan.buffers.premade.ibo.IndexBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.vbo.StaticVertexBuffer;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;

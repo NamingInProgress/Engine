@@ -1,10 +1,10 @@
 package com.vke.core.rendering.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.RenderDevice;
-import com.vke.api.rendering.abstraction.RenderResourceManager;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.rendering.abstraction.renderer.RenderDevice;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;

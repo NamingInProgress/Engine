@@ -2,7 +2,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineLayout;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -17,6 +17,7 @@ import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorAllocator;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorWriter;
+import com.vke.core.rendering.vulkan.descriptor.DynamicDescriptorAllocator;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
@@ -44,6 +45,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     private final PushConstants pushConstants;
 
     private final DescriptorAllocator alloc;
+    private final DynamicDescriptorAllocator dynamicAlloc;
     private final List<DescriptorSetInstance> sets = new ArrayList<>();
 
     private DescriptorSetGroup group;
@@ -72,12 +74,13 @@ public class VulkanPipelineLayout implements PipelineLayout {
                 counts.addTo(bindingLayout.type, bindingLayout.descriptorCount)));
 
         this.alloc = new DescriptorAllocator(ctx, counts, layouts.size(), fc.framesInFlight(), false);
+        this.dynamicAlloc = new DynamicDescriptorAllocator(ctx, 16, counts, fc.framesInFlight(), false);
 
         int engineSetsEnd = engineSets.ENGINE_PIPELINE_LAYOUT == null ? 0 : engineSets.highestSet + 1;
 
         if (engineSetsEnd == 0) {
             for (int i = 0; i < layouts.size(); i++) {
-                var ds = new DescriptorSetInstance(ctx, alloc, layouts.get(i), fc, i);
+                var ds = new DescriptorSetInstance(ctx, alloc, dynamicAlloc, layouts.get(i), fc, i);
                 engineSets.INSTANCES.add(ds);
                 sets.add(ds);
             }
@@ -88,7 +91,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
 
         for (int i = engineSetsEnd; i < layouts.size(); i++) {
             DescriptorSetLayout layout = layouts.get(i);
-            var ds = new DescriptorSetInstance(ctx, alloc, layout, fc, i);
+            var ds = new DescriptorSetInstance(ctx, alloc, dynamicAlloc, layout, fc, i);
             sets.add(ds);
         }
 

@@ -2,7 +2,7 @@ package com.vke.utils;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
-import com.vke.api.rendering.abstraction.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.utils.OSType;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;

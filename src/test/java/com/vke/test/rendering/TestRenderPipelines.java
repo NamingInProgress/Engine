@@ -2,9 +2,8 @@ package com.vke.test.rendering;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.pipeline.Pipeline;
-import com.vke.core.Context;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.test.rendering.instancing.InstancingTestDriver;
 
 public class TestRenderPipelines {

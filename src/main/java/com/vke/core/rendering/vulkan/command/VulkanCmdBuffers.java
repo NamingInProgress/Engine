@@ -1,11 +1,11 @@
 package com.vke.core.rendering.vulkan.command;
 
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.abstraction.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.data.GpuBuffer;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.abstraction.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.renderer.data.GpuBuffer;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
@@ -209,7 +209,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
         List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {
             DescriptorSetInstance userSet = userSets.get(i);
-            sets[i] = userSet.getSet().handle();
+            sets[i] = userSet.getSet(true).handle();
         }
 
         //l.getGroup().getHandleCache().values().stream()

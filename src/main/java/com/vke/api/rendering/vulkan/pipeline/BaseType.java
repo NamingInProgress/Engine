@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.enums.texture.Format;
 import org.lwjgl.util.spvc.Spvc;
 
 public enum BaseType {

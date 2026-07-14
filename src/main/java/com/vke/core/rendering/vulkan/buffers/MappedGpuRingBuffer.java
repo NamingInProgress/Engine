@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.buffers;
 
-import com.vke.api.rendering.abstraction.enums.buffer.BufferUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryUtil;
 

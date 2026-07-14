@@ -1,9 +1,9 @@
 package com.vke.api.rendering.vulkan.pipeline;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
-import com.vke.api.rendering.abstraction.pipeline.Pipeline;
-import com.vke.api.rendering.abstraction.pipeline.PipelineLayout;
-import com.vke.api.rendering.abstraction.shader.ShaderProgram;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.renderer.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;

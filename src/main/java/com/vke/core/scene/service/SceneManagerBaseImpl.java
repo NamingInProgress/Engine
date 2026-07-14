@@ -51,6 +51,10 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
             Class<? extends Scene> actualSceneClass = (Class<? extends Scene>) clazz;
             Scene instance = createInstance(actualSceneClass, thisName, context);
 
+            if (sceneVCL.config != null) {
+                instance.acceptConfig(sceneVCL.config);
+            }
+
             Identifier loadingSceneName = sceneVCL.loadingScene;
             if (loadingSceneName == null && !(instance instanceof LoadingScene)) {
                 loadingSceneName = new Identifier(VKEngine.VKE_NAMESPACE, "default_loading");

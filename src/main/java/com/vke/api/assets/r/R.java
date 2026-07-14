@@ -1,14 +1,13 @@
 package com.vke.api.assets.r;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.schema.ConfigSchema;
-import com.vke.api.rendering.abstraction.pipeline.ComputePipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.core.audio.source.AudioClip;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.rendering.abstraction.data.Texture;
-import com.vke.api.rendering.abstraction.pipeline.RenderPipeline;
-import com.vke.api.rendering.abstraction.shader.Shader;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.core.assets.language.Language;
 
 public class R {

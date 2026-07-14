@@ -1,12 +1,8 @@
 package com.vke.core.rendering.vulkan.buffers.premade.slice;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.function.Consumer;
 
 public class BufferSlice {
     protected final long bufferAddress;

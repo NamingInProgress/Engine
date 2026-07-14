@@ -1,7 +1,7 @@
 package com.vke.test.rendering;
 
-import com.vke.api.draw.Vertex;
-import com.vke.api.rendering.abstraction.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 
 public class DynamicTestVertex implements Vertex {
 
