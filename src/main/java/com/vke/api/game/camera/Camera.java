@@ -27,4 +27,6 @@ public interface Camera {
         controller().detachCamera();
     }
 
+    void use();
+
 }

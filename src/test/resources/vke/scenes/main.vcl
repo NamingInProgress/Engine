@@ -1,5 +1,5 @@
 <scene>
-    <class name="com.vke.test.rendering.BatchedVertexConsumerTest"/>
+    <class name="com.vke.test.rendering.instancing.InstancingTestScene"/>
     <bundles>
         <bundle name="main"/>
     </bundles>

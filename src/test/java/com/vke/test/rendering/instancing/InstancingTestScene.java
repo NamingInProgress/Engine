@@ -105,9 +105,29 @@ public class InstancingTestScene extends RenderingScene {
         TestRenderPipelines.INSTANCING.clear();
 
         TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
-            .translate(400, -300, -550)
+            .translate(200, 300, -550)
             .scale(10, 10, 10)
             .rotateY(angle));
+        TestRenderPipelines.INSTANCING.use();
+        mesh.drawInstanced(1);
+
+        TestRenderPipelines.INSTANCING.next();
+        TestRenderPipelines.INSTANCING.clear();
+
+        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+                .translate(000, 300, -550)
+                .scale(10, 10, 10)
+                .rotateY(angle));
+        TestRenderPipelines.INSTANCING.use();
+        mesh.drawInstanced(1);
+
+        TestRenderPipelines.INSTANCING.next();
+        TestRenderPipelines.INSTANCING.clear();
+
+        TestRenderPipelines.INSTANCING.addMatrix(new Matrix4f()
+                .translate(-200, 300, -550)
+                .scale(10, 10, 10)
+                .rotateY(angle));
         TestRenderPipelines.INSTANCING.use();
         mesh.drawInstanced(1);
     }

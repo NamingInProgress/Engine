@@ -141,7 +141,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
     }
 
     public DescriptorSetGroup getGroup() {
-        if (group == null) group = new DescriptorSetGroup(ctx, this, ctx.renderer().getFrameCounter());
+        if (group == null) group = new DescriptorSetGroup(ctx, this);
         return group;
     }
 

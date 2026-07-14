@@ -86,7 +86,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         this.device = new VulkanRenderDevice(ctx);
         int devImgs = device.capabilities().maxBindlessSampledImages;
-        System.out.println(devImgs);
         int imgs = Math.min(devImgs, 8192);
         this.bindlessTexturesCount = imgs < 0 ? 8192 : imgs;
         this.swapchain = device.createSwapchain(new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
@@ -122,6 +121,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();
         RenderPipelines.init(ctx);
+        baseContext.getEngine().registerFramable(this.getEngineSetsManager().frameDataManager);
     }
 
     @Override
@@ -195,9 +195,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         try {
             VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {
-                layout.getSets().forEach(set -> set.bindings.values()
-                        .stream().filter(binding -> binding instanceof BufferBinding)
-                        .forEach(b -> ((BufferBinding) b).nextFrame()));
+//                layout.getSets().forEach(set -> set.bindings.values()
+//                        .stream().filter(binding -> binding instanceof BufferBinding)
+//                        .forEach(b -> ((BufferBinding) b).nextFrame()));
                 layout.getGroup().getHandleCache().values().stream()
                         .filter(uh -> uh instanceof BufferHandle)
                         .forEach(uh -> ((BufferHandle) uh).nextFrame());

@@ -13,18 +13,22 @@ import java.util.function.Consumer;
 
 public class MultiWriteBufferHandle extends BufferHandle {
 
-    private final MultiWriteCounter counter;
+    private MultiWriteCounter counter;
     private final long singleBufferSize;
 
-    public MultiWriteBufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding, FrameCounter fc,
+    public MultiWriteBufferHandle(DescriptorSetGroup group, int set, int binding, DescriptorType type, BufferBinding bufBinding,
                                   int maxRotations, long fullBufferSize, long singleBufferSize, long cpuAddress, long gpuAddress) {
-        super(group, set, binding, type, bufBinding, fc, 0, fullBufferSize, cpuAddress, gpuAddress);
+        super(group, set, binding, type, bufBinding, 0, fullBufferSize, cpuAddress, gpuAddress);
         this.counter = new MultiWriteCounter(maxRotations);
         this.singleBufferSize = singleBufferSize;
     }
 
     public void advance() {
-        this.counter.advance();
+        if (!this.counter.advance()) {
+            this.grow();
+            this.counter = new MultiWriteCounter(this.counter.getMaxRotations() * 2);
+            System.out.println("Growing!!!!!");
+        }
         ((MappedGpuRingBuffer) bufBinding.buffer).rotate();
     }
 

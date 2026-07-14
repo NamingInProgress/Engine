@@ -61,7 +61,7 @@ public class DemoScene extends RenderingScene {
         CameraController controller = new FreecamController(context);
         camera.setController(controller);
 
-        RenderPipelines.DEMO.setCamera(camera);
+        camera.use();
     }
 
     @Override

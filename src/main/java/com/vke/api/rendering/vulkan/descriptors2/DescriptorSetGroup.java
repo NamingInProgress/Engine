@@ -1,6 +1,5 @@
 package com.vke.api.rendering.vulkan.descriptors2;
 
-import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.CombinedImageSamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
@@ -39,14 +38,12 @@ public class DescriptorSetGroup {
 
     private final VulkanRenderSystem ctx;
     private final VulkanPipelineLayout parent;
-    private final FrameCounter fc;
 
     private final DescriptorWriter writer;
 
-    public DescriptorSetGroup(VulkanRenderSystem ctx, VulkanPipelineLayout parent, FrameCounter fc) {
+    public DescriptorSetGroup(VulkanRenderSystem ctx, VulkanPipelineLayout parent) {
         this.ctx = ctx;
         this.parent = parent;
-        this.fc = fc;
         this.writer = parent.writer;
     }
 
@@ -63,6 +60,10 @@ public class DescriptorSetGroup {
     }
 
     public HashSet<UniformHandle> getDirtyHandles() { return this.dirtyHandles; }
+
+    public VulkanRenderSystem getRenderSystem() {
+        return ctx;
+    }
 
     @SuppressWarnings("unchecked")
     public <T extends UniformHandle> T resolve(String path) {
@@ -151,10 +152,10 @@ public class DescriptorSetGroup {
 
             var buf = binding.buffer;
             if (binding.multiWrite == 1) {
-                return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, buf.getSize(),
+                return new BufferHandle(this, set.set(), layout.binding, layout.type, binding, buf.getSize(),
                         buf.getMappedAddress(), buf.getGpuBuffer().getBuffer());
             } else {
-                return new MultiWriteBufferHandle(this, set.set(), layout.binding, layout.type, binding, fc, binding.multiWrite,
+                return new MultiWriteBufferHandle(this, set.set(), layout.binding, layout.type, binding, binding.multiWrite,
                         buf.getSize(), binding.singleBufferSize, buf.getMappedAddress(), buf.getGpuBuffer().getBuffer());
             }
         }

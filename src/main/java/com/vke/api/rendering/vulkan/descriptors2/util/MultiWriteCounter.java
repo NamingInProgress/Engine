@@ -15,10 +15,12 @@ public class MultiWriteCounter {
         this.currentRotation = startRotation;
     }
 
-    public void advance() {
+    public boolean advance() {
         currentRotation++;
 
-        if (currentRotation > maxRotations) throw new IllegalStateException("Rotated out of bounds (max rotations: " + maxRotations + ")");
+        return currentRotation <= maxRotations;
+
+        //if (currentRotation > maxRotations) throw new IllegalStateException("Rotated out of bounds (max rotations: " + maxRotations + ")");
     }
 
     public void reset() {
@@ -29,4 +31,7 @@ public class MultiWriteCounter {
         return this.currentRotation;
     }
 
+    public int getMaxRotations() {
+        return maxRotations;
+    }
 }

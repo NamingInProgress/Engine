@@ -94,6 +94,11 @@ public class PerspectiveCamera implements Camera {
         this.controller = null;
     }
 
+    @Override
+    public void use() {
+        this.renderSystem.frameDataManager().setCamera(this);
+    }
+
     public void remakeViewMatrix() {
         this.view = new Matrix4f()
                 .rotate(rotation.conjugate(new Quaternionf()))

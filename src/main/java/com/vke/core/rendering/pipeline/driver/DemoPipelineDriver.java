@@ -14,7 +14,7 @@ import java.io.IOException;
 public class DemoPipelineDriver extends PipelineDriver {
 
     private final VulkanRenderPipeline p;
-    private final PushConstantHandle projection, view, local;
+    private final PushConstantHandle local;
 
     private Matrix4f mat;
 
@@ -27,9 +27,7 @@ public class DemoPipelineDriver extends PipelineDriver {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.projection = p.resolvePushConstant("projection");
         this.local = p.resolvePushConstant("local");
-        this.view = p.resolvePushConstant("view");
     }
 
     public void setCamera(Camera camera) {
@@ -44,8 +42,6 @@ public class DemoPipelineDriver extends PipelineDriver {
     public void use() {
         bind();
         bindDescriptorSets();
-        projection.write((slice) -> slice.putMat4(camera.projectionMatrix()));
-        view.write((slice) -> slice.putMat4(camera.viewMatrix()));
         local.write((slice) -> slice.putMat4(mat));
         bindPushConstants();
     }

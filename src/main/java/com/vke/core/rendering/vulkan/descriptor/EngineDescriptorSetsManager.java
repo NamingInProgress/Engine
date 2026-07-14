@@ -122,9 +122,9 @@ public class EngineDescriptorSetsManager implements Disposable {
             case SamplerArrayHandle handle ->
                     writer.writeSamplers(dsh, handle.binding, handle.samplBinding.samplers);
             case BufferHandle handle ->
-                    writer.writeBuffer(dsh, handle.binding, handle.bufferSize, handle.offset, handle.gpuAddress, handle.type);
+                    writer.writeBuffer(dsh, handle.binding, handle.bufBinding.singleBufferSize, handle.offset, handle.gpuAddress, handle.type);
             case FieldHandle handle ->
-                    writer.writeBuffer(dsh, handle.binding, handle.parent.bufferSize, handle.parent.offset, handle.parent.gpuAddress, handle.type);
+                    writer.writeBuffer(dsh, handle.binding, handle.parent.bufBinding.singleBufferSize, handle.parent.offset, handle.parent.gpuAddress, handle.type);
             default -> {}
         }
         writer.flush();

@@ -2,6 +2,7 @@ package com.vke.api.rendering.vulkan.descriptors.bindings;
 
 import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
+import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
 import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 
@@ -11,7 +12,7 @@ public class BufferBinding extends DescriptorBinding {
     public final long singleBufferSize; // ALIGNED, Used for buffer arrays, if the descriptor is not an array set it to the size of the buffer
     public final int numBuffers;
     public final PackingType packingType;
-    public final int multiWrite;
+    public int multiWrite;
 
     public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType, int multiWrite) {
         super(layout);
@@ -25,6 +26,11 @@ public class BufferBinding extends DescriptorBinding {
     public void nextFrame() {
         if (this.buffer instanceof MappedGpuRingBuffer buf)
             buf.rotate();
+    }
+
+    public void grow() {
+        layout.multiWrite *= 2;
+        multiWrite *= 2;
     }
 
     public void setBuffer(MappedBuffer newBuffer) {
