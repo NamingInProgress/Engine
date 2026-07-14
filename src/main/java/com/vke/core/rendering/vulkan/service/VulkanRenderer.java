@@ -127,7 +127,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();
         RenderPipelines.init(ctx);
-        baseContext.getEngine().registerFramable(this.getEngineSetsManager().frameDataManager);
+        framableManager.registerFramable(this.getEngineSetsManager().frameDataManager);
     }
 
     @Override
