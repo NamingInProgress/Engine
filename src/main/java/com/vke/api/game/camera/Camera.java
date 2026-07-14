@@ -1,6 +1,7 @@
 package com.vke.api.game.camera;
 
-import com.vke.core.window.Window;
+import com.vke.api.window.Window;
+import com.vke.core.window.GlfwWindow;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

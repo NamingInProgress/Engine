@@ -1,9 +1,11 @@
 package com.vke.core;
 
 import com.vke.api.app.App;
-import com.vke.api.app.Framable;
+import com.vke.api.framable.Framable;
 import com.vke.api.app.Version;
 import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.window.Window;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
@@ -17,7 +19,8 @@ import com.vke.core.services2.ServiceManager;
 import com.vke.core.profiler.DummyProfilerImpl;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.services2.Services;
-import com.vke.core.window.Window;
+import com.vke.core.window.GlfwWindow;
+import com.vke.core.window.service.WindowManager;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
 import com.vke.api.app.Namespace;
@@ -38,14 +41,15 @@ public class VKEngine extends Context {
     private final EngineCreateInfo createInfo;
     private final ServiceManager serviceManager;
 
-    private Window window;
     private App app;
     public EventBus EVENT_BUS;
 
-    private final List<String> namespaces;
+    private final FramableManager framableManager;
+    private final WindowManager windowManager;
+    private Renderer renderer;
+    private Window window;
 
-    private final Framable.Glossary framables;
-    private final AtomicBoolean skipThisFrame = new AtomicBoolean();
+    private final List<String> namespaces;
 
     public VKEngine(EngineCreateInfo createInfo) {
         super(Namespace.of(VKE_NAMESPACE));
@@ -66,14 +70,16 @@ public class VKEngine extends Context {
         PROFILER = new DummyProfilerImpl();
         EVENT_BUS = service(Services.EVENT_BUS);
 
-        this.framables = new Framable.Glossary();
+        framableManager = service(Services.FRAMABLE_MANAGER);
+        windowManager = service(Services.WINDOW_MANAGER);
 
         registerSerializers();
     }
 
     public void start(App app) {
-        this.framables.addEntry(app);
-        this.window = new Window(this, createInfo.windowCreateInfo);
+        framableManager.registerFramable(app);
+
+        this.window = windowManager.createWindow(createInfo.windowCreateInfo);
 
         this.app = app;
         AppLifecycleEvents.PreLoad event = new AppLifecycleEvents.PreLoad(app);
@@ -83,46 +89,12 @@ public class VKEngine extends Context {
         app.onInit(this);
         EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
-        VulkanRenderer renderer = service(Services.VULKAN_RENDERER).assumeImplementation();
-
-        int reqFps = createInfo.fps;
-        long targetFrameTimeNs = reqFps > 0 ? 1_000_000_000L / reqFps : 0L;
-        long lastFrameTime = System.nanoTime();
+        //needs some basic intitialization done like window and assets
+        renderer = service(Services.RENDERER);
 
         this.window.show();
-        while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            if (!window.isMinimized()) {
-                long now = System.nanoTime();
 
-                if (reqFps != -1 && now - lastFrameTime < targetFrameTimeNs) continue;
-
-                lastFrameTime = now;
-
-                PROFILER.beginFrame();
-                PROFILER.begin("Render", AnsiColors.RED);
-                PROFILER.push();
-                PROFILER.begin("Frame Setup");
-                skipThisFrame.setRelease(false);
-                framables.preFrame();
-                PROFILER.end();
-                PROFILER.pop();
-                if (!skipThisFrame.get()) {
-                    PROFILER.begin("App Draw", AnsiColors.GREEN);
-                    framables.onDraw();
-                    PROFILER.end();
-                    PROFILER.begin("Frame End");
-                    framables.postFrame();
-                    PROFILER.end();
-                }
-                PROFILER.end();
-                PROFILER.endFrame();
-            }
-
-            GLFW.glfwPollEvents();
-        }
-
-        // TODO: Fix me
-        ((Renderer) this.service(Services.VULKAN_RENDERER)).getDevice().waitIdle();
+        renderer.beforeTerminate();
         free();
     }
 
@@ -132,7 +104,7 @@ public class VKEngine extends Context {
         EVENT_BUS.fire(new AppLifecycleEvents.PostFree(app));
 
         serviceManager.free();
-        window.close();
+        window.requestClose();
     }
 
     public Window getWindow() {
@@ -181,22 +153,6 @@ public class VKEngine extends Context {
 
     private void registerSerializers() {
         MeshPrefab.registerSerializers();
-    }
-
-    public void registerFramable(Framable f) {
-        this.framables.addEntry(f);
-    }
-
-    public void removeFramable(Framable f) {
-        this.framables.removeEntry(f);
-    }
-
-    public void skipThisFrame() {
-        skipThisFrame.setRelease(true);
-    }
-
-    public Framable.Glossary getFramables() {
-        return this.framables;
     }
 
     public EngineCreateInfo getCreateInfo() {

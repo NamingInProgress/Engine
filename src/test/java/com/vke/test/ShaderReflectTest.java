@@ -31,7 +31,7 @@ public class ShaderReflectTest {
         engine.start(new App() {
             @Override
             public void onInit(VKEngine engine) {
-                VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
+                VulkanRenderer renderer = engine.service(Services.RENDERER);
                 ShaderCompilerImpl sc = engine.service(Services.SHADER_COMPILER);
 
                 byte[] bytes;

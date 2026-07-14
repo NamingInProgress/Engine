@@ -30,7 +30,7 @@ public class EngineCreateInfo {
     }
 
     public enum RendererType {
-        Vulkan(Services.VULKAN_RENDERER);
+        Vulkan(Services.RENDERER);
 
         public final String serviceName;
 

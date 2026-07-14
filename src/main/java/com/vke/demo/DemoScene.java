@@ -28,6 +28,8 @@ public class DemoScene extends RenderingScene {
 
     private StaticMesh mesh;
 
+    private static final long START = System.nanoTime();
+
     @Override
     public void onLoad() {
         MeshPrefab prefab;
@@ -58,7 +60,7 @@ public class DemoScene extends RenderingScene {
         );
 
         Camera camera = new PerspectiveCamera(context, 90);
-        CameraController controller = new FreecamController(context);
+        CameraController controller = new PoopWASDController(context, 10);
         camera.setController(controller);
 
         camera.use();
@@ -68,7 +70,7 @@ public class DemoScene extends RenderingScene {
     public void onDraw() {
         Matrix4f model = new Matrix4f();
 
-        float time = (System.nanoTime() / 1_000_000_000.0f);
+        float time = ((System.nanoTime() - START) / 1_000_000_000.0f);
 
         float speed = 1.0f;
 

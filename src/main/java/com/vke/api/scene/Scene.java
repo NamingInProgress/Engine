@@ -1,8 +1,6 @@
 package com.vke.api.scene;
 
-import com.vke.api.app.Framable;
-import com.vke.api.rendering.abstraction.RenderSystem;
-import com.vke.api.rendering.abstraction.Renderer;
+import com.vke.api.framable.Framable;
 import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;

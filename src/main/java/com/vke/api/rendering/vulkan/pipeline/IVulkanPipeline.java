@@ -53,7 +53,7 @@ public interface IVulkanPipeline extends Pipeline {
             }
         }
 
-        var mgr = ctx.<VulkanRendererAPI>service(Services.VULKAN_RENDERER).<VulkanRenderer>assumeImplementation().getEngineSetsManager();
+        var mgr = ctx.<VulkanRendererAPI>service(Services.RENDERER).<VulkanRenderer>assumeImplementation().getEngineSetsManager();
         var engineSets = mgr.getDefaults();
 
         sets.putAll(engineSets);

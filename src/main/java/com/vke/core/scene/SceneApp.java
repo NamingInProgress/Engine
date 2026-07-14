@@ -1,8 +1,8 @@
 package com.vke.core.scene;
 
 import com.vke.api.app.App;
-import com.vke.api.app.CompoundFramable;
-import com.vke.api.app.Framable;
+import com.vke.api.framable.CompoundFramable;
+import com.vke.api.framable.Framable;
 import com.vke.api.scene.SceneException;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.service.SceneManager;
@@ -23,7 +23,7 @@ public class SceneApp extends App implements CompoundFramable {
         this.engine = engine;
         SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
         sceneManager.initialize();
-        engine.service(Services.VULKAN_RENDERER);
+        engine.service(Services.RENDERER);
 
         try {
             sceneManager.setScene(sceneName);

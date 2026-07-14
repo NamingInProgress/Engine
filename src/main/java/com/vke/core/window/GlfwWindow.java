@@ -1,25 +1,30 @@
 package com.vke.core.window;
 
 import com.vke.api.utils.OSType;
+import com.vke.api.window.Window;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.callbacks.FramebufferCallbacks;
-import com.vke.core.callbacks.KeyboardCallbacks;
+import com.vke.core.framable.service.FramableManager;
+import com.vke.core.window.callbacks.FramebufferCallbacks;
 import com.vke.utils.Utils;
+import com.vke.utils.console.AnsiColors;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Window {
+public class GlfwWindow implements Window {
     private static final String HERE = "Window Init";
 
     private final long window;
     private boolean minimized;
-    private WindowSize size;
+    private Size size;
+    private final FramableManager framableManager;
 
-    public Window(VKEngine engine, WindowCreateInfo windowCreateInfo) throws IllegalStateException {
+    public GlfwWindow(VKEngine engine, WindowCreateInfo windowCreateInfo, FramableManager framableManager) throws IllegalStateException {
+        this.framableManager = framableManager;
+
         if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
             GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11); // thjis is for testing cuz linux and wayland wants to be funny
         if (!glfwInit()) {
@@ -60,32 +65,47 @@ public class Window {
         setupCallbacks();
     }
 
+    @Override
     public boolean isMinimized() {
         return minimized;
     }
 
     private void setupCallbacks() {
         glfwSetFramebufferSizeCallback(this.getHandle(), FramebufferCallbacks::onResize);
-        glfwSetKeyCallback(this.getHandle(), KeyboardCallbacks::onKey);
         glfwSetWindowIconifyCallback(this.getHandle(), FramebufferCallbacks::onMinimize);
 
         FramebufferCallbacks.minimize((state) -> minimized = state);
-        FramebufferCallbacks.resize((w, h) -> size = new WindowSize(w, h));
+        FramebufferCallbacks.resize((w, h) -> size = new Size(w, h));
     }
 
     private void fetchSize() {
         int[] w = new int[1], h = new int[1];
         glfwGetFramebufferSize(this.getHandle(), w, h);
-        size = new WindowSize(w[0], h[0]);
+        size = new Size(w[0], h[0]);
     }
 
-    public WindowSize getSize() {
+    @Override
+    public void requestClose() {
+        close();
+    }
+
+    @Override
+    public Size getSize() {
         if (size == null) fetchSize();
         return size;
     }
 
+    @Override
     public void show() {
-        GLFW.glfwShowWindow(this.getHandle());
+        GLFW.glfwShowWindow(window);
+
+        while (!GLFW.glfwWindowShouldClose(window)) {
+            if (!isMinimized()) {
+                framableManager.handlePossibleFrame();
+            }
+
+            GLFW.glfwPollEvents();
+        }
     }
 
     public void close() {
@@ -98,6 +118,7 @@ public class Window {
         glfwTerminate();
     }
 
+    @Override
     public long getHandle() { return this.window; }
 
     public void disableCursor() {
@@ -109,10 +130,8 @@ public class Window {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Window)) return false;
-        return this.getHandle() == ((Window) other).getHandle();
+        if (!(other instanceof GlfwWindow)) return false;
+        return this.getHandle() == ((GlfwWindow) other).getHandle();
     }
-
-    public record WindowSize(int width, int height) {}
 
 }

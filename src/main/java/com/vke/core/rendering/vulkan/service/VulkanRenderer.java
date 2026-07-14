@@ -1,6 +1,6 @@
 package com.vke.core.rendering.vulkan.service;
 
-import com.vke.api.app.Framable;
+import com.vke.api.framable.Framable;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.Renderer;
@@ -13,9 +13,11 @@ import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.services2.ServiceImpl;
+import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.services2.Services;
@@ -31,7 +33,7 @@ import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
-import com.vke.core.window.Window;
+import com.vke.core.window.GlfwWindow;
 import com.vke.utils.console.AnsiColors;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -63,6 +65,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private final Context baseContext;
     private final EngineCreateInfo createInfo;
 
+    //needed services
+    private FramableManager framableManager;
+
     private VulkanVertexConsumerProvider vertexConsumerProvider;
 
     private VulkanRenderSystem ctx;
@@ -71,7 +76,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private int bindlessTexturesCount;
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
-        super(Services.VULKAN_RENDERER, context.getEngine());
+        super(Services.RENDERER, context.getEngine());
         this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.baseContext = context;
@@ -81,8 +86,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     protected void onInitialize() {
         this.ctx = new VulkanRenderSystem(baseContext, this);
+        this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
 
-        baseContext.getEngine().registerFramable(this);
+        framableManager.registerFramable(this);
 
         this.device = new VulkanRenderDevice(ctx);
         int devImgs = device.capabilities().maxBindlessSampledImages;
@@ -144,7 +150,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             }
             stack.close();
             PROFILER.closeStack();
-            baseContext.getEngine().skipThisFrame();
+            framableManager.skipThisFrame();
             return;
         }
         PROFILER.end();
@@ -167,7 +173,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         PROFILER.begin("Begin");
         cmd.begin();
-        Framable framables = baseContext.getEngine().getFramables();
+        Framable framables = framableManager.getAllFramables();
         framables.preRendering();
         cmd.beginRendering();
         PROFILER.end();
@@ -206,7 +212,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         cmd.endRendering();
 
-        Framable framables = baseContext.getEngine().getFramables();
+        Framable framables = framableManager.getAllFramables();
         framables.postRendering();
         cmd.end();
 
@@ -284,6 +290,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         return this.vertexConsumerProvider;
     }
 
+    @Override
+    public void beforeTerminate() {
+        getDevice().waitIdle();
+    }
+
     public EngineCreateInfo getCreateInfo() {
         return createInfo;
     }
@@ -298,7 +309,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public void free() {
-        baseContext.getEngine().removeFramable(this);
+        framableManager.removeFramable(this);
         getVertexConsumerProvider().free();
         resourceManager.free();
         // Pipelines get freed by the asset manager

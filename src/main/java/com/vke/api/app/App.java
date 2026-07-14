@@ -1,5 +1,6 @@
 package com.vke.api.app;
 
+import com.vke.api.framable.Framable;
 import com.vke.core.VKEngine;
 import com.vke.utils.io.Disposable;
 

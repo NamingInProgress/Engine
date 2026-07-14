@@ -1,6 +1,6 @@
 package com.vke.core.input.keyboard;
 
-import com.vke.api.app.Framable;
+import com.vke.api.framable.Framable;
 import com.vke.core.VKEngine;
 import com.vke.core.input.PressableState;
 import org.lwjgl.glfw.GLFW;

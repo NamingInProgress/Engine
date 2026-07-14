@@ -12,7 +12,7 @@ import com.vke.core.services2.Services;
 
 public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     public VulkanRendererAPI(ServiceImpl baseImpl) {
-        super(Services.VULKAN_RENDERER, baseImpl);
+        super(Services.RENDERER, baseImpl);
     }
 
     private Renderer getImpl() {
@@ -42,6 +42,11 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     @Override
     public VertexConsumerProvider getVertexConsumerProvider() {
         return getImpl().getVertexConsumerProvider();
+    }
+
+    @Override
+    public void beforeTerminate() {
+        getImpl().beforeTerminate();
     }
 
 }
