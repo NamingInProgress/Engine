@@ -1,6 +1,7 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.MultiWriteBufferResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -10,7 +11,7 @@ import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 
-public class MultiWriteBufferHandle extends BufferHandle {
+public class MultiWriteBufferHandle extends BufferHandle implements MultiWriteBufferResource {
 
     private MultiWriteCounter counter;
     private final long singleBufferSize;
@@ -22,7 +23,8 @@ public class MultiWriteBufferHandle extends BufferHandle {
         this.singleBufferSize = singleBufferSize;
     }
 
-    public void advance() {
+    @Override
+    public void nextWrite() {
         if (!this.counter.advance()) {
             this.grow();
             this.counter = new MultiWriteCounter(this.counter.getMaxRotations() * 2);
@@ -30,6 +32,7 @@ public class MultiWriteBufferHandle extends BufferHandle {
         ((MappedGpuRingBuffer) bufBinding.buffer).rotate();
     }
 
+    @Override
     public void reset() {
         this.counter.reset();
     }

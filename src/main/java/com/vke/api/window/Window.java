@@ -7,6 +7,8 @@ public interface Window {
     void show();
     void requestClose();
 
+    void disableCursor();
+
     Size getSize();
     record Size(int width, int height) {}
 }

@@ -121,6 +121,7 @@ public class GlfwWindow implements Window {
     @Override
     public long getHandle() { return this.window; }
 
+    @Override
     public void disableCursor() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }

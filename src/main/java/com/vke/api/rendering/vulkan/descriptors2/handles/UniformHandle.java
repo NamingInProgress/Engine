@@ -1,10 +1,11 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles;
 
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 
-public class UniformHandle {
+public abstract class UniformHandle implements ShaderResource {
 
     public final int set, binding;
     public final DescriptorType type;

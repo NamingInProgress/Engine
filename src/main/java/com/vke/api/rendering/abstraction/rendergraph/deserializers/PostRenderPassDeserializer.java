@@ -10,9 +10,7 @@ public class PostRenderPassDeserializer extends RenderPassDeserializer {
 
     @Override
     public RenderPassDefinition accept(ConfigNode node, String name) throws ClassNotFoundException {
-        Class<?> clazz = Class.forName(node.getObject("class").getString("name"));
-
-        return new PostRenderPassDefinition(name, clazz,
+        return new PostRenderPassDefinition(name, null,
                 buildInputTextures(node.getArray("inputs")),
                 buildOutputTextures(node.getArray("outputs")),
                 buildUniforms(node.getArray("uniforms")),

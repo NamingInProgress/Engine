@@ -29,6 +29,7 @@
 
     <!-- Pass 3: UI -->
     <render-pass name="ui">
+        <class name="com.vke.api.rendering.abstraction.rendergraph.RenderGraphDefinition"/>
         <inputs>
             <texture name="background" source="post.postOut" />
         </inputs>

@@ -1,6 +1,7 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -11,7 +12,7 @@ import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 
 import java.util.function.Consumer;
 
-public class BufferHandle extends UniformHandle {
+public class BufferHandle extends UniformHandle implements BufferResource {
 
     public final BufferBinding bufBinding;
 
@@ -41,6 +42,7 @@ public class BufferHandle extends UniformHandle {
         this.bufBinding.nextFrame();
     }
 
+    @Override
     public long getOffset() {
         if (bufBinding.buffer instanceof MappedGpuRingBuffer rb) {
             return rb.getOffset() + offset;
@@ -67,8 +69,13 @@ public class BufferHandle extends UniformHandle {
         this.useNewBuffer();
     }
 
+    @Override
     public void write(Consumer<BufferSlice> writer) {
         writer.accept(new BufferSlice(cpuAddress, getOffset(), (int) this.bufferSize, PackingType.fromDescriptorType(type)));
     }
 
+    @Override
+    public void nextWrite() {
+        throw new UnsupportedOperationException("Cannot call nextWrite on static buffer handle!");
+    }
 }

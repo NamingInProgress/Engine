@@ -5,6 +5,11 @@ import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.core.rendering.vulkan.pipeline.VulkanRenderPipeline;
 import org.joml.Matrix4f;
@@ -13,8 +18,8 @@ import java.io.IOException;
 
 public class DemoPipelineDriver extends PipelineDriver {
 
-    private final VulkanRenderPipeline p;
-    private final PushConstantHandle local;
+    private final RenderPipeline p;
+    private final ValueResource local;
 
     private Matrix4f mat;
 
@@ -23,11 +28,11 @@ public class DemoPipelineDriver extends PipelineDriver {
     public DemoPipelineDriver(RenderSystem context, AssetHandle<? extends Pipeline> pipeline) {
         super(context, pipeline);
         try {
-            this.p = (VulkanRenderPipeline) pipeline.acquire(context);
+            this.p = (RenderPipeline) pipeline.acquire(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.local = p.resolvePushConstant("local");
+        this.local = p.resource("local");
     }
 
     public void setCamera(Camera camera) {

@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
@@ -122,6 +123,16 @@ public class VulkanPipelineLayout implements PipelineLayout {
             this.handle = pLayout.get(0);
             if (this.pushConstants != null)
                 this.pushConstants.setHandle(this.handle);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends ShaderResource> T resource(String name) {
+        try {
+            return (T) getGroup().resolve(name);
+        } catch (Exception e) {
+            return (T) this.pushConstants.resolve(name);
         }
     }
 

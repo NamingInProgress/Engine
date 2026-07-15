@@ -1,13 +1,16 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.MultiWriteBufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.MultiWriteFieldResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 
-public class MultiWriteFieldHandle extends FieldHandle {
+public class MultiWriteFieldHandle extends FieldHandle implements MultiWriteFieldResource {
 
     private final MultiWriteBufferHandle parent;
 
@@ -16,11 +19,13 @@ public class MultiWriteFieldHandle extends FieldHandle {
         this.parent = parent;
     }
 
-    public void advanceBuffer() {
-        this.parent.advance();
+    @Override
+    public void nextWrite() {
+        this.parent.nextWrite();
     }
 
-    public void resetBuffer() {
+    @Override
+    public void reset() {
         this.parent.reset();
     }
 
@@ -30,4 +35,8 @@ public class MultiWriteFieldHandle extends FieldHandle {
                 fieldLength, PackingType.fromDescriptorType(type)));
     }
 
+    @Override
+    public MultiWriteBufferResource parent() {
+        return this.parent;
+    }
 }

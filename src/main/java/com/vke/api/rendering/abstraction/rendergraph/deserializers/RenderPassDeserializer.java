@@ -15,12 +15,10 @@ public abstract class RenderPassDeserializer {
         for (ConfigNode input : node.asArray().values()) {
             String name = input.getString("name");
             String source = input.getString("source");
-            String uniform = input.getString("uniform-field-name");
-            int width = input.getInt("width");
-            int height = input.getInt("height");
-            Float scale = input.getNumberSafe("scale");
-
-            if (scale == null) scale = 1.0f;
+            String uniform = input.getStringOption("uniform-field-name").unwrapOrNull();
+            int width = input.getIntOption("width").unwrapOrDefault();
+            int height = input.getIntOption("height").unwrapOrDefault();
+            float scale = input.getNumberOption("scale").unwrapOr(1f);
 
             inputs.put(name, new RenderPassDefinition.InputTextureDefinition(source, uniform, width, height, scale));
         }

@@ -62,7 +62,7 @@ public class VulkanTextureManager implements TextureManager, EventListener {
 
         bindlessTextures[firstFree] = tex;
         textures.put(tex, firstFree);
-        BINDLESS_HANDLE.set(tex, sampler, firstFree);
+        BINDLESS_HANDLE.set(firstFree, tex, sampler);
         renderer.scheduleDescriptorUpdate(mgr.ENGINE_PIPELINE_LAYOUT, BINDLESS_HANDLE);
         return firstFree;
     }

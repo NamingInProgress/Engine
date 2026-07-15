@@ -1,6 +1,8 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
@@ -8,7 +10,7 @@ import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 
-public class FieldArrayHandle extends UniformHandle {
+public class FieldArrayHandle extends UniformHandle implements FieldArrayResource {
 
     public final BufferHandle parent;
 
@@ -27,15 +29,26 @@ public class FieldArrayHandle extends UniformHandle {
         this.totalLength = elementCount * stride;
     }
 
+    @Override
     public void write(int index, Consumer<BufferSlice> writer) {
         if (index >= elementCount) throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + elementCount);
         writer.accept(new BufferSlice(parent.cpuAddress, parent.offset + fieldOffset + (long) index * stride,
                 this.stride, PackingType.fromDescriptorType(type)));
     }
 
+    @Override
     public void write(Consumer<BufferSlice> writer) {
         writer.accept(new BufferSlice(parent.cpuAddress, parent.offset + fieldOffset,
                 this.totalLength, PackingType.fromDescriptorType(type)));
     }
 
+    @Override
+    public BufferResource parent() {
+        return this.parent;
+    }
+
+    @Override
+    public void nextWrite() {
+        this.parent.nextWrite();
+    }
 }

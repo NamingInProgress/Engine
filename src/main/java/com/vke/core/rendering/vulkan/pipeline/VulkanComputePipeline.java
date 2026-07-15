@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineLayout;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
@@ -53,13 +54,14 @@ public class VulkanComputePipeline implements ComputePipeline, IVulkanPipeline {
         }
     }
 
-    public PushConstantHandle resolvePushConstant(String path) {
-        return this.layout.pushConstants().resolve(path);
-    }
-
     @Override
     public PipelineLayout layout() {
         return this.layout;
+    }
+
+    @Override
+    public <T extends ShaderResource> T resource(String name) {
+        return layout.resource(name);
     }
 
     @Override

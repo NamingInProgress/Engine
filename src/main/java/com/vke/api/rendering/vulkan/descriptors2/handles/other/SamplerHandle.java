@@ -1,13 +1,14 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.other;
 
 import com.vke.api.rendering.abstraction.renderer.data.Sampler;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.SamplerResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.bindings.SamplerBinding;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.core.rendering.vulkan.sampler.VulkanSampler;
 
-public class SamplerHandle extends UniformHandle {
+public class SamplerHandle extends UniformHandle implements SamplerResource {
 
     public final SamplerBinding samplBinding;
     public final int index;
@@ -18,11 +19,13 @@ public class SamplerHandle extends UniformHandle {
         this.index = index;
     }
 
+    @Override
     public void set(Sampler sampler) {
         this.samplBinding.samplers[index] = (VulkanSampler) sampler;
         setDirty();
     }
 
+    @Override
     public void nextWrite() {
         this.group.getSet(this.set).requestNewDescriptorSet();
     }

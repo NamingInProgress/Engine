@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.pipeline;
 
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
@@ -83,9 +84,9 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         }
     }
 
-    public PushConstantHandle resolvePushConstant(String path) {
-        return this.layout.pushConstants().resolve(path);
-    }
+    //public PushConstantHandle resolvePushConstant(String path) {
+    //    return this.layout.pushConstants().resolve(path);
+    //}
 
     private VertexLayoutData createVertexLayouts(RenderPipelineData data, ArrayList<ReflectedShader> shaders) {
         ArrayList<VertexLayoutData.Attribute> attribs = new ArrayList<>();
@@ -257,6 +258,11 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     @Override
     public VulkanPipelineLayout layout() {
         return layout;
+    }
+
+    @Override
+    public <T extends ShaderResource> T resource(String name) {
+        return this.layout.resource(name);
     }
 
     @Override

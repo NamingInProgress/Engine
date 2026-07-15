@@ -12,6 +12,7 @@ import com.vke.api.rendering.abstraction.rendergraph.RenderGraphDefinition;
 import com.vke.api.scene.RenderingScene;
 import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
+import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.game.camera.controllers.PoopWASDController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.pipeline.RenderPipelines;
@@ -65,7 +66,7 @@ public class DemoScene extends RenderingScene {
         );
 
         Camera camera = new PerspectiveCamera(context, 90);
-        CameraController controller = new PoopWASDController(context, 10);
+        CameraController controller = new FreecamController(context);
         camera.setController(controller);
 
         camera.use();

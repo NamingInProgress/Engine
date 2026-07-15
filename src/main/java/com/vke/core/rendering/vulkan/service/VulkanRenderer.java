@@ -19,6 +19,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
+import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
@@ -202,6 +203,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 //                layout.getSets().forEach(set -> set.bindings.values()
 //                        .stream().filter(binding -> binding instanceof BufferBinding)
 //                        .forEach(b -> ((BufferBinding) b).nextFrame()));
+                layout.getSets().forEach(DescriptorSetInstance::onNewFrame);
                 layout.getGroup().getHandleCache().values().stream()
                         .filter(uh -> uh instanceof BufferHandle)
                         .forEach(uh -> ((BufferHandle) uh).nextFrame());

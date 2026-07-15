@@ -121,7 +121,7 @@ public class FreecamController implements CameraController, Framable {
 
         framableManager.registerFramable(this);
 
-        //window.disableCursor();
+        window.disableCursor();
     }
 
     @Override

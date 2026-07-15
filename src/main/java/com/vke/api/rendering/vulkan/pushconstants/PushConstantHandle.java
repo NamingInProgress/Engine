@@ -1,11 +1,15 @@
 package com.vke.api.rendering.vulkan.pushconstants;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.ShaderResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 
-public class PushConstantHandle {
+public class PushConstantHandle implements ValueResource {
 
     public final long pipelineLayoutHandle; // Replace this cuz its probably not the best thing to use
     public final long bufferAddress;
@@ -19,9 +23,14 @@ public class PushConstantHandle {
         this.offset = offset;
     }
 
+    @Override
     public void write(Consumer<BufferSlice> consumer) {
         BufferSlice slice = new BufferSlice(bufferAddress, offset, (int) size, PackingType.STD140);
         consumer.accept(slice);
     }
 
+    @Override
+    public void nextWrite() {
+        throw new UnsupportedOperationException("Cannot call nextWrite on a push constant!");
+    }
 }

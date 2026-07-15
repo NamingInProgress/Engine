@@ -1,6 +1,8 @@
 package com.vke.api.rendering.vulkan.descriptors2.handles.buf;
 
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldResource;
 import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
@@ -8,7 +10,7 @@ import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.function.Consumer;
 
-public class FieldHandle extends UniformHandle {
+public class FieldHandle extends UniformHandle implements FieldResource {
 
     public final BufferHandle parent;
 
@@ -27,4 +29,13 @@ public class FieldHandle extends UniformHandle {
                 fieldLength, PackingType.fromDescriptorType(type)));
     }
 
+    @Override
+    public BufferResource parent() {
+        return this.parent;
+    }
+
+    @Override
+    public void nextWrite() {
+        this.parent.nextWrite();
+    }
 }
