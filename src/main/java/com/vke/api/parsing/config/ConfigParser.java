@@ -1,6 +1,7 @@
 package com.vke.api.parsing.config;
 
 import com.vke.core.parsing.config.json.JsonParser;
+import com.vke.core.parsing.config.schema.vks.doc.VksParser;
 import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.utils.Utils;
 
@@ -56,6 +57,9 @@ public interface ConfigParser {
         }
         if (Utils.seqContainsAnyIgnoreCase(filename, "xml", "vka", "vcl")) {
             return new XmlParser();
+        }
+        if (Utils.seqContainsIgnoreCase(filename, "vks")) {
+            return new VksParser();
         }
         return null;
     }

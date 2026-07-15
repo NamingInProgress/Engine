@@ -1,0 +1,18 @@
+{
+    typedefs: {
+        pipeline-config: {
+            tag: str-value;
+            override-name: str-value;
+            phase-filter: phase-filter;
+        };
+        phase-filter: [str-value];
+        str-value: string | [string];
+    };
+    schema: {
+        xml: meta;
+        !asset-meta: {
+            !pipeline-config: pipeline-config;
+            !asset-config: {};
+        };
+    };
+}

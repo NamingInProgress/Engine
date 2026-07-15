@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline;
 
 import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.EmptyConfigArray;
+import com.vke.core.parsing.config.utils.EmptyConfigArray;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.meta.AssetMetaAttributes;
 import com.vke.core.assets.pipeline.apis.AssetData;
