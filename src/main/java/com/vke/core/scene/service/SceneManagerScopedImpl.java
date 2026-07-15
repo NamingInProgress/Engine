@@ -6,13 +6,14 @@ import com.vke.core.assets.service.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
+import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
 import java.util.List;
 
-public class SceneManagerScopedImpl implements CompoundFramable, SceneManager {
+public class SceneManagerScopedImpl implements SceneManager {
     private boolean init;
     private final Context context;
     private final SceneManagerBaseImpl base;
@@ -30,6 +31,9 @@ public class SceneManagerScopedImpl implements CompoundFramable, SceneManager {
         manager.initAssets();
         Identifier sceneDirectory = context.id("scenes/");
         base.registerScenes(sceneDirectory, context);
+
+        GraphManager graphs = context.service(Services.GRAPH_MANAGER);
+        graphs.initialize();
     }
 
     @Override
@@ -44,11 +48,6 @@ public class SceneManagerScopedImpl implements CompoundFramable, SceneManager {
 
     public Scene getCurrentScene() {
         return base.getCurrentScene();
-    }
-
-    @Override
-    public Iter<Framable> children() {
-        return getCurrentScene() == null ? Iter.of() : Iter.of(getCurrentScene());
     }
 
     @Override

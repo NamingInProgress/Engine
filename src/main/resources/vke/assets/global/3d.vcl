@@ -1,7 +1,7 @@
-<render-graph name="StandardDeferred">
+<render-graph>
     <!-- Pass 1: Draw the 3D World -->
     <render-pass name="my3DWorld">
-        <class name="com.vke.api.rendering.abstraction.rendergraph.RenderGraphDefinition"/>
+        <class name="com.vke.demo.DemoRenderPass"/>
         <!-- Declare what this pass outputs so others can use it -->
         <outputs>
             <texture name="colorOut" />
@@ -20,6 +20,7 @@
         </inputs>
         <outputs>
             <texture name="postOut" />
+            <texture name="depthOut" type="depth" source="my3DWorld.depthOut" />
         </outputs>
         <stages>
             <ssao/>
@@ -29,7 +30,7 @@
 
     <!-- Pass 3: UI -->
     <render-pass name="ui">
-        <class name="com.vke.api.rendering.abstraction.rendergraph.RenderGraphDefinition"/>
+        <class name="com.vke.api.rendering.abstraction.rendergraph.def.RenderGraphDefinition"/>
         <inputs>
             <texture name="background" source="post.postOut" />
         </inputs>

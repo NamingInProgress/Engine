@@ -5,7 +5,6 @@ import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
-import com.vke.api.scene.RenderingScene;
 import com.vke.core.Context;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.demo.DemoScene;

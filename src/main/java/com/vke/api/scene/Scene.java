@@ -1,22 +1,35 @@
 package com.vke.api.scene;
 
-import com.vke.api.framable.Framable;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
-public abstract class Scene implements Disposable, Framable {
+public abstract class Scene implements Disposable {
     private final Identifier name;
     protected final Context context;
     private LoadingScene loadingScene;
+    private final Renderer renderer;
+    private final RenderSystem system;
+    private Identifier graph;
 
     public Scene(Identifier name, Context context) {
         this.name = name;
         this.context = context;
         this.loadingScene = LoadingScene.defaultVke();
-
+        this.renderer = context.service(context.getEngine().rendererType().serviceName).assumeImplementation();
+        this.system = renderer.renderSystem();
     }
+
+    public RenderSystem getRenderSystem() {
+        return system;
+    }
+
+    public Identifier getGraph() { return this.graph; }
+
+    public Renderer getRenderer() { return this.renderer; }
 
     public Identifier getName() {
         return name;
@@ -34,5 +47,8 @@ public abstract class Scene implements Disposable, Framable {
         this.loadingScene = loadingScene;
     }
 
-    public void acceptConfig(ConfigNode node) {}
+    public void acceptConfig(ConfigNode node) {
+        var rgn = node.getObjectOption("render-graph").unwrapOrPanic(new IllegalStateException("Could not find render-graph on scene config " + name));
+        this.graph = context.id(rgn.getString("name"));
+    }
 }

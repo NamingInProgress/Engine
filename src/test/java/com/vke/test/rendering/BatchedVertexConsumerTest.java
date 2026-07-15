@@ -8,7 +8,6 @@ import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.CISHandle;
-import com.vke.api.scene.RenderingScene;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;

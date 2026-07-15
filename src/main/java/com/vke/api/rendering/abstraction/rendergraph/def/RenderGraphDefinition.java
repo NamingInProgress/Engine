@@ -1,4 +1,4 @@
-package com.vke.api.rendering.abstraction.rendergraph;
+package com.vke.api.rendering.abstraction.rendergraph.def;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -28,7 +28,7 @@ public class RenderGraphDefinition {
         DESERIALIZERS.put("post", new PostRenderPassDeserializer());
     }
 
-    private final List<RenderPassDefinition> renderPasses = new ArrayList<>();
+    public final List<RenderPassDefinition> renderPasses = new ArrayList<>();
 
     public RenderGraphDefinition(Context context, Identifier id) throws IOException, SchemaMismatchException, ClassNotFoundException {
         ConfigDocument doc = ConfigDocument.parseIdentifier(id);

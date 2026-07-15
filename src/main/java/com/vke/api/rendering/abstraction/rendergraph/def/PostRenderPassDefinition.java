@@ -1,17 +1,17 @@
 package com.vke.api.rendering.abstraction.rendergraph.def;
 
-import com.vke.api.rendering.abstraction.rendergraph.RenderPassDefinition;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class PostRenderPassDefinition extends RenderPassDefinition {
 
     private final ArrayList<PostStage> stages;
 
     public PostRenderPassDefinition(String name, Class<?> clazz,
-                                    HashMap<String, InputTextureDefinition> inputs,
-                                    HashMap<String, TextureType> outputs,
+                                    List<InputTextureDefinition> inputs,
+                                    List<OutputTextureDefinition> outputs,
                                     HashMap<String, String> uniformStuff,
                                     ArrayList<PostStage> stages) {
         super(name, clazz, inputs, outputs, uniformStuff);

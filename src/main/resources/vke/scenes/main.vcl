@@ -4,6 +4,6 @@
         <bundle name="main"/>
     </bundles>
     <config>
-        <render-graph name="StandardDeferred"/>
+        <render-graph name="vke:demo-graph.vcl"/>
     </config>
 </scene>

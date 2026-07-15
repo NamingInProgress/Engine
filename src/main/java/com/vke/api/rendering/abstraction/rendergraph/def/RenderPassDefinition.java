@@ -1,19 +1,23 @@
-package com.vke.api.rendering.abstraction.rendergraph;
+package com.vke.api.rendering.abstraction.rendergraph.def;
+
+import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class RenderPassDefinition {
 
     private final String name;
     private final Class<?> clazz;
-    private final HashMap<String, InputTextureDefinition> inputs;
-    private final HashMap<String, TextureType> outputs;
+    private final List<InputTextureDefinition> inputs;
+    private final List<OutputTextureDefinition> outputs;
     private final HashMap<String, String> uniformStuff;
 
     public RenderPassDefinition(String name, Class<?> clazz,
-                                HashMap<String, InputTextureDefinition> inputs,
-                                HashMap<String, TextureType> outputs,
+                                List<InputTextureDefinition> inputs,
+                                List<OutputTextureDefinition> outputs,
                                 HashMap<String, String> uniformStuff) {
         this.name = name;
         this.clazz = clazz;
@@ -30,11 +34,11 @@ public class RenderPassDefinition {
         return clazz;
     }
 
-    public HashMap<String, InputTextureDefinition> inputs() {
+    public List<InputTextureDefinition> inputs() {
         return inputs;
     }
 
-    public HashMap<String, TextureType> outputs() {
+    public List<OutputTextureDefinition> outputs() {
         return outputs;
     }
 
@@ -69,13 +73,15 @@ public class RenderPassDefinition {
                 "uniformStuff=" + uniformStuff + ']';
     }
 
-    public record InputTextureDefinition(String source, String uniformFieldName, int width, int height, float scale) { }
+    public record InputTextureDefinition(String localName, String source, String uniformFieldName) { }
+    public record OutputTextureDefinition(String name, String source, TextureType type, Format format, int width, int height, float scale) {}
 
     public enum TextureType {
         RENDER_TARGET("render-target"),
         COLOR("color"),
         DEPTH("depth"),
-        STENCIL("stencil");
+        STENCIL("stencil"),
+        STORAGE("storage");
 
         public final String name;
 

@@ -9,6 +9,7 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
+import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.services2.ServiceImpl;
@@ -17,9 +18,11 @@ import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.framable.service.FramableManager;
+import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.core.scene.service.SceneManager;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
@@ -34,6 +37,7 @@ import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.io.Identifier;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
@@ -66,6 +70,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     //needed services
     private FramableManager framableManager;
+    private SceneManager sceneManager;
+    private GraphManager graphManager;
 
     private VulkanVertexConsumerProvider vertexConsumerProvider;
 
@@ -86,6 +92,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     protected void onInitialize() {
         this.ctx = new VulkanRenderSystem(baseContext, this);
         this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
+        this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
+        this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
+        graphManager.initialize();
 
         framableManager.registerFramable(this);
 
@@ -174,7 +183,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         cmd.begin();
         Framable framables = framableManager.getAllFramables();
         framables.preRendering();
-        cmd.beginRendering();
+        //cmd.beginRendering();
         PROFILER.end();
         PROFILER.end();
 
@@ -195,6 +204,13 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     }
 
     @Override
+    public void onDraw() {
+        Identifier graphId = sceneManager.getCurrentScene().getGraph();
+        RenderGraph graph = graphManager.getGraph(graphId);
+        graph.onDraw();
+    }
+
+    @Override
     public void postFrame() {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
 
@@ -210,7 +226,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             });
         } catch (ConcurrentModificationException _) {} // I think this happens when asset loader loads a pipeline off thread but whatever
 
-        cmd.endRendering();
+        //cmd.endRendering();
 
         Framable framables = framableManager.getAllFramables();
         framables.postRendering();
@@ -262,7 +278,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public List<String> dependencies() {
-        return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER);
+        return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER, Services.SCENE_MANAGER);
     }
 
     @Override

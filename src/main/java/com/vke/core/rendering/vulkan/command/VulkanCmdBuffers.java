@@ -4,6 +4,8 @@ import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.GpuBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
+import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.assets.AssetHandle;
@@ -11,6 +13,7 @@ import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
+import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
 import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
@@ -20,6 +23,7 @@ import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
+import com.vke.core.rendering.vulkan.texture.VulkanImageView;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -39,7 +43,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VulkanRenderSystem ctx;
     private final VulkanSwapchain swapchain;
 
-    private boolean recording;
+    private boolean recording, rendering;
 
     public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
         this.poolHandle = pool.getHandle();
@@ -81,46 +85,76 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void beginRendering() {
+        VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
+        VulkanTexture currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
+
+        this.beginRendering(new RenderingInfo(
+                List.of(new AttachmentInfo(currentColorImage, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })),
+                new AttachmentInfo(currentDepthImage, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 1.0f })
+        ));
+    }
+
+    @Override
+    public void beginRendering(RenderingInfo info) {
+        if (rendering) throw new IllegalStateException("Tried to begin rendering while rendering!");
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
-            currentColorImage.transition(this, ImageState.COLOR_ATTACHMENT);
+            this.rendering = true;
 
-            VulkanTexture currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
-            currentDepthImage.transition(this, ImageState.DEPTH_ATTACHMENT);
+            VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(info.colorAttachments().size(), stack);
 
-            VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
-                    .float32(0, 0.2f).float32(1, 0.3f).float32(2, 0.3f).float32(3, 1.0f));
+            List<AttachmentInfo> colorAttachments = info.colorAttachments();
+            for (int i = 0; i < colorAttachments.size(); i++) {
+                AttachmentInfo colorAttachment = colorAttachments.get(i);
+                VulkanTexture tex = (VulkanTexture) colorAttachment.tex();
+                tex.transition(this, ImageState.COLOR_ATTACHMENT);
+                VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
+                        .float32(0, colorAttachment.clearColor()[0])
+                        .float32(1, colorAttachment.clearColor()[1])
+                        .float32(2, colorAttachment.clearColor()[2])
+                        .float32(3, colorAttachment.clearColor()[3]));
 
-            VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(1, stack);
-            buffer.get(0)
-                    .sType$Default()
-                    .imageView(currentColorImage.defaultView().getHandle())
-                    .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-                    .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
-                    .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
-                    .clearValue(clearColor);
+                buffer.get(i)
+                        .sType$Default()
+                        .imageView(((VulkanImageView) colorAttachment.view()).getHandle())
+                        .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+                        .loadOp(colorAttachment.loadOp().getVkHandle())
+                        .storeOp(colorAttachment.storeOp().getVkHandle())
+                        .clearValue(clearColor);
+            }
 
-            VkRenderingAttachmentInfo depth = VkRenderingAttachmentInfo.calloc(stack)
-                    .sType$Default()
-                    .imageView(currentDepthImage.defaultView().getHandle())
-                    .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                    .loadOp(VK14.VK_ATTACHMENT_LOAD_OP_CLEAR)
-                    .storeOp(VK14.VK_ATTACHMENT_STORE_OP_STORE)
-                    .clearValue((v) -> v.depthStencil().depth(1.0f));
+            VkRenderingAttachmentInfo depth = null;
+            if (info.depthStencilAttachment() != null) {
+                ((VulkanTexture) info.depthStencilAttachment().tex()).transition(this, ImageState.DEPTH_ATTACHMENT);
+                depth = VkRenderingAttachmentInfo.calloc(stack)
+                        .sType$Default()
+                        .imageView(((VulkanImageView) info.depthStencilAttachment().view()).getHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
+                        .loadOp(info.depthStencilAttachment().loadOp().getVkHandle())
+                        .storeOp(info.depthStencilAttachment().storeOp().getVkHandle())
+                        .clearValue((v) -> v.depthStencil().depth(info.depthStencilAttachment().clearColor()[0]));
+            }
 
 
             VkRect2D area = VkRect2D.calloc(stack);
-            area.extent(swapchain.getExtent());
+            Rect renderArea = info.renderArea();
+            if (renderArea != null) {
+                area.offset(offset -> offset.set(renderArea.x, renderArea.y));
+                area.extent(extent -> extent.set(renderArea.width, renderArea.height));
+            } else {
+                area.offset(offset -> offset.set(0, 0));
+                area.extent(swapchain.getExtent());
+            }
 
-            // add color attachments, depth attachments and stencil attachments store image on swapchain and yeah
-            VkRenderingInfo info = VkRenderingInfo.calloc(stack)
+            VkRenderingInfo renderInfo = VkRenderingInfo.calloc(stack)
                     .sType$Default()
                     .layerCount(1)
                     .renderArea(area)
-                    .pColorAttachments(buffer)
-                    .pDepthAttachment(depth);
+                    .pColorAttachments(buffer);
 
-            VK14.vkCmdBeginRendering(vk, info);
+            if (info.depthStencilAttachment() != null) renderInfo.pDepthAttachment(depth);
+
+            VK14.vkCmdBeginRendering(vk, renderInfo);
         }
     }
 
@@ -142,6 +176,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
     public void end() {
         this.recording = false;
 
+        if (rendering) throw new IllegalStateException("Tried to end while rendering!");
+
         VulkanTexture currentImage = swapchain.getColorImage(swapchain.currentImageIndex());
         currentImage.transition(this, ImageState.PRESENT);
 
@@ -150,6 +186,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void endRendering() {
+        this.rendering = false;
         VK14.vkCmdEndRendering(vk);
     }
 

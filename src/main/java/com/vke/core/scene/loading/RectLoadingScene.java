@@ -9,20 +9,17 @@ import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.types.Container;
 
 public class RectLoadingScene extends LoadingScene {
-    private VertexConsumer<V> vc;
-    private float p;
 
     public RectLoadingScene(Identifier name, Context context) {
         super(name, context);
-        this.p = 0.0f;
     }
 
     @Override
     public void onLoad() throws Exception {
         Renderer renderer = context.service(context.getEngine().rendererType().serviceName);
-        this.vc = renderer.getVertexConsumerProvider().get(V.TEMPLATE);
     }
 
     @Override
@@ -37,7 +34,7 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void onAssetEndLoad(AssetDesc desc) {
-        p = ((float) desc.position()) / ((float) desc.totalAmount());
+        //(float) desc.position()) / ((float) desc.totalAmount();
     }
 
     @Override
@@ -55,51 +52,8 @@ public class RectLoadingScene extends LoadingScene {
     }
 
     @Override
-    public void onDraw() {
-        float right = -1.0f + 2.0f * p;
-
-        RenderPipelines.LOAD.use();
-        vc.beginFrame();
-
-        vc.vertices(new V(-1, -1, 1, 0, 0, 1));
-        vc.vertices(new V(right, -1, 1, 0, 0, 1));
-        vc.vertices(new V(right,  1, 1, 0, 0, 1));
-        vc.vertices(new V(-1,  1, 1, 0, 0, 1));
-
-        vc.indices(0, 1, 2, 2, 0, 3);
-        vc.draw();
-    }
-
-    @Override
     public void free() {
-        vc.free();
     }
 
-    static class V implements Vertex {
-        public static final V TEMPLATE = new V(0, 0, 0, 0, 0, 0);
-        public static final VertexFactory<V> FACTORY = (x, y, z, r, g, b, a, u, v, matId, texture) -> new V(x, y, r, g, b, a);
 
-        private final float x, y;
-        private final float r, g, b, a;
-
-        V(float x, float y, float r, float g, float b, float a) {
-            this.x = x;
-            this.y = y;
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-
-        @Override
-        public int getByteStride() {
-            return 4 * 6;
-        }
-
-        @Override
-        public void putSelf(VertexEncoder buf) {
-            buf.float2(x, y);
-            buf.float4(r, g, b, a);
-        }
-    }
 }
