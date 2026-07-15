@@ -2,6 +2,9 @@ package com.vke.api.rendering.abstraction.rendergraph;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderGraph;
+import com.vke.core.rendering.graph.RenderPassInstance;
 
 public abstract class RenderPass {
 
@@ -13,6 +16,8 @@ public abstract class RenderPass {
         this.instance = instance;
     }
 
-    public abstract void execute(CommandBuffer cmd, RenderGraph graph);
+    public void onLoad() {}
+
+    public abstract void execute(CommandBuffer cmd, GraphContext context);
 
 }

@@ -9,9 +9,10 @@ import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.api.rendering.abstraction.rendergraph.RenderPassInstance;
+import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 
 import java.util.List;
@@ -24,11 +25,15 @@ public class RectLoadingSceneRenderPass extends RenderPass {
 
     public RectLoadingSceneRenderPass(RenderSystem renderSystem, RenderPassInstance instance) {
         super(renderSystem, instance);
+    }
+
+    @Override
+    public void onLoad() {
         this.vc = renderSystem.renderer().getVertexConsumerProvider().get(V.TEMPLATE);
     }
 
     @Override
-    public void execute(CommandBuffer cmd, RenderGraph graph) {
+    public void execute(CommandBuffer cmd, GraphContext context) {
         Texture color = instance.getOutputTexture("render-target");
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
                 new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })

@@ -1,12 +1,11 @@
-package com.vke.api.rendering.abstraction.rendergraph.deserializers;
+package com.vke.core.rendering.graph.deserializers;
 
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderPassDefinition;
+import com.vke.core.rendering.graph.def.RenderPassDefinition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class RenderPassDeserializer {
@@ -51,14 +50,4 @@ public abstract class RenderPassDeserializer {
         return outputs;
     }
 
-    public HashMap<String, String> buildUniforms(ConfigNode node) {
-        HashMap<String, String> uniforms = new HashMap<>();
-        if (node == null) return uniforms;
-
-        for (ConfigNode uniform : node.asArray().values()) {
-            uniforms.put(uniform.getString("field"), uniform.getString("path"));
-        }
-
-        return uniforms;
-    }
 }

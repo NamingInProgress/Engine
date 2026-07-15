@@ -17,6 +17,7 @@ public class SceneVCL {
     public final Class<?> clazz;
     public final List<String> bundles;
     public final Identifier loadingScene;
+    public final Identifier renderGraph;
     public final ConfigNode config;
 
     public SceneVCL(Identifier file, Context context) throws SceneException {
@@ -37,6 +38,9 @@ public class SceneVCL {
             ConfigNode classTag = sceneTag.getObject("class");
             String className = classTag.getString("name");
             this.clazz = Class.forName(className, false, getClass().getClassLoader());
+
+            var rgn = sceneTag.getObjectOption("render-graph").unwrapOrPanic(new IllegalStateException("Could not find render-graph on scene config " + name));
+            this.renderGraph = context.id(rgn.getString("name"));
 
             ConfigNode loadingSceneTag = sceneTag.getObject("loading-scene");
             if (loadingSceneTag != null) {

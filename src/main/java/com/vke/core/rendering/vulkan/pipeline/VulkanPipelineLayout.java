@@ -197,6 +197,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
             // destroy descriptors and stuff
             this.sets.forEach(Disposable::free);
             this.alloc.free();
+            this.dynamicAlloc.free();
             if (pushConstants != null) {
                 pushConstants.free();
             }

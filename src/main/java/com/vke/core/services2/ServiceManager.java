@@ -34,7 +34,6 @@ public class ServiceManager implements Disposable {
 
         loadedServices.add(impl);
         if (!impl.isInitialized()) {
-            System.out.println("Initialized " + key);
             impl.initialize();
         }
 

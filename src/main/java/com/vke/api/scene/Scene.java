@@ -4,6 +4,8 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.core.Context;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
@@ -29,6 +31,10 @@ public abstract class Scene implements Disposable {
 
     public Identifier getGraph() { return this.graph; }
 
+    public void setGraph(Identifier graph) {
+        this.graph = graph;
+    }
+
     public Renderer getRenderer() { return this.renderer; }
 
     public Identifier getName() {
@@ -36,6 +42,9 @@ public abstract class Scene implements Disposable {
     }
 
     public void onLoad() throws Exception {};
+
+    public void onPrepareRendering(GraphContext context) {};
+    public void onRenderPassFininished(RenderPassInstance prevPass, GraphContext context) {};
 
     public void onUnload() throws Exception {};
 
@@ -47,8 +56,5 @@ public abstract class Scene implements Disposable {
         this.loadingScene = loadingScene;
     }
 
-    public void acceptConfig(ConfigNode node) {
-        var rgn = node.getObjectOption("render-graph").unwrapOrPanic(new IllegalStateException("Could not find render-graph on scene config " + name));
-        this.graph = context.id(rgn.getString("name"));
-    }
+    public void acceptConfig(ConfigNode node) {}
 }

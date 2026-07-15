@@ -1,6 +1,6 @@
 package com.vke.core.rendering.graph.service;
 
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
+import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.core.Context;
 import com.vke.utils.io.Identifier;
 
@@ -22,6 +22,11 @@ public class GraphManagerScopedImpl implements GraphManager {
         } catch (Exception e) {
             context.throwException(e, "GraphManagerScopedImpl#initialize");
         }
+    }
+
+    @Override
+    public void onRendererAvailable() {
+        base.onRendererAvailable();
     }
 
     @Override

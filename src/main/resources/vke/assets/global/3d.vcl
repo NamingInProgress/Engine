@@ -7,9 +7,6 @@
             <texture name="colorOut" />
             <texture name="depthOut" type="depth" />
         </outputs>
-        <uniforms>
-            <uniform path="buffer.matrix" field="someMatrix"/>
-        </uniforms>
     </render-pass>
 
     <!-- Pass 2: Post Processing -->
@@ -30,7 +27,7 @@
 
     <!-- Pass 3: UI -->
     <render-pass name="ui">
-        <class name="com.vke.api.rendering.abstraction.rendergraph.def.RenderGraphDefinition"/>
+        <class name="com.vke.core.rendering.graph.def.RenderGraphDefinition"/>
         <inputs>
             <texture name="background" source="post.postOut" />
         </inputs>

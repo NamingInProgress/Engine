@@ -9,7 +9,9 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
+import com.vke.api.scene.Scene;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.services2.ServiceImpl;
@@ -136,6 +138,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.frames = device.createFrames();
         RenderPipelines.init(ctx);
         framableManager.registerFramable(this.getEngineSetsManager().frameDataManager);
+
+        graphManager.onRendererAvailable();
     }
 
     @Override
@@ -201,13 +205,18 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         getVertexConsumerProvider().beginFrame();
 
         this.frameData = new FrameData(frame, cmd, stack, imageIndex);
+        Scene currentScene = sceneManager.getCurrentScene();
+        Identifier graphId = currentScene.getGraph();
+        RenderGraph graph = graphManager.getGraph(graphId);
+        currentScene.onPrepareRendering(graph.getContext());
     }
 
     @Override
     public void onDraw() {
-        Identifier graphId = sceneManager.getCurrentScene().getGraph();
+        Scene currentScene = sceneManager.getCurrentScene();
+        Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);
-        graph.onDraw();
+        graph.onDraw(currentScene);
     }
 
     @Override
@@ -278,7 +287,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public List<String> dependencies() {
-        return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER, Services.SCENE_MANAGER);
+        return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER, Services.SCENE_MANAGER, Services.GRAPH_MANAGER);
     }
 
     @Override

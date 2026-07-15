@@ -3,9 +3,9 @@ package com.vke.core.rendering.graph.service;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
-import com.vke.api.rendering.abstraction.rendergraph.TexturePool;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderGraphDefinition;
+import com.vke.core.rendering.graph.RenderGraph;
+import com.vke.core.rendering.graph.TexturePool;
+import com.vke.core.rendering.graph.def.RenderGraphDefinition;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
@@ -28,7 +28,6 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
 
     @Override
     public void onInitialize() {
-        System.out.println("INIT");
         Renderer renderer = engine.service(Services.RENDERER);
         this.sys = renderer.renderSystem();
         this.pool = new TexturePool(sys);
@@ -39,13 +38,22 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
     }
 
     @Override
+    public void onRendererAvailable() {
+        graphs.values().forEach(RenderGraph::onLoad);
+    }
+
+    @Override
     public RenderGraph getGraph(String name) {
-        return this.graphs.get(engine.id(name));
+        return getGraph(engine.id(name));
     }
 
     @Override
     public RenderGraph getGraph(Identifier name) {
-        return this.graphs.get(name);
+        var g = this.graphs.get(name);
+        if (g == null) {
+            engine.throwException(new IllegalStateException("Requested RenderGraph '%s' is null!".formatted(name)), "GetGraph");
+        }
+        return g;
     }
 
     @Override
@@ -55,7 +63,7 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
 
     @Override
     public List<String> dependencies() {
-        return List.of(Services.RENDERER);
+        return List.of();
     }
 
     @Override

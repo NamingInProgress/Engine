@@ -1,9 +1,8 @@
-package com.vke.api.rendering.abstraction.rendergraph.def;
+package com.vke.core.rendering.graph.def;
 
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,17 +12,14 @@ public class RenderPassDefinition {
     private final Class<?> clazz;
     private final List<InputTextureDefinition> inputs;
     private final List<OutputTextureDefinition> outputs;
-    private final HashMap<String, String> uniformStuff;
 
     public RenderPassDefinition(String name, Class<?> clazz,
                                 List<InputTextureDefinition> inputs,
-                                List<OutputTextureDefinition> outputs,
-                                HashMap<String, String> uniformStuff) {
+                                List<OutputTextureDefinition> outputs) {
         this.name = name;
         this.clazz = clazz;
         this.inputs = inputs;
         this.outputs = outputs;
-        this.uniformStuff = uniformStuff;
     }
 
     public String name() {
@@ -42,10 +38,6 @@ public class RenderPassDefinition {
         return outputs;
     }
 
-    public HashMap<String, String> uniformStuff() {
-        return uniformStuff;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -54,13 +46,12 @@ public class RenderPassDefinition {
         return Objects.equals(this.name, that.name) &&
                 Objects.equals(this.clazz, that.clazz) &&
                 Objects.equals(this.inputs, that.inputs) &&
-                Objects.equals(this.outputs, that.outputs) &&
-                Objects.equals(this.uniformStuff, that.uniformStuff);
+                Objects.equals(this.outputs, that.outputs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, clazz, inputs, outputs, uniformStuff);
+        return Objects.hash(name, clazz, inputs, outputs);
     }
 
     @Override
@@ -69,8 +60,7 @@ public class RenderPassDefinition {
                 "name=" + name + ", " +
                 "clazz=" + clazz + ", " +
                 "inputs=" + inputs + ", " +
-                "outputs=" + outputs + ", " +
-                "uniformStuff=" + uniformStuff + ']';
+                "outputs=" + outputs + ']';
     }
 
     public record InputTextureDefinition(String localName, String source, String uniformFieldName) { }

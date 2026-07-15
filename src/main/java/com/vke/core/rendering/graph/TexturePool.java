@@ -1,12 +1,16 @@
-package com.vke.api.rendering.abstraction.rendergraph;
+package com.vke.core.rendering.graph;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.TextureType;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderPassDefinition;
+import com.vke.core.rendering.graph.def.RenderPassDefinition;
+import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
+import com.vke.core.rendering.vulkan.utils.VKUtils;
 import com.vke.utils.io.Disposable;
+import org.lwjgl.vulkan.VK14;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,7 @@ public class TexturePool implements Disposable {
     private final RenderSystem system;
 
     private final List<PooledTexture> freeList = new ArrayList<>();
+    private final List<Texture> allAllocated = new ArrayList<>();
 
     public TexturePool(RenderSystem system) {
         this.system = system;
@@ -27,18 +32,23 @@ public class TexturePool implements Disposable {
         for (PooledTexture pooledTexture : freeList) {
             Texture tex = pooledTexture.texture;
 
-            if (tex.width() == width && tex.height() == height && tex.format() == format) {
-                freeList.remove(tex);
+            if (tex.width() == width && tex.height() == height && tex.format().equals(format)) {
+                freeList.remove(pooledTexture);
                 return tex;
             }
         }
 
-        return system.device().createTexture(Texture.TextureDesc.builder()
+        var t = system.device().createTexture(Texture.TextureDesc.builder()
                 .width(width)
                 .height(height)
                 .format(format)
                 .usage(getUsage(type))
                 .type(TextureType.TEX_2D).build());
+
+        VKUtils.setDebugName(((VulkanRenderDevice)system.device()).getLogicalDevice(), "pool texture", ((VulkanTexture) t).getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+
+        allAllocated.add(t);
+        return t;
     }
 
     public void release(Texture tex) {
@@ -51,6 +61,7 @@ public class TexturePool implements Disposable {
         freeList.removeIf(pooled -> {
             if (currentTime - pooled.lastUsedTime > maxIdleTimeMs) {
                 pooled.texture.free();
+                allAllocated.remove(pooled.texture);
                 return true;
             }
             return false;
@@ -68,8 +79,7 @@ public class TexturePool implements Disposable {
 
     @Override
     public void free() {
-        // TODO: fix swapchain img getting freed
-        //this.freeList.forEach(pt -> pt.texture.free());
+        this.allAllocated.forEach(Disposable::free);
     }
 
     public static class PooledTexture {

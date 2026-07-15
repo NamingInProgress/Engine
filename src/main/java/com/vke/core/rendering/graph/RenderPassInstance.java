@@ -1,9 +1,9 @@
-package com.vke.api.rendering.abstraction.rendergraph;
+package com.vke.core.rendering.graph;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderPassDefinition;
-import com.vke.utils.tuple.Pair;
+import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
+import com.vke.core.rendering.graph.def.RenderPassDefinition;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -13,8 +13,8 @@ public class RenderPassInstance {
     public final RenderPass executor;
     private final RenderPassDefinition def;
 
-    private HashMap<String, Texture> resolvedInputs = new HashMap<>();
-    private LinkedHashMap<String, Pair<Texture, RenderPassDefinition.TextureType>> resolvedOutputs = new LinkedHashMap<>();
+    private final HashMap<String, Texture> resolvedInputs = new HashMap<>();
+    private final LinkedHashMap<String, Texture> resolvedOutputs = new LinkedHashMap<>();
 
     public RenderPassInstance(RenderSystem sys, RenderPassDefinition def) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -27,8 +27,8 @@ public class RenderPassInstance {
         this.resolvedInputs.put(localName, texture);
     }
 
-    public void addOutput(String name, Texture texture, RenderPassDefinition.TextureType type) {
-        this.resolvedOutputs.put(name, new Pair<>(texture, type));
+    public void addOutput(String name, Texture texture) {
+        this.resolvedOutputs.put(name, texture);
     }
 
     public Texture getInputTexture(String localName) {
@@ -36,10 +36,15 @@ public class RenderPassInstance {
     }
 
     public Texture getOutputTexture(String name) {
-        return resolvedOutputs.get(name).v1;
+        return resolvedOutputs.get(name);
     }
 
     public RenderPassDefinition getDefinition() {
         return def;
+    }
+
+    public void clear() {
+        this.resolvedInputs.clear();
+        this.resolvedOutputs.clear();
     }
 }

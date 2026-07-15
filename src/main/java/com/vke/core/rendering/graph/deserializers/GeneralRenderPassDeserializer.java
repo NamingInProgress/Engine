@@ -1,7 +1,7 @@
-package com.vke.api.rendering.abstraction.rendergraph.deserializers;
+package com.vke.core.rendering.graph.deserializers;
 
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderPassDefinition;
+import com.vke.core.rendering.graph.def.RenderPassDefinition;
 
 public class GeneralRenderPassDeserializer extends RenderPassDeserializer {
     @Override
@@ -10,7 +10,6 @@ public class GeneralRenderPassDeserializer extends RenderPassDeserializer {
 
         return new RenderPassDefinition(name, clazz,
                 buildInputTextures(node.getArray("inputs")),
-                buildOutputTextures(node.getArray("outputs")),
-                buildUniforms(node.getArray("uniforms")));
+                buildOutputTextures(node.getArray("outputs")));
     }
 }

@@ -51,6 +51,8 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
             Class<? extends Scene> actualSceneClass = (Class<? extends Scene>) clazz;
             Scene instance = createInstance(actualSceneClass, thisName, context);
 
+            instance.setGraph(sceneVCL.renderGraph);
+
             if (sceneVCL.config != null) {
                 instance.acceptConfig(sceneVCL.config);
             }

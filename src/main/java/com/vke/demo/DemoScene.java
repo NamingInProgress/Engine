@@ -1,22 +1,21 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
-import com.vke.api.rendering.abstraction.rendergraph.TexturePool;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderGraphDefinition;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.utils.io.Identifier;
+import org.joml.Matrix4f;
 
 import java.io.IOException;
 
@@ -65,6 +64,22 @@ public class DemoScene extends Scene {
         camera.setController(controller);
 
         camera.use();
+    }
+
+    @Override
+    public void onPrepareRendering(GraphContext context) {
+        Matrix4f model = new Matrix4f();
+
+        float time = (System.nanoTime() / 1_000_000_000.0f);
+
+        float speed = 1.0f;
+
+        float scale = 10;
+        model.identity()
+                .translate(0, 0.0f, -550)
+                .scale(scale, scale, scale)
+                .rotateY(time * speed);
+        context.put("localMat", model);
     }
 
     @Override

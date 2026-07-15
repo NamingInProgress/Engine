@@ -1,4 +1,4 @@
-package com.vke.api.rendering.abstraction.rendergraph.def;
+package com.vke.core.rendering.graph.def;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -6,9 +6,9 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
-import com.vke.api.rendering.abstraction.rendergraph.deserializers.GeneralRenderPassDeserializer;
-import com.vke.api.rendering.abstraction.rendergraph.deserializers.PostRenderPassDeserializer;
-import com.vke.api.rendering.abstraction.rendergraph.deserializers.RenderPassDeserializer;
+import com.vke.core.rendering.graph.deserializers.GeneralRenderPassDeserializer;
+import com.vke.core.rendering.graph.deserializers.PostRenderPassDeserializer;
+import com.vke.core.rendering.graph.deserializers.RenderPassDeserializer;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.utils.io.Identifier;

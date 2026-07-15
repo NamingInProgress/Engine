@@ -1,6 +1,6 @@
 package com.vke.core.rendering.graph.service;
 
-import com.vke.api.rendering.abstraction.rendergraph.RenderGraph;
+import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.utils.io.Identifier;
@@ -13,6 +13,11 @@ public class GraphManagerAPI extends ServiceAPI implements GraphManager {
 
     private GraphManager getImpl() {
         return (GraphManager) getImplementation();
+    }
+
+    @Override
+    public void onRendererAvailable() {
+        getImpl().onRendererAvailable();
     }
 
     @Override

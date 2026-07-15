@@ -1,10 +1,12 @@
-package com.vke.api.rendering.abstraction.rendergraph;
+package com.vke.core.rendering.graph;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderGraphDefinition;
-import com.vke.api.rendering.abstraction.rendergraph.def.RenderPassDefinition;
+import com.vke.api.scene.Scene;
+import com.vke.core.Context;
+import com.vke.core.rendering.graph.def.RenderGraphDefinition;
+import com.vke.core.rendering.graph.def.RenderPassDefinition;
 import com.vke.api.window.Window;
 
 import java.lang.reflect.InvocationTargetException;
@@ -23,9 +25,12 @@ public class RenderGraph {
     private int windowWidth;
     private int windowHeight;
 
+    private final GraphContext context;
+
     public RenderGraph(RenderSystem sys, RenderGraphDefinition def, TexturePool pool) {
         this.sys = sys;
         this.pool = pool;
+        this.context = new GraphContext(sys);
         for (RenderPassDefinition renderPass : def.renderPasses) {
             try {
                 passes.add(new RenderPassInstance(sys, renderPass));
@@ -37,6 +42,10 @@ public class RenderGraph {
         }
     }
 
+    public void onLoad() {
+        this.passes.forEach(pass -> pass.executor.onLoad());
+    }
+
     public void updateWindowSize(Window.Size size) {
         this.windowWidth = size.width();
         this.windowHeight = size.height();
@@ -44,6 +53,7 @@ public class RenderGraph {
 
     public void prepare() {
         for (RenderPassInstance pass : passes) {
+            pass.clear();
             RenderPassDefinition def = pass.getDefinition();
 
             for (RenderPassDefinition.OutputTextureDefinition texDef : def.outputs()) {
@@ -63,7 +73,7 @@ public class RenderGraph {
                     tex = pool.acquire(width, height, texDef.type(), texDef.format());
                 }
                 physicalTextures.put(globalKey, tex);
-                pass.addOutput(texDef.name(), tex, texDef.type());
+                pass.addOutput(texDef.name(), tex);
             }
         }
 
@@ -83,20 +93,27 @@ public class RenderGraph {
         }
     }
 
-    public void onDraw() {
+    public GraphContext getContext() {
+        return context;
+    }
+
+    public void onDraw(Scene runner) {
         prepare();
         CommandBuffer cmd = sys.getCurrentCommandBuffer();
         for (RenderPassInstance pass : passes) {
-            pass.executor.execute(cmd, this);
+            pass.executor.execute(cmd, context);
+            runner.onRenderPassFininished(pass, context);
         }
         endRendering();
     }
 
     public void endRendering() {
-        for (Texture tex : physicalTextures.values()) {
-            pool.release(tex);
+        for (var entry : physicalTextures.entrySet()) {
+            if (entry.getKey().contains("render-target")) continue;
+            pool.release(entry.getValue());
         }
         physicalTextures.clear();
+        context.clear();
     }
 
 }

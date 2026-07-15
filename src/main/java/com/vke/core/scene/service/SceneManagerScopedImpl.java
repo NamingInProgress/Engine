@@ -31,9 +31,6 @@ public class SceneManagerScopedImpl implements SceneManager {
         manager.initAssets();
         Identifier sceneDirectory = context.id("scenes/");
         base.registerScenes(sceneDirectory, context);
-
-        GraphManager graphs = context.service(Services.GRAPH_MANAGER);
-        graphs.initialize();
     }
 
     @Override
