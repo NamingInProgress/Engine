@@ -9,6 +9,7 @@ public class Protocols {
     public static final String PRIMITIVE_NUMBER = "number";
     public static final String PLAIN = "plain";
     public static final String CONFIG = "config";
+    public static final String VKS = "vks";
     public static final String LANG = "lang";
 
     public static final String PNG = "png";

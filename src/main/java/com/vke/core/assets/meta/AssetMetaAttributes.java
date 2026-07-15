@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssetMetaAttributes {
-    private static final LazyAssetHandle<ConfigSchema> SCHEMA = R.schemas.get("asset-meta.schema.json");
+    private static final LazyAssetHandle<ConfigSchema> SCHEMA = R.schemas.get("asset-meta.vks");
     private static ConfigSchema schema;
 
     private final String tag;

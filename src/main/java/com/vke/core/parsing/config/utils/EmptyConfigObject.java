@@ -1,4 +1,7 @@
-package com.vke.api.parsing.config.node;
+package com.vke.core.parsing.config.utils;
+
+import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.node.ConfigObjectNode;
 
 import java.util.Map;
 

@@ -2,7 +2,7 @@ package com.vke.core.assets.pipeline.stages;
 
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.parsing.config.node.EmptyConfigArray;
+import com.vke.core.parsing.config.utils.EmptyConfigArray;
 
 public abstract class ParameterizedStage implements PipelineStage {
     protected final ConfigArrayNode arguments;
