@@ -4,7 +4,7 @@ import com.vke.api.parsing.config.node.ConfigBooleanNode;
 
 public record BooleanConfigValue(boolean value) implements ConfigBooleanNode {
     @Override
-    public boolean getValue() {
+    public boolean getBoolean() {
         return value;
     }
 

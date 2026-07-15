@@ -4,11 +4,14 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.api.parsing.config.schema.ConfigSchema;
+import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
+import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.post.PostEffectProvider;
 import com.vke.core.rendering.post.PostProcessEffect;
@@ -25,6 +28,7 @@ import java.util.List;
 
 public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessManagerScopedImpl> implements PostProcessManager {
     private final HashMap<Identifier, PostEffectProvider> providers;
+    private static final LazyAssetHandle<ConfigSchema> SCHEMA = R.schemas.get("post-stages.vks");
 
     public PostProcessManagerBaseImpl(VKEngine engine) {
         super(Services.POST_PROCESS, engine);
@@ -45,13 +49,14 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
     void registerStages(Context caller, Identifier vclFile) {
         try {
             ConfigDocument doc = ConfigDocument.parseIdentifier(vclFile);
+            doc.validate(SCHEMA.assume(engine), vclFile.toString());
+
             ConfigNode stagesNode = doc.getRoot().getObject("stages");
             for (ConfigNode stageNode : stagesNode.asArray().values()) {
                 String name = stageNode.getString("name");
                 Identifier identifier = caller.id(name);
 
                 if ("simple-stage".equals(stageNode.getNodeName())) {
-
                     String pipelineName = stageNode.getString("pipeline");
                     Identifier pipelineIdent = caller.id(pipelineName);
                     //todo: handle uniforms
@@ -87,7 +92,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
                 }
             }
 
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException | SchemaMismatchException e) {
             engine.throwException(e, "PostProcessManager#registerStages");
         }
     }

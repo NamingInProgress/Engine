@@ -16,40 +16,40 @@ public class Configs {
     public static float getNumber(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigNumberNode valueNode = (ConfigNumberNode) objectNode.getNode(key);
-        return valueNode.getValue();
+        return valueNode.getNumber();
     }
 
     public static Float getNumberSafe(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigNumberNode valueNode = (ConfigNumberNode) objectNode.getNode(key);
         if (valueNode == null) return null;
-        return valueNode.getValue();
+        return valueNode.getNumber();
     }
 
     public static int getInt(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigNumberNode valueNode = (ConfigNumberNode) objectNode.getNode(key);
-        return (int) valueNode.getValue();
+        return (int) valueNode.getNumber();
     }
 
     public static Integer getIntSafe(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigNumberNode valueNode = (ConfigNumberNode) objectNode.getNode(key);
         if (valueNode == null) return null;
-        return (int) valueNode.getValue();
+        return (int) valueNode.getNumber();
     }
 
     public static boolean getBoolean(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigBooleanNode valueNode = (ConfigBooleanNode) objectNode.getNode(key);
-        return valueNode.getValue();
+        return valueNode.getBoolean();
     }
 
     public static Boolean getBooleanSafe(ConfigNode object, String key) {
         ConfigObjectNode objectNode = (ConfigObjectNode) object;
         ConfigBooleanNode valueNode = (ConfigBooleanNode) objectNode.getNode(key);
         if (valueNode == null) return null;
-        return valueNode.getValue();
+        return valueNode.getBoolean();
     }
 
     public static ConfigObjectNode getObject(ConfigNode object, String key) {

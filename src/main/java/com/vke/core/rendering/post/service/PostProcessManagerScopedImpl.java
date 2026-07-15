@@ -18,7 +18,7 @@ public class PostProcessManagerScopedImpl implements PostProcessManager {
 
     @Override
     public void initialize() {
-        base.registerStages(context, context.id("post_stages.vcl"));
+        base.registerStages(context, context.id("post-stages.vcl"));
     }
 
     @Override

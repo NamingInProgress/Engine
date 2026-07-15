@@ -50,7 +50,7 @@ public class XmlStringifier {
             builder.append("<");
             builder.append(lastField);
             builder.append('>');
-            builder.append(number.getValue());
+            builder.append(number.getNumber());
             builder.append("</");
             builder.append(lastField);
             builder.append(">");
@@ -58,7 +58,7 @@ public class XmlStringifier {
             builder.append('<');
             builder.append(lastField);
             builder.append('>');
-            builder.append(bool.getValue());
+            builder.append(bool.getBoolean());
             builder.append("</");
             builder.append(lastField);
             builder.append(">");

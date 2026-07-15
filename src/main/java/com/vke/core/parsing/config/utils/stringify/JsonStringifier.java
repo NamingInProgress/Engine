@@ -43,9 +43,9 @@ public class JsonStringifier {
             builder.append(value.getValue());
             builder.append('"');
         } else if (node instanceof ConfigNumberNode number) {
-            builder.append(number.getValue());
+            builder.append(number.getNumber());
         } else if (node instanceof ConfigBooleanNode bool) {
-            builder.append(bool.getValue());
+            builder.append(bool.getBoolean());
         }
     }
 }

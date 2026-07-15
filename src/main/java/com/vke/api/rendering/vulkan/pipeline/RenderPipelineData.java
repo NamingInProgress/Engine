@@ -132,7 +132,7 @@ public class RenderPipelineData {
         int i = 0;
         for(ConfigNode n : nodes) {
             if (n instanceof ConfigNumberNode cnn) {
-                thingies[i++] = cnn.getValue();
+                thingies[i++] = cnn.getNumber();
             }
             if(i >= 4) {
                 break;

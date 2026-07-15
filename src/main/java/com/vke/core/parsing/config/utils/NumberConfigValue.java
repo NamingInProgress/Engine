@@ -4,7 +4,7 @@ import com.vke.api.parsing.config.node.ConfigNumberNode;
 
 public record NumberConfigValue(float value) implements ConfigNumberNode {
     @Override
-    public float getValue() {
+    public float getNumber() {
         return value;
     }
 }

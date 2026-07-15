@@ -10,7 +10,7 @@ public class XmlBooleanNode implements ConfigBooleanNode {
     }
 
     @Override
-    public boolean getValue() {
+    public boolean getBoolean() {
         return value;
     }
 
