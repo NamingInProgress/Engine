@@ -1,4 +1,4 @@
-package com.vke.core.rendering.bytesenik;
+package com.vke.core.rendering.bytesink;
 
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;

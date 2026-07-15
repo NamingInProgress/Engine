@@ -31,18 +31,18 @@ public abstract class RenderPassDeserializer {
         if (node == null) return outputs;
 
         for (ConfigNode output : node.asArray().values()) {
+            String name = output.getString("name");
             if (output.getNodeName().equalsIgnoreCase("render-target")) {
-                outputs.add(new RenderPassDefinition.OutputTextureDefinition("render-target", null,
-                        RenderPassDefinition.TextureType.RENDER_TARGET, Format.RGBA8_SRGB, 0, 0, 1));
+                outputs.add(new RenderPassDefinition.OutputTextureDefinition(name, null,
+                        RenderPassDefinition.TextureType.RENDER_TARGET, Format.BGRA8_SRGB, 0, 0, 1));
                 continue;
             }
-            String name = output.getString("name");
             String source = output.getStringOption("source").unwrapOrNull();
             int width = output.getIntOption("width").unwrapOrDefault();
             int height = output.getIntOption("height").unwrapOrDefault();
             float scale = output.getNumberOption("scale").unwrapOr(1f);
             RenderPassDefinition.TextureType type = RenderPassDefinition.TextureType.fromString(output.getString("type"));
-            Format format = Format.valueOfOption(output.getStringOption("format").unwrapOrNull()).unwrapOr(Format.RGBA8);
+            Format format = Format.valueOfOption(output.getStringOption("format").unwrapOrNull()).unwrapOr(Format.BGRA8_SRGB);
 
             outputs.add(new RenderPassDefinition.OutputTextureDefinition(name, source, type, format, width, height, scale));
         }

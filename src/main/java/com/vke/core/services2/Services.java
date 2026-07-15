@@ -21,6 +21,8 @@ import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.profiler.service.ProfilerAPI;
 import com.vke.core.rendering.graph.service.GraphManagerAPI;
 import com.vke.core.rendering.graph.service.GraphManagerBaseImpl;
+import com.vke.core.rendering.post.service.PostProcessManagerAPI;
+import com.vke.core.rendering.post.service.PostProcessManagerBaseImpl;
 import com.vke.core.scene.service.SceneManagerAPI;
 import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorAPI;
 import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorImpl;
@@ -52,6 +54,7 @@ public class Services {
     public static final String WINDOW_MANAGER = "wnd";
     public static final String FRAMABLE_MANAGER = "frm";
     public static final String GRAPH_MANAGER = "grp";
+    public static final String POST_PROCESS = "ppe";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -71,6 +74,7 @@ public class Services {
         manager.registerNewService(WINDOW_MANAGER, new WindowManagerAPI(new WindowManagerImpl(engine)));
         manager.registerNewService(FRAMABLE_MANAGER, new FramableManagerAPI(new FramableManagerImpl(engine)));
         manager.registerNewService(GRAPH_MANAGER, new GraphManagerAPI(new GraphManagerBaseImpl(engine)));
+        manager.registerNewService(POST_PROCESS, new PostProcessManagerAPI(new PostProcessManagerBaseImpl(engine)));
     }
 
 }

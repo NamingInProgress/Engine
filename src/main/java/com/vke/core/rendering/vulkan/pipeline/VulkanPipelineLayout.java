@@ -132,6 +132,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
         try {
             return (T) getGroup().resolve(name);
         } catch (Exception e) {
+            if (this.pushConstants == null) throw e;
             return (T) this.pushConstants.resolve(name);
         }
     }

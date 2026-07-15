@@ -33,7 +33,7 @@ public class RenderGraph {
         this.context = new GraphContext(sys);
         for (RenderPassDefinition renderPass : def.renderPasses) {
             try {
-                passes.add(new RenderPassInstance(sys, renderPass));
+                passes.add(new RenderPassInstance(sys, this, renderPass));
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                      IllegalAccessException e) {
                 sys.getLogger().error("Failed to create render pass: " + renderPass.name());
@@ -49,6 +49,12 @@ public class RenderGraph {
     public void updateWindowSize(Window.Size size) {
         this.windowWidth = size.width();
         this.windowHeight = size.height();
+    }
+
+    public Texture getDynamicColorOutputTexture(Texture template, String newName) {
+        var t = pool.acquire(template.width(), template.height(), RenderPassDefinition.TextureType.COLOR, template.format());
+        physicalTextures.put(newName, t);
+        return t;
     }
 
     public void prepare() {
@@ -71,6 +77,11 @@ public class RenderGraph {
                     int height = texDef.height() == 0 ? (int) (texDef.scale() * windowHeight) : texDef.height();
 
                     tex = pool.acquire(width, height, texDef.type(), texDef.format());
+
+                    if (texDef.type() == RenderPassDefinition.TextureType.RENDER_TARGET) {
+                        pass.addOutput(texDef.name(), tex);
+                        continue;
+                    }
                 }
                 physicalTextures.put(globalKey, tex);
                 pass.addOutput(texDef.name(), tex);
@@ -101,7 +112,7 @@ public class RenderGraph {
         prepare();
         CommandBuffer cmd = sys.getCurrentCommandBuffer();
         for (RenderPassInstance pass : passes) {
-            pass.executor.execute(cmd, context);
+            pass.execute(cmd, context);
             runner.onRenderPassFininished(pass, context);
         }
         endRendering();

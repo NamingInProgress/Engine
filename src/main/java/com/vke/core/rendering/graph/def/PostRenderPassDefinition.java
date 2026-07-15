@@ -1,38 +1,29 @@
 package com.vke.core.rendering.graph.def;
 
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
+import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.post.PostProcessingRenderPass;
+import com.vke.utils.io.Identifier;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-public class PostRenderPassDefinition extends RenderPassDefinition {
+public class PostRenderPassDefinition extends SpecializedRenderPassDefinition {
 
-    private final ArrayList<PostStage> stages;
+    private final ArrayList<Identifier> stages;
 
-    public PostRenderPassDefinition(String name, Class<?> clazz,
+    public PostRenderPassDefinition(String name,
                                     List<InputTextureDefinition> inputs,
                                     List<OutputTextureDefinition> outputs,
-                                    ArrayList<PostStage> stages) {
-        super(name, clazz, inputs, outputs);
+                                    ArrayList<Identifier> stages) {
+        super(name, PostProcessingRenderPass.class, inputs, outputs);
         this.stages = stages;
     }
 
-    public enum PostStage {
-        SSAO("ssao"),
-        BLUR("blur");
-
-        public final String tagName;
-
-        PostStage(String tagName) {
-            this.tagName = tagName;
-        }
-
-        public static PostStage fromString(String string) {
-            for (PostStage value : values()) {
-                if (value.tagName.equalsIgnoreCase(string)) return value;
-            }
-            throw new IllegalArgumentException("Could not find post stage for name: " + string);
-        }
-
+    @Override
+    public RenderPass create(RenderSystem sys, RenderPassInstance instance) {
+        return new PostProcessingRenderPass(sys, instance, stages);
     }
 
 }

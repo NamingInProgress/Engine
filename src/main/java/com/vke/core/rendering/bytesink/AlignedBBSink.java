@@ -1,4 +1,4 @@
-package com.vke.core.rendering.bytesenik;
+package com.vke.core.rendering.bytesink;
 
 import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
 import com.vke.api.utils.AlignedByteBuffer;

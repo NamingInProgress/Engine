@@ -63,7 +63,7 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
 
     @Override
     public List<String> dependencies() {
-        return List.of();
+        return List.of(Services.POST_PROCESS);
     }
 
     @Override

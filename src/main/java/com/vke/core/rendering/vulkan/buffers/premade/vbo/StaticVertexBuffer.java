@@ -3,7 +3,7 @@ package com.vke.core.rendering.vulkan.buffers.premade.vbo;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
-import com.vke.core.rendering.bytesenik.VulkanVertexEncoder;
+import com.vke.core.rendering.bytesink.VulkanVertexEncoder;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 import java.util.List;

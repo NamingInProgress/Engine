@@ -2,6 +2,8 @@ package com.vke.core.rendering.graph.service;
 
 import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.core.Context;
+import com.vke.core.rendering.post.service.PostProcessManager;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 
 import java.util.List;
@@ -17,6 +19,9 @@ public class GraphManagerScopedImpl implements GraphManager {
 
     @Override
     public void initialize() {
+        PostProcessManager m = context.service(Services.POST_PROCESS);
+        m.initialize();
+
         try {
             base.registerGraphs(context, context.id("/graphs"));
         } catch (Exception e) {

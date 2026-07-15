@@ -123,7 +123,7 @@ public class HandleLexer {
     }
 
     public boolean isPartOfLiteral(char c) {
-        return Character.isLetterOrDigit(c);
+        return Character.isLetterOrDigit(c) || c == '_';
     }
 
     public static class HandleToken {

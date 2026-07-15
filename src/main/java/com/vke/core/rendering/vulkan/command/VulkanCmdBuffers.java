@@ -338,6 +338,48 @@ public class VulkanCmdBuffers implements CommandBuffer {
         }
     }
 
+    @Override
+    public void copyImageToImage(Texture src, Texture dst, int srcMip, int srcLayer, int dstMip, int dstLayer) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VulkanTexture vkSrc = (VulkanTexture) src;
+            VulkanTexture vkDst = (VulkanTexture) dst;
+            VkImageBlit2.Buffer region = VkImageBlit2.calloc(1, stack);
+
+            region.get(0)
+                    .sType$Default()
+                    .srcSubresource(s -> s
+                            .aspectMask(vkSrc.getAspect().getVkHandle())
+                            .mipLevel(srcMip)
+                            .baseArrayLayer(srcLayer)
+                            .layerCount(1))
+                    .dstSubresource(s -> s
+                            .aspectMask(vkDst.getAspect().getVkHandle())
+                            .mipLevel(dstMip)
+                            .baseArrayLayer(dstLayer)
+                            .layerCount(1));
+
+            region.get(0).srcOffsets(0)
+                    .set(0, 0, 0);
+            region.get(0).srcOffsets(1)
+                    .set(src.width(), src.height(), 1);
+            region.get(0).dstOffsets(0)
+                    .set(0, 0, 0);
+            region.get(0).dstOffsets(1)
+                    .set(dst.width(), dst.height(), 1);
+
+            VkBlitImageInfo2 info = VkBlitImageInfo2.calloc(stack)
+                    .sType$Default()
+                    .srcImage(vkSrc.getHandle())
+                    .srcImageLayout(vkSrc.getState().getLayoutHandle())
+                    .dstImage(vkDst.getHandle())
+                    .dstImageLayout(vkDst.getState().getLayoutHandle())
+                    .filter(VK14.VK_FILTER_LINEAR)
+                    .pRegions(region);
+
+            VK14.vkCmdBlitImage2(this.getBuffer(), info);
+        }
+    }
+
     public VkCommandBuffer getBuffer() { return this.vk; }
 
     @Override

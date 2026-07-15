@@ -280,6 +280,8 @@ public interface Texture extends Disposable, QuadTexture {
     TextureDesc description();
 
     void useInShader();
+    void useAsSrc();
+    void useAsDst();
 
     @Override
     default Texture texture() {

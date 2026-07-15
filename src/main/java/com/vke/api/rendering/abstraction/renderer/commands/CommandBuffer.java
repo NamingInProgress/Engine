@@ -109,5 +109,6 @@ public interface CommandBuffer extends Disposable {
     void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance);
 
     void copyBufferToImage(GpuBuffer buffer, Texture image, int mip, int layer);
+    void copyImageToImage(Texture src, Texture dst, int srcMip, int srcLayer, int dstMip, int dstLayer);
 
 }

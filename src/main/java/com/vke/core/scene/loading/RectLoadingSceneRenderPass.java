@@ -34,7 +34,7 @@ public class RectLoadingSceneRenderPass extends RenderPass {
 
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
-        Texture color = instance.getOutputTexture("render-target");
+        Texture color = instance.getOutputTexture("output");
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
                 new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })
         ), null));
