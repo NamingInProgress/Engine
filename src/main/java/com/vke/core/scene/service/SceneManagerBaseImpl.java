@@ -1,5 +1,6 @@
 package com.vke.core.scene.service;
 
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.scene.LoadingScene;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;

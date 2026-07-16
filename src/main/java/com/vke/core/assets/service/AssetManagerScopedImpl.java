@@ -12,6 +12,7 @@ import com.vke.core.assets.pipeline.AssetPipelinePhase;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.parsing.config.xml.XmlParser;
+import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
@@ -48,6 +49,14 @@ public class AssetManagerScopedImpl implements AssetManager {
             base.globalBundle.extendBundle(afterPhase);
         });
         base.globalBundle.extendBundle(globalBundle);
+
+        // ===== IMPORTANT ====== DO NOT REMOVE OR MOVE ======
+        //i cant do anything about this, after here the renderer will load shaders twice becuase it will get
+        //initialized by the shaders load code which in turn ac1quires the same shader again during pipeline creation
+        //before here shit wont exist cuz the pseudo pass hasnt completed yet. that here is literally the only spot
+        //that we can initalize the renderer in without any problems.
+        context.service(Services.RENDERER);
+
         globalBundle.preloadAll(base.getCallbacks());
 
         Map<String, Bundle> bundleMap = BundleCollector.collectBundles(context, pipeline);

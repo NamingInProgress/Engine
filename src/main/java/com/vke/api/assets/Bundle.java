@@ -66,7 +66,9 @@ public final class Bundle implements Disposable {
 
     @Override
     public void free() {
-        assets.values().forEach(Disposable::free);
+        for (AssetHandle<?> assetHandle : assets.values()) {
+            assetHandle.free();
+        }
     }
 
     public Iter<AssetHandle<?>> allAssets() {

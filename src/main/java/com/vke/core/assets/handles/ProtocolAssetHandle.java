@@ -1,15 +1,20 @@
 package com.vke.core.assets.handles;
 
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetMeta;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.core.assets.service.AssetManager;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
     private final Identifier identifier;
@@ -34,7 +39,9 @@ public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
 
     @Override
     public void free() {
-        if (get() != null && get() instanceof Disposable d) d.free();
+        if (get() != null && get() instanceof Disposable d) {
+            d.free();
+        }
         setCache(null);
     }
 
