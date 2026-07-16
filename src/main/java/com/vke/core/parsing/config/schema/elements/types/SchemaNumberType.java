@@ -53,8 +53,8 @@ public class SchemaNumberType extends SchemaType {
                 String msg = String.format("%f is smaller than minimum value %f!", val, min);
                 result.addError(new SchemaValidationResult.ValidationError(msg, path));
             }
-            if (max != null && max > val) {
-                String msg = String.format("%f is bigger than minimum value %f!", val, max);
+            if (max != null && val > max) {
+                String msg = String.format("%f is bigger than maximum value %f!", val, max);
                 result.addError(new SchemaValidationResult.ValidationError(msg, path));
             }
         }

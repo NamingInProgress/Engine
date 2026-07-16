@@ -1,0 +1,283 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Services - vke-Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">vke-Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="services"><a class="header" href="#services">Services</a></h1>
+<p><strong>vke</strong> is a highly modular game engine that provides almost all of its core functionality through <strong>Services</strong>.</p>
+<p>While the engine ships with default implementations for every service, the system is designed to be completely flexible. You can swap in custom implementations at any time—and for some services, you can even swap them dynamically at runtime.</p>
+<hr />
+<h2 id="service-types"><a class="header" href="#service-types">Service Types</a></h2>
+<p>Services are divided into three core interfaces depending on their lifecycle and state requirements:</p>
+<h3 id="service"><a class="header" href="#service"><code>Service</code></a></h3>
+<p>A standard service whose implementation <strong>can be swapped at runtime</strong>. Any active references in the engine will automatically adjust when the implementation changes.</p>
+<h3 id="pinnedservice"><a class="header" href="#pinnedservice"><code>PinnedService</code></a></h3>
+<p>A strict service that <strong>cannot change its implementation</strong> after the engine's initial startup phase. This is reserved for critical, low-level systems.</p>
+<h3 id="statefulservices"><a class="header" href="#statefulservices"><code>StatefulService&lt;S&gt;</code></a></h3>
+<p>A specialized service that holds a transfer state <code>S</code>. When a new implementation replaces the old one, this state is passed along to initialize the new instance.</p>
+<blockquote>
+<p><em>Note: Stateful services are handled internally by <strong>vke</strong> and are generally not important for the average developer.</em></p>
+</blockquote>
+<hr />
+<h2 id="core-engine-services"><a class="header" href="#core-engine-services">Core Engine Services</a></h2>
+<p>These are some of the primary services driving the engine:</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Service</th><th style="text-align: left">Type</th><th style="text-align: left">Description</th></tr></thead><tbody>
+<tr><td style="text-align: left"><code>Renderer</code></td><td style="text-align: left"><code>PinnedService</code></td><td style="text-align: left">The primary Vulkan rendering pipeline.</td></tr>
+<tr><td style="text-align: left"><code>InputManager</code></td><td style="text-align: left"><code>Service</code></td><td style="text-align: left">Handles keyboard, mouse, and controller inputs.</td></tr>
+<tr><td style="text-align: left"><code>AssetManager</code></td><td style="text-align: left"><code>PinnedService</code></td><td style="text-align: left">Manages loading, caching, and unloading of engine assets.</td></tr>
+</tbody></table>
+</div>
+<p>Every service is registered under a unique identifier. All official engine service IDs are stored as constants in the <code>Services</code> class.</p>
+<hr />
+<h2 id="working-with-services"><a class="header" href="#working-with-services">Working with Services</a></h2>
+<h3 id="1-retrieving-a-service"><a class="header" href="#1-retrieving-a-service">1. Retrieving a Service</a></h3>
+<p>You can obtain a service instance from any <a href="./context.html"><code>Context</code></a> by passing its registered ID:</p>
+<pre><code class="language-java">Context ctx = ...;
+AssetManager assetManager = ctx.service(Services.ASSET_MANAGER);
+
+</code></pre>
+<h3 id="2-context-linked-features--implicit-namespacing"><a class="header" href="#2-context-linked-features--implicit-namespacing">2. Context-Linked Features &amp; Implicit Namespacing</a></h3>
+<p>The Java instance returned by <code>ctx.service(...)</code> remains permanently linked to the <code>Context</code> that created it. This enables powerful Quality-of-Life (QoL) behaviors like <strong>automatic namespacing</strong>.</p>
+<p>If your active context has the namespace <code>"test"</code>, the engine will automatically prepend it to relative resource lookups:</p>
+<pre><code class="language-java">// Because the context namespace is "test", this implicitly resolves to "test:textures/test.png"
+AssetHandle&lt;Texture&gt; texture = assetManager.getAsset("textures/test.png");
+
+</code></pre>
+<p>If you need to bypass the context's default namespace to grab a global engine resource, simply provide an explicit namespace:</p>
+<pre><code class="language-java">// Explicitly targets the core engine namespace instead of "test"
+AssetHandle&lt;Texture&gt; missingTexture = assetManager.getAsset("vke:textures/missing.png");
+
+</code></pre>
+<h3 id="3-dynamic-hot-swapping--caching"><a class="header" href="#3-dynamic-hot-swapping--caching">3. Dynamic Hot-Swapping &amp; Caching</a></h3>
+<p>Because of how the service architecture is designed, you do not need to worry about stale references. If a <code>Service</code> implementation is changed at runtime, any cached instances or references held by your code will automatically redirect to the new implementation behind the scenes.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../overview/context.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../config/main.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../overview/context.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../config/main.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
