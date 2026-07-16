@@ -227,6 +227,10 @@ public class ReflectedShader implements Disposable {
             }
         }
 
+        if (s.size == 0) {
+            s.size = s.members.values().stream().mapToLong(m -> m.size).sum();
+        }
+
         return s;
     }
 
@@ -326,7 +330,7 @@ public class ReflectedShader implements Disposable {
 
             IntBuffer buf = stack.callocInt(1);
 
-            if (member.matrixRows > 1 || member.matrixColumns > 1) {
+            if (member.matrixRows > 1 && member.matrixColumns > 1) {
                 Spvc.spvc_compiler_type_struct_member_matrix_stride(compiler, member.typeHandle, member.idx, buf);
                 member.matrixStride = buf.get(0);
             }

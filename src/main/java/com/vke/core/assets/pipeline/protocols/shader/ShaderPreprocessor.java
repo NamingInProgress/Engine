@@ -31,6 +31,7 @@ public class ShaderPreprocessor {
         String source = processFile(ident, meta, new HashSet<>());
 
         meta.defaultRuntimeSizes.put("textures", renderer.getBindlessTexturesCount());
+        meta.defaultRuntimeSizes.put("materialTextures", renderer.getBindlessTexturesCount());
 
         return new Pair<>(source, meta);
     }
@@ -137,6 +138,18 @@ public class ShaderPreprocessor {
         meta.defaultRuntimeSizes.put(name, count);
     }
 
+    public void parseStructDefaultSize(ArrayList<SPPLexer.SPPToken> remove, SPPLexer lexer, ShaderMetadata meta) {
+        consume(remove, expectAfter(lexer, SPPLexer.TokenType.LPAREN));
+        int count = (int) consume(remove, expectAfter(lexer, SPPLexer.TokenType.NUM_LITERAL)).value;
+        consume(remove, expectAfter(lexer, SPPLexer.TokenType.LITERAL)); // comma
+        String structName = (String) consume(remove, expectAfter(lexer, SPPLexer.TokenType.LITERAL)).value;
+        structName = structName.replace("\"", "");
+        consume(remove, expectAfter(lexer, SPPLexer.TokenType.RPAREN));
+        expectAfter(lexer, SPPLexer.TokenType.LITERAL);
+        String name = (String) expectAfter(lexer, SPPLexer.TokenType.LITERAL).value;
+        meta.defaultRuntimeSizes.put(structName + "." + name, count);
+    }
+
     private Replacement parseInclude(SPPLexer lexer, ArrayList<SPPLexer.SPPToken> remove, ShaderMetadata meta, Set<Identifier> includeStack) throws IOException {
         consume(remove, expectAfter(lexer, SPPLexer.TokenType.LPAREN));
 
@@ -185,6 +198,7 @@ public class ShaderPreprocessor {
             token = lexer.nextToken();
             if (token.type == SPPLexer.TokenType.HASHTAG) {
                 SPPLexer.SPPToken command = lexer.nextToken();
+
                 parseCommand(remove, lexer, meta, command, token);
             }
         } while (token.type != SPPLexer.TokenType.RBRACE);
@@ -196,7 +210,8 @@ public class ShaderPreprocessor {
         MULTI_WRITE("MultipleWrites", instance::parseMultiWrite),
         STATIC("Static", instance::parseStatic),
         INCLUDE("include", null),
-        DEFAULT_SIZE("DefaultSize", instance::parseDefaultSize);
+        DEFAULT_SIZE("DefaultSize", instance::parseDefaultSize),
+        STRUCT_DEFAULT_SIZE("StructDefaultSize", instance::parseStructDefaultSize);
 
 
         public final String name;

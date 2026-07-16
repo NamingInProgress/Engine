@@ -17,10 +17,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -294,5 +291,10 @@ public class Utils {
             if (o == null) return true;
         }
         return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> emptyImmList() {
+        return (List<T>) Collections.EMPTY_LIST;
     }
 }

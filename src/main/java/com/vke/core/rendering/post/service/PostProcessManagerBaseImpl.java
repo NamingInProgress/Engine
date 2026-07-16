@@ -3,6 +3,7 @@ package com.vke.core.rendering.post.service;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
+import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
@@ -65,7 +66,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
                     class SimpleProvider implements PostEffectProvider {
                         @Override
                         public PostProcessEffect buildEffect(RenderSystem sys, RenderPassInstance renderPass) {
-                            return new SimplePostProcessEffect(sys, renderPass, pipelineHandle);
+                            return new SimplePostProcessEffect(identifier, sys, renderPass, pipelineHandle);
                         }
                     }
 
@@ -74,13 +75,13 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
                 } else if ("custom-stage".equals(stageNode.getNodeName())) {
                     String clasName = stageNode.getString("class");
                     Class<? extends PostProcessEffect> effectClass = (Class<? extends PostProcessEffect>) Class.forName(clasName);
-                    Constructor<? extends PostProcessEffect> constructor = effectClass.getDeclaredConstructor(RenderSystem.class, RenderPassInstance.class);
+                    Constructor<? extends PostProcessEffect> constructor = effectClass.getDeclaredConstructor(Identifier.class, RenderSystem.class, RenderPassInstance.class);
 
                     class CustomProvider implements PostEffectProvider {
                         @Override
                         public PostProcessEffect buildEffect(RenderSystem sys, RenderPassInstance renderPass) {
                             try {
-                                return constructor.newInstance(sys, renderPass);
+                                return constructor.newInstance(identifier, sys, renderPass);
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                                 engine.throwException(e, "Making new custom post effect: " + identifier);
                                 throw new Unreachable();

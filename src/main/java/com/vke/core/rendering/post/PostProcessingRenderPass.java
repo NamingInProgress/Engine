@@ -11,14 +11,16 @@ import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.post.service.PostProcessManager;
 import com.vke.core.services2.Services;
+import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class PostProcessingRenderPass extends RenderPass {
-
-    private final List<PostProcessEffect> effects;
+        private final List<PostProcessEffect> effects;
     private VertexConsumer<FullscreenQuadVertex> fsqc;
 
     public PostProcessingRenderPass(RenderSystem renderSystem, RenderPassInstance instance, List<Identifier> stages) {
@@ -51,26 +53,40 @@ public class PostProcessingRenderPass extends RenderPass {
         Texture colorCopy = instance.getDynamicColorOutputTexture("output", "outputCopy");
         Texture input = instance.getInputTexture("input");
 
-        for (int i = 0; i < effects.size(); i++) {
+        List<Identifier> toSkip = context.getPostDisabledStages();
+        if (toSkip == null) toSkip = Utils.emptyImmList();
+
+        int runs = 0;
+        for (PostProcessEffect effect : effects) {
+            if (toSkip.contains(effect.identifier)) continue;
+
             colorCopy.useInShader();
 
-            PostProcessEffect effect = effects.get(i);
             cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
                     new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{0.2f, 0.3f, 0.3f, 1.0f})
             ), null));
 
-            effect.draw(cmd, context, fsqc, i == 0 ? input : colorCopy);
+            effect.draw(cmd, context, fsqc, runs == 0 ? input : colorCopy);
 
             cmd.endRendering();
 
             var temp = colorCopy;
             colorCopy = color;
             color = temp;
+            runs++;
         }
 
-        if (effects.size() % 2 == 0) {
-            cmd.copyImageToImage(colorCopy, color, 0, 0, 0, 0);
+        if (runs % 2 == 0) {
+            cmd.copyImageToImage(runs == 0 ? input : colorCopy, color, 0, 0, 0, 0);
         }
+    }
+
+    public static void disableStages(GraphContext context, String... strings) {
+        context.setPostDisabledStages(Arrays.stream(strings).map(context::id).toList());
+    }
+
+    public static void disableStages(GraphContext context, Identifier... idents) {
+        context.setPostDisabledStages(Arrays.stream(idents).toList());
     }
 
 }

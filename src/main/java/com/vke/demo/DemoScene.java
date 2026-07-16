@@ -18,11 +18,14 @@ import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
+import com.vke.core.rendering.post.PostProcessEffect;
+import com.vke.core.rendering.post.PostProcessingRenderPass;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -107,6 +110,7 @@ public class DemoScene extends Scene {
                 .scale(scale, scale, scale)
                 .rotateY(time * speed);
         context.put("localMat", model);
+        PostProcessingRenderPass.disableStages(context, "blur", "invert_colors", "idk_something");
     }
 
     @Override

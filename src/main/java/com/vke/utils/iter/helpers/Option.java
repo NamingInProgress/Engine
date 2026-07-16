@@ -5,6 +5,7 @@ import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -169,6 +170,7 @@ public class Option<T> {
         if (clazz == double.class || clazz == Double.class) return (T) (Double) 0d;
         if (clazz == char.class || clazz == Character.class) return (T) (Character) '\0';
         if (clazz == boolean.class || clazz == Boolean.class) return (T) (Boolean) false;
+        if (clazz == List.class) return (T) Collections.EMPTY_LIST;
         if (clazz == String.class) return (T) "";
         return null;
     }

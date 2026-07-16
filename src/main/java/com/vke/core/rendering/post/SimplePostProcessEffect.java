@@ -10,6 +10,7 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.CISRes
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
@@ -18,8 +19,8 @@ public class SimplePostProcessEffect extends PostProcessEffect {
     protected RenderPipeline pipeline;
     protected CISResource u_ColorTex;
 
-    public SimplePostProcessEffect(RenderSystem renderSystem, RenderPassInstance instance, AssetHandle<? extends RenderPipeline> pipelineHandle) {
-        super(renderSystem, instance);
+    public SimplePostProcessEffect(Identifier identifier, RenderSystem renderSystem, RenderPassInstance instance, AssetHandle<? extends RenderPipeline> pipelineHandle) {
+        super(identifier, renderSystem, instance);
         this.pipelineHandle = pipelineHandle;
     }
 

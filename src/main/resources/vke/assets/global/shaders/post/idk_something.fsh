@@ -6,7 +6,7 @@ layout (location = 0) out vec4 FragColor;
 
 #include("vke:assets/global/shaders/vke_sets.gdef")
 
-layout (set = 2, binding = 0) uniform sampler2D u_ColorTex;
+layout (set = 3, binding = 0) uniform sampler2D u_ColorTex;
 
 void main() {
     vec2 uv = outUV;
