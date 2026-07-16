@@ -17,6 +17,7 @@
         <stages>
             <stage name="vke:blur"/>
             <stage name="vke:invert_colors"/>
+            <stage name="vke:idk_something" />
         </stages>
     </render-pass>
 </render-graph>

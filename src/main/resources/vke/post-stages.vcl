@@ -10,4 +10,8 @@
         <name>invert_colors</name>
         <pipeline>invert_colors.pipeline.json</pipeline>
     </simple-stage>
+    <simple-stage>
+        <name>idk_something</name>
+        <pipeline>idk_something.pipeline.json</pipeline>
+    </simple-stage>
 </stages>
