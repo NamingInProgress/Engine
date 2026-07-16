@@ -7,6 +7,10 @@ import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.core.input.PressableState;
+import com.vke.core.input.keyboard.Key;
+import com.vke.core.input.keyboard.KeyboardInput;
+import com.vke.core.input.service.InputManager;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.scene.Scene;
@@ -14,10 +18,13 @@ import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
 
@@ -29,6 +36,8 @@ public class DemoScene extends Scene {
 
     private static final long START = System.nanoTime();
     private RenderGraph graph;
+
+    private PressableState esc, t;
 
     @Override
     public void onLoad() {
@@ -63,11 +72,29 @@ public class DemoScene extends Scene {
         CameraController controller = new FreecamController(context);
         camera.setController(controller);
 
+        InputManager input = context.service(Services.INPUT_MANAGER);
+
+        KeyboardInput keyboard = input.keyboard();
+        t = keyboard.key(Key.T);
+        esc = keyboard.key(Key.ESCAPE);
+
         camera.use();
     }
 
+    private boolean lockedCursor = true;
+
     @Override
     public void onPrepareRendering(GraphContext context) {
+        if (esc.isPressed()) this.context.getEngine().getWindow().requestClose();
+        if (t.wasJustPressed()) {
+            lockedCursor = !lockedCursor;
+            if (lockedCursor) {
+                glfwSetInputMode(getRenderSystem().windowHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            } else {
+                getRenderSystem().getEngine().getWindow().disableCursor();
+            }
+        }
+
         Matrix4f model = new Matrix4f();
 
         float time = (System.nanoTime() / 1_000_000_000.0f);

@@ -8,6 +8,7 @@ import com.vke.core.Context;
 import com.vke.core.rendering.graph.def.RenderGraphDefinition;
 import com.vke.core.rendering.graph.def.RenderPassDefinition;
 import com.vke.api.window.Window;
+import com.vke.core.window.callbacks.FramebufferCallbacks;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -40,15 +41,18 @@ public class RenderGraph {
                 throw new RuntimeException(e);
             }
         }
+
+        FramebufferCallbacks.resize(this::updateWindowSize);
     }
 
     public void onLoad() {
         this.passes.forEach(pass -> pass.executor.onLoad());
     }
 
-    public void updateWindowSize(Window.Size size) {
-        this.windowWidth = size.width();
-        this.windowHeight = size.height();
+    public void updateWindowSize(int width, int height) {
+        this.windowWidth =
+                width;
+        this.windowHeight = height;
     }
 
     public Texture getDynamicColorOutputTexture(Texture template, String newName) {

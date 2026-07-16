@@ -11,13 +11,11 @@ layout (set = 2, binding = 0) uniform sampler2D u_ColorTex;
 void main() {
     vec2 uv = outUV;
 
-    float wave =
-    sin(uv.y * 20.0 + frameData.time * 3.0)
-    + sin(uv.x * 15.0 - frameData.time * 2.0);
+    float wave = sin(uv.y * 20.0 + frameData.time * 3.0) + sin(uv.x * 15.0 - frameData.time * 2.0);
 
     uv += 0.015 * vec2(
-    sin(wave + frameData.time),
-    cos(wave + frameData.time)
+        sin(wave + frameData.time),
+        cos(wave + frameData.time)
     );
 
     vec4 color = texture(u_ColorTex, vec2(uv.x, 1 - uv.y));

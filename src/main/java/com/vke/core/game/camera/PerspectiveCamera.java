@@ -7,6 +7,7 @@ import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
+import com.vke.core.window.callbacks.FramebufferCallbacks;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -37,6 +38,7 @@ public class PerspectiveCamera implements Camera {
         this.renderSystem = context.<Renderer>service(Services.RENDERER).renderSystem();
         this.remakeViewMatrix();
         onWindowChange(context.getEngine().getWindow());
+        FramebufferCallbacks.resize((w, h) -> onWindowChange(context.getEngine().getWindow()));
     }
 
     @Override

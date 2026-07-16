@@ -89,7 +89,7 @@ public class VulkanShader implements Shader {
     @Override
     public void free() {
         if (!hasBeenFreed) {
-            VK14.vkDestroyShaderModule(ctx.device().vkLogicalDevice(), handle, null);
+             VK14.vkDestroyShaderModule(ctx.device().vkLogicalDevice(), handle, null);
         }
         hasBeenFreed = true;
     }

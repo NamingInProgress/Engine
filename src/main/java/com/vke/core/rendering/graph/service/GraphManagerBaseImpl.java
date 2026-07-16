@@ -34,7 +34,7 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
     }
 
     public void onWindowResize(Window.Size newSize) {
-        graphs.values().forEach((g) -> g.updateWindowSize(newSize));
+        graphs.values().forEach((g) -> g.updateWindowSize(newSize.width(), newSize.height()));
     }
 
     @Override
