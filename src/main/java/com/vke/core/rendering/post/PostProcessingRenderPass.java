@@ -50,9 +50,10 @@ public class PostProcessingRenderPass extends RenderPass {
         Texture color = instance.getOutputTexture("output");
         Texture colorCopy = instance.getDynamicColorOutputTexture("output", "outputCopy");
         Texture input = instance.getInputTexture("input");
-        colorCopy.useInShader();
 
         for (int i = 0; i < effects.size(); i++) {
+            colorCopy.useInShader();
+
             PostProcessEffect effect = effects.get(i);
             cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
                     new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{0.2f, 0.3f, 0.3f, 1.0f})
@@ -68,29 +69,8 @@ public class PostProcessingRenderPass extends RenderPass {
         }
 
         if (effects.size() % 2 == 0) {
-            colorCopy.useAsSrc();
-            color.useAsDst();
             cmd.copyImageToImage(colorCopy, color, 0, 0, 0, 0);
         }
-    }
-
-    public enum PostStage {
-        SSAO("ssao"),
-        BLUR("blur");
-
-        public final String tagName;
-
-        PostStage(String tagName) {
-            this.tagName = tagName;
-        }
-
-        public static PostStage fromString(String string) {
-            for (PostStage value : values()) {
-                if (value.tagName.equalsIgnoreCase(string)) return value;
-            }
-            throw new IllegalArgumentException("Could not find post stage for name: " + string);
-        }
-
     }
 
 }

@@ -212,16 +212,6 @@ public class VulkanTexture implements Texture {
         transition(ctx.getCurrentCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
     }
 
-    @Override
-    public void useAsSrc() {
-        transition(ctx.getCurrentCommandBuffer(), ImageState.TRANSFER_SRC);
-    }
-
-    @Override
-    public void useAsDst() {
-        transition(ctx.getCurrentCommandBuffer(), ImageState.TRANSFER_DST);
-    }
-
     public long getHandle() {
         return handle;
     }

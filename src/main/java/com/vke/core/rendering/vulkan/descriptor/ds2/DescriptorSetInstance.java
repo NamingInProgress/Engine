@@ -33,7 +33,7 @@ public class DescriptorSetInstance implements Disposable {
     private final DynamicDescriptorAllocator dynAlloc;
 
     private final LinkedList<DescriptorSet> readySets = new LinkedList<>();
-    private final ArrayList<DescriptorSet> usedSets = new ArrayList<>();
+    private final ArrayList<UsedSet> usedSets = new ArrayList<>();
 
     private DescriptorSet overrideNextSet;
 
@@ -66,7 +66,7 @@ public class DescriptorSetInstance implements Disposable {
             var temp = overrideNextSet;
 
             if (resetOverride) {
-                usedSets.add(overrideNextSet);
+                usedSets.add(new UsedSet(overrideNextSet, fc.framesInFlight()));
                 overrideNextSet = null;
             }
 
@@ -85,7 +85,16 @@ public class DescriptorSetInstance implements Disposable {
     }
 
     public void onNewFrame() {
-        this.readySets.addAll(this.usedSets);
+        usedSets.removeIf((usedSet) -> {
+            usedSet.framesLeft--;
+
+            if (usedSet.framesLeft == 0) {
+                this.readySets.add(usedSet.set);
+                return true;
+            }
+            return false;
+        });
+
         this.usedSets.clear();
     }
 
@@ -136,6 +145,16 @@ public class DescriptorSetInstance implements Disposable {
         return layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC
                 ? device.capabilities().minUboAlign
                 : device.capabilities().minSSBOAlign;
+    }
+
+    public static class UsedSet {
+        public final DescriptorSet set;
+        public int framesLeft;
+
+        public UsedSet(DescriptorSet set, int framesLeft) {
+            this.set = set;
+            this.framesLeft = framesLeft;
+        }
     }
 
 }

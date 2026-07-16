@@ -4,6 +4,7 @@ import com.vke.api.rendering.abstraction.renderer.IntBitEnum;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.utils.VKUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
@@ -34,6 +35,11 @@ public class VulkanShader implements Shader {
                 ctx.throwException(new IllegalStateException("Failed to create shader module!"), "SHADER_INIT");
             }
             this.handle = pShaderModule.get(0);
+
+            if (ctx.getEngine().isDebugMode()) {
+                VKUtils.setDebugName(ctx.device().getLogicalDevice(), "Shader Module#" + id, handle, VK14.VK_OBJECT_TYPE_SHADER_MODULE);
+            }
+
         }
 
         this.type = type;

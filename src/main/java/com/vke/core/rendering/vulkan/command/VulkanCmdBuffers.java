@@ -343,6 +343,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VulkanTexture vkSrc = (VulkanTexture) src;
             VulkanTexture vkDst = (VulkanTexture) dst;
+            vkSrc.transition(this, ImageState.TRANSFER_SRC);
+            vkDst.transition(this, ImageState.TRANSFER_DST);
             VkImageBlit2.Buffer region = VkImageBlit2.calloc(1, stack);
 
             region.get(0)

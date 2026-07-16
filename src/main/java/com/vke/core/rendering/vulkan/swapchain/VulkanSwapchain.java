@@ -10,10 +10,12 @@ import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
+import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
+import com.vke.core.rendering.vulkan.utils.VKUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -98,7 +100,8 @@ public class VulkanSwapchain implements Swapchain {
                 .imageColorSpace(pickedFormat.colorSpace())
                 .imageExtent(extent2D)
                 .imageArrayLayers(1)
-                .imageUsage(VK14.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                .imageUsage(new ImageUsage(ImageUsage.Bits.COLOR_ATTACHMENT_BIT, ImageUsage.Bits.TRANSFER_DST_BIT, ImageUsage.Bits.SAMPLED_BIT)
+                        .getVkHandle())
                 .preTransform(capabilities.currentTransform())
                 .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
                 .presentMode(presentMode)
@@ -164,6 +167,10 @@ public class VulkanSwapchain implements Swapchain {
                             .usage(ImageUsage.of(getCreateInfo(stack).imageUsage()))
                             .build(),
                     new ImageAspect(ImageAspect.Bits.COLOR));
+
+            if (ctx.getEngine().isDebugMode()) {
+                VKUtils.setDebugName(ctx.device().getLogicalDevice(), "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+            }
 
             this.colorImages.add(image);
         }

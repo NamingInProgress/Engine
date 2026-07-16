@@ -34,7 +34,11 @@ public class SimplePostProcessEffect extends PostProcessEffect {
         onInitEffect();
     }
 
-    protected void onInitEffect() {}
+    protected void onInitEffect() {
+        System.out.println("Init for pipeline: " + pipelineHandle.getMeta().getAssetName());
+        System.out.println("Pipeline Object: " + pipeline);
+        System.out.println("With Handle: " + u_ColorTex);
+    }
 
     @Override
     public void draw(CommandBuffer cmd, GraphContext ctx, VertexConsumer<FullscreenQuadVertex> vc, Texture colorInput) {
@@ -52,6 +56,7 @@ public class SimplePostProcessEffect extends PostProcessEffect {
     }
 
     protected void setupUniforms(Texture colorInput) {
+        u_ColorTex.nextWrite();
         u_ColorTex.set(colorInput, Samplers.LINEAR);
     }
 }
