@@ -44,7 +44,7 @@ public abstract class Scene implements Disposable {
     public void onLoad() throws Exception {};
 
     public void onPrepareRendering(GraphContext context) {};
-    public void onRenderPassFininished(RenderPassInstance prevPass, GraphContext context) {};
+    public void onRenderPassFinished(RenderPassInstance prevPass, GraphContext context) {};
 
     public void onUnload() throws Exception {};
 

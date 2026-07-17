@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-
+        
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -37,6 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
@@ -93,10 +94,13 @@
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            html.classList.remove('sidebar-visible');
-            html.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
@@ -113,7 +117,7 @@
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                <div id="menu-bar-hover-placeholder"></div>
+                                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -147,7 +151,12 @@
 
                 <div id="search-wrapper" class="hidden">
                     <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
                     </form>
                     <div id="searchresults-outer" class="searchresults-outer hidden">
                         <div id="searchresults-header" class="searchresults-header"></div>
@@ -380,6 +389,40 @@ Missing required field "name"!
 
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vcl-files"><a class="header" href="#vcl-files">VCL files</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rendering-architecture"><a class="header" href="#rendering-architecture">Rendering Architecture</a></h1>
+<h2 id="graphics-api-abstraction"><a class="header" href="#graphics-api-abstraction">Graphics API abstraction</a></h2>
+<p>The renderer is abstracted into 4 distinct parts like so:</p>
+<pre><code>User API (High Level) - User facing api.
+↓
+Low Level - Low level data management.
+↓
+API Abstraction Layer - Abstraction over common backend objects.
+↓
+Implementation Level - Backed specific, communicates via the interfaces provided by the API Abtraction layer.
+</code></pre>
+<p>The common developer will mostly interact with the User API layer, which exposes interfaces like <code>VertexConsumer</code>, <code>StaticMesh</code> and classes like <code>ShapeRenderer</code> to
+ease communication through the deeper api levels.</p>
+<p>The low level layer is the layer that handles managing engine data via classes like <code>TextureManager</code>, <code>FrameDataManager</code> and <code>MaterialManager</code> (this doesnt exist yet lol)
+these, interfaces handle uploading the actual textures, commonly used frame data and materials to the textures at the correct time. They are abstracted because they might be
+backed specific.</p>
+<p>The API abstraction layer handles resource creation, submitting commands. The average user should not have to interface with these classes at all. This layer provides abstractions
+over classes like <code>RenderDevice</code>, <code>Renderer</code>, <code>CommandBuffers</code> etc. They allow for drop-in replacements of the engine's included Vulkan Renderer.</p>
+<p>The implementation level, this level is <strong>backend specific</strong>, and therefore should not be used in most cases. Interfacing with this layer in objects like the <code>Scene</code>
+will prevent the possibility of using a different rendering API. If a different rendering API is used and the user accesses class from a different implementation this <strong>will</strong> cause crashes.
+This layer is only for people with significant experience who want to implement their own rendering backed.</p>
+<h2 id="render-loop"><a class="header" href="#render-loop">Render loop</a></h2>
+<pre><code>Window
+↓
+Renderer
+↓
+Render Graph Manager
+↓
+Render Passes
+↓
+Draw Calls
+</code></pre>
+<p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
+via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
 
                     </main>
 
@@ -437,6 +480,7 @@ Missing required field "name"!
             window.setTimeout(window.print, 100);
         });
         </script>
+
 
     </div>
     </body>

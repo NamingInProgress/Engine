@@ -4,10 +4,8 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.scene.Scene;
-import com.vke.core.Context;
 import com.vke.core.rendering.graph.def.RenderGraphDefinition;
 import com.vke.core.rendering.graph.def.RenderPassDefinition;
-import com.vke.api.window.Window;
 import com.vke.core.window.callbacks.FramebufferCallbacks;
 
 import java.lang.reflect.InvocationTargetException;
@@ -117,7 +115,7 @@ public class RenderGraph {
         CommandBuffer cmd = sys.getCurrentCommandBuffer();
         for (RenderPassInstance pass : passes) {
             pass.execute(cmd, context);
-            runner.onRenderPassFininished(pass, context);
+            runner.onRenderPassFinished(pass, context);
         }
         endRendering();
     }

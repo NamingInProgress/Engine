@@ -207,7 +207,7 @@ public class ShaderPreprocessor {
 
     public enum PreprocessorCommand {
 
-        MULTI_WRITE("MultipleWrites", instance::parseMultiWrite),
+        MULTI_WRITE_HINT("MultiWriteHint", instance::parseMultiWrite),
         STATIC("Static", instance::parseStatic),
         INCLUDE("include", null),
         DEFAULT_SIZE("DefaultSize", instance::parseDefaultSize),
