@@ -13,7 +13,7 @@ public class VulkanFrameDataManager implements FrameDataManager {
     private final EngineDescriptorSetsManager mgr;
 
     private final BufferHandle handle;
-    private final MultiWriteFieldHandle cameraHandle;
+    private final FieldHandle cameraHandle;
     private final FieldHandle time;
 
     private Camera camera;

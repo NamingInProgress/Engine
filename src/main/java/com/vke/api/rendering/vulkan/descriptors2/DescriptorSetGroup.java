@@ -120,7 +120,7 @@ public class DescriptorSetGroup {
         BindingLayout layout = binding.layout;
 
         if (res.finalType() instanceof ArrayType) {
-            if (binding.multiWrite != 0) {
+            if (binding.multiWrite != 1) {
                 return new MultiWriteFieldArrayHandle(this, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent,
                         res.offset(), (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
             }
@@ -129,7 +129,7 @@ public class DescriptorSetGroup {
                     (int) ((ArrayType) res.finalType()).stride, ((ArrayType) res.finalType()).elementCount);
         }
 
-        if (binding.multiWrite != 0) {
+        if (binding.multiWrite != 1) {
             return new MultiWriteFieldHandle(this, set.set(), layout.binding, layout.type, (MultiWriteBufferHandle) parent, res.offset(), (int) res.finalType().size);
         }
 

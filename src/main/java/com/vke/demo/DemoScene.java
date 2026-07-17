@@ -110,7 +110,7 @@ public class DemoScene extends Scene {
                 .scale(scale, scale, scale)
                 .rotateY(time * speed);
         context.put("localMat", model);
-        PostProcessingRenderPass.disableStages(context, "blur", "invert_colors", "idk_something");
+        PostProcessingRenderPass.disableStages(context, "blur", "invert_colors");
     }
 
     @Override
