@@ -1,5 +1,6 @@
 package com.vke.core.file.deflate.decompress.block;
 
+import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.DeflateBlock;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.deflate.decompress.lz77.Lz77Decoder;
@@ -71,24 +72,51 @@ public class DynamicBlock implements DeflateBlock {
 
             bitStream.setOrdering(BitOrdering.LSB_FIRST);
             if (sym <= 15) {
-                llAndDistLengths[index++] = sym;
+                llAndDistLengths[index] = sym;
+                //System.out.println("[DEC] literal length: " + sym + " -> position " + index);
+
+                index++;
                 prev = sym;
+
             } else if (sym == 16) {
-                int repeat = 3 + bitStream.readBits(2);
-                for (int i = 0; i < repeat && index < total ; i++) {
+                int extra = bitStream.readBits(2);
+                int repeat = 3 + extra;
+
+                //System.out.println("[DEC] repeat prev=" + prev +
+                //        " extra=" + BitUtils.intToBinStr(extra) +
+                //        " repeat=" + repeat +
+                //        " starting at index=" + index);
+
+                for (int i = 0; i < repeat && index < total; i++) {
                     llAndDistLengths[index++] = prev;
                 }
+
             } else if (sym == 17) {
-                int repeat = 3 + bitStream.readBits(3);
+                int extra = bitStream.readBits(3);
+                int repeat = 3 + extra;
+
+                //System.out.println("[DEC] repeat ZERO(17) extra=" + extra +
+                //        " repeat=" + repeat +
+                //        " starting at index=" + index);
+
                 for (int i = 0; i < repeat && index < total; i++) {
                     llAndDistLengths[index++] = 0;
                 }
+
                 prev = 0;
+
             } else if (sym == 18) {
-                int repeat = 11 + bitStream.readBits(7);
+                int extra = bitStream.readBits(7);
+                int repeat = 11 + extra;
+
+                //System.out.println("[DEC] repeat ZERO(18) extra=" + extra +
+                //        " repeat=" + repeat +
+                //        " starting at index=" + index);
+
                 for (int i = 0; i < repeat && index < total; i++) {
                     llAndDistLengths[index++] = 0;
                 }
+
                 prev = 0;
             }
         }
@@ -103,9 +131,6 @@ public class DynamicBlock implements DeflateBlock {
         //System.out.println("LIT LEN CODES:");
         //System.out.println(Arrays.toString(literalLengthCodeLengths));
 
-        //System.out.println("DIST CODES:");
-        //System.out.println(Arrays.toString(distanceCodeLengths));
-
         boolean allZero = true;
         for (int len : distanceCodeLengths) {
             if (len != 0) {
@@ -113,9 +138,13 @@ public class DynamicBlock implements DeflateBlock {
                 break;
             }
         }
+        allZero = HDIST == 1;
         if (allZero) {
             distanceCodeLengths = new int[] { 1 };
         }
+
+        //System.out.println("DIST CODES:");
+        //System.out.println(Arrays.toString(distanceCodeLengths));
 
         //System.out.println("===== HEADER DONE =====");
 

@@ -1,0 +1,153 @@
+package com.vke.demo;
+
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.game.camera.Camera;
+import com.vke.api.game.camera.CameraController;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
+import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.core.input.PressableState;
+import com.vke.core.input.keyboard.Key;
+import com.vke.core.input.keyboard.KeyboardInput;
+import com.vke.core.input.service.InputManager;
+import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderGraph;
+import com.vke.api.scene.Scene;
+import com.vke.core.Context;
+import com.vke.core.game.camera.PerspectiveCamera;
+import com.vke.core.game.camera.controllers.FreecamController;
+import com.vke.core.mesh.MeshPrefab;
+import com.vke.core.rendering.post.PostProcessEffect;
+import com.vke.core.rendering.post.PostProcessingRenderPass;
+import com.vke.core.services2.Services;
+import com.vke.utils.io.Identifier;
+import org.joml.Matrix4f;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.lwjgl.glfw.GLFW.*;
+
+public class DemoScene extends Scene {
+
+    public DemoScene(Identifier name, Context context) {
+        super(name, context);
+    }
+
+    public static StaticMesh MESH;
+
+    private static final long START = System.nanoTime();
+    private RenderGraph graph;
+
+    private PressableState esc, t;
+
+    @Override
+    public void onLoad() {
+        MeshPrefab prefab;
+        try {
+            prefab = R.meshprefabs.get("bear.obj").acquire(context);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        float[] color = {1, 1, 1, 1};
+
+        RenderResourceManager resManager = getRenderer().resourceManager();
+
+        MESH = resManager.uploadStaticMesh(
+                prefab.toMesh((prefabVertex -> new CubeVertexFormat(
+                        prefabVertex.position()[0],
+                        prefabVertex.position()[1],
+                        prefabVertex.position()[2],
+
+                        prefabVertex.normal()[0],
+                        prefabVertex.normal()[1],
+                        prefabVertex.normal()[2],
+
+                        color[0],
+                        color[1],
+                        color[2],
+                        color[3])))
+        );
+
+        Camera camera = new PerspectiveCamera(context, 90);
+        CameraController controller = new FreecamController(context);
+        camera.setController(controller);
+
+        InputManager input = context.service(Services.INPUT_MANAGER);
+
+        KeyboardInput keyboard = input.keyboard();
+        t = keyboard.key(Key.T);
+        esc = keyboard.key(Key.ESCAPE);
+
+        camera.use();
+    }
+
+    private boolean lockedCursor = true;
+
+    @Override
+    public void onPrepareRendering(GraphContext context) {
+        if (esc.isPressed()) this.context.getEngine().getWindow().requestClose();
+        if (t.wasJustPressed()) {
+            lockedCursor = !lockedCursor;
+            if (lockedCursor) {
+                glfwSetInputMode(getRenderSystem().windowHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            } else {
+                getRenderSystem().getEngine().getWindow().disableCursor();
+            }
+        }
+
+        Matrix4f model = new Matrix4f();
+
+        float time = (System.nanoTime() / 1_000_000_000.0f);
+
+        float speed = 1.0f;
+
+        float scale = 10;
+        model.identity()
+                .translate(0, 0.0f, -550)
+                .scale(scale, scale, scale)
+                .rotateY(time * speed);
+        context.put("localMat", model);
+        PostProcessingRenderPass.disableStages(context, "blur", "invert_colors");
+    }
+
+    @Override
+    public void free() {
+
+    }
+
+    public static class CubeVertexFormat implements Vertex {
+
+        private float x, y, z;
+        private float nx, ny, nz;
+        private float r, g, b, a;
+
+        public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.nx = nx;
+            this.ny = ny;
+            this.nz = nz;
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        @Override
+        public int getByteStride() {
+            return 4*10;
+        }
+
+        @Override
+        public void putSelf(VertexEncoder buf) {
+            buf.float3(x, y, z);
+            buf.float3(nx, ny, nz);
+            buf.float4(r, g, b, a);
+        }
+    }
+
+}

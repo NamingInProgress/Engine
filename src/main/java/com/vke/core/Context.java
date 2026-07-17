@@ -2,10 +2,10 @@ package com.vke.core;
 
 import com.vke.api.app.Namespace;
 import com.vke.api.logger.Logger;
-import com.vke.api.services.ScopedService;
-import com.vke.api.services.Service;
+import com.vke.api.services2.ScopedServiceImpl;
+import com.vke.api.services2.Service;
+import com.vke.api.services2.ServiceAPI;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.ServiceManager;
 import com.vke.utils.Infallible;
 import com.vke.utils.io.Identifier;
 import org.jetbrains.annotations.NotNull;
@@ -41,10 +41,12 @@ public abstract class Context implements Namespace {
     public abstract VKEngine getEngine();
 
     @SuppressWarnings("unchecked")
-    public <T> T service(String key) {
+    public <T extends Service> T service(String key) {
         Service service = getEngine().getServiceManager().service(key);
-        if (service instanceof ScopedService<?> scopedService) {
-            return (T) scopedService.getScoped(this);
+        if (service instanceof ServiceAPI api) {
+            if (api.getImplementation() instanceof ScopedServiceImpl<?> scopedService) {
+                return (T) scopedService.getScoped(this);
+            }
         }
         return (T) service;
     }

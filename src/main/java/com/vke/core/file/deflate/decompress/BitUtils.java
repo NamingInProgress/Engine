@@ -11,6 +11,10 @@ public class BitUtils {
         return (provided & wanted) == wanted;
     }
 
+    public static boolean bitSet(int bits, int position) {
+        return (((1 << position) & bits) >>> position) == 1;
+    }
+
     /**
      * Truncates the given integer so that `left` and `right` boundaries are respected
      * @param v
@@ -69,5 +73,18 @@ public class BitUtils {
             int bit = ((1 << j) & i) >>> j;
             builder.append(bit);
         }
+    }
+
+    public static String byteToBinStr(byte b, boolean reverse) {
+        int i = b;
+        if (reverse) {
+            i = Integer.reverse(i) >>> (32 - 8);
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int j = 8 - 1; j >= 0; j--) {
+            int bit = ((1 << j) & i) >>> j;
+            builder.append(bit);
+        }
+        return builder.toString();
     }
 }

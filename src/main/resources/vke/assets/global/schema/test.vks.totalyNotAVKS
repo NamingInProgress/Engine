@@ -1,0 +1,17 @@
+#TYPEDEFS
+myTestType: [number[0,..]];
+
+#SCHEMA
+name: string!;
+contents: [{
+    !id: string;
+    !type[contents.type]: string["mesh", "texture", "tex"];
+    extra: myTestType | {
+        idk: string;
+    } | string["none", "default"];
+    !something: switch[contents.type, {
+        ="mesh": object;
+        ="texture" | ="tex": number;
+        default: object
+    }];
+}]

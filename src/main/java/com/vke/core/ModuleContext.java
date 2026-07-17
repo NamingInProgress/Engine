@@ -5,7 +5,7 @@ import com.vke.api.app.Namespace;
 public class ModuleContext extends Context {
     private final VKEngine engine;
 
-    ModuleContext(Namespace namespace, VKEngine engine) {
+    public ModuleContext(Namespace namespace, VKEngine engine) {
         super(namespace);
         this.engine = engine;
     }

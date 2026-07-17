@@ -4,6 +4,7 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
+import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
@@ -22,7 +23,7 @@ public class PlainConfigConverter implements AssetConverter {
     }
 
     @Override
-    public AssetData performConversion(StageElement input, ConfigArrayNode arguments) throws AssetException {
+    public AssetData performConversion(Context context, StageElement input, ConfigArrayNode arguments) throws AssetException {
         try {
             String str = input.getAssetData().getDataAs();
             String filename = FileUtils.getFileName(input.getPath());

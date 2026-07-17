@@ -1,0 +1,17 @@
+{
+    typedefs: {
+        simple-stage: {
+            !name: string;
+            !pipeline: string;
+            uniforms: [uniform];
+        };
+        uniform: {
+            !name: string;
+            !type: string;
+            default: string | number;
+        };
+    };
+    schema: {
+        stages: [simple-stage];
+    };
+}

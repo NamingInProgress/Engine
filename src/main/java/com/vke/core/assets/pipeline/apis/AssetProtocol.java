@@ -1,11 +1,14 @@
 package com.vke.core.assets.pipeline.apis;
 
 import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.AssetMeta;
 import com.vke.api.assets.Protocols;
 import com.vke.core.Context;
-import com.vke.core.assets.handles.utils.ProtocolAssetHandle;
-import com.vke.core.assets.handles.utils.ResolvedAssetHandle;
+import com.vke.core.assets.handles.ProtocolAssetHandle;
+import com.vke.core.assets.handles.ResolvedAssetHandle;
 import com.vke.core.assets.AssetException;
+import com.vke.core.assets.meta.FullAssetMeta;
+import com.vke.core.assets.meta.AssetMetaAttributes;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
@@ -22,11 +25,15 @@ public interface AssetProtocol<T> {
     Loader getLoader();
     boolean applies(AssetData a, AssetData b, Op op);
 
-    default AssetHandle<T> createAssetHandle(AssetData data, @Nullable Loader loader) {
+    default AssetHandle<T> createAssetHandle(StageElement element, Identifier assetName, @Nullable Loader loader) {
+        AssetData data = element.getAssetData();
+        AssetMetaAttributes vkeMeta = element.getMetaAttributes();
         if (data.isResolved()) {
-            return new ResolvedAssetHandle<>(getProtocolName(), data.getDataAs());
+            AssetMeta meta = new FullAssetMeta(getProtocolName(), assetName, vkeMeta);
+            return new ResolvedAssetHandle<>(data.getDataAs(), meta);
         } else {
-            return new ProtocolAssetHandle<>(Protocols.PLAIN, data.getUnresolved(), loader != null ? loader : getLoader());
+            AssetMeta meta = new FullAssetMeta(Protocols.PLAIN, assetName, vkeMeta);
+            return new ProtocolAssetHandle<>(data.getUnresolved(), loader != null ? loader : getLoader(), meta);
         }
     }
 

@@ -1,11 +1,16 @@
 package com.vke.core.file.utils;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.core.file.deflate.compress.DeflatingDevice;
+import com.vke.core.file.deflate.decompress.InflatingDevice;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
+import com.vke.core.file.deflate.exc.InflatingException;
+import com.vke.utils.iter.Iter;
+import com.vke.utils.iter.helpers.Option;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -83,6 +88,50 @@ public class DataUtils {
         stream.write(value & 0xFF);
     }
 
+    public static long readU64LittleEndian(InputStream stream) throws IOException {
+        long a = stream.read();
+        long b = stream.read();
+        long c = stream.read();
+        long d = stream.read();
+        long e = stream.read();
+        long f = stream.read();
+        long g = stream.read();
+        long h = stream.read();
+
+        if (a == -1 || b == -1 || c == -1 || d == -1 || e == -1 || f == -1 || g == -1 || h == -1) return -1;
+
+        return (h << 56)
+                | (g << 48)
+                | (f << 40)
+                | (e << 32)
+                | (d << 24)
+                | (c << 16)
+                | (b << 8)
+                | a;
+    }
+
+    public static long readU64BigEndian(InputStream stream) throws IOException {
+        long a = stream.read();
+        long b = stream.read();
+        long c = stream.read();
+        long d = stream.read();
+        long e = stream.read();
+        long f = stream.read();
+        long g = stream.read();
+        long h = stream.read();
+
+        if (a == -1 || b == -1 || c == -1 || d == -1 || e == -1 || f == -1 || g == -1 || h == -1) return -1;
+
+        return (a << 56)
+                | (b << 48)
+                | (c << 40)
+                | (d << 32)
+                | (e << 24)
+                | (f << 16)
+                | (g << 8)
+                | h;
+    }
+
     public static long unsign32(int size) {
         return Integer.toUnsignedLong(size);
     }
@@ -135,5 +184,65 @@ public class DataUtils {
             if (current == -1) throw new EOFException();
         }
         return new String(bytes.toArray(), StandardCharsets.UTF_8);
+    }
+
+    public static Iter<String> readerLines(Reader reader) {
+        return new LineReader(reader);
+    }
+
+    public static int[] readU8N(int n, InputStream stream) throws IOException {
+        int[] out = new int[n];
+        for (int i = 0; i < n; i++) {
+            out[i] = readU8(stream);
+        }
+        return out;
+    }
+
+    public static void transferBytes(InputStream inputStream, OutputStream outputStream, int n) throws IOException {
+        byte[] read = inputStream.readNBytes(n);
+        if (read.length != n) throw new EOFException();
+        outputStream.write(read);
+    }
+
+    private static class LineReader implements Iter<String> {
+        private final BufferedReader reader;
+
+        private LineReader(Reader reader) {
+            this.reader = new BufferedReader(reader);
+        }
+
+        @Override
+        public @NotNull Option<String> next() {
+            try {
+                String line = reader.readLine();
+                return line == null ? Option.none() : Option.some(line);
+            } catch (IOException e) {
+                return Option.none();
+            }
+        }
+    }
+
+    public static byte[] deflate(byte[] data) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 2);
+        DeflatingDevice device = new DeflatingDevice(out, 64);
+        device.deflateNext(data);
+        device.finish();
+        return out.toByteArray();
+    }
+
+    public static byte[] inflate(byte[] deflated) throws InflatingException {
+        return inflate(deflated, null);
+    }
+
+    public static byte[] inflate(byte[] deflated, @Nullable Checksum32 checksum) throws InflatingException {
+        ByteArrayInputStream in = new ByteArrayInputStream(deflated);
+        InflatingDevice device = new InflatingDevice(checksum, in);
+        ByteArrayList out = new ByteArrayList(deflated.length);
+        while (!device.isFinished()) {
+            int n = device.inflateNextByte();
+            if (n == -1) break;
+            out.add((byte) n);
+        }
+        return out.toArray();
     }
 }

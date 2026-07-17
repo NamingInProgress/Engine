@@ -1,8 +1,8 @@
 package com.vke.core;
 
 import com.vke.api.app.Version;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.createInfos.VulkanCreateInfo;
+import com.vke.core.services2.Services;
+import com.vke.core.rendering.vulkan.createInfos.VulkanCreateInfo;
 import com.vke.api.window.WindowCreateInfo;
 
 public class EngineCreateInfo {
@@ -17,6 +17,7 @@ public class EngineCreateInfo {
 
     public final String engine = "VkEngine";
     public final Version engineVersion = Version.V1_0_0;
+    public int fps = 60;
 
     public EngineCreateInfo(String applicationName, String namespace) {
         this.windowCreateInfo = new WindowCreateInfo();
@@ -29,7 +30,7 @@ public class EngineCreateInfo {
     }
 
     public enum RendererType {
-        Vulkan(Services.VULKAN_RENDERER);
+        Vulkan(Services.RENDERER);
 
         public final String serviceName;
 

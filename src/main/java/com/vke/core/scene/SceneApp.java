@@ -1,0 +1,44 @@
+package com.vke.core.scene;
+
+import com.vke.api.app.App;
+import com.vke.api.framable.CompoundFramable;
+import com.vke.api.framable.Framable;
+import com.vke.api.scene.SceneException;
+import com.vke.core.VKEngine;
+import com.vke.core.scene.service.SceneManager;
+import com.vke.core.scene.service.SceneManagerScopedImpl;
+import com.vke.core.services2.Services;
+import com.vke.utils.iter.Iter;
+
+public class SceneApp extends App {
+    private VKEngine engine;
+    private final String sceneName;
+
+    public SceneApp(String sceneName) {
+        this.sceneName = sceneName;
+    }
+
+    @Override
+    public void onInit(VKEngine engine) {
+        this.engine = engine;
+        SceneManager sceneManager = engine.service(Services.SCENE_MANAGER);
+        sceneManager.initialize();
+        engine.service(Services.RENDERER);
+
+        try {
+            sceneManager.setScene(sceneName);
+        } catch (SceneException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getName() {
+        return sceneName;
+    }
+
+    @Override
+    public void free() {
+
+    }
+}

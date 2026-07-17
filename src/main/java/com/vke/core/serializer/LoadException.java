@@ -1,6 +1,6 @@
 package com.vke.core.serializer;
 
-public class LoadException extends RuntimeException {
+public class LoadException extends Exception {
     public LoadException(String message) {
         super(message);
     }

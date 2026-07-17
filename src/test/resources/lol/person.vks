@@ -1,0 +1,11 @@
+{
+    schema: {
+        !name: string;
+        !age: number;
+        jobs: [{
+            !name: string;
+            from: number[0, 24];
+            to: number[0, 24];
+        }];
+    };
+}

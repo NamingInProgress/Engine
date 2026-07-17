@@ -27,6 +27,11 @@ public class AlignedByteBuffer {
     }
 
 
+    public void u8(byte b) {
+        buf.put(b);
+        align(1);
+    }
+
     // -------------------- Scalars --------------------
     public void float1(float v) {
         buf.putFloat(v);
@@ -79,13 +84,28 @@ public class AlignedByteBuffer {
         align(8);
     }
 
+    public void int2(int x, int y) {
+        buf.putInt(x).putInt(y);
+        align(8);
+    }
+
     public void int3(Vector3i v) {
         buf.putInt(v.x).putInt(v.y).putInt(v.z);
         align(12);
     }
 
+    public void int3(int x, int y, int z) {
+        buf.putInt(x).putInt(y).putInt(z);
+        align(12);
+    }
+
     public void int4(Vector4i v) {
         buf.putInt(v.x).putInt(v.y).putInt(v.z).putInt(v.w);
+        align(16);
+    }
+
+    public void int4(int x, int y, int z, int w) {
+        buf.putInt(x).putInt(y).putInt(z).putInt(w);
         align(16);
     }
 
@@ -121,4 +141,23 @@ public class AlignedByteBuffer {
         align(64);
     }
 
+    public void double1(double v) {
+        buf.putDouble(v);
+        align(8);
+    }
+
+    public void double2(double v1, double v2) {
+        buf.putDouble(v1).putDouble(v2);
+        align(16);
+    }
+
+    public void double3(double v1, double v2, double v3) {
+        buf.putDouble(v1).putDouble(v2).putDouble(v3);
+        align(24);
+    }
+
+    public void double4(double v1, double v2, double v3, double v4) {
+        buf.putDouble(v1).putDouble(v2).putDouble(v3).putDouble(v4);
+        align(32);
+    }
 }

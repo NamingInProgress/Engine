@@ -1,5 +1,6 @@
 package com.vke.core.profiler;
 
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.console.PrettyTable;
 
@@ -9,18 +10,18 @@ import java.util.List;
 
 public abstract class ProfilerPrinter<T extends ProfilerPrinter.Settings> {
 
-    protected final Profiler.Node master;
+    protected final ProfilerImpl.Node master;
     protected final Type type;
     protected final T settings;
 
-    public ProfilerPrinter(Profiler.Node n, Type type, T settings) {
+    public ProfilerPrinter(ProfilerImpl.Node n, Type type, T settings) {
         this.settings = settings == null ? Settings.fromTypeDefault(type) : settings;
         this.type = type;
         this.master = n;
     }
 
     @SuppressWarnings("unchecked")
-    public static <U extends Settings> ProfilerPrinter<U> getPrinter(Profiler.Node n, Type type, U settings) {
+    public static <U extends Settings> ProfilerPrinter<U> getPrinter(ProfilerImpl.Node n, Type type, U settings) {
         return (ProfilerPrinter<U>) switch (type) {
             case TREE -> new TreePrinter(n, (TreeSettings) settings);
             case TABLE -> new TablePrinter(n, (TableSettings) settings);
@@ -39,8 +40,8 @@ public abstract class ProfilerPrinter<T extends ProfilerPrinter.Settings> {
 
     @FunctionalInterface
     public interface ProfilerFormatter {
-        String internalFormat(Profiler.Node node);
-        default String format(Profiler.Node node) { return internalFormat(node) + AnsiColors.DEFAULT; }
+        String internalFormat(ProfilerImpl.Node node);
+        default String format(ProfilerImpl.Node node) { return internalFormat(node) + AnsiColors.DEFAULT; }
     }
 
     public enum Type implements IntEnum {

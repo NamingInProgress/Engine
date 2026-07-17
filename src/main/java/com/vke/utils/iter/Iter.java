@@ -1,12 +1,14 @@
 package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.tuple.Pair;
 import com.vke.utils.functionalinterface.FaultyRunnable;
 import com.vke.utils.iter.helpers.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -44,6 +46,10 @@ public interface Iter<T> extends Iterable<T> {
 
     default <U> Iter<U> map(Function<T, U> f) {
         return new Map<>(this, f);
+    }
+
+    default <U, E extends Throwable> Iter<U> faultyMap(FaultyFunction<T, U, E> f) {
+        return new FaultyMap<>(this, f);
     }
 
     default Iter<T> filter(Predicate<T> p) {
@@ -193,5 +199,63 @@ public interface Iter<T> extends Iterable<T> {
 
     default Stream<T> intoStream() {
         return StreamSupport.stream(new SpliteratorAdapter<>(this), false);
+    }
+
+    default Option<T> first(Predicate<T> test) {
+        return filter(test).next();
+    }
+
+    default T maxBy(Comparator<T> comparator) {
+        T max = next().unwrapOrNull();
+        if (max == null) return null;
+        for (T e : this) {
+            if (comparator.compare(max, e) > 0) {
+                max = e;
+            }
+        }
+        return max;
+    }
+
+    default int maxInt() {
+        return (int) maxBy(Comparator.comparingInt(i -> (int) i));
+    }
+
+    default long maxLong() {
+        return (long) maxBy(Comparator.comparingLong(i -> (long) i));
+    }
+
+    default float maxFloat() {
+        return (float) maxBy(Comparator.comparingDouble(i -> (double) (float) i));
+    }
+
+    default double maxDouble() {
+        return (double) maxBy(Comparator.comparingDouble(i -> (double) i));
+    }
+
+    default T minBy(Comparator<T> comparator) {
+        T min = next().unwrapOrNull();
+        if (min == null) return null;
+        for (T e : this) {
+            if (comparator.compare(min, e) < 0) {
+                min = e;
+            }
+        }
+        return min;
+    }
+
+    default int minInt() {
+        return (int) minBy(Comparator.comparingInt(i -> (int) i));
+    }
+
+    default long minLong() {
+        return (long) minBy(Comparator.comparingLong(i -> (long) i));
+    }
+
+    default float minFloat() {
+        return (float) minBy(Comparator.comparingDouble(i -> (double) (float) i));
+    }
+
+    default double minDouble() {
+        return (double) minBy(Comparator.comparingDouble(i -> (double) i));
     }
 }

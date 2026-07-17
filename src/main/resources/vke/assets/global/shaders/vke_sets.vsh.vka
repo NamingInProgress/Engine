@@ -1,0 +1,12 @@
+<asset-meta>
+    <pipeline-config>
+        <tag>vke_sets</tag>
+        <override-name>vke_sets</override-name>
+        <phase-filter>
+            <allow-phase>critical-vk</allow-phase>
+        </phase-filter>
+    </pipeline-config>
+    <asset-config>
+
+    </asset-config>
+</asset-meta>

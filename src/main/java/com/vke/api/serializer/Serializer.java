@@ -3,6 +3,7 @@ package com.vke.api.serializer;
 import com.vke.api.registry.VKERegistries;
 import com.vke.core.serializer.LoadException;
 import com.vke.core.serializer.SaveException;
+import com.vke.core.serializer.impl.defaults.ArraySerializer;
 import com.vke.core.serializer.impl.defaults.DefaultSerializers;
 
 import static com.vke.core.VKEngine.REGISTRATE;
@@ -17,7 +18,13 @@ public interface Serializer<T> {
         REGISTRATE.serializer(clazz, serializer);
     }
 
+    @SuppressWarnings("unchecked")
     static <U> Serializer<U> findSerializer(Class<U> clazz) {
+        Class<?> componentType = clazz.getComponentType();
+        if (clazz.isArray()) {
+            return (Serializer<U>) new ArraySerializer<>(componentType);
+        }
+
         Serializer<?> s = VKERegistries.SERIALIZERS.get(clazz);
         if (s != null) {
             return (Serializer<U>) s;

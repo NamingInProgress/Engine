@@ -2,7 +2,6 @@ package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 
 import java.io.IOException;
 
@@ -13,13 +12,13 @@ public abstract class CacheOnceAssetHandle<T> implements AssetHandle<T> {
         this.cached = cached;
     }
 
-    public T acquire(Context engine) throws IOException {
+    public T acquire(Context context) throws IOException {
         if (isAvailable()) return cached;
-        cached = prepareCache(engine);
+        cached = prepareCache(context);
         return cached;
     }
 
-    protected abstract T prepareCache(Context engine) throws IOException;
+    protected abstract T prepareCache(Context context) throws IOException;
 
     @Override
     public T get() {

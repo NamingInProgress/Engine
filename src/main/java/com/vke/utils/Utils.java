@@ -1,5 +1,8 @@
 package com.vke.utils;
 
+import com.vke.api.assets.AssetHandle;
+import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.utils.OSType;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
@@ -14,18 +17,16 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.function.Consumer;
+import java.util.*;
 import java.util.function.Function;
-import java.util.stream.BaseStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class Utils {
+    public static final boolean TRUE = Iter.of(1, 2, 3).any(x -> System.currentTimeMillis() > x);
+    public static final boolean FALSE = Iter.of(TRUE).map(x -> !x).all(Boolean::booleanValue);
+    public static AssetHandle<Texture> MISSING_TEXTURE = R.textures.get("missing.png");
+
     public static boolean intsContain(int[] arr, int query) {
         for (int t : arr) {
             if (t == query) {
@@ -83,6 +84,21 @@ public class Utils {
         try (stream) {
             return stream.readAllBytes();
         }
+    }
+
+    public static String arrayToString(Integer[] array) {
+        StringBuilder sb = new StringBuilder("[ ");
+
+        for (int i = 0; i < array.length; i++) {
+            sb.append(array[i]);
+
+            if (i < array.length - 1) {
+                sb.append(", ");
+            }
+        }
+
+        sb.append(" ]");
+        return sb.toString();
     }
 
     public static OSType getOSType() {
@@ -191,6 +207,21 @@ public class Utils {
                 .all(p -> Character.toLowerCase(p.v1) == Character.toLowerCase(p.v2));
     }
 
+    public static boolean seqEqualsAnyIgnoreCase(CharSequence a, CharSequence... bs) {
+        return Iter.of(bs)
+                .any(b -> seqEqualsIgnoreCase(a, b));
+    }
+
+    public static boolean seqContainsAnyIgnoreCase(CharSequence source, CharSequence... seqs) {
+        int searchSize = Iter.of(seqs).map(CharSequence::length).maxInt();
+        int maxI = source.length() - searchSize;
+        for (int i = 0; i <= maxI; i++) {
+            CharSequence sub = source.subSequence(i, i + searchSize);
+            if (seqEqualsAnyIgnoreCase(sub, seqs)) return true;
+        }
+        return false;
+    }
+
     public static boolean seqContainsIgnoreCase(CharSequence source, CharSequence seq) {
         int searchSize = seq.length();
         int maxI = source.length() - searchSize;
@@ -232,12 +263,38 @@ public class Utils {
             try {
                 @SuppressWarnings("unchecked")
                 Class<F> fClass = (Class<F>) ignore.getClass().getComponentType();
-                Constructor<F> c = fClass.getDeclaredConstructor(Throwable.class);
-                throw c.newInstance(e);
+                Constructor<F> c = fClass.getDeclaredConstructor(String.class);
+                F f = c.newInstance(e.getMessage());
+                f.setStackTrace(e.getStackTrace());
+                throw f;
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(e);
             }
         }
+    }
+
+    /// MUST BE A POWER OF 2!!!
+    public static long alignUpFast(long value, long alignment) {
+        return (value + alignment - 1) & -alignment;
+    }
+
+    public static int xmin(int... values) {
+        if (values == null || values.length == 0) return 0;
+        int m = values[0];
+        for (int v : values) if (v < m) m = v;
+        return m;
+    }
+
+    public static boolean anyNull(Object... values) {
+        for(Object o : values) {
+            if (o == null) return true;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> emptyImmList() {
+        return (List<T>) Collections.EMPTY_LIST;
     }
 }

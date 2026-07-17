@@ -1,5 +1,6 @@
 package com.vke.api.rendering.vulkan.buffer;
 
+import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -7,13 +8,26 @@ import java.nio.ByteOrder;
 
 public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
+    protected VertexEncoder encoder;
 
     public VertexBuffer(int baseVertexCount) {
         super(baseVertexCount);
+        this.encoder = generateEncoder();
+    }
+
+    public VertexBuffer(int baseVertexCount, boolean allocNow) {
+        super(baseVertexCount, allocNow);
+        this.encoder = generateEncoder();
     }
 
     public VertexBuffer(int baseVertexCount, int stride) {
         super(baseVertexCount, stride);
+        this.encoder = generateEncoder();
+    }
+
+    public VertexBuffer(int baseVertexCount, int stride, boolean allocNow) {
+        super(baseVertexCount, allocNow, stride);
+        this.encoder = generateEncoder();
     }
 
     @Override
@@ -26,6 +40,7 @@ public abstract class VertexBuffer extends CpuBuffer {
     protected void realloc(int newSize) {
         data = MemoryUtil.memRealloc(data, newSize);
         data.order(ByteOrder.LITTLE_ENDIAN);
+        this.encoder = generateEncoder();
     }
 
     public ByteBuffer getData() {
@@ -33,6 +48,8 @@ public abstract class VertexBuffer extends CpuBuffer {
     }
 
     public abstract int getByteStride();
+
+    protected abstract VertexEncoder generateEncoder();
 
     public static int t_float() {
         return 4;

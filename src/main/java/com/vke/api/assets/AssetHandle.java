@@ -1,16 +1,12 @@
 package com.vke.api.assets;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.core.assets.handles.tex.PngTextureHandle;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
 public interface AssetHandle<T> extends Disposable {
-    String getProtocol();
-
     /**
      * Returns the underlying asset and obtains it from the AssetManager if it's not available.
      * @return the asset
@@ -24,4 +20,6 @@ public interface AssetHandle<T> extends Disposable {
     T get();
 
     boolean isAvailable();
+
+    AssetMeta getMeta();
 }

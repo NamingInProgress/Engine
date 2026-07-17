@@ -1,22 +1,43 @@
 package com.vke.api.rendering.vulkan.descriptors.bindings;
 
-import com.vke.api.rendering.abstraction.enums.buffer.PackingType;
+import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
-import com.vke.core.vulkan.buffers.MappedBuffer;
+import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
+import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 
 public class BufferBinding extends DescriptorBinding {
 
-    public final MappedBuffer buffer;
+    public MappedBuffer buffer;
     public final long singleBufferSize; // ALIGNED, Used for buffer arrays, if the descriptor is not an array set it to the size of the buffer
     public final int numBuffers;
     public final PackingType packingType;
+    public int multiWrite;
 
-    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType) {
+    public BufferBinding(BindingLayout layout, MappedBuffer buffer, long singleBufferSize, PackingType packingType, int multiWrite) {
         super(layout);
         this.buffer = buffer;
         this.singleBufferSize = singleBufferSize;
         this.numBuffers = (int) (buffer.getSize() / singleBufferSize);
         this.packingType = packingType;
+        this.multiWrite = multiWrite;
     }
 
+    public void nextFrame() {
+        if (this.buffer instanceof MappedGpuRingBuffer buf)
+            buf.rotate();
+    }
+
+    public void grow() {
+        layout.multiWrite *= 2;
+        multiWrite *= 2;
+    }
+
+    public void setBuffer(MappedBuffer newBuffer) {
+        this.buffer = newBuffer;
+    }
+
+    @Override
+    public void free() {
+        this.buffer.free();
+    }
 }

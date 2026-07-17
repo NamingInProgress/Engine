@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VkeSchema implements ConfigSchema {
-    private static ConfigSchema masterSchema;
+    private static final ConfigSchema masterSchema;
     static {
         try {
             Identifier ident = Identifier.of("schema/master/master.schema.json");

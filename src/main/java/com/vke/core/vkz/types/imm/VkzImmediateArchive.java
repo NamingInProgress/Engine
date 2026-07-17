@@ -142,7 +142,11 @@ public class VkzImmediateArchive implements Serializer<VkzImmediateArchive>, Vkz
         this.progressListener = progressListener;
 
         VkzObjSaver saver = new VkzObjSaver(stream);
-        Serializer.saveObject(this, saver, false);
+        try {
+            Serializer.saveObject(this, saver, false);
+        } catch (SaveException e) {
+            throw new IOException(e);
+        }
         saver.flush();
         saver.close();
     }

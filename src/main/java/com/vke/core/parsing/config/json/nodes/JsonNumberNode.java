@@ -10,7 +10,7 @@ public class JsonNumberNode implements ConfigNumberNode {
     }
 
     @Override
-    public float getValue() {
+    public float getNumber() {
         return value;
     }
 

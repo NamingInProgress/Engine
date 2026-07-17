@@ -5,6 +5,7 @@ import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public final class Bundle implements Disposable {
         for (Map.Entry<Identifier, AssetHandle<?>> entry : assets.entrySet()) {
             AssetHandle<?> handle = entry.getValue();
             Identifier name = entry.getKey();
-            BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount);
+            BundleLoadingCallback.AssetDesc desc = new BundleLoadingCallback.AssetDesc(name, position++, amount, handle);
 
             try {
                 if (callback != null) {
@@ -65,6 +66,12 @@ public final class Bundle implements Disposable {
 
     @Override
     public void free() {
-        assets.values().forEach(Disposable::free);
+        for (AssetHandle<?> assetHandle : assets.values()) {
+            assetHandle.free();
+        }
+    }
+
+    public Iter<AssetHandle<?>> allAssets() {
+        return Iter.of(assets.values());
     }
 }

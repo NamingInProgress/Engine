@@ -1,9 +1,11 @@
 package com.vke.utils.iter.helpers;
 
 import com.vke.utils.Utils;
+import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,11 +76,26 @@ public class Option<T> {
         return value;
     }
 
+    public T unwrapOrThrow(Throwable t) throws Throwable {
+        if (isNone()) throw t;
+        return value;
+    }
+
+    public T unwrapOrPanic(Throwable t) {
+        if (isNone()) throw new RuntimeException(t);
+        return value;
+    }
+
     public void inspect(Consumer<T> inspector) {
         if (isSome()) inspector.accept(value);
     }
 
     public <R> Option<R> map(Function<T, R> mapper) {
+        if (isNone()) return Option.none();
+        return Option.some(mapper.apply(value));
+    }
+
+    public <R, E extends Throwable> Option<R> faultyMap(FaultyFunction<T, R, E> mapper) throws E {
         if (isNone()) return Option.none();
         return Option.some(mapper.apply(value));
     }
@@ -153,7 +170,13 @@ public class Option<T> {
         if (clazz == double.class || clazz == Double.class) return (T) (Double) 0d;
         if (clazz == char.class || clazz == Character.class) return (T) (Character) '\0';
         if (clazz == boolean.class || clazz == Boolean.class) return (T) (Boolean) false;
+        if (clazz == List.class) return (T) Collections.EMPTY_LIST;
         if (clazz == String.class) return (T) "";
+        return null;
+    }
+
+    public T unwrapOrNull() {
+        if (isSome()) return value;
         return null;
     }
 }

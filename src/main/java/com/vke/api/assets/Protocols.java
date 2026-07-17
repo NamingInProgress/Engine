@@ -9,7 +9,24 @@ public class Protocols {
     public static final String PRIMITIVE_NUMBER = "number";
     public static final String PLAIN = "plain";
     public static final String CONFIG = "config";
+    public static final String VKS = "vks";
     public static final String LANG = "lang";
+
     public static final String PNG = "png";
+    public static final String TEXTURE = "texture";
+
     public static final String RENDERPIPELINE = "pipeline";
+    public static final String COMPUTE_PIPELINE = "compute_pipeline";
+
+    public static final String VERTSHADER = "vertshader";
+    public static final String FRAGSHADER = "fragshader";
+    public static final String COMPSHADER = "compshader";
+
+    public static final String OBJ = "obj";
+    public static final String MESHPREFAB = "meshprefab";
+
+    public static final String AUDIO_PRELOADED = "audio_pre";
+    public static final String AUDIO_STREAMING = "audio_stream";
+    public static final String WAV = "wav";
+    public static final String SCHEMA = "schema";
 }

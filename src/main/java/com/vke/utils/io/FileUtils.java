@@ -5,14 +5,16 @@ import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -73,72 +75,67 @@ public class FileUtils {
 
     public static Iter<WalkedFile> getRelativePaths(String folder, int maxDepth) {
         try {
-            URL url = ClassLoader.getSystemResource(folder);
-            if (url == null)
-                return Iter.of();
+            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(folder);
 
-            return switch (url.getProtocol()) {
-                case "file" -> listFromFileSystem(url, maxDepth);
-                case "jar"  -> listFromJar(url, maxDepth);
-                default     -> Iter.of();
-            };
+            if (!urls.hasMoreElements()) {
+                return Iter.of();
+            }
+
+            List<Iter<WalkedFile>> iters = new ArrayList<>();
+
+            while (urls.hasMoreElements()) {
+                URL url = urls.nextElement();
+                iters.add(walkUrlResources(url, maxDepth));
+            }
+
+            return Iter.of(iters).flatMap(it -> it);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static Iter<WalkedFile> listFromFileSystem(URL url, int maxDepth) throws IOException, URISyntaxException {
-        Path root = Paths.get(url.toURI());
+    private static Iter<WalkedFile> walkUrlResources(URL url, int maxDepth) throws URISyntaxException, IOException {
+        URI uri = url.toURI();
+        if ("jar".equals(uri.getScheme())) {
+            FileSystem fileSystem;
+            try {
+                fileSystem = FileSystems.getFileSystem(uri);
+            } catch (FileSystemNotFoundException e) {
+                fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            }
 
-        Stream<Path> stream = Files.walk(root, maxDepth);
-        return Iter.of(stream)
-                    .filter(p -> !p.equals(root))
-                    .map(p -> {
-                        String path = root.relativize(p).toString().replace('\\', '/');
-                        return new WalkedFile(path, Files.isRegularFile(p));
-                    })
-                    .finisher(stream::close);
-    }
+            String ssp = uri.getRawSchemeSpecificPart();
+            int separatorIdx = ssp.indexOf("!");
+            String internalPath = separatorIdx != -1 ? ssp.substring(separatorIdx + 1) : "/";
 
-    public static Iter<WalkedFile> listFromJar(URL url, int maxDepth) throws IOException {
-        String path = url.getPath();
-        String jarPath = path.substring(5, path.indexOf("!"));
-        String rootEntry = path.substring(path.indexOf("!") + 2);
-
-        if (!rootEntry.endsWith("/")) {
-            rootEntry += "/";
+            Path root = fileSystem.getPath(internalPath);
+            return processStream(root, maxDepth, fileSystem);
         }
 
-        JarFile jar = new JarFile(URLDecoder.decode(jarPath, StandardCharsets.UTF_8));
+        Path root = Paths.get(uri);
+        return processStream(root, maxDepth, null);
+    }
 
-        Enumeration<JarEntry> entries = jar.entries();
+    private static Iter<WalkedFile> processStream(Path root, int maxDepth, FileSystem closeableFs) throws IOException {
+        Stream<Path> stream = Files.walk(root, maxDepth);
 
-        String finalRootEntry = rootEntry;
-        return Iter.of(entries.asIterator())
-                .filterMap(jarEntry -> {
-                    String name = jarEntry.getName();
-
-                    if (!name.startsWith(finalRootEntry)) {
-                        return Option.none();
-                    }
-
-                    String relative = name.substring(finalRootEntry.length());
-
-                    if (relative.isEmpty()) {
-                        return Option.none();
-                    }
-
-                    int depth = relative.split("/").length;
-
-                    if (depth > maxDepth) {
-                        return Option.none();
-                    }
-
-                    return Option.some(
-                            new WalkedFile(relative, !jarEntry.isDirectory())
-                    );
+        return Iter.of(stream)
+                .filter(p -> !p.equals(root))
+                .map(p -> {
+                    String relativePath = root.relativize(p).toString().replace('\\', '/');
+                    return new WalkedFile(relativePath, Files.isRegularFile(p));
                 })
-                .faultyFinisher(jar::close);
+                .finisher(() -> {
+                    stream.close();
+                    if (closeableFs != null) {
+                        try {
+                            closeableFs.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
     }
 
     public static String getComponent(Path path, int index) {
@@ -146,6 +143,18 @@ public class FileUtils {
             return path.getName(index).toString();
         }
         return path.getName(path.getNameCount() + index - 1).toString();
+    }
+
+    public static String getSubpath(Path path, int startIdx) {
+        return FileUtils.toNormalPath(path.subpath(startIdx, path.getNameCount()).toString());
+    }
+
+    public static String toNormalPath(Path path) {
+        return path.toString().replace('\\', '/');
+    }
+
+    public static String toNormalPath(String path) {
+        return path.replace('\\', '/');
     }
 
     public record WalkedFile(String name, boolean isFile) {}

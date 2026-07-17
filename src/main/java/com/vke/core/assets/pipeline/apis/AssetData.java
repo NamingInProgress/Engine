@@ -1,7 +1,7 @@
 package com.vke.core.assets.pipeline.apis;
 
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.rendering.abstraction.pipeline.GraphicsPipeline;
+import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.core.assets.language.Language;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.utils.io.Identifier;
@@ -95,7 +95,7 @@ public class AssetData {
         return new AssetData(LANG, language);
     }
     
-    public static AssetData renderPipeline(GraphicsPipeline pl) {
+    public static AssetData renderPipeline(RenderPipeline pl) {
         return new AssetData(RENDERPIPELINE, pl);
     }
 }

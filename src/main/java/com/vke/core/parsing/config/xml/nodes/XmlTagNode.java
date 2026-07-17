@@ -4,7 +4,7 @@ import com.vke.api.parsing.config.node.*;
 
 import java.util.*;
 
-public class XmlTagNode implements NamedConfigObjectNode, ConfigArrayNode, WriteAttribNode {
+public class XmlTagNode implements NamedConfigObjectNode, ConfigArrayNode, WriteAttribNode, ConfigValueNode, ConfigNumberNode, ConfigBooleanNode {
     private final String name;
     private final HashMap<String, String> attributes;
     private final HashMap<String, XmlPseudoArrayNode> children;
@@ -16,6 +16,21 @@ public class XmlTagNode implements NamedConfigObjectNode, ConfigArrayNode, Write
         attributes = new HashMap<>();
         children = new HashMap<>();
         tmp = new ArrayList<>();
+    }
+
+    @Override
+    public float getNumber() {
+        return allValues[0].asNumber();
+    }
+
+    @Override
+    public String getValue() {
+        return allValues[0].asString();
+    }
+
+    @Override
+    public boolean getBoolean() {
+        return allValues[0].asBoolean();
     }
 
     @Override

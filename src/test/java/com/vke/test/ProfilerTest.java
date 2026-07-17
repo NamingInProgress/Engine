@@ -1,13 +1,13 @@
 package com.vke.test;
 
-import com.vke.core.profiler.Profiler;
+import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.profiler.ProfilerPrinter;
 import com.vke.utils.console.AnsiColors;
 
 public class ProfilerTest {
 
     public static void main(String[] args) {
-        Profiler profiler = new Profiler();
+        ProfilerImpl profiler = new ProfilerImpl(null);
         profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
         var s = new ProfilerPrinter.PieChartSettings();
         s.setDepth(2);

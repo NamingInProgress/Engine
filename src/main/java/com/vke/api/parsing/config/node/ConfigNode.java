@@ -70,18 +70,18 @@ public interface ConfigNode {
     default String asString() {
         return switch (this) {
             case ConfigValueNode valueNode -> valueNode.getValue();
-            case ConfigNumberNode valueNode -> String.valueOf(valueNode.getValue());
-            case ConfigBooleanNode valueNode -> String.valueOf(valueNode.getValue());
+            case ConfigNumberNode valueNode -> String.valueOf(valueNode.getNumber());
+            case ConfigBooleanNode valueNode -> String.valueOf(valueNode.getBoolean());
             default -> null;
         };
     }
     default float asNumber() {
-        if (this instanceof ConfigNumberNode valueNode) return valueNode.getValue();
+        if (this instanceof ConfigNumberNode valueNode) return valueNode.getNumber();
         return 0;
     }
 
     default boolean asBoolean() {
-        if (this instanceof ConfigBooleanNode valueNode) return valueNode.getValue();
+        if (this instanceof ConfigBooleanNode valueNode) return valueNode.getBoolean();
         return false;
     }
 

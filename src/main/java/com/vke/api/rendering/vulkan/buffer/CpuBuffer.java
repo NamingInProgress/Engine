@@ -3,7 +3,7 @@ package com.vke.api.rendering.vulkan.buffer;
 import com.vke.utils.io.Disposable;
 
 public abstract class CpuBuffer implements Disposable {
-    private static final double GROWTH_FAC = 1.61803398874989490252573887119069695472717285156250;
+    public static final double GROWTH_FAC = 1.61803398874989490252573887119069695472717285156250;
 
     public int elementCount;
     protected int capacity;

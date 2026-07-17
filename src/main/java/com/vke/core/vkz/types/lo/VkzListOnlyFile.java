@@ -13,10 +13,14 @@ public class VkzListOnlyFile implements VkzFileHandle {
     private final int length;
 
     public VkzListOnlyFile(int length, Loader loader) {
-        this.length = length;
-        name = Serializer.loadObject(VkzName.class, loader, false);
-        //skip data bytes
-        loader.loadRaw(length);
+        try {
+            this.length = length;
+            name = Serializer.loadObject(VkzName.class, loader, false);
+            //skip data bytes
+            loader.loadRaw(length);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

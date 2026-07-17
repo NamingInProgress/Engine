@@ -1,5 +1,6 @@
 package com.vke.core.ecs;
 
+<<<<<<< HEAD
 import com.carrotsearch.hppc.BitSet;
 import com.vke.core.ecs.query.ComponentQueryEntry;
 
@@ -18,4 +19,14 @@ public class Ecs {
     public long[] spawnEntities(int count, BitSet componentMask) {
 
     }
+=======
+public abstract class Ecs {
+    protected final EcsCreateInfo createInfo;
+
+    protected Ecs(EcsCreateInfo createInfo) {
+        this.createInfo = createInfo;
+    }
+
+    public abstract long[] spawnEntities(int amount, );
+>>>>>>> origin/ecs
 }

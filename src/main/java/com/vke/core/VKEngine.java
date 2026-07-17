@@ -2,26 +2,25 @@ package com.vke.core;
 
 import com.vke.api.app.App;
 import com.vke.api.app.Version;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.api.window.Window;
+import com.vke.core.framable.service.FramableManager;
+import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
-import com.vke.api.services.Service;
-import com.vke.api.services.ServiceCreateContext;
 import com.vke.core.event.events.lifetime.AppLifecycleEvents;
 import com.vke.core.logger.SOUT;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.services.ServiceManager;
-import com.vke.core.profiler.DummyProfiler;
-import com.vke.core.profiler.Profiler;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.services.Services;
-import com.vke.core.window.Window;
-import com.vke.utils.console.AnsiColors;
+import com.vke.core.profiler.service.Profiler;
+import com.vke.core.services2.ServiceManager;
+import com.vke.core.profiler.DummyProfilerImpl;
+import com.vke.core.services2.Services;
+import com.vke.core.window.service.WindowManager;
 import com.vke.utils.io.Identifier;
 import com.vke.api.app.Namespace;
 import com.vke.utils.iter.Iter;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
@@ -29,16 +28,20 @@ public class VKEngine extends Context {
     public static final String VKE_NAMESPACE = "vke";
     public static final VKERegistrate REGISTRATE = VKERegistries.get(VKE_NAMESPACE);
 
-    public static Profiler profiler;
+    public static Profiler PROFILER;
 
     private final Logger soutLogger;
 
     private final EngineCreateInfo createInfo;
     private final ServiceManager serviceManager;
 
-    private Window window;
     private App app;
     public EventBus EVENT_BUS;
+
+    private final FramableManager framableManager;
+    private final WindowManager windowManager;
+    private Renderer renderer;
+    private Window window;
 
     private final List<String> namespaces;
 
@@ -53,17 +56,24 @@ public class VKEngine extends Context {
         }};
         this.soutLogger = LoggerFactory.get(SOUT.TAG);
 
-        ServiceCreateContext scc = new ServiceCreateContext(this, createInfo);
-        this.serviceManager = new ServiceManager(scc);
+        this.serviceManager = new ServiceManager(this);
+        Services.init(serviceManager, this);
 
         SOUT.redirect(soutLogger);
 
-        profiler = new DummyProfiler();
+        PROFILER = new DummyProfilerImpl();
         EVENT_BUS = service(Services.EVENT_BUS);
+
+        framableManager = service(Services.FRAMABLE_MANAGER);
+        windowManager = service(Services.WINDOW_MANAGER);
+
+        registerSerializers();
     }
 
     public void start(App app) {
-        this.window = new Window(this, createInfo.windowCreateInfo);
+        framableManager.registerFramable(app);
+
+        this.window = windowManager.createWindow(createInfo.windowCreateInfo);
 
         this.app = app;
         AppLifecycleEvents.PreLoad event = new AppLifecycleEvents.PreLoad(app);
@@ -73,35 +83,12 @@ public class VKEngine extends Context {
         app.onInit(this);
         EVENT_BUS.fire(new AppLifecycleEvents.PostLoad(app));
 
-        VulkanRenderer renderer = service(Services.VULKAN_RENDERER);
+        //needs some basic intitialization done like window and assets
+        renderer = service(Services.RENDERER);
 
         this.window.show();
-        while (!GLFW.glfwWindowShouldClose(window.getHandle())) {
-            if (!window.isMinimized()) {
-                profiler.beginFrame();
-                profiler.begin("Render", AnsiColors.RED);
-                profiler.push();
-                profiler.begin("Frame Setup");
-                VulkanRenderer.FrameData bfd = renderer.startFrame();
-                profiler.end();
-                profiler.pop();
-                if (bfd != null) {
-                    profiler.begin("App Draw", AnsiColors.GREEN);
-                    app.onDraw(window, bfd);
-                    profiler.end();
-                    profiler.begin("Frame End");
-                    renderer.endFrame(bfd);
-                    profiler.end();
-                }
-                profiler.end();
-                profiler.endFrame();
-            }
 
-            GLFW.glfwPollEvents();
-        }
-
-        // TODO: Fix me
-        this.<VulkanRenderer>service(Services.VULKAN_RENDERER).getDevice().waitIdle();
+        renderer.beforeTerminate();
         free();
     }
 
@@ -111,7 +98,7 @@ public class VKEngine extends Context {
         EVENT_BUS.fire(new AppLifecycleEvents.PostFree(app));
 
         serviceManager.free();
-        window.close();
+        window.requestClose();
     }
 
     public Window getWindow() {
@@ -156,5 +143,17 @@ public class VKEngine extends Context {
 
     public Context createNewContext(String namespace) {
         return new ModuleContext(Namespace.of(namespace), this);
+    }
+
+    private void registerSerializers() {
+        MeshPrefab.registerSerializers();
+    }
+
+    public EngineCreateInfo getCreateInfo() {
+        return createInfo;
+    }
+
+    public void explode() {
+        throwException(new RuntimeException("boom!"), "java code");
     }
 }

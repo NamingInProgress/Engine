@@ -1,5 +1,6 @@
 package com.vke.api.parsing.config;
 
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;

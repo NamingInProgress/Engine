@@ -1,7 +1,7 @@
 package com.vke.api.parsing.config.node;
 
 public interface ConfigNumberNode extends ConfigNode {
-    float getValue();
+    float getNumber();
 
     @Override
     default Type getType() {

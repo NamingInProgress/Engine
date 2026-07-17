@@ -9,8 +9,6 @@ import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 
-import java.util.ArrayDeque;
-
 public class SchemaNumberType extends SchemaType {
     @JsonMarker("range")
     private Range range;
@@ -32,7 +30,7 @@ public class SchemaNumberType extends SchemaType {
     public void validate(ConfigNode node, SchemaValidationResult result, SchemaElementLocation path) {
         if (node instanceof ConfigNumberNode numberNode) {
             if (range != null) {
-                float val = numberNode.getValue();
+                float val = numberNode.getNumber();
                 range.validate(val, result, path);
             }
         } else {
@@ -55,8 +53,8 @@ public class SchemaNumberType extends SchemaType {
                 String msg = String.format("%f is smaller than minimum value %f!", val, min);
                 result.addError(new SchemaValidationResult.ValidationError(msg, path));
             }
-            if (max != null && max > val) {
-                String msg = String.format("%f is bigger than minimum value %f!", val, max);
+            if (max != null && val > max) {
+                String msg = String.format("%f is bigger than maximum value %f!", val, max);
                 result.addError(new SchemaValidationResult.ValidationError(msg, path));
             }
         }

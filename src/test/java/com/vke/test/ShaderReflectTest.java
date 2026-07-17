@@ -1,14 +1,13 @@
 package com.vke.test;
 
-import com.vke.api.rendering.abstraction.enums.ShaderType;
+import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.app.App;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.services.Services;
-import com.vke.core.vulkan.VulkanRenderer;
-import com.vke.core.vulkan.shader.ShaderCompiler;
-import com.vke.core.window.Window;
+import com.vke.core.services2.Services;
+import com.vke.core.rendering.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.shader.service.ShaderCompilerImpl;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -32,8 +31,8 @@ public class ShaderReflectTest {
         engine.start(new App() {
             @Override
             public void onInit(VKEngine engine) {
-                VulkanRenderer renderer = engine.service(Services.VULKAN_RENDERER);
-                ShaderCompiler sc = engine.service(Services.SHADER_COMPILER);
+                VulkanRenderer renderer = engine.service(Services.RENDERER);
+                ShaderCompilerImpl sc = engine.service(Services.SHADER_COMPILER);
 
                 byte[] bytes;
                 ByteBuffer spv;
@@ -141,7 +140,7 @@ public class ShaderReflectTest {
 
 
             @Override
-            public void onDraw(Window window, VulkanRenderer.FrameData fd) {
+            public void onDraw() {
 
             }
 
