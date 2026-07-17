@@ -10,5 +10,4 @@ public class PbrMetallicRoughnessMaterial {
     private AssetHandle<Texture> normalMap;
     private AssetHandle<Texture> specularMap;
     private AssetHandle<Texture> occlusionMap;
-
 }
