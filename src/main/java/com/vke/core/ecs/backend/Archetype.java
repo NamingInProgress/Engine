@@ -1,6 +1,8 @@
 package com.vke.core.ecs.backend;
 
-import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.vke.api.annotation.PotentiallyUnsafe;
+import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
@@ -8,17 +10,33 @@ import com.vke.core.ecs.component.mask.ComponentMask;
 import java.util.Arrays;
 
 public class Archetype {
+    private final static int MAX_COMPONENTS_FOR_SPARSE_ARRAY = 4096;
+
     private final ComponentMask mask;
-    //sorted!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! by id
-    private final Component[] components;
     private int[] owners;
     private int entryAmount;
 
-    public Archetype(ComponentMask mask) {
+    private final Component[] compArr;
+    private final int[] idxToId;
+    //JUST TEMPORARY REPLACE WITH MORE EFFICIENT IMMUTABLE MAP
+    private final IntObjectHashMap<Component> compMap;
+
+    public Archetype(ComponentMask mask, int usedComponents, ComponentRegistry registry) {
         this.mask = mask;
-        this.components = createComponents(mask);
         this.entryAmount = 0;
         this.owners = new int[0];
+
+        if (usedComponents > MAX_COMPONENTS_FOR_SPARSE_ARRAY) {
+            this.compArr = new Component[mask.componentCount()];
+            this.compMap = new IntObjectHashMap<>(usedComponents);
+            this.idxToId = new int[usedComponents];
+        } else {
+            this.compArr = new Component[usedComponents];
+            this.compMap = null;
+            this.idxToId = null;
+        }
+
+        createComponents(mask, registry);
     }
 
     public ComponentMask getMask() {
@@ -32,7 +50,7 @@ public class Archetype {
     public int[] spawnEntities(int amount, EntityInitializer initializer, EntityAllocator allocator) {
         int left = entryAmount;
         entryAmount += amount;
-        for (Component component : components) {
+        for (Component component : compArr) {
             component.makeRoom(entryAmount);
         }
 
@@ -51,39 +69,73 @@ public class Archetype {
     }
 
     public void destroyEntity(int index, EntityAllocator allocator) {
+        int movedEntity = removeAt(index, allocator);
+        allocator.freeEntityId(movedEntity);
+    }
+
+    public void dangleEntity(int index, EntityAllocator allocator) {
+        removeAt(index, allocator);
+    }
+
+    private int removeAt(int index, EntityAllocator allocator) {
         int lastIndex = --entryAmount;
-        int lastEntityId = owners[lastIndex];
+        int movedEntity = owners[lastIndex];
+
         if (index != lastIndex) {
-            for (Component component : components) {
-                component.swap(index, entryAmount);
+            for (Component component : compArr) {
+                component.swap(index, lastIndex);
             }
-            allocator.updateLocationIndex(lastEntityId, index);
-            owners[index] = lastEntityId;
+            allocator.updateLocationIndex(movedEntity, index);
+            owners[index] = movedEntity;
         }
-        allocator.freeEntityId(owners[index]);
+
+        return movedEntity;
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Component> T getComponentById(int id) {
-        int left = 0;
-        int right = components.length - 1;
-        int mid;
-        while (left <= right) {
-            mid = (left + right) >>> 1;
-            int midId = components[mid].getId();
-
-            if (midId < id) {
-                left = mid + 1;
-            } else if (midId > id) {
-                right = mid - 1;
-            } else {
-                return (T) components[mid];
-            }
-        }
-        return null;
+        if (compMap == null) return (T) compArr[id];
+        return (T) compMap.get(id);
     }
 
-    private static Component[] createComponents(ComponentMask mask) {
-        return null;
+
+    @SuppressWarnings("unchecked")
+    public <T extends Component> T getComponentByLocalIndex(int index) {
+        if (idxToId != null) return (T) compArr[idxToId[index]];
+        return (T) compArr[index];
+    }
+
+    public Component[] getComponents() {
+        return compArr;
+    }
+
+    private void createComponents(ComponentMask mask, ComponentRegistry registry) {
+        int[] ids = mask.getComponents();
+        if (compMap == null) {
+            for (int id : ids) {
+                compArr[id] = registry.getInstance(id);
+            }
+        } else {
+            for (int i = 0, idsLength = ids.length; i < idsLength; i++) {
+                int id = ids[i];
+                Component instance = registry.getInstance(id);
+                compMap.put(id, instance);
+                compArr[i] = instance;
+                idxToId[i] = id;
+            }
+        }
+    }
+
+    public int accomodateDangling(int entity) {
+        int newIdx = entryAmount++;
+        while (owners.length < entryAmount) {
+            int newSize = (int) (((double) owners.length) * CpuBuffer.GROWTH_FAC);
+            owners = Arrays.copyOf(owners, newSize);
+        }
+        for (Component component : compArr) {
+            component.makeRoom(entryAmount);
+        }
+        owners[newIdx] = entity;
+        return newIdx;
     }
 }

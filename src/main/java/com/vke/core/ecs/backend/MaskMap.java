@@ -1,15 +1,12 @@
 package com.vke.core.ecs.backend;
 
 import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.ecs.component.mask.U64ComponentMask;
-
-import java.util.function.Supplier;
 
 public class MaskMap {
     private static final int BASE_SLOTS = 64;
     private static final float LOAD_FAC = 0.75f;
 
-    private static final ComponentMask TOMBSTONE = new U64ComponentMask(0);
+    private static final ComponentMask TOMBSTONE = new ComponentMask(0);
 
     private int SLOTS;
     private int MASK;
@@ -19,7 +16,13 @@ public class MaskMap {
     private Archetype[] values;
     private int occupied;
 
-    public MaskMap() {
+    private final int arg_usedComponents;
+    private final ComponentRegistry arg_registry;
+
+    public MaskMap(int arg_usedComponents, ComponentRegistry arg_registry) {
+        this.arg_usedComponents = arg_usedComponents;
+        this.arg_registry = arg_registry;
+
         this.SLOTS = BASE_SLOTS;
         this.MASK = BASE_SLOTS - 1;
 
@@ -153,7 +156,7 @@ public class MaskMap {
         }
     }
 
-    public Archetype findOrMake(ComponentMask key, Supplier<Archetype> creator) {
+    public Archetype findOrMake(ComponentMask key) {
         //fast path: if nothing in here, nothing to look for!
         long hash = hashToSlot(key.fastHash());
         int slot = ((int) hash) & MASK;
@@ -161,7 +164,7 @@ public class MaskMap {
         ComponentMask marker = keys[slot];
         //there wasnt any value
         if (marker == null) {
-            Archetype value = creator.get();
+            Archetype value = new Archetype(key, arg_usedComponents, arg_registry);
             insert1(slot, hash, key, value);
             return value;
         }
@@ -174,7 +177,7 @@ public class MaskMap {
             marker = keys[slot];
             //when the linear probe finds null, were done
             if (marker == null) {
-                Archetype value = creator.get();
+                Archetype value = new Archetype(key, arg_usedComponents, arg_registry);
                 insert1(slot, hash, key, value);
                 return value;
             }

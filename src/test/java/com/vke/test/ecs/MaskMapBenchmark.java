@@ -2,8 +2,6 @@ package com.vke.test.ecs;
 
 import com.vke.core.ecs.backend.Archetype;
 import com.vke.core.ecs.backend.MaskMap;
-import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.ecs.component.mask.U64ComponentMask;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,20 +1,42 @@
 package com.vke.core.ecs.backend;
 
+import com.vke.core.ecs.api.EntityTransitionInitializer;
+import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 
 public class ArchetypeManager {
     private final MaskMap map;
+    private final EntityAllocator alloc;
 
-    public ArchetypeManager() {
-        this.map = new MaskMap();
+    public ArchetypeManager(EntityAllocator alloc, int usedComponents, ComponentRegistry registry) {
+        this.map = new MaskMap(usedComponents, registry);
+        this.alloc = alloc;
     }
 
-    public Archetype acquire(ComponentMask mask) {
-        return map.findOrMake(mask, () -> new Archetype(mask));
+    public Archetype acquireArchetype(ComponentMask mask) {
+        return map.findOrMake(mask);
     }
 
-    /*
-    open addressed hash table with some sort of sorted keys so that i can perform binary search probing
-    the insert can be 20000 times slower than find, but find has to be blazingly fast
-     */
+    public void transitionEntity(int entity, ComponentMask newMask, EntityTransitionInitializer initializer){
+        Archetype oldArch = alloc.getArchetype(entity);
+        int oldIdx = alloc.getArchetypeIndex(entity);
+
+        Archetype newArch = acquireArchetype(newMask);
+        int newIdx = newArch.accomodateDangling(entity);
+
+        Component[] oldComps = oldArch.getComponents();
+
+        for (Component oldComp : oldComps) {
+            Component newComp  = newArch.getComponentById(oldComp.getId());
+            if (newComp != null) {
+                newComp.copyFrom(oldComp, oldIdx, newIdx);
+            }
+        }
+
+        initializer.initialize(newArch, newIdx);
+
+        oldArch.dangleEntity(oldIdx, alloc);
+        alloc.setArchetypeIndex(entity, newIdx);
+        alloc.setArchetype(entity, newArch);
+    }
 }
