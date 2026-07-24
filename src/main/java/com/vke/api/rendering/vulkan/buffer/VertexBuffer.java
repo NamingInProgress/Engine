@@ -1,6 +1,6 @@
 package com.vke.api.rendering.vulkan.buffer;
 
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 
 public abstract class VertexBuffer extends CpuBuffer {
     protected ByteBuffer data;
-    protected VertexEncoder encoder;
+    protected TexturableEncoder encoder;
 
     public VertexBuffer(int baseVertexCount) {
         super(baseVertexCount);
@@ -49,7 +49,7 @@ public abstract class VertexBuffer extends CpuBuffer {
 
     public abstract int getByteStride();
 
-    protected abstract VertexEncoder generateEncoder();
+    protected abstract TexturableEncoder generateEncoder();
 
     public static int t_float() {
         return 4;

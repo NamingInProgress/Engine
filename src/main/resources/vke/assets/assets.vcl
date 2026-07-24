@@ -11,5 +11,6 @@
         <include file="vke:assets/textures.d.vcl"/>
         <include file="vke:assets/meshes.d.vcl"/>
         <include file="vke:assets/audio.d.vcl"/>
+        <include file="vke:assets/materials.d.vcl"/>
     </phase>
 </assets>

@@ -1,9 +1,10 @@
 package com.vke.core.color;
 
+import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
 import org.joml.Vector4f;
 
 public class Color extends Vector4f {
-    public static final Color VKE = new Color(0.2f, 0.3f, 0.3f, 0.1f);
+    public static final Color VKE = new Color(0.2f, 0.3f, 0.3f, 1.0f);
     public static final Color RED = new Color(1, 0, 0, 1);
     public static final Color GREEN = new Color(0, 1, 0, 1);
     public static final Color BLUE = new Color(0, 0, 1, 1);
@@ -37,4 +38,14 @@ public class Color extends Vector4f {
     public float a() {
         return w;
     }
+
+    public void putSelf(ByteEncoder encoder) {
+        encoder.float4(x, y, z, w);
+    }
+
+    public static Color parse(String str) {
+        if (str == null) return Color.BLACK;
+        return Color.RED; // TODO: v22 will replace :thumbsup:
+    }
+
 }

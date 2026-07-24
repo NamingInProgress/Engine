@@ -1,17 +1,17 @@
 package com.vke.core.rendering.bytesink;
 
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 import java.nio.ByteBuffer;
 
-public class VulkanVertexEncoder implements VertexEncoder {
+public class VulkanTexturableEncoder implements TexturableEncoder {
 
     private final ByteBuffer buffer;
     private final VulkanRenderSystem vkCtx;
 
-    public VulkanVertexEncoder(VulkanRenderSystem vkCtx, ByteBuffer buffer) {
+    public VulkanTexturableEncoder(VulkanRenderSystem vkCtx, ByteBuffer buffer) {
         this.buffer = buffer;
         this.vkCtx = vkCtx;
     }

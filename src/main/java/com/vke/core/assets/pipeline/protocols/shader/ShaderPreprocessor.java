@@ -1,6 +1,6 @@
 package com.vke.core.assets.pipeline.protocols.shader;
 
-import com.vke.core.rendering.spp.SPPLexer;
+import com.vke.core.assets.pipeline.protocols.shader.spp.SPPLexer;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.utils.Utils;
 import com.vke.utils.functionalinterface.TriConsumer;

@@ -3,7 +3,7 @@ package com.vke.core.draw;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 
 public class ShapeRendererVertex implements Vertex {
 
@@ -36,7 +36,7 @@ public class ShapeRendererVertex implements Vertex {
     }
 
     @Override
-    public void putSelf(VertexEncoder buf) {
+    public void putSelf(TexturableEncoder buf) {
         buf.float3(x, y, z);
         buf.float4(r, g, b, a);
         buf.float2(u, v);

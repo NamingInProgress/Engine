@@ -8,7 +8,7 @@ public interface Renderer extends PinnedService {
     RenderDevice getDevice();
     FrameCounter getFrameCounter();
     RenderSystem renderSystem(); // Bridge to lower level
-    RenderResourceManager resourceManager(); // Example implementation: resourceManager = new VulkanResourceManager(renderContext());
+    RenderResourceManager resourceManager();
 
     VertexConsumerProvider getVertexConsumerProvider();
 

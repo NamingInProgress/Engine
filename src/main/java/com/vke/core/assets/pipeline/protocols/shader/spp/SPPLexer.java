@@ -1,4 +1,4 @@
-package com.vke.core.rendering.spp;
+package com.vke.core.assets.pipeline.protocols.shader.spp;
 
 import java.util.ArrayDeque;
 

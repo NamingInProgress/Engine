@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PostProcessingRenderPass extends RenderPass {
-        private final List<PostProcessEffect> effects;
+    private final List<PostProcessEffect> effects;
     private VertexConsumer<FullscreenQuadVertex> fsqc;
 
     public PostProcessingRenderPass(RenderSystem renderSystem, RenderPassInstance instance, List<Identifier> stages) {

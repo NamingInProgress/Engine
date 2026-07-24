@@ -71,6 +71,8 @@ public class PipelineContext extends ContextWrapper {
         registerProtocol(new ObjProtocol());
         registerProtocol(new MeshprefabProtocol());
 
+        registerProtocol(new MaterialProtocol());
+
         registerProtocol(new WavPreloadProtocol());
         registerProtocol(new AudioPreloadProtocol());
 
@@ -95,6 +97,7 @@ public class PipelineContext extends ContextWrapper {
         registerConverter(new ObjMeshprefabConverter());
         registerConverter(new PngTextureConverter());
         registerConverter(new WavAudioPreloadConverter());
+        registerConverter(new ConfigMaterialConverter());
 
         //register cache handlers
         registerCacheHandler(new MeshPrefabCache());

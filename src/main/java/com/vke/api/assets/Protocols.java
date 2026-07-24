@@ -25,6 +25,8 @@ public class Protocols {
     public static final String OBJ = "obj";
     public static final String MESHPREFAB = "meshprefab";
 
+    public static final String MATERIAL = "material";
+
     public static final String AUDIO_PRELOADED = "audio_pre";
     public static final String AUDIO_STREAMING = "audio_stream";
     public static final String WAV = "wav";

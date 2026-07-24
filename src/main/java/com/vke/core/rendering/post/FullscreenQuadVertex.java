@@ -1,7 +1,7 @@
 package com.vke.core.rendering.post;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 
 public class FullscreenQuadVertex implements Vertex {
 
@@ -22,7 +22,7 @@ public class FullscreenQuadVertex implements Vertex {
     }
 
     @Override
-    public void putSelf(VertexEncoder buf) {
+    public void putSelf(TexturableEncoder buf) {
         buf.float2(x, y);
         buf.float2(u, v);
     }

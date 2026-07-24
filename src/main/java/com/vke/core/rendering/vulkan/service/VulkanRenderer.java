@@ -24,6 +24,7 @@ import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
 import com.vke.core.scene.service.SceneManager;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.Scissor;
@@ -63,6 +64,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     private EngineDescriptorSetsManager engineSetsManager;
     private VulkanResourceManager resourceManager;
+    private VulkanMaterialManager materialManager;
 
     // Engine infos
     final FrameCounter frameCounter;
@@ -93,6 +95,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     protected void onInitialize() {
         this.ctx = new VulkanRenderSystem(baseContext, this);
+        this.materialManager = new VulkanMaterialManager(ctx);
         this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
@@ -310,6 +313,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         return resourceManager;
     }
 
+    public VulkanMaterialManager getMaterialManager() {
+        return materialManager;
+    }
+
     @Override
     public VertexConsumerProvider getVertexConsumerProvider() {
         return this.vertexConsumerProvider;
@@ -347,17 +354,5 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     }
 
     public record FrameData(VulkanFrame frame, VulkanCmdBuffers cmd, MemoryStack stack, int imageIndex) {}
-
-    public static class IntWrapper {
-        public IntWrapper() {
-            anInt = 0;
-        }
-
-        public IntWrapper(int val) {
-            anInt = val;
-        }
-
-        public int anInt;
-    }
 
 }

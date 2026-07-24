@@ -6,11 +6,10 @@ import com.vke.api.rendering.abstraction.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.pipeline.RenderPipelines;
@@ -78,7 +77,7 @@ public class RectLoadingSceneRenderPass extends RenderPass {
         }
 
         @Override
-        public void putSelf(VertexEncoder buf) {
+        public void putSelf(TexturableEncoder buf) {
             buf.float2(x, y);
             buf.float4(r, g, b, a);
         }

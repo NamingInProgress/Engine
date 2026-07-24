@@ -43,7 +43,7 @@ public class EngineDescriptorSetsManager implements Disposable {
     public Integer[] usedSets;
     public int highestSet; // All sets below this one are used!
 
-    private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, VulkanRenderer.IntWrapper> scheduledBindingUpdates = new HashMap<>();
+    private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, IntWrapper> scheduledBindingUpdates = new HashMap<>();
     private final RecyclerArrayList<Pair<VulkanPipelineLayout, UniformHandle>> toRemoveBindingUpdates = new RecyclerArrayList<>(20);
 
     public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader truth) {
@@ -93,7 +93,7 @@ public class EngineDescriptorSetsManager implements Disposable {
     }
 
     public void scheduleDescriptorUpdate(VulkanPipelineLayout layout, UniformHandle handle, FrameCounter frameCounter) {
-        scheduledBindingUpdates.put(new Pair<>(layout, handle), new VulkanRenderer.IntWrapper(frameCounter.framesInFlight() + 1));
+        scheduledBindingUpdates.put(new Pair<>(layout, handle), new IntWrapper(frameCounter.framesInFlight() + 1));
     }
 
     public HashMap<Integer, DescriptorSetLayout> getDefaults() {
@@ -128,6 +128,18 @@ public class EngineDescriptorSetsManager implements Disposable {
             default -> {}
         }
         writer.flush();
+    }
+
+    public static class IntWrapper {
+        public IntWrapper() {
+            anInt = 0;
+        }
+
+        public IntWrapper(int val) {
+            anInt = val;
+        }
+
+        public int anInt;
     }
 
 }

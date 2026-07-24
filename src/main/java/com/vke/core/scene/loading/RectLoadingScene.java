@@ -1,15 +1,9 @@
 package com.vke.core.scene.loading;
 
-import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
-import com.vke.api.rendering.abstraction.renderer.data.VertexEncoder;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
-import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.io.Identifier;
-import com.vke.utils.types.Container;
 
 public class RectLoadingScene extends LoadingScene {
 

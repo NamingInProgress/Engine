@@ -20,4 +20,8 @@
             <stage name="vke:idk_something" />
         </stages>
     </render-pass>
+
+<!--    <render-pass name="pbr" parent="pbr">-->
+<!--        <pipeline name="vke:basic_pbr.pipeline.json"/>-->
+<!--    </render-pass>-->
 </render-graph>

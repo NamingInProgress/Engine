@@ -1,0 +1,62 @@
+struct Material {
+    uint flags;
+    vec4 baseAlbedo;
+    int baseColorId;
+    int normalId;
+    int metallicRoughnessId;
+    int occlusionId;
+    int emissiveId;
+
+    float normalScale;
+    float metallicScale;
+    float roughnessScale;
+    float occlusionScale;
+    vec4 emissiveColor;
+    float emissiveScale;
+};
+
+struct MaterialInputs {
+    vec4 baseColor;
+
+    vec3 normal;
+
+    float metallic;
+    float roughness;
+    float occlusion;
+
+    vec3 emissive;
+};
+
+layout (set = 2, binding = 0) readonly buffer Materials {
+    #DefaultSize(1024)
+    Material materials[];
+} materialBuffer;
+
+MaterialInputs evaluateMaterial(Material material, vec2 uv) {
+    MaterialInputs m;
+
+    vec4 baseTex = sampleTexture(material.baseColorId, uv);
+    m.baseColor = baseTex * material.baseAlbedo;
+
+    vec3 n = sampleTexture(material.normalId, uv).xyz;
+    n = n * 2.0 - 1.0;
+
+    n.xy *= material.normalScale; // TODO: TBN
+    m.normal = normalize(n);
+
+    vec4 mr = sampleTexture(material.metallicRoughnessId, uv);
+
+    m.roughness = clamp(mr.g * material.roughnessScale, 0.04, 1.0);
+
+    m.metallic = clamp(mr.b * material.metallicScale, 0.0, 1.0);
+
+    m.occlusion = sampleTexture(material.occlusionId, uv).r *
+        material.occlusionScale;
+
+    vec3 emissiveTex = sampleTexture(material.emissiveId, uv).rgb;
+
+    m.emissive = emissiveTex * material.emissiveColor.rgb *
+        material.emissiveScale;
+
+    return m;
+}

@@ -11,6 +11,7 @@ import com.vke.core.rendering.graph.deserializers.PostRenderPassDeserializer;
 import com.vke.core.rendering.graph.deserializers.RenderPassDeserializer;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
+import com.vke.core.rendering.pbr.PbrRenderPassDeserializer;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
@@ -21,11 +22,12 @@ import java.util.List;
 public class RenderGraphDefinition {
 
     private static final LazyAssetHandle<ConfigSchema> SCHEMA = R.schemas.get("render-graph.schema.json");
-    private static final HashMap<String, RenderPassDeserializer> DESERIALIZERS = new HashMap<>();
+    private static final HashMap<String, RenderPassDeserializer> DESERIALIZERS = new HashMap<>(); // TODO: Change to registry
 
     static {
         DESERIALIZERS.put("general", new GeneralRenderPassDeserializer());
         DESERIALIZERS.put("post", new PostRenderPassDeserializer());
+        DESERIALIZERS.put("pbr", new PbrRenderPassDeserializer());
     }
 
     public final List<RenderPassDefinition> renderPasses = new ArrayList<>();

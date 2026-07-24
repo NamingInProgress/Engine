@@ -1,9 +1,9 @@
 package com.vke.utils.iter.helpers;
 
-import com.vke.utils.Utils;
 import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
+import pl.epsi.Deref;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class Option<T> {
+public class Option<T> implements Deref<T> {
     private T value;
     private boolean some;
 
@@ -175,8 +175,28 @@ public class Option<T> {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
+    public T unwrapOrIdentity(T... ignore) {
+        if (isSome()) return value;
+
+        Class<T> clazz = (Class<T>) ignore.getClass().getComponentType();
+        if (clazz == byte.class || clazz == Byte.class) return (T) (Byte) (byte) 1;
+        if (clazz == short.class || clazz == Short.class) return (T) (Short) (short) 1;
+        if (clazz == int.class || clazz == Integer.class) return (T) (Integer) 1;
+        if (clazz == long.class || clazz == Long.class) return (T) (Long) 1L;
+        if (clazz == float.class || clazz == Float.class) return (T) (Float) 1f;
+        if (clazz == double.class || clazz == Double.class) return (T) (Double) 1d;
+        if (clazz == boolean.class || clazz == Boolean.class) return (T) (Boolean) true;
+        return null;
+    }
+
     public T unwrapOrNull() {
         if (isSome()) return value;
         return null;
+    }
+
+    @Override
+    public T deref() {
+        return value;
     }
 }
