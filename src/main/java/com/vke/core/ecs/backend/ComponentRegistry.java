@@ -6,4 +6,8 @@ public class ComponentRegistry {
     public Component getInstance(int id) {
 
     }
+
+    public static int register(Class<? extends Component> clazz) {
+        throw new RuntimeException("stub");
+    }
 }

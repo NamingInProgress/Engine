@@ -1,10 +1,10 @@
 package com.vke.core.ecs.component;
 
 public interface Component {
-    int getId();
+    default int getId() { throw new RuntimeException("stub"); }
     ComponentMask ofSelf();
 
-    void makeRoom(int amount);
-    void swap(int a, int b);
-    void copyFrom(Component other, int otherIndex, int thisIndex);
+    default void resize(int newSize) { throw new RuntimeException("stub"); }
+    default void swap(int from, int to) { throw new RuntimeException("stub"); }
+    default void copyFrom(Component other, int thisIndex, int otherIndex) { throw new RuntimeException("stub"); }
 }
