@@ -1,6 +1,7 @@
 package com.vke.core.ecs.component;
 
 public interface Component {
+    int ID = -1;
     default int getId() { throw new RuntimeException("stub"); }
     ComponentMask ofSelf();
 
