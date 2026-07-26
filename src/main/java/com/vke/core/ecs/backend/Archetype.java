@@ -51,7 +51,7 @@ public class Archetype {
         int left = entryAmount;
         entryAmount += amount;
         for (Component component : compArr) {
-            component.makeRoom(entryAmount);
+            component.resize(entryAmount);
         }
 
         allocator.allocateEntities(amount);
@@ -133,7 +133,7 @@ public class Archetype {
             owners = Arrays.copyOf(owners, newSize);
         }
         for (Component component : compArr) {
-            component.makeRoom(entryAmount);
+            component.resize(entryAmount);
         }
         owners[newIdx] = entity;
         return newIdx;

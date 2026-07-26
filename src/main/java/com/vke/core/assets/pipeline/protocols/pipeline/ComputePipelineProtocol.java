@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols.pipeline;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
@@ -19,6 +20,7 @@ import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
+@Protocol
 public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
     @Override
     public String getProtocolName() {

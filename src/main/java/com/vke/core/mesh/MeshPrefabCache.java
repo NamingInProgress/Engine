@@ -1,6 +1,7 @@
 package com.vke.core.mesh;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Cache;
 import com.vke.api.serializer.Serializer;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
@@ -22,6 +23,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+@Cache
 public class MeshPrefabCache implements AssetCache {
     private static final String CACHE_LOCATION = "cache/meshprefab/";
     private static final String CACHED_ASSET_EXT = ".vkmesh";

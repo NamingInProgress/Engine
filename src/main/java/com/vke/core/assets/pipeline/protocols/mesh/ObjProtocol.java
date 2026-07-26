@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols.mesh;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
@@ -12,6 +13,7 @@ import com.vke.core.file.obj.ObjFile;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
+@Protocol
 public class ObjProtocol implements AssetProtocol<ObjFile> {
     @Override
     public String getProtocolName() {

@@ -17,6 +17,7 @@
         <lwjgl.version>3.3.6</lwjgl.version>
         <joml.version>1.10.8</joml.version>
         <joml-primitives.version>1.10.0</joml-primitives.version>
+        <vke-plugin.version>1.2.3</vke-plugin.version>
     </properties>
 
     <profiles>
@@ -170,6 +171,11 @@
             <artifactId>VKEUnit</artifactId>
             <version>1.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.NamingInProgress.VKECompilerPlugin</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${vke-plugin.version}</version>
+        </dependency>
     </dependencies>
 
         <!--
@@ -225,9 +231,17 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.github.NamingInProgress.VKECompilerPlugin</groupId>
+                            <artifactId>vke-compiler-plugin</artifactId>
+                            <version>${vke-plugin.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>--add-modules</arg>
                         <arg>jdk.incubator.vector</arg>
+                        <arg>-Xplugin:vke-plugin</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

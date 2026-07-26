@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.converters.audio.preload;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
@@ -13,6 +14,7 @@ import com.vke.core.audio.source.WavPCMPreloadedReader;
 import com.vke.core.file.wav.WAVFile;
 import com.vke.utils.Utils;
 
+@Converter
 public class WavAudioPreloadConverter implements AssetConverter {
     @Override
     public String from() {
