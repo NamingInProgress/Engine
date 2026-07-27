@@ -29,7 +29,7 @@ public class RenderGraphDefinition {
         DESERIALIZERS.put("general", new GeneralRenderPassDeserializer());
         DESERIALIZERS.put("post", new PostRenderPassDeserializer());
         DESERIALIZERS.put("pbr", new PbrRenderPassDeserializer());
-        DESERIALIZERS.put("simple-deferred", new DeferredRenderPassDeserializer());
+        DESERIALIZERS.put("deferred", new DeferredRenderPassDeserializer());
     }
 
     public final List<RenderPassDefinition> renderPasses = new ArrayList<>();

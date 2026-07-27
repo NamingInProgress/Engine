@@ -1,8 +1,7 @@
 {
-  "topology": "TRIANGLES",
-  "cullMode": "BACK",
+  "topology": "LINES",
+  "cullMode": "NONE",
   "polygonMode": "FILL",
-  "lineWidth": 4,
   "attachments": [
     {
       "type": "COLOR",
@@ -18,11 +17,11 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/instancing_test.vsh"
+      "src": "shaders/batched_consumer.vsh"
     },
     {
       "type": "frag",
-      "src": "shaders/instancing_test.fsh"
+      "src": "shaders/batched_consumer.fsh"
     }
   ]
 }

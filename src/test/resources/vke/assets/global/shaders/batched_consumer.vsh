@@ -19,7 +19,6 @@ layout (std430, set = 2, binding = 0) readonly buffer MatrixStack {
 
 layout (push_constant) uniform constants {
     mat4 world;
-    mat4 translation;
 } PushConstants;
 
 void main() {
