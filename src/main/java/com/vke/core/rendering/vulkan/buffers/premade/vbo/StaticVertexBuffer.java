@@ -10,11 +10,9 @@ import java.util.List;
 
 public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final T template;
-    private final VulkanRenderSystem sys;
 
     public StaticVertexBuffer(VulkanRenderSystem sys, T template, List<T> vertices) {
-        super(vertices.size(), template.getByteStride());
-        this.sys = sys;
+        super(sys, vertices.size(), template.getByteStride());
 
         this.template = template;
 

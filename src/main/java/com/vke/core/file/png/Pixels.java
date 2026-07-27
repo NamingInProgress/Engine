@@ -16,6 +16,15 @@ public class Pixels {
     }
 
     void setPixelARGB(int i, int pixel) {
+        if (info.flipVertically) {
+            int width = info.width;
+            int height = info.height;
+
+            int x = i % width;
+            int y = i / width;
+
+            i = (height - 1 - y) * width + x;
+        }
         pixels[i] = pixel;
     }
 

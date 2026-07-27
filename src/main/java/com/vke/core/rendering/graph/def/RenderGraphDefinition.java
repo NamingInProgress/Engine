@@ -11,6 +11,7 @@ import com.vke.core.rendering.graph.deserializers.PostRenderPassDeserializer;
 import com.vke.core.rendering.graph.deserializers.RenderPassDeserializer;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
+import com.vke.core.rendering.passes.DeferredRenderPassDeserializer;
 import com.vke.core.rendering.pbr.PbrRenderPassDeserializer;
 import com.vke.utils.io.Identifier;
 
@@ -28,6 +29,7 @@ public class RenderGraphDefinition {
         DESERIALIZERS.put("general", new GeneralRenderPassDeserializer());
         DESERIALIZERS.put("post", new PostRenderPassDeserializer());
         DESERIALIZERS.put("pbr", new PbrRenderPassDeserializer());
+        DESERIALIZERS.put("simple-deferred", new DeferredRenderPassDeserializer());
     }
 
     public final List<RenderPassDefinition> renderPasses = new ArrayList<>();

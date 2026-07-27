@@ -26,8 +26,8 @@ public class DemoRenderPass extends RenderPass {
                 ),
                 new CommandBuffer.AttachmentInfo(depth, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 1.0f })));
 
-        RenderPipelines.DEMO.setLocal(context.get("localMat"));
-        RenderPipelines.DEMO.use();
+        RenderPipelines.DEFERRED.setLocal(context.get("localMat"));
+        RenderPipelines.DEFERRED.use();
         DemoScene.MESH.draw();
 
         cmd.endRendering();

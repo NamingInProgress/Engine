@@ -10,6 +10,7 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.sync.Fence;
 import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
 import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.core.color.Color;
 import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
@@ -85,6 +86,22 @@ public interface CommandBuffer extends Disposable {
         public AttachmentInfo(Texture tex, LoadOp loadOp,
                               StoreOp storeOp, float[] clearColor) {
             this(tex, tex.defaultView(), loadOp, storeOp, clearColor);
+        }
+
+        public static AttachmentInfo color(Texture tex, Color clearColor) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, clearColor.toFloat());
+        }
+
+        public static AttachmentInfo color(Texture tex) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, Color.VKE.toFloat());
+        }
+
+        public static AttachmentInfo depth(Texture tex, float clear) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, new float[]{ clear });
+        }
+
+        public static AttachmentInfo depth(Texture tex) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 1.0f });
         }
     }
 

@@ -15,6 +15,12 @@ public interface Camera {
     Vector3f position();
     Quaternionf rotation();
 
+    default Vector3f lookAt() {
+        Vector3f forward = new Vector3f(0, 0, -1);
+        rotation().transform(forward);
+        return forward;
+    }
+
     CameraController controller();
 
     void setPosition(Vector3f position);

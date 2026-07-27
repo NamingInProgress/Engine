@@ -24,6 +24,10 @@ public class PngFile {
     private final Pixels output;
 
     public PngFile(InputStream inputStream) throws IOException {
+        this(inputStream, false);
+    }
+
+    public PngFile(InputStream inputStream, boolean flipVertically) throws IOException {
         if (!verifySignature(inputStream)) {
             throw new IOException("Illegal PNG file received!");
         }
@@ -34,6 +38,7 @@ public class PngFile {
         }
 
         pngInfo = ihdr.getInfo();
+        pngInfo.flipVertically = flipVertically;
 
         int[][] palette = null;
         ZlibDecompressor idatDecompressor = new ZlibDecompressor(new ShittyBitInputStream(null));

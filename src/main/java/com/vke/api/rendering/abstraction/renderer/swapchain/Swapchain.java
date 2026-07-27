@@ -22,6 +22,5 @@ public interface Swapchain extends Disposable {
     void destroy();
 
     Texture renderTarget();
-    Texture depthTarget();
 
 }

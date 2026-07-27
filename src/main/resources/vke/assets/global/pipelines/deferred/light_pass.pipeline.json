@@ -1,0 +1,27 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "BACK",
+  "polygonMode": "FILL",
+  "lineWidth": 4,
+  "attachments": [
+    {
+      "type": "COLOR"
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F",
+      "depthCompareOperation": "LESS",
+      "depthTestEnable": true
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/deferred/light_pass.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/deferred/light_pass.fsh"
+    }
+  ]
+}

@@ -30,5 +30,6 @@ public abstract class RenderSystem extends ContextWrapper {
     public abstract long windowHandle();
 
     public abstract boolean zZeroToOne();
+    public abstract boolean flipImages();
 
 }

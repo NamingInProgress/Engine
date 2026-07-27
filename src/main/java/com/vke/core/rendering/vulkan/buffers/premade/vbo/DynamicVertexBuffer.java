@@ -11,7 +11,7 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     private final VulkanRenderSystem vkCtx;
 
     public DynamicVertexBuffer(VulkanRenderSystem vkCtx, T template, int expectedVertexCount) {
-        super(expectedVertexCount, false);
+        super(vkCtx, expectedVertexCount, false);
         this._template = template;
         this.vkCtx = vkCtx;
         this.alloc(expectedVertexCount * getByteStride());

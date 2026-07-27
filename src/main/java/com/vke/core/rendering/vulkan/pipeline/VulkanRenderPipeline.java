@@ -272,11 +272,6 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     }
 
     @Override
-    public Texture getDepthTarget() {
-        return ctx.swapchain().depthTarget();
-    }
-
-    @Override
     public Texture getColorTarget(int index) {
         return ctx.swapchain().getColorImage();
     }

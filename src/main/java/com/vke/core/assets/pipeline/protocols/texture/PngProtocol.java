@@ -46,7 +46,11 @@ public class PngProtocol implements AssetProtocol<Texture> {
         @Override
         public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             return Utils.chainExceptions(() -> {
-                PngFile pngFile = new PngFile(identifier.asInputStream());
+                EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
+                Renderer renderer = context.service(rendererType.serviceName);
+                RenderDevice device = renderer.getDevice();
+
+                PngFile pngFile = new PngFile(identifier.asInputStream(), renderer.renderSystem().flipImages());
                 Pixels pixels = pngFile.getOutput();
                 Texture.TextureDesc desc = Texture.TextureDesc.builder()
                         .width(pngFile.getPngInfo().width)
@@ -55,10 +59,6 @@ public class PngProtocol implements AssetProtocol<Texture> {
                         .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
                         .type(TextureType.TEX_2D)
                         .build();
-
-                EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-                Renderer renderer = context.service(rendererType.serviceName);
-                RenderDevice device = renderer.getDevice();
 
                 return new AssetData(Protocols.PNG, device.createTexture(desc).upload(pixels));
             });

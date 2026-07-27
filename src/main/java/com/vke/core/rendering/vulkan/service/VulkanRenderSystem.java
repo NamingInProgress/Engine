@@ -69,4 +69,9 @@ public class VulkanRenderSystem extends RenderSystem {
     public boolean zZeroToOne() {
         return true;
     }
+
+    @Override
+    public boolean flipImages() {
+        return true;
+    }
 }

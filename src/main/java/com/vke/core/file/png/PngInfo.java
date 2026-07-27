@@ -7,6 +7,7 @@ public class PngInfo {
     public int sampleBitDepth;
     public boolean hasAlphaChannel;
     public InterlacingMethod interlacingMethod;
+    public boolean flipVertically;
 
     public int getSampleCount() {
         return pixelType.sampleCount + (hasAlphaChannel ? 1 : 0);

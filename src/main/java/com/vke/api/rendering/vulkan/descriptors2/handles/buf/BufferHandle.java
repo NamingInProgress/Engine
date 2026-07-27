@@ -47,7 +47,7 @@ public class BufferHandle extends UniformHandle implements BufferResource {
         if (bufBinding.buffer instanceof MappedGpuRingBuffer rb) {
             return rb.getOffset() + offset;
         }
-        return 0;
+        return offset;
     }
 
     public void grow() {

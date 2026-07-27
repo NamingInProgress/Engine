@@ -40,7 +40,6 @@ public class VulkanSwapchain implements Swapchain {
     private long surface;
 
     private final ArrayList<VulkanTexture> colorImages = new ArrayList<>();
-    private final ArrayList<VulkanTexture> depthImages = new ArrayList<>();
 
     private final VulkanRenderSystem ctx;
 
@@ -174,22 +173,6 @@ public class VulkanSwapchain implements Swapchain {
 
             this.colorImages.add(image);
         }
-
-        // DEPTH
-        for (int i = 0; i < count.get(0); i++) {
-            VulkanTexture depthImage = new VulkanTexture(this.ctx,
-                    Texture.TextureDesc.builder()
-                            .size(VulkanExtentUtils.ofVk(extent))
-                            .format(Format.DEPTH32F)
-                            .mipLevels(1)
-                            .arrayLayers(1)
-                            .sampleCount(SampleCount.X1)
-                            .type(TextureType.TEX_2D)
-                            .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.DEPTH_STENCIL_ATTACHMENT_BIT))
-                            .build());
-
-            this.depthImages.add(depthImage);
-        }
     }
 
     @Override
@@ -230,10 +213,8 @@ public class VulkanSwapchain implements Swapchain {
     }
 
     public VulkanTexture getColorImage(int index) { return this.colorImages.get(index); }
-    public VulkanTexture getDepthImage(int index) { return this.depthImages.get(index); }
 
     public VulkanTexture getColorImage() { return this.colorImages.get(currentImageIndex()); }
-    public VulkanTexture getDepthImage() { return this.depthImages.get(currentImageIndex()); }
 
     @Override
     public void present(Semaphore renderFinished) {
@@ -276,20 +257,13 @@ public class VulkanSwapchain implements Swapchain {
         KHRSwapchain.vkDestroySwapchainKHR(this.ctx.device().vkLogicalDevice(), this.swapchain, null);
 
         this.colorImages.forEach(VulkanTexture::free);
-        this.depthImages.forEach(VulkanTexture::free);
 
         this.colorImages.clear();
-        this.depthImages.clear();
     }
 
     @Override
     public Texture renderTarget() {
         return getColorImage();
-    }
-
-    @Override
-    public Texture depthTarget() {
-        return getDepthImage();
     }
 
     public int getImageCount() { return this.colorImages.size(); }

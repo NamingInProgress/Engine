@@ -43,6 +43,10 @@ public class Color extends Vector4f {
         encoder.float4(x, y, z, w);
     }
 
+    public float[] toFloat() {
+        return new float[]{ x, y, z, w };
+    }
+
     public static Color parse(String str) {
         if (str == null) return Color.BLACK;
         return Color.RED; // TODO: v22 will replace :thumbsup:

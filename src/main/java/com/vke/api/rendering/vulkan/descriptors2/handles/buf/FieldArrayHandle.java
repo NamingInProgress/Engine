@@ -32,13 +32,13 @@ public class FieldArrayHandle extends UniformHandle implements FieldArrayResourc
     @Override
     public void write(int index, Consumer<BufferSlice> writer) {
         if (index >= elementCount) throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + elementCount);
-        writer.accept(new BufferSlice(parent.cpuAddress, parent.offset + fieldOffset + (long) index * stride,
+        writer.accept(new BufferSlice(parent.cpuAddress, parent.getOffset() + fieldOffset + (long) index * stride,
                 this.stride, PackingType.fromDescriptorType(type)));
     }
 
     @Override
     public void write(Consumer<BufferSlice> writer) {
-        writer.accept(new BufferSlice(parent.cpuAddress, parent.offset + fieldOffset,
+        writer.accept(new BufferSlice(parent.cpuAddress, parent.getOffset() + fieldOffset,
                 this.totalLength, PackingType.fromDescriptorType(type)));
     }
 

@@ -3,6 +3,10 @@
 struct Camera {
     mat4 projection;
     mat4 view;
+    mat4 inverse_projection;
+    mat4 inverse_view;
+    vec3 lookAt;
+    vec3 position;
 };
 
 //#MultiWriteHint(100) // Uncomment if needed, this is just an example
@@ -12,6 +16,10 @@ layout (set = 0, binding = 0) uniform FrameData {
 } frameData;
 
 layout (set = 1, binding = 0) uniform #DefaultSize(1024) sampler2D textures[];
+
+vec4 vktexture(sampler2D sampl, vec2 uv) {
+    return texture(sampl, vec2(uv.x, 1 - uv.y));
+}
 
 vec4 sampleTexture(int id, vec2 uv) {
     return texture(textures[nonuniformEXT(id)], uv);

@@ -7,6 +7,7 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteFieldHandle;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
+import org.joml.Matrix4f;
 
 public class VulkanFrameDataManager implements FrameDataManager {
 
@@ -41,6 +42,10 @@ public class VulkanFrameDataManager implements FrameDataManager {
             cameraHandle.write((slice) -> {
                 slice.putMat4(camera.projectionMatrix());
                 slice.putMat4(camera.viewMatrix());
+                slice.putMat4(new Matrix4f(camera.projectionMatrix()).invert());
+                slice.putMat4(new Matrix4f(camera.viewMatrix()).invert());
+                slice.putFloat3(camera.lookAt().x, camera.lookAt().y, camera.lookAt().z);
+                slice.putFloat3(camera.position().x, camera.position().y, camera.position().z);
             });
         }
         time.write((slice) -> slice.putFloat((System.nanoTime() - startTime) / 1_000_000_000f));

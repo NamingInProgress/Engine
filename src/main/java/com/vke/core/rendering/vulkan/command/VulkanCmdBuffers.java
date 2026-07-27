@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VulkanCmdBuffers implements CommandBuffer {
@@ -86,11 +87,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
     @Override
     public void beginRendering() {
         VulkanTexture currentColorImage = swapchain.getColorImage(swapchain.currentImageIndex());
-        VulkanTexture currentDepthImage = swapchain.getDepthImage(swapchain.currentImageIndex());
 
         this.beginRendering(new RenderingInfo(
                 List.of(new AttachmentInfo(currentColorImage, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })),
-                new AttachmentInfo(currentDepthImage, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 1.0f })
+                null
         ));
     }
 
@@ -235,13 +235,14 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
         long[] sets = new long[l.getSets().size()];
         List<Integer> dynamicOffsets = l.getSets().stream()
-                .flatMap(instance -> instance.bindings.values().stream()
+                .flatMap(instance -> instance.bindings.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(Map.Entry::getValue)
                         .filter(binding -> binding instanceof BufferBinding)
                         .map(binding -> ((BufferBinding) binding).buffer)
                         .filter(buf -> buf instanceof MappedGpuRingBuffer)
-                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset())
-                        .sorted(Comparator.comparingInt(c -> c))
-                ).collect(Collectors.toCollection(ArrayList::new));;
+                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset()))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {

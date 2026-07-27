@@ -4,6 +4,8 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
+
 public class BufferSlice {
     protected final long bufferAddress;
     protected final long offset;
@@ -19,6 +21,15 @@ public class BufferSlice {
         this.length = length;
         this.writeAddress = bufferAddress + offset;
         this.packing = packingType;
+    }
+
+    public void putData(ByteBuffer buf) {
+        if (cursor + buf.remaining() > length)
+            throw new IndexOutOfBoundsException(
+                    "BufferSlice overflow: " + cursor + " / " + length
+            );
+        MemoryUtil.memCopy(MemoryUtil.memAddress(buf), writeAddress + cursor, buf.remaining());
+        cursor += buf.remaining();
     }
 
     public void putFloat(float f) {
@@ -47,6 +58,7 @@ public class BufferSlice {
         putFloat(a);
         putFloat(b);
         putFloat(c);
+        if (packing == PackingType.STD140) putFloat(0.0f);
     }
 
     public void putFloat4(float a, float b, float c, float d) {

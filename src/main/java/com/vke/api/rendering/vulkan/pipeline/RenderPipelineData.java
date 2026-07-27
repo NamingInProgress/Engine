@@ -259,7 +259,7 @@ public class RenderPipelineData {
                 ALPHA_BLEND_OPERATION_NAME = "alphaBlendOperation";
 
         public int colorWriteMask = VK14.VK_COLOR_COMPONENT_R_BIT | VK14.VK_COLOR_COMPONENT_G_BIT | VK14.VK_COLOR_COMPONENT_B_BIT | VK14.VK_COLOR_COMPONENT_A_BIT;
-        public boolean blendEnable = true;
+        public boolean blendEnable = false;
         public BlendFactor srcBlendFactor = BlendFactor.SRC_ALPHA;
         public BlendFactor dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
         public BlendFactor srcAlphaBlendFactor = BlendFactor.ONE;
