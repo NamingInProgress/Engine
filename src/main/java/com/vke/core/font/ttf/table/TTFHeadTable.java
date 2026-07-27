@@ -1,4 +1,7 @@
-package com.vke.core.font.ttf;
+package com.vke.core.font.ttf.table;
+
+import com.vke.core.font.ttf.TTFFile;
+import com.vke.core.font.ttf.TTFReader;
 
 public class TTFHeadTable {
 

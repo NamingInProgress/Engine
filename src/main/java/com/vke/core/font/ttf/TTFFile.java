@@ -1,5 +1,10 @@
 package com.vke.core.font.ttf;
 
+import com.vke.core.font.ttf.table.TTFCmapTable;
+import com.vke.core.font.ttf.table.TTFHeadTable;
+import com.vke.core.font.ttf.table.TTFLocaTable;
+import com.vke.core.font.ttf.table.TTFMaxpTable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -11,6 +16,9 @@ public class TTFFile {
     public final HashMap<String, TableInfo> tables = new HashMap<>();
 
     public final TTFHeadTable head;
+    public final TTFCmapTable cmap;
+    public final TTFMaxpTable maxp;
+    public final TTFLocaTable loca;
 
     public TTFFile(InputStream is) throws IOException {
         this.reader = new TTFReader(is);
@@ -19,6 +27,9 @@ public class TTFFile {
         parseTables();
 
         this.head = new TTFHeadTable(reader, tables.get("head"));
+        this.cmap = new TTFCmapTable(reader, tables.get("cmap"));
+        this.maxp = new TTFMaxpTable(reader, tables.get("maxp"));
+        this.loca = new TTFLocaTable(reader, tables.get("loca"), maxp, head);
     }
 
     private void parseTables() {

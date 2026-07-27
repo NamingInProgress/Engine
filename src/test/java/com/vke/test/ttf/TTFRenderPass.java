@@ -44,8 +44,8 @@ public class TTFRenderPass extends RenderPass {
             this.mxs2 = p2.resource("matrixStack");
             this.proj2 = p2.resource("world");
 
-            this.proj.write(s -> s.putMat4(new Matrix4f().ortho(0, 800, 0, 600, 0, 1000, true)));
-            this.proj2.write(s -> s.putMat4(new Matrix4f().ortho(0, 800, 0, 600, 0, 1000, true)));
+            this.proj.write(s -> s.putMat4(new Matrix4f().ortho(0, 1920, 0, 600, 0, 1000, true)));
+            this.proj2.write(s -> s.putMat4(new Matrix4f().ortho(0, 1920, 0, 600, 0, 1000, true)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,12 +58,6 @@ public class TTFRenderPass extends RenderPass {
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(CommandBuffer.AttachmentInfo.color(colorOut)), null));
 
         ShapeRenderer<ShapeRendererVertex> sr = context.get("sr");
-        cmd.bindPipeline(pip);
-        this.matrixStack.write(w -> sr.getMatrixStack().upload(w));
-        cmd.bindDescriptorSets(pip);
-        cmd.setPushConstants(pip);
-
-        sr.draw();
 
         cmd.bindPipeline(pip2);
         this.mxs2.write(w -> sr.getMatrixStack().upload(w));
@@ -71,6 +65,15 @@ public class TTFRenderPass extends RenderPass {
         cmd.setPushConstants(pip2);
 
         context.<VertexConsumer<ShapeRendererVertex>>get("vc").draw();
+
+        cmd.bindPipeline(pip);
+        this.matrixStack.write(w -> sr.getMatrixStack().upload(w));
+        cmd.bindDescriptorSets(pip);
+        cmd.setPushConstants(pip);
+
+        sr.draw();
+
+
 
         cmd.endRendering();
     }
