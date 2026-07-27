@@ -47,7 +47,7 @@ public class DemoScene extends Scene {
     private static final long START = System.nanoTime();
     private RenderGraph graph;
 
-    private PressableState esc, t;
+    private PressableState esc, t, j;
 
     Random random = new Random();
 
@@ -55,6 +55,8 @@ public class DemoScene extends Scene {
 
     ByteBuffer buf;
     float size = 50;
+
+    Camera camera;
 
     @Override
     public void onLoad() {
@@ -88,7 +90,7 @@ public class DemoScene extends Scene {
                         t2)))
         );
 
-        Camera camera = new PerspectiveCamera(context, 90);
+        camera = new PerspectiveCamera(context, 90);
         CameraController controller = new FreecamController(context);
         camera.setController(controller);
 
@@ -97,6 +99,7 @@ public class DemoScene extends Scene {
         KeyboardInput keyboard = input.keyboard();
         t = keyboard.key(Key.T);
         esc = keyboard.key(Key.ESCAPE);
+        j = keyboard.key(Key.J);
 
         camera.use();
 
@@ -144,6 +147,10 @@ public class DemoScene extends Scene {
             } else {
                 getRenderSystem().getEngine().getWindow().disableCursor();
             }
+        }
+
+        if (j.wasJustPressed()) {
+            System.out.println(camera.position());
         }
 
         Matrix4f model = new Matrix4f();
