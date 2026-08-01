@@ -83,6 +83,10 @@ public class TTFReader {
         return i16();
     }
 
+    public double f2Dot14() {
+        return i16() / 16384.0;
+    }
+
     public String tag() {
         return new String(bytes(4), StandardCharsets.US_ASCII);
     }

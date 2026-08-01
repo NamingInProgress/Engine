@@ -43,7 +43,7 @@ public class TTFCmapTable {
         reader.position(used.offset);
         if (used.format == 12) return buildGlyphMapF12(reader);
         if (used.format == 4) return buildGlyphMapF4(reader);
-        return new int[10];
+        return new int[0];
     }
 
     private int[] buildGlyphMapF12(TTFReader reader) {

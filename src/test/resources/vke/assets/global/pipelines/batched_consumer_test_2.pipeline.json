@@ -1,5 +1,5 @@
 {
-  "topology": "LINES",
+  "topology": "TRIANGLES",
   "cullMode": "NONE",
   "polygonMode": "FILL",
   "attachments": [
@@ -17,11 +17,11 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/batched_consumer.vsh"
+      "src": "shaders/text_renderer.vsh"
     },
     {
       "type": "frag",
-      "src": "shaders/batched_consumer.fsh"
+      "src": "shaders/text_renderer.fsh"
     }
   ]
 }
