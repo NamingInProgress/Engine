@@ -27,6 +27,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
+import pl.epsi.MakeVertex;
+import pl.epsi.Type;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -206,9 +208,14 @@ public class DemoScene extends Scene {
 
     }
 
+    @MakeVertex
     public static class CubeVertexFormat implements Vertex {
+        public static final CubeVertexFormat TEMPLATE = null;
+        @Type.Float3
         private float x, y, z, nx, ny, nz;
+        @Type.Float2
         private float u, v;
+        @Type.Sampler2D
         private Texture texId0, texId1;
 
         public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float u, float v, Texture texId0, Texture texId1) {
@@ -224,19 +231,19 @@ public class DemoScene extends Scene {
             this.texId1 = texId1;
         }
 
-        @Override
-        public int getByteStride() {
-            return 40;
-        }
-
-        @Override
-        public void putSelf(TexturableEncoder buf) {
-            buf.float3(x, y, z);
-            buf.float3(nx, ny, nz);
-            buf.float2(u, v);
-            buf.sampler2D(texId0);
-            buf.sampler2D(texId1);
-        }
+//        @Override
+//        public int getByteStride() {
+//            return 40;
+//        }
+//
+//        @Override
+//        public void putSelf(TexturableEncoder buf) {
+//            buf.float3(x, y, z);
+//            buf.float3(nx, ny, nz);
+//            buf.float2(u, v);
+//            buf.sampler2D(texId0);
+//            buf.sampler2D(texId1);
+//        }
     }
 
     public static class Instance {

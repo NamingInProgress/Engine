@@ -6,10 +6,13 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
+import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
+import com.vke.core.color.Color;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.core.rendering.font.TextRenderer;
@@ -56,25 +59,11 @@ public class TTFRenderPass extends RenderPass {
     public void execute(CommandBuffer cmd, GraphContext context) {
         Texture colorOut = instance.getOutputTexture("colorOut");
 
-        cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(CommandBuffer.AttachmentInfo.color(colorOut)), null));
+        Texture stencil = instance.getOutputTexture("depthStencil");
+        Texture depth = instance.getOutputTexture("depthStencil");
 
-        ShapeRenderer<ShapeRendererVertex> sr = context.get("sr");
         TextRenderer tx = context.get("tx");
 
-        cmd.bindPipeline(pip2);
-        this.mxs2.write(w -> tx.getMatrixStack().upload(w));
-        cmd.bindDescriptorSets(pip2);
-        cmd.setPushConstants(pip2);
-
-        tx.draw();
-
-        cmd.bindPipeline(pip);
-        this.matrixStack.write(w -> sr.getMatrixStack().upload(w));
-        cmd.bindDescriptorSets(pip);
-        cmd.setPushConstants(pip);
-
-        sr.draw();
-
-        cmd.endRendering();
+        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, Color.VKE.toFloat()), stencil, depth);
     }
 }

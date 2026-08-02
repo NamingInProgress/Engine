@@ -71,7 +71,8 @@ public class RenderPassDefinition {
         COLOR("color"),
         DEPTH("depth"),
         STENCIL("stencil"),
-        STORAGE("storage");
+        STORAGE("storage"),
+        DEPTH_STENCIL("depth_stencil");
 
         public final String name;
 
@@ -80,6 +81,9 @@ public class RenderPassDefinition {
         }
 
         public static TextureType fromString(String name) {
+            try {
+                return TextureType.valueOf(name);
+            } catch (IllegalArgumentException e) {}
             for (TextureType value : values()) {
                 if (value.name.equalsIgnoreCase(name)) return value;
             }

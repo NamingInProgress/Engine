@@ -13,6 +13,8 @@ import com.vke.core.rendering.graph.GraphContext;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.pipeline.RenderPipelines;
+import pl.epsi.MakeVertex;
+import pl.epsi.Type;
 
 import java.util.List;
 
@@ -55,11 +57,13 @@ public class RectLoadingSceneRenderPass extends RenderPass {
         cmd.endRendering();
     }
 
+    @MakeVertex
     static class V implements Vertex {
-        public static final V TEMPLATE = new V(0, 0, 0, 0, 0, 0);
-        public static final VertexFactory<V> FACTORY = (x, y, z, r, g, b, a, u, v, matId, texture) -> new V(x, y, r, g, b, a);
+        public static final V TEMPLATE = null;
 
+        @Type.Float2
         private final float x, y;
+        @Type.Float4
         private final float r, g, b, a;
 
         V(float x, float y, float r, float g, float b, float a) {
@@ -69,17 +73,6 @@ public class RectLoadingSceneRenderPass extends RenderPass {
             this.g = g;
             this.b = b;
             this.a = a;
-        }
-
-        @Override
-        public int getByteStride() {
-            return 4 * 6;
-        }
-
-        @Override
-        public void putSelf(TexturableEncoder buf) {
-            buf.float2(x, y);
-            buf.float4(r, g, b, a);
         }
     }
 

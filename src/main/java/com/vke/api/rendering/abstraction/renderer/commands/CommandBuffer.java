@@ -18,6 +18,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.utils.io.Disposable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 public interface CommandBuffer extends Disposable {
@@ -64,10 +65,29 @@ public interface CommandBuffer extends Disposable {
     }
 
     record RenderingInfo(List<AttachmentInfo> colorAttachments,
-                         @Nullable AttachmentInfo depthStencilAttachment,
+                         @Nullable AttachmentInfo depthAttachment,
+                         @Nullable AttachmentInfo stencilAttachment,
                          Rect renderArea) {
-        public RenderingInfo(List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthStencilAttachment) {
-            this(colorAttachments, depthStencilAttachment, null);
+        public RenderingInfo(@Nullable AttachmentInfo... colorAttachments) {
+            this(Arrays.stream(colorAttachments).toList(), null, null, null);
+        }
+
+        public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment) {
+            this(colorAttachments, depthAttachment, null, null);
+        }
+
+        public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment,
+                             @Nullable AttachmentInfo stencilAttachment) {
+            this(colorAttachments, depthAttachment, stencilAttachment, null);
+        }
+
+        public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment) {
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null, null);
+        }
+
+        public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment,
+                             @Nullable AttachmentInfo stencilAttachment) {
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment, null);
         }
     }
 
@@ -102,6 +122,14 @@ public interface CommandBuffer extends Disposable {
 
         public static AttachmentInfo depth(Texture tex) {
             return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 1.0f });
+        }
+
+        public static AttachmentInfo stencil(Texture tex, float clear) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, new float[]{ clear });
+        }
+
+        public static AttachmentInfo stencil(Texture tex) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.0f });
         }
     }
 

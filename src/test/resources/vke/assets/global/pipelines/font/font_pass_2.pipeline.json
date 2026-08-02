@@ -1,0 +1,39 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR",
+      "blendEnable": true
+    },
+    {
+      "type": "DEPTH_STENCIL",
+      "format": "DEPTH32F_STENCIL8",
+      "depthTestEnable": true,
+      "stencilTestEnable": true,
+      "frontOperation": {
+        "compareOp": "NOT_EQUAL",
+        "passOp": "KEEP",
+        "failOp": "KEEP",
+        "depthFailOp": "KEEP"
+      },
+      "backOperation": {
+        "compareOp": "NOT_EQUAL",
+        "passOp": "KEEP",
+        "failOp": "KEEP",
+        "depthFailOp": "KEEP"
+      }
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/font/pass_2.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/font/pass_2.fsh"
+    }
+  ]
+}

@@ -2,30 +2,25 @@ package com.vke.api.rendering.abstraction.renderer.pipeline;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.utils.exception.Unreachable;
+
+import java.io.IOException;
 
 public abstract class PipelineDriver {
 
-    public static class DefaultPipelineDriver extends PipelineDriver {
-
-        public DefaultPipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
-            super(sys, pipeline);
-        }
-
-        @Override
-        public void use() {
-            bind();
-            bindDescriptorSets();
-            bindPushConstants();
-        }
-
-    }
-
-    private final AssetHandle<? extends Pipeline> pipeline;
-    private final RenderSystem sys;
+    protected final AssetHandle<? extends Pipeline> pipeline;
+    protected final RenderSystem sys;
+    protected final Pipeline p;
 
     public PipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
         this.pipeline = pipeline;
         this.sys = sys;
+        try {
+            this.p = pipeline.acquire(sys);
+        } catch (IOException e) {
+            sys.throwException(e, "PipelineDriver");
+            throw new Unreachable("how the fuck did you get here");
+        }
     }
 
     public void bind() {

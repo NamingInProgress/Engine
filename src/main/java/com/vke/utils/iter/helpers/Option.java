@@ -3,7 +3,6 @@ package com.vke.utils.iter.helpers;
 import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
-import pl.epsi.Deref;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class Option<T> implements Deref<T> {
+public class Option<T> {
     private T value;
     private boolean some;
 
@@ -193,10 +192,5 @@ public class Option<T> implements Deref<T> {
     public T unwrapOrNull() {
         if (isSome()) return value;
         return null;
-    }
-
-    @Override
-    public T deref() {
-        return value;
     }
 }

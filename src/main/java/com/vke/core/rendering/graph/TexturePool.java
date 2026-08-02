@@ -74,7 +74,7 @@ public class TexturePool implements Disposable {
         return switch (type) {
             case RENDER_TARGET -> null;
             case COLOR -> new ImageUsage(ImageUsage.Bits.COLOR_ATTACHMENT_BIT, ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT);
-            case DEPTH, STENCIL -> new ImageUsage(ImageUsage.Bits.DEPTH_STENCIL_ATTACHMENT_BIT, ImageUsage.Bits.SAMPLED_BIT);
+            case DEPTH, STENCIL, DEPTH_STENCIL -> new ImageUsage(ImageUsage.Bits.DEPTH_STENCIL_ATTACHMENT_BIT, ImageUsage.Bits.SAMPLED_BIT);
             case STORAGE -> new ImageUsage(ImageUsage.Bits.STORAGE_BIT, ImageUsage.Bits.SAMPLED_BIT);
         };
     }

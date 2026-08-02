@@ -212,19 +212,23 @@ public class RenderPipelineData {
     public static Pair<DepthAttachmentInfo, StencilAttachmentInfo> getDepthStencilAttachments(ConfigNode parent) {
         Iter<ConfigObjectNode> depth = iterAttachments(AttachmentType.DEPTH, parent);
         Iter<ConfigObjectNode> stencil = iterAttachments(AttachmentType.STENCIL, parent);
+        Iter<ConfigObjectNode> combined = iterAttachments(AttachmentType.DEPTH_STENCIL, parent);
 
         Option<ConfigObjectNode> d = depth.next();
         Option<ConfigObjectNode> s = stencil.next();
+        Option<ConfigObjectNode> c = combined.next();
+
+        if (c.isSome() && (d.isSome() || s.isSome())) throw new IllegalStateException("Cannot have a combined and separate depth and stencil attachments!");
 
         if (depth.next().isSome()) throw new IllegalStateException("Cannot make multiple depth attachments!");
-        if (stencil.next().isSome()) throw new IllegalStateException("Cannot make multiple depth attachments!");
+        if (stencil.next().isSome()) throw new IllegalStateException("Cannot make multiple stencil attachments!");
+        if (combined.next().isSome()) throw new IllegalStateException("Cannot make multiple combined attachments!");
 
-        var p = new Pair<>(depthAttachment(d), stencilAttachment(s));
-
-        if (p.v1 == null || p.v2 == null) return p;
-        if (p.v1.format != p.v2.format) throw new IllegalStateException("If both Depth and Stencil attachments are present, the format must match!");
-
-        return p;
+        if (c.isNone()) {
+            return new Pair<>(depthAttachment(d), stencilAttachment(s));
+        } else {
+            return new Pair<>(depthAttachment(c), stencilAttachment(c));
+        }
     }
 
     private static DepthAttachmentInfo depthAttachment(Option<ConfigObjectNode> d) {

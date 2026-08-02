@@ -35,9 +35,9 @@ public class TTFTestScene extends Scene {
 
     public TTFTestScene(Identifier name, Context context) {
         super(name, context);
-        try (InputStream stream = new FileInputStream("JetBrainsMono-Bold.ttf")) {
+        try (InputStream stream = new FileInputStream("JetBrainsMono-Regular.ttf")) {
             file = new TTFFile(stream);
-            scale = 500f / file.head.unitsPerEm;
+            scale = 140f / file.head.unitsPerEm;
 
             for (char c : "B".toCharArray()) {
                 int glyphIndex = file.cmap.glyphMap[c];
@@ -59,24 +59,15 @@ public class TTFTestScene extends Scene {
         }
     }
 
+    long start = System.nanoTime();
+
     @Override
     public void onPrepareRendering(GraphContext context) {
-        sr.color(1, 1, 1, 1);
-
-        sr.getMatrixStack().push();
-        sr.getMatrixStack().translate(400, 300, 0);
-        sr.getMatrixStack().scale(scale);
-
-        for (GlyphPoint point : bChar.points) {
-            if (!point.onCurve) continue;
-            sr.circle((int) point.vec.x, (int) point.vec.y, 5, 10);
-        }
-
-        sr.getMatrixStack().pop();
-
         tx.getMatrixStack().push();
-        tx.getMatrixStack().translate(100, 0, 0);
-        //tx.getMatrixStack().scale(scale);
+        tx.getMatrixStack().translate(400, 300, -100);
+        //tx.getMatrixStack().rotate((float) Math.toRadians(-45));
+        tx.getMatrixStack().rotate(0, (start - System.nanoTime()) / 1_000_000_000f, 0);
+        tx.getMatrixStack().scale(scale);
 
         tx.glyph(bChar);
 
@@ -95,7 +86,7 @@ public class TTFTestScene extends Scene {
     public void onLoad() throws Exception {
         this.vc = getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE);
         this.sr = new ShapeRenderer<>(getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE), ShapeRendererVertex::new);
-        this.tx = new TextRenderer(getRenderer().getVertexConsumerProvider().get(TextRenderer.TextRendererVertex.TEMPLATE));
+        this.tx = new TextRenderer(getRenderSystem(), getRenderer().getVertexConsumerProvider());
     }
 
     @Override
