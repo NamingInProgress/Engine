@@ -108,8 +108,6 @@ public class Glyph {
             if ((flags & ARGS_ARE_XY_VALUES) != 0) {
                 transform.m20(arg1);
                 transform.m21(arg2);
-            } else {
-                System.out.println("here");
             }
 
             if ((flags & WE_HAVE_A_SCALE) != 0) {

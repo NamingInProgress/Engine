@@ -10,3 +10,7 @@
   - [Asset Pipeline]()
 - [Scenes]()
 - [Rendering](rendering/rendering-architecture.md)
+- [Compiler Plugin](compiler-plugin/compiler-plugin.md)
+  - [ECS](compiler-plugin/ecs.md)
+  - [Vertex](compiler-plugin/vertex.md)
+  - [Annotation Search](compiler-plugin/annotation-search.md)

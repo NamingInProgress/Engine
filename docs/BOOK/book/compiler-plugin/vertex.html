@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Rendering - vke-Documentation</title>
+        <title>Vertex - vke-Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -175,50 +175,140 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="rendering-architecture"><a class="header" href="#rendering-architecture">Rendering Architecture</a></h1>
-<h2 id="graphics-api-abstraction"><a class="header" href="#graphics-api-abstraction">Graphics API abstraction</a></h2>
-<p>The renderer is abstracted into 4 distinct parts like so:</p>
-<pre><code>User API (High Level) - User facing api.
-↓
-Low Level - Low level data management.
-↓
-API Abstraction Layer - Abstraction over common backend objects.
-↓
-Implementation Level - Backed specific, communicates via the interfaces provided by the API Abtraction layer.
+                        <h1 id="vkecompilerplugin"><a class="header" href="#vkecompilerplugin">VKECompilerPlugin</a></h1>
+<h2 id="vertex-format-creation"><a class="header" href="#vertex-format-creation">Vertex Format Creation</a></h2>
+<p>The vertex extension of the compiler plugin aims to ease the creation of different
+vertex formats. This can be both tedious and dangerous, since manually calculating
+the byte stride can cause mistakes, so the compiler plugin does everything for you.</p>
+<p>Let's take a look at a manual vertex definition:</p>
+<pre><code class="language-java">import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+
+public class MyVertex implements Vertex {
+    /** 
+     * This field, while not strictly necessary is a nice helper
+     * for creating vertex consumers via the VertexConsumerProvider
+     **/
+    public static final MyVertex TEMPLATE = new MyVertex(0, 0, 0, 0, null);
+
+    private final float x, y;
+    private final float u, v;
+    private final Texture texture;
+
+    public MyVertex(float x, float y, float u, float v, Texture tex) {
+        this.x = x;
+        this.y = y;
+        this.u = u;
+        this.v = v;
+        this.texture = tex;
+    }
+
+    /**
+     * 4 floats + 1 int for the bindless array as specified in rendering/textures.md
+     **/
+    @Override
+    public int getByteStride() {
+        return 4 * Float.BYTES + 1 * Integer.BYTES;
+    }
+
+    @Override
+    public void putSelf(TexturableEncoder buf) {
+        buf.float2(x, y);
+        buf.float2(u, v);
+        buf.sampler2D(texture);
+    }
+}
 </code></pre>
-<p>The common developer will mostly interact with the User API layer, which exposes interfaces like <code>VertexConsumer</code>, <code>StaticMesh</code> and classes like <code>ShapeRenderer</code> to
-ease communication through the deeper api levels.</p>
-<p>The low level layer is the layer that handles managing engine data via classes like <code>TextureManager</code>, <code>FrameDataManager</code> and <code>MaterialManager</code> (this doesnt exist yet lol)
-these, interfaces handle uploading the actual textures, commonly used frame data and materials to the textures at the correct time. They are abstracted because they might be
-backed specific.</p>
-<p>The API abstraction layer handles resource creation, submitting commands. The average user should not have to interface with these classes at all. This layer provides abstractions
-over classes like <code>RenderDevice</code>, <code>Renderer</code>, <code>CommandBuffers</code> etc. They allow for drop-in replacements of the engine's included Vulkan Renderer.</p>
-<p>The implementation level, this level is <strong>backend specific</strong>, and therefore should not be used in most cases. Interfacing with this layer in objects like the <code>Scene</code>
-will prevent the possibility of using a different rendering API. If a different rendering API is used and the user accesses class from a different implementation this <strong>will</strong> cause crashes.
-This layer is only for people with significant experience who want to implement their own rendering backed.</p>
-<h2 id="render-loop"><a class="header" href="#render-loop">Render loop</a></h2>
-<pre><code>Window
-↓
-Renderer
-↓
-Render Graph Manager
-↓
-Render Passes
-↓
-Draw Calls
+<p>This is susceptible to many mistakes, such as wrong ordering in the <code>putSelf</code> method
+or an incorrect byte stride. The vertex extension allows you to omit most of these methods like so:</p>
+<pre><code class="language-java">import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import pl.epsi.MakeVertex;
+import pl.epsi.Type;
+
+@MakeVertex
+public class MyVertex implements Vertex {
+    /**
+     * When using the @MakeVertex annotation, this field is required and should be
+     * set to null, as it gets replaced by a new call automatically.
+     **/
+    public static final MyVertex TEMPLATE = null;
+
+    @Type.Float2
+    private final float x, y;
+    @Type.Float2
+    private final float u, v;
+    @Type.Sampler2D
+    private final Texture texture;
+
+    public MyVertex(float x, float y, float u, float v, Texture tex) {
+        this.x = x;
+        this.y = y;
+        this.u = u;
+        this.v = v;
+        this.texture = tex;
+    }
+}
 </code></pre>
-<p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
-via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
+<p>The constructor is left for the user to implement, because having non-initialized final variables
+in your class is an error and IDEs will complain about it. Sadly the <code>TEMPLATE</code> field cannot be
+fully automatically generated, because once again before compilation <code>MyVertex.TEMPLATE</code> does not exist
+which would cause errors in IDEs.</p>
+<p>Vertex formats defined with the <code>@MakeVertex</code> annotation should not have any fields
+that are not meant to end up in the final construction of the vertex. If these
+fields do exist the behavior is undefined and <strong>may cause crashes</strong>.</p>
+<p>Available types (Defined in the <a href="https://github.com/NamingInProgress/VKECompilerPlugin/blob/master/annotations/src/main/java/pl/epsi/Type.java">Type Annotation</a>):</p>
+<ul>
+<li>Float
+<ul>
+<li>Float1</li>
+<li>Float2</li>
+<li>Float3</li>
+<li>Float4</li>
+</ul>
+</li>
+<li>Double
+<ul>
+<li>Double1</li>
+<li>Double2</li>
+<li>Double3</li>
+<li>Double4</li>
+</ul>
+</li>
+<li>Int
+<ul>
+<li>Int1</li>
+<li>Int2</li>
+<li>Int3</li>
+<li>Int4</li>
+</ul>
+</li>
+<li>UInt
+<ul>
+<li>UInt1</li>
+<li>UInt2</li>
+<li>UInt3</li>
+<li>UInt4</li>
+</ul>
+</li>
+<li>Textures
+<ul>
+<li>Sampler2D</li>
+</ul>
+</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../config/vcl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../compiler-plugin/ecs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../compiler-plugin/annotation-search.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -228,11 +318,11 @@ via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onP
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../config/vcl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../compiler-plugin/ecs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../compiler-plugin/annotation-search.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

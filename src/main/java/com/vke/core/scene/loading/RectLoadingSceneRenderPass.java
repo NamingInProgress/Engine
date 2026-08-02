@@ -57,6 +57,7 @@ public class RectLoadingSceneRenderPass extends RenderPass {
         cmd.endRendering();
     }
 
+
     @MakeVertex
     static class V implements Vertex {
         public static final V TEMPLATE = null;

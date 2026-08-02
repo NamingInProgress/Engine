@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Rendering - vke-Documentation</title>
+        <title>Annotation Search - vke-Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -175,52 +175,53 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="rendering-architecture"><a class="header" href="#rendering-architecture">Rendering Architecture</a></h1>
-<h2 id="graphics-api-abstraction"><a class="header" href="#graphics-api-abstraction">Graphics API abstraction</a></h2>
-<p>The renderer is abstracted into 4 distinct parts like so:</p>
-<pre><code>User API (High Level) - User facing api.
-↓
-Low Level - Low level data management.
-↓
-API Abstraction Layer - Abstraction over common backend objects.
-↓
-Implementation Level - Backed specific, communicates via the interfaces provided by the API Abtraction layer.
+                        <h1 id="vkecompilerplugin"><a class="header" href="#vkecompilerplugin">VKECompilerPlugin</a></h1>
+<h2 id="annotation-searching"><a class="header" href="#annotation-searching">Annotation Searching</a></h2>
+<p>The Annotation Search extension of the vke compiler plugin allows for compile-time
+collection of classes annotated with a specified annotation. This serves to reduce the
+usage of reflection, which while powerful can significantly slow down the startup time
+of the application, especially in large projects such as <strong>vke</strong> at over 800 different classes,
+excluding libraries.</p>
+<p>This is why, if runtime scanning is not a necessity, but hard coding classes is too tedious
+you can resort to the annotation scanner, like for example the Asset Manager's <a href="https://github.com/NamingInProgress/Engine/blob/ecs/src/main/java/com/vke/core/assets/pipeline/PipelineContext.java">Pipeline Context</a>.</p>
+<p>An example implementation would look like this:</p>
+<pre><code class="language-java">public @interface MyAnnotation {}
 </code></pre>
-<p>The common developer will mostly interact with the User API layer, which exposes interfaces like <code>VertexConsumer</code>, <code>StaticMesh</code> and classes like <code>ShapeRenderer</code> to
-ease communication through the deeper api levels.</p>
-<p>The low level layer is the layer that handles managing engine data via classes like <code>TextureManager</code>, <code>FrameDataManager</code> and <code>MaterialManager</code> (this doesnt exist yet lol)
-these, interfaces handle uploading the actual textures, commonly used frame data and materials to the textures at the correct time. They are abstracted because they might be
-backed specific.</p>
-<p>The API abstraction layer handles resource creation, submitting commands. The average user should not have to interface with these classes at all. This layer provides abstractions
-over classes like <code>RenderDevice</code>, <code>Renderer</code>, <code>CommandBuffers</code> etc. They allow for drop-in replacements of the engine's included Vulkan Renderer.</p>
-<p>The implementation level, this level is <strong>backend specific</strong>, and therefore should not be used in most cases. Interfacing with this layer in objects like the <code>Scene</code>
-will prevent the possibility of using a different rendering API. If a different rendering API is used and the user accesses class from a different implementation this <strong>will</strong> cause crashes.
-This layer is only for people with significant experience who want to implement their own rendering backed.</p>
-<h2 id="render-loop"><a class="header" href="#render-loop">Render loop</a></h2>
-<pre><code>Window
-↓
-Renderer
-↓
-Render Graph Manager
-↓
-Render Passes
-↓
-Draw Calls
+<pre><code class="language-java">@MyAnnotation
+public class MyClass1 {...}
 </code></pre>
-<p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
-via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
+<pre><code class="language-java">@MyAnnotation
+public class MyClass2 {...}
+</code></pre>
+<pre><code class="language-java">import pl.epsi.SearchAnnotation;
+
+public class MyClassCollector {
+    @SearchAnnotation(target = MyAnnotation.class)
+    private static final List&lt;Class&lt;?&gt;&gt; MY_CLASSES = null;
+}
+</code></pre>
+<p>The vke compiler plugin will search through all classes and collect their annotations,
+then it will replace the null-initializer with a <code>List.of()</code> call with every class it found along the way.</p>
+<p>The field doesn't necessarily have to be static or final, however it usually is, as there is no reason
+to later replace it. One thing to keep in mind, is that the original initializer <strong>will</strong> get replaced
+at compile time, and it is <strong>not safe</strong> to assume the original value is still there after compilation.</p>
+<p>This is an example of how the compiled code for <code>MyClassCollector</code> would look like:</p>
+<pre><code class="language-java">import pl.epsi.SearchAnnotation;
+
+public class MyClassCollector {
+    @SearchAnnotation(target = MyAnnotation.class)
+    private static final List&lt;Class&lt;?&gt;&gt; MY_CLASSES = List.of(MyClass1.class, MyClass2.class);
+}
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../config/vcl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../compiler-plugin/vertex.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -228,13 +229,10 @@ via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onP
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../config/vcl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../compiler-plugin/vertex.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
             </nav>
 
         </div>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Rendering - vke-Documentation</title>
+        <title>ECS - vke-Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -175,50 +175,74 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="rendering-architecture"><a class="header" href="#rendering-architecture">Rendering Architecture</a></h1>
-<h2 id="graphics-api-abstraction"><a class="header" href="#graphics-api-abstraction">Graphics API abstraction</a></h2>
-<p>The renderer is abstracted into 4 distinct parts like so:</p>
-<pre><code>User API (High Level) - User facing api.
-↓
-Low Level - Low level data management.
-↓
-API Abstraction Layer - Abstraction over common backend objects.
-↓
-Implementation Level - Backed specific, communicates via the interfaces provided by the API Abtraction layer.
+                        <h1 id="vkecompilerplugin"><a class="header" href="#vkecompilerplugin">VKECompilerPlugin</a></h1>
+<h2 id="ecs-component-creation"><a class="header" href="#ecs-component-creation">ECS Component Creation</a></h2>
+<p>The vke compiler plugin's ecs extension aims to ease the creation of ECS components.
+To create an ECS component the "standard" way in java, it would look something like this:</p>
+<pre><code class="language-java">public class MyComponent implements Component {
+    public static final int ID = ComponentRegistry.register(MyComponent.class);
+    
+    private float[] x, y, z;
+    
+    public MyComponent(int initialSize) {
+        this.x = new float[initialSize];
+        this.y = new float[initialSize];
+        this.z = new float[initialSize];
+    }
+    
+    public int getId() { return MyComponent.ID; }
+    
+    public void resize(int newSize) {
+        this.x = Arrays.copyOf(x, newSize);
+        this.y = Arrays.copyOf(y, newSize);
+        this.z = Arrays.copyOf(z, newSize);
+    }
+    
+    public void swap(int from, int to) {
+        float tempX, tempY, tempZ;
+        tempX = x[to];
+        tempY = y[to];
+        tempZ = z[to];
+        x[to] = x[from];
+        y[to] = y[from];
+        z[to] = z[from];
+        x[from] = tempX;
+        y[from] = tempY;
+        z[from] = tempZ;
+    }
+    
+    public void copyFrom(Component other, int thisIndex, int otherIndex) {
+        if (other instanceof MyComponent mc) {
+            x[thisIndex] = mc.x[otherIndex];
+            y[thisIndex] = mc.y[otherIndex];
+            z[thisIndex] = mc.z[otherIndex];
+        }
+    }
+}
 </code></pre>
-<p>The common developer will mostly interact with the User API layer, which exposes interfaces like <code>VertexConsumer</code>, <code>StaticMesh</code> and classes like <code>ShapeRenderer</code> to
-ease communication through the deeper api levels.</p>
-<p>The low level layer is the layer that handles managing engine data via classes like <code>TextureManager</code>, <code>FrameDataManager</code> and <code>MaterialManager</code> (this doesnt exist yet lol)
-these, interfaces handle uploading the actual textures, commonly used frame data and materials to the textures at the correct time. They are abstracted because they might be
-backed specific.</p>
-<p>The API abstraction layer handles resource creation, submitting commands. The average user should not have to interface with these classes at all. This layer provides abstractions
-over classes like <code>RenderDevice</code>, <code>Renderer</code>, <code>CommandBuffers</code> etc. They allow for drop-in replacements of the engine's included Vulkan Renderer.</p>
-<p>The implementation level, this level is <strong>backend specific</strong>, and therefore should not be used in most cases. Interfacing with this layer in objects like the <code>Scene</code>
-will prevent the possibility of using a different rendering API. If a different rendering API is used and the user accesses class from a different implementation this <strong>will</strong> cause crashes.
-This layer is only for people with significant experience who want to implement their own rendering backed.</p>
-<h2 id="render-loop"><a class="header" href="#render-loop">Render loop</a></h2>
-<pre><code>Window
-↓
-Renderer
-↓
-Render Graph Manager
-↓
-Render Passes
-↓
-Draw Calls
+<p>However, as you can see, this can be very tedious and prone to breaking. This is why the VKECompilerPlugin
+offers the <code>@EcsComponent</code> annotation.
+With this annotation creating an ECS component is as simple as this:</p>
+<pre><code class="language-java">import pl.epsi.EcsComponent;
+
+@EcsComponent
+public class MyComponent implements Component {
+
+    private float[] x, y, z;
+    
+}
 </code></pre>
-<p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
-via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
+<p>Ant that's it! The compiler will automatically generate all the needed methods and fields.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../config/vcl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../compiler-plugin/compiler-plugin.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../compiler-plugin/vertex.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -228,11 +252,11 @@ via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onP
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../config/vcl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../compiler-plugin/compiler-plugin.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../compiler-plugin/vertex.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

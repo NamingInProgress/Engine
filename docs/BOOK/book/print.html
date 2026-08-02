@@ -423,6 +423,235 @@ Draw Calls
 </code></pre>
 <p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
 via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="vkecompilerplugin"><a class="header" href="#vkecompilerplugin">VKECompilerPlugin</a></h1>
+<p><strong>vke</strong> uses a java compiler plugin to ease with certain boring tasks or optimize
+certain processes.</p>
+<p>As of right now <a href="https://github.com/NamingInProgress/VKECompilerPlugin">VKECompilerPlugin</a> has the features listed below:</p>
+<ul>
+<li><a href="compiler-plugin/ecs.html">ECS Component Creation</a></li>
+<li><a href="compiler-plugin/vertex.html">Vertex Format Creation</a></li>
+<li><a href="compiler-plugin/annotation-search.html">Annotation Searching</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="vkecompilerplugin-1"><a class="header" href="#vkecompilerplugin-1">VKECompilerPlugin</a></h1>
+<h2 id="ecs-component-creation"><a class="header" href="#ecs-component-creation">ECS Component Creation</a></h2>
+<p>The vke compiler plugin's ecs extension aims to ease the creation of ECS components.
+To create an ECS component the "standard" way in java, it would look something like this:</p>
+<pre><code class="language-java">public class MyComponent implements Component {
+    public static final int ID = ComponentRegistry.register(MyComponent.class);
+    
+    private float[] x, y, z;
+    
+    public MyComponent(int initialSize) {
+        this.x = new float[initialSize];
+        this.y = new float[initialSize];
+        this.z = new float[initialSize];
+    }
+    
+    public int getId() { return MyComponent.ID; }
+    
+    public void resize(int newSize) {
+        this.x = Arrays.copyOf(x, newSize);
+        this.y = Arrays.copyOf(y, newSize);
+        this.z = Arrays.copyOf(z, newSize);
+    }
+    
+    public void swap(int from, int to) {
+        float tempX, tempY, tempZ;
+        tempX = x[to];
+        tempY = y[to];
+        tempZ = z[to];
+        x[to] = x[from];
+        y[to] = y[from];
+        z[to] = z[from];
+        x[from] = tempX;
+        y[from] = tempY;
+        z[from] = tempZ;
+    }
+    
+    public void copyFrom(Component other, int thisIndex, int otherIndex) {
+        if (other instanceof MyComponent mc) {
+            x[thisIndex] = mc.x[otherIndex];
+            y[thisIndex] = mc.y[otherIndex];
+            z[thisIndex] = mc.z[otherIndex];
+        }
+    }
+}
+</code></pre>
+<p>However, as you can see, this can be very tedious and prone to breaking. This is why the VKECompilerPlugin
+offers the <code>@EcsComponent</code> annotation.
+With this annotation creating an ECS component is as simple as this:</p>
+<pre><code class="language-java">import pl.epsi.EcsComponent;
+
+@EcsComponent
+public class MyComponent implements Component {
+
+    private float[] x, y, z;
+    
+}
+</code></pre>
+<p>Ant that's it! The compiler will automatically generate all the needed methods and fields.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="vkecompilerplugin-2"><a class="header" href="#vkecompilerplugin-2">VKECompilerPlugin</a></h1>
+<h2 id="vertex-format-creation"><a class="header" href="#vertex-format-creation">Vertex Format Creation</a></h2>
+<p>The vertex extension of the compiler plugin aims to ease the creation of different
+vertex formats. This can be both tedious and dangerous, since manually calculating
+the byte stride can cause mistakes, so the compiler plugin does everything for you.</p>
+<p>Let's take a look at a manual vertex definition:</p>
+<pre><code class="language-java">import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+
+public class MyVertex implements Vertex {
+    /** 
+     * This field, while not strictly necessary is a nice helper
+     * for creating vertex consumers via the VertexConsumerProvider
+     **/
+    public static final MyVertex TEMPLATE = new MyVertex(0, 0, 0, 0, null);
+
+    private final float x, y;
+    private final float u, v;
+    private final Texture texture;
+
+    public MyVertex(float x, float y, float u, float v, Texture tex) {
+        this.x = x;
+        this.y = y;
+        this.u = u;
+        this.v = v;
+        this.texture = tex;
+    }
+
+    /**
+     * 4 floats + 1 int for the bindless array as specified in rendering/textures.md
+     **/
+    @Override
+    public int getByteStride() {
+        return 4 * Float.BYTES + 1 * Integer.BYTES;
+    }
+
+    @Override
+    public void putSelf(TexturableEncoder buf) {
+        buf.float2(x, y);
+        buf.float2(u, v);
+        buf.sampler2D(texture);
+    }
+}
+</code></pre>
+<p>This is susceptible to many mistakes, such as wrong ordering in the <code>putSelf</code> method
+or an incorrect byte stride. The vertex extension allows you to omit most of these methods like so:</p>
+<pre><code class="language-java">import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import pl.epsi.MakeVertex;
+import pl.epsi.Type;
+
+@MakeVertex
+public class MyVertex implements Vertex {
+    /**
+     * When using the @MakeVertex annotation, this field is required and should be
+     * set to null, as it gets replaced by a new call automatically.
+     **/
+    public static final MyVertex TEMPLATE = null;
+
+    @Type.Float2
+    private final float x, y;
+    @Type.Float2
+    private final float u, v;
+    @Type.Sampler2D
+    private final Texture texture;
+
+    public MyVertex(float x, float y, float u, float v, Texture tex) {
+        this.x = x;
+        this.y = y;
+        this.u = u;
+        this.v = v;
+        this.texture = tex;
+    }
+}
+</code></pre>
+<p>The constructor is left for the user to implement, because having non-initialized final variables
+in your class is an error and IDEs will complain about it. Sadly the <code>TEMPLATE</code> field cannot be
+fully automatically generated, because once again before compilation <code>MyVertex.TEMPLATE</code> does not exist
+which would cause errors in IDEs.</p>
+<p>Vertex formats defined with the <code>@MakeVertex</code> annotation should not have any fields
+that are not meant to end up in the final construction of the vertex. If these
+fields do exist the behavior is undefined and <strong>may cause crashes</strong>.</p>
+<p>Available types (Defined in the <a href="https://github.com/NamingInProgress/VKECompilerPlugin/blob/master/annotations/src/main/java/pl/epsi/Type.java">Type Annotation</a>):</p>
+<ul>
+<li>Float
+<ul>
+<li>Float1</li>
+<li>Float2</li>
+<li>Float3</li>
+<li>Float4</li>
+</ul>
+</li>
+<li>Double
+<ul>
+<li>Double1</li>
+<li>Double2</li>
+<li>Double3</li>
+<li>Double4</li>
+</ul>
+</li>
+<li>Int
+<ul>
+<li>Int1</li>
+<li>Int2</li>
+<li>Int3</li>
+<li>Int4</li>
+</ul>
+</li>
+<li>UInt
+<ul>
+<li>UInt1</li>
+<li>UInt2</li>
+<li>UInt3</li>
+<li>UInt4</li>
+</ul>
+</li>
+<li>Textures
+<ul>
+<li>Sampler2D</li>
+</ul>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="vkecompilerplugin-3"><a class="header" href="#vkecompilerplugin-3">VKECompilerPlugin</a></h1>
+<h2 id="annotation-searching"><a class="header" href="#annotation-searching">Annotation Searching</a></h2>
+<p>The Annotation Search extension of the vke compiler plugin allows for compile-time
+collection of classes annotated with a specified annotation. This serves to reduce the
+usage of reflection, which while powerful can significantly slow down the startup time
+of the application, especially in large projects such as <strong>vke</strong> at over 800 different classes,
+excluding libraries.</p>
+<p>This is why, if runtime scanning is not a necessity, but hard coding classes is too tedious
+you can resort to the annotation scanner, like for example the Asset Manager's <a href="https://github.com/NamingInProgress/Engine/blob/ecs/src/main/java/com/vke/core/assets/pipeline/PipelineContext.java">Pipeline Context</a>.</p>
+<p>An example implementation would look like this:</p>
+<pre><code class="language-java">public @interface MyAnnotation {}
+</code></pre>
+<pre><code class="language-java">@MyAnnotation
+public class MyClass1 {...}
+</code></pre>
+<pre><code class="language-java">@MyAnnotation
+public class MyClass2 {...}
+</code></pre>
+<pre><code class="language-java">import pl.epsi.SearchAnnotation;
+
+public class MyClassCollector {
+    @SearchAnnotation(target = MyAnnotation.class)
+    private static final List&lt;Class&lt;?&gt;&gt; MY_CLASSES = null;
+}
+</code></pre>
+<p>The vke compiler plugin will search through all classes and collect their annotations,
+then it will replace the null-initializer with a <code>List.of()</code> call with every class it found along the way.</p>
+<p>The field doesn't necessarily have to be static or final, however it usually is, as there is no reason
+to later replace it. One thing to keep in mind, is that the original initializer <strong>will</strong> get replaced
+at compile time, and it is <strong>not safe</strong> to assume the original value is still there after compilation.</p>
+<p>This is an example of how the compiled code for <code>MyClassCollector</code> would look like:</p>
+<pre><code class="language-java">import pl.epsi.SearchAnnotation;
+
+public class MyClassCollector {
+    @SearchAnnotation(target = MyAnnotation.class)
+    private static final List&lt;Class&lt;?&gt;&gt; MY_CLASSES = List.of(MyClass1.class, MyClass2.class);
+}
+</code></pre>
 
                     </main>
 

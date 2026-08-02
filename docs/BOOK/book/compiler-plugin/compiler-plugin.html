@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Rendering - vke-Documentation</title>
+        <title>Compiler Plugin - vke-Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -175,50 +175,25 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="rendering-architecture"><a class="header" href="#rendering-architecture">Rendering Architecture</a></h1>
-<h2 id="graphics-api-abstraction"><a class="header" href="#graphics-api-abstraction">Graphics API abstraction</a></h2>
-<p>The renderer is abstracted into 4 distinct parts like so:</p>
-<pre><code>User API (High Level) - User facing api.
-↓
-Low Level - Low level data management.
-↓
-API Abstraction Layer - Abstraction over common backend objects.
-↓
-Implementation Level - Backed specific, communicates via the interfaces provided by the API Abtraction layer.
-</code></pre>
-<p>The common developer will mostly interact with the User API layer, which exposes interfaces like <code>VertexConsumer</code>, <code>StaticMesh</code> and classes like <code>ShapeRenderer</code> to
-ease communication through the deeper api levels.</p>
-<p>The low level layer is the layer that handles managing engine data via classes like <code>TextureManager</code>, <code>FrameDataManager</code> and <code>MaterialManager</code> (this doesnt exist yet lol)
-these, interfaces handle uploading the actual textures, commonly used frame data and materials to the textures at the correct time. They are abstracted because they might be
-backed specific.</p>
-<p>The API abstraction layer handles resource creation, submitting commands. The average user should not have to interface with these classes at all. This layer provides abstractions
-over classes like <code>RenderDevice</code>, <code>Renderer</code>, <code>CommandBuffers</code> etc. They allow for drop-in replacements of the engine's included Vulkan Renderer.</p>
-<p>The implementation level, this level is <strong>backend specific</strong>, and therefore should not be used in most cases. Interfacing with this layer in objects like the <code>Scene</code>
-will prevent the possibility of using a different rendering API. If a different rendering API is used and the user accesses class from a different implementation this <strong>will</strong> cause crashes.
-This layer is only for people with significant experience who want to implement their own rendering backed.</p>
-<h2 id="render-loop"><a class="header" href="#render-loop">Render loop</a></h2>
-<pre><code>Window
-↓
-Renderer
-↓
-Render Graph Manager
-↓
-Render Passes
-↓
-Draw Calls
-</code></pre>
-<p>The render loop is entirely managed by the engine, the user only specifies the render graph of the current scene and provides any additional data for the <code>RenderPass</code> objects
-via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onPrepareRendering</code> and <code>onRenderPassFinished</code> methods.</p>
+                        <h1 id="vkecompilerplugin"><a class="header" href="#vkecompilerplugin">VKECompilerPlugin</a></h1>
+<p><strong>vke</strong> uses a java compiler plugin to ease with certain boring tasks or optimize
+certain processes.</p>
+<p>As of right now <a href="https://github.com/NamingInProgress/VKECompilerPlugin">VKECompilerPlugin</a> has the features listed below:</p>
+<ul>
+<li><a href="ecs.html">ECS Component Creation</a></li>
+<li><a href="vertex.html">Vertex Format Creation</a></li>
+<li><a href="annotation-search.html">Annotation Searching</a></li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../config/vcl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../rendering/rendering-architecture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../compiler-plugin/ecs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -228,11 +203,11 @@ via the <code>GraphContext</code> provided in the <code>Scene</code>'s <code>onP
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../config/vcl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../rendering/rendering-architecture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../compiler-plugin/compiler-plugin.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../compiler-plugin/ecs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
