@@ -67,6 +67,7 @@ public class MouseInputImpl implements MouseInput {
             buttonState.onFrame();
         }
         scrollState.onFrame();
+        positionState.onFrame();
     }
 
     @Override

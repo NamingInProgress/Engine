@@ -26,7 +26,6 @@ public class CameraController2DMB implements CameraController, Framable {
     private final MousePositionState mousePosition;
     private final MouseScrollState mouseScroll;
 
-    private double lastX, lastY;
     private float sensitivity, scrollSensitivity;
 
     private Camera camera;
@@ -55,13 +54,8 @@ public class CameraController2DMB implements CameraController, Framable {
             return;
         }
 
-        double dx = mousePosition.getX() - lastX;
-        double dy = mousePosition.getY() - lastY;
-        lastX = mousePosition.getX();
-        lastY = mousePosition.getY();
-
         if (middle.isPressed()) {
-            camera.setPosition(new Vector3f(camera.position()).sub((float) (dx * sensitivity), (float) (dy * sensitivity), 0));
+            camera.setPosition(new Vector3f(camera.position()).sub((float) (mousePosition.getDx() * sensitivity), (float) (mousePosition.getDy() * sensitivity), 0));
         }
 
         camera.setZoom((float) (camera.zoom() + mouseScroll.getDy() * scrollSensitivity));
@@ -81,5 +75,8 @@ public class CameraController2DMB implements CameraController, Framable {
 
     public void setSensitivity(float sensitivity) {
         this.sensitivity = sensitivity;
+    }
+    public void setScrollSensitivity(float scrollSensitivity) {
+        this.scrollSensitivity = scrollSensitivity;
     }
 }

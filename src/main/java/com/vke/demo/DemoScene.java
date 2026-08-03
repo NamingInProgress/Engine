@@ -1,6 +1,5 @@
 package com.vke.demo;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.game.camera.Camera;
@@ -20,11 +19,9 @@ import com.vke.core.Context;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.post.PostProcessingRenderPass;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 import pl.epsi.MakeVertex;
@@ -229,6 +226,7 @@ public class DemoScene extends Scene {
             this.v = v;
             this.texId0 = texId0;
             this.texId1 = texId1;
+            TexturableEncoder a = null;
         }
 
 //        @Override
