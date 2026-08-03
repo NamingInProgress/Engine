@@ -1,13 +1,13 @@
 package com.vke.core.font.ttf.table;
 
-import com.vke.core.font.ttf.TTFFile;
+import com.vke.core.font.ttf.TTFFont;
 import com.vke.core.font.ttf.TTFReader;
 
 public class TTFLocaTable {
 
     public final int[] offsets;
 
-    public TTFLocaTable(TTFReader reader, TTFFile.TableInfo table, TTFMaxpTable maxp, TTFHeadTable head) {
+    public TTFLocaTable(TTFReader reader, TTFFont.TableInfo table, TTFMaxpTable maxp, TTFHeadTable head) {
         if (table == null) throw new IllegalStateException("Missing loca table!");
         reader.position(table.offset);
 

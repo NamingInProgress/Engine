@@ -1,0 +1,16 @@
+/* Background of fenced code blocks */
+pre {
+    background-color: #1e1e1e !important;
+    border-radius: 6px;
+}
+
+/* The actual code */
+pre code {
+    background: transparent !important;
+}
+
+/* Inline code */
+code {
+    background-color: #2d2d2d;
+}
+

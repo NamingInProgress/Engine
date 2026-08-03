@@ -3,14 +3,14 @@ package com.vke.core.font.ttf;
 import com.carrotsearch.hppc.BitSet;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.ObjectArrayList;
+import com.vke.core.font.ttf.table.TTFCmapTable;
 import com.vke.core.font.ttf.table.TTFGlyfTable;
+import com.vke.core.font.ttf.table.TTFHmtxTable;
 import org.joml.Matrix3f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Glyph {
-
-    public static final Glyph EMPTY = new Glyph();
 
     private static final int ON_CURVE = 1 << 0;
     private static final int X_SHORT_VEC = 1 << 1;
@@ -35,13 +35,16 @@ public class Glyph {
     public final short numContours;
     public final short xMin, yMin, xMax, yMax;
     public final GlyphType type;
+    public final int advanceWidth;
+    public final short leftSideBearing;
+    public final int glyphIndex;
 
     public int[] endPointsOfContours;
     public int[] instructions;
 
     public GlyphPoint[] points;
 
-    private Glyph() {
+    private Glyph(int advanceWidth, short leftSideBearing, int glyphIndex) {
         this.glyf = null;
         this.numContours = 0;
         this.xMin = 0;
@@ -49,12 +52,15 @@ public class Glyph {
         this.xMax = 0;
         this.yMax = 0;
         this.type = GlyphType.SIMPLE;
-        this.endPointsOfContours = new int[]{0};
+        this.endPointsOfContours = new int[0];
         this.instructions = new int[0];
         this.points = new GlyphPoint[0];
+        this.advanceWidth = advanceWidth;
+        this.leftSideBearing = leftSideBearing;
+        this.glyphIndex = glyphIndex;
     }
 
-    public Glyph(TTFGlyfTable glyf, TTFReader reader, long totalOffset) {
+    public Glyph(TTFGlyfTable glyf, TTFReader reader, long totalOffset, TTFHmtxTable hmtx, int glyphIndex) {
         this.glyf = glyf;
         reader.position(totalOffset);
         this.numContours = reader.i16();
@@ -62,6 +68,9 @@ public class Glyph {
         this.yMin = reader.fword();
         this.xMax = reader.fword();
         this.yMax = reader.fword();
+        this.advanceWidth = hmtx.metrics[glyphIndex].advanceWidth();
+        this.leftSideBearing = hmtx.metrics[glyphIndex].leftSideBearing();
+        this.glyphIndex = glyphIndex;
 
         if (numContours < 0) {
             type = GlyphType.COMPOUND;
@@ -70,6 +79,10 @@ public class Glyph {
             type = GlyphType.SIMPLE;
             parseSimple(reader);
         }
+    }
+
+    public static Glyph Empty(TTFHmtxTable hmtx, int glyphIndex) {
+        return new Glyph(hmtx.metrics[glyphIndex].advanceWidth(), hmtx.metrics[glyphIndex].leftSideBearing(), glyphIndex);
     }
 
     private void parseCompound(TTFReader reader) {

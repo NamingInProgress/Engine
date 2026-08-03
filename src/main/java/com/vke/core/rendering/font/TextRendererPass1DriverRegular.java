@@ -11,19 +11,12 @@ import org.joml.Matrix4f;
 public class TextRendererPass1DriverRegular extends PipelineDriver {
 
     private final BufferResource matrices;
-    private final ValueResource projection;
 
-    private Matrix4f projMat;
     private MatrixStack matrixStack;
 
     public TextRendererPass1DriverRegular(RenderSystem sys) {
         super(sys, R.pipelines.get("vke:font_pass_1_regular.pipeline.json"));
         this.matrices = p.resource("u_MatrixStack");
-        this.projection = p.resource("projection");
-    }
-
-    public void setProjection(Matrix4f proj) {
-        this.projMat = proj;
     }
 
     public void setMatrixStack(MatrixStack stack) {
@@ -33,7 +26,6 @@ public class TextRendererPass1DriverRegular extends PipelineDriver {
     @Override
     public void use() {
         matrices.write(writer -> matrixStack.upload(writer));
-        projection.write(writer -> writer.putMat4(projMat));
         bind();
         bindPushConstants();
         bindDescriptorSets();

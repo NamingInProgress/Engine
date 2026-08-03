@@ -3,30 +3,30 @@ package com.vke.core.input.mouse;
 import com.vke.utils.collection.AbstractGlossary;
 
 public class MousePositionState {
-    private int x, y;
+    private double x, y;
     private final Listener.Glossary listeners = new Listener.Glossary();
 
-    void setX(int x) {
+    void setX(double x) {
         this.x = x;
         this.listeners.onPositionChange(x, y);
     }
 
-    void setY(int y) {
+    void setY(double y) {
         this.y = y;
         this.listeners.onPositionChange(x, y);
     }
 
-    void setXY(int x, int y) {
+    void setXY(double x, double y) {
         this.x = x;
         this.y = y;
         this.listeners.onPositionChange(x, y);
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
@@ -39,11 +39,11 @@ public class MousePositionState {
     }
 
     public interface Listener {
-        void onPositionChange(int x, int y);
+        void onPositionChange(double x, double y);
 
         class Glossary extends AbstractGlossary<Listener> implements Listener {
             @Override
-            public void onPositionChange(int x, int y) {
+            public void onPositionChange(double x, double y) {
                 entries.forEach(l -> l.onPositionChange(x, y));
             }
         }

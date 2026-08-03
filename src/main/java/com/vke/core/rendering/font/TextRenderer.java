@@ -1,15 +1,17 @@
 package com.vke.core.rendering.font;
 
+import com.vke.api.font.Font;
+import com.vke.api.font.FontCursor;
 import com.vke.api.rendering.abstraction.draw.Drawable;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
+import com.vke.core.color.Color;
 import com.vke.core.font.ttf.Glyph;
 import com.vke.core.font.ttf.GlyphPoint;
 import com.vke.core.rendering.transform.MatrixStack;
@@ -17,10 +19,12 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
+import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+
+import java.util.List;
 
 public class TextRenderer implements Drawable {
 
-    private static final float[] DEFAULT_UV = { 0,0,1,1 };
     private final VertexConsumer<BezierVertex> bezier;
     private final VertexConsumer<RegularVertex> regular;
     private final VertexConsumer<QuadVertex> quad;
@@ -30,12 +34,18 @@ public class TextRenderer implements Drawable {
     private final TextRendererPass1DriverRegular pass1;
     private final TextRendererPass2Driver pass2;
 
+    private final Font font;
+
     //mutable state
+    private float baseX, baseY;
     private float r = 1, g = 1, b = 1, a = 1;
     private float z;
-    private Matrix4f projection;
+    private float fontSize; // This is **not** the font scale calculated by size / font.unitsPerEm(). This is the size.
+    private float fontScale;
 
-    public TextRenderer(RenderSystem sys, VertexConsumerProvider provider) {
+    public TextRenderer(RenderSystem sys, Font font, VertexConsumerProvider provider) {
+        this.font = font;
+
         this.bezier = provider.get(BezierVertex.TEMPLATE);
         this.regular = provider.get(RegularVertex.TEMPLATE);
         this.quad = provider.get(QuadVertex.TEMPLATE);
@@ -43,11 +53,33 @@ public class TextRenderer implements Drawable {
         this.pass1 = new TextRendererPass1DriverRegular(sys);
         this.pass1Bezier = new TextRendererPass1DriverBezier(sys);
         this.pass2 = new TextRendererPass2Driver(sys);
-
-        this.projection = new Matrix4f().ortho(0, 800, 0, 600, 0, 1000, sys.zZeroToOne());
     }
 
-    public void glyph(Glyph g) {
+    public void accept(FontCursor cursor, boolean reset) {
+        List<FontCursor.GlyphInfo> data = cursor.read();
+        matrixStack.push();
+        for (FontCursor.GlyphInfo datum : data) {
+            if (fontSize != datum.fontSize()) {
+                this.fontSize = datum.fontSize();
+                this.fontScale = fontSize / (float) font.unitsPerEm();
+                matrixStack.pop();
+                matrixStack.push();
+                matrixStack.scale(fontScale);
+            }
+
+            this.baseX = datum.x() / fontScale;
+            this.baseY = datum.y() / fontScale;
+
+            glyph(datum.g());
+        }
+        matrixStack.pop();
+        fontSize = -1;
+
+        if (reset) cursor.reset();
+    }
+
+    //@ChatGPT("Fix this, no mistakes plz")
+    private void glyph(Glyph g) {
         Vector2f center = new Vector2f((g.xMin + g.xMax) / 2f, (g.yMin + g.yMax) / 2f);
         int contourStartIndex = 0;
         int[] endPointsOfContours = g.endPointsOfContours;
@@ -101,19 +133,45 @@ public class TextRenderer implements Drawable {
     }
 
     public BezierVertex bezier_vert(Vector2f vec, float u, float v) {
-        return new BezierVertex(vec.x, vec.y, z, u, v, matrixStack.currentMatrixIndex());
+        return new BezierVertex(baseX + vec.x, baseY + vec.y, z, u, v, matrixStack.currentMatrixIndex());
     }
 
     public RegularVertex regular_vert(Vector2f vec) {
-        return new RegularVertex(vec.x, vec.y, z, matrixStack.currentMatrixIndex());
+        return new RegularVertex(baseX + vec.x, baseY + vec.y, z, matrixStack.currentMatrixIndex());
     }
 
     public QuadVertex quad_vert(float x, float y) {
-        return new QuadVertex(x, y, z, r, g, b, a, matrixStack.currentMatrixIndex());
+        return new QuadVertex(baseX + x, baseY + y, z, r, g, b, a, matrixStack.currentMatrixIndex());
     }
 
     public MatrixStack getMatrixStack() {
         return matrixStack;
+    }
+
+    public void color(Color color) {
+        this.r = color.r();
+        this.g = color.g();
+        this.b = color.b();
+        this.a = color.a();
+    }
+
+    public void color(float r, float g, float b, float a) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    public void z(float z) {
+        this.z = z;
+    }
+
+    public void xOffset(float xOffset) {
+        this.baseX = xOffset;
+    }
+
+    public void yOffset(float yOffset) {
+        this.baseY = yOffset;
     }
 
     public void render(CommandBuffer cmd, CommandBuffer.AttachmentInfo color, Texture stencil, Texture depth) {
@@ -124,13 +182,11 @@ public class TextRenderer implements Drawable {
         ));
 
         pass1.setMatrixStack(matrixStack);
-        pass1.setProjection(projection);
         pass1.use();
 
         regular.draw();
 
         pass1Bezier.setMatrixStack(matrixStack);
-        pass1Bezier.setProjection(projection);
         pass1Bezier.use();
 
         bezier.draw();
@@ -144,7 +200,6 @@ public class TextRenderer implements Drawable {
         ));
 
         pass2.setMatrixStack(matrixStack);
-        pass2.setProjection(projection);
         pass2.use();
 
         quad.draw();

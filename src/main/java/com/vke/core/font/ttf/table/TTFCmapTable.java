@@ -1,7 +1,6 @@
 package com.vke.core.font.ttf.table;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.vke.core.font.ttf.TTFFile;
+import com.vke.core.font.ttf.TTFFont;
 import com.vke.core.font.ttf.TTFReader;
 
 public class TTFCmapTable {
@@ -12,7 +11,7 @@ public class TTFCmapTable {
 
     public final int[] glyphMap;
 
-    public TTFCmapTable(TTFReader reader, TTFFile.TableInfo tableInfo) {
+    public TTFCmapTable(TTFReader reader, TTFFont.TableInfo tableInfo) {
         if (tableInfo == null) throw new IllegalStateException("Missing CMAP table!");
         reader.position(tableInfo.offset);
         reader.skip(2);

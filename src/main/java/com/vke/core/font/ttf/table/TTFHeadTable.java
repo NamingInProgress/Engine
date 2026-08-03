@@ -1,6 +1,6 @@
 package com.vke.core.font.ttf.table;
 
-import com.vke.core.font.ttf.TTFFile;
+import com.vke.core.font.ttf.TTFFont;
 import com.vke.core.font.ttf.TTFReader;
 
 public class TTFHeadTable {
@@ -19,7 +19,7 @@ public class TTFHeadTable {
     public final short indexToLocFormat;
     public final short glyphDataFormat;
 
-    public TTFHeadTable(TTFReader reader, TTFFile.TableInfo tableInfo) {
+    public TTFHeadTable(TTFReader reader, TTFFont.TableInfo tableInfo) {
         if (tableInfo == null) throw new IllegalStateException("Missing HEAD table!");
         reader.position(tableInfo.offset);
         this.version = reader.fixed();

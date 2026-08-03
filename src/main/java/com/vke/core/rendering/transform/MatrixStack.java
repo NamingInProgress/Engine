@@ -4,9 +4,13 @@ import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import org.joml.Matrix4f;
 
+import java.util.Arrays;
+
 public class MatrixStack {
     private final RecyclerArrayList<Matrix4f> stack;
-    private int index;
+    private int[] indexStack;   // Maps logical stack depth -> physical list index
+    private int depth;          // Current logical stack depth
+    private int nextListIndex;  // Next available physical slot in the list
     private Matrix4f m;
 
     public MatrixStack() {
@@ -15,35 +19,48 @@ public class MatrixStack {
 
     public MatrixStack(int capacity) {
         stack = new RecyclerArrayList<>(capacity);
+        indexStack = new int[capacity];
 
         this.m = new Matrix4f();
         stack.add(m);
 
-        index = 1;
+        indexStack[0] = 0;
+        depth = 0;
+        nextListIndex = 1;
     }
 
     public void reset() {
-        index = 1;
         stack.clear();
         stack.virtualAdd();
+
+        depth = 0;
+        nextListIndex = 1;
+        indexStack[0] = 0;
 
         this.m = stack.get(0).identity();
     }
 
     public void push() {
-        Matrix4f current = stack.get(index - 1);
-        Matrix4f next = stack.getOrCreateElement(index, true, Matrix4f::new);
+        if (depth + 1 >= indexStack.length) {
+            indexStack = Arrays.copyOf(indexStack, indexStack.length * 2);
+        }
 
+        Matrix4f current = m;
+        int newPhysicalIndex = nextListIndex++;
+
+        Matrix4f next = stack.getOrCreateElement(newPhysicalIndex, true, Matrix4f::new);
         next.set(current);
+
+        depth++;
+        indexStack[depth] = newPhysicalIndex;
         m = next;
-        index++;
     }
 
     public void pop() {
-        if (index > 1) {
-            index--;
+        if (depth > 0) {
+            depth--;
+            m = stack.get(indexStack[depth]);
         }
-        m = stack.get(index - 1);
     }
 
     public Matrix4f current() {
@@ -51,11 +68,11 @@ public class MatrixStack {
     }
 
     public int currentMatrixIndex() {
-        return index - 1;
+        return indexStack[depth];
     }
 
     public int size() {
-        return index;
+        return depth + 1;
     }
 
     public void transform(LinearTransform transform) {
@@ -91,7 +108,7 @@ public class MatrixStack {
     }
 
     public void upload(BufferSlice sink) {
-        for (int i = 0, l = stack.len(); i < l; i++) {
+        for (int i = 0; i < nextListIndex; i++) {
             sink.putMat4(stack.get(i));
         }
     }

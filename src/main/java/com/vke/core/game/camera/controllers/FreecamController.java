@@ -37,8 +37,8 @@ public class FreecamController implements CameraController, Framable {
 
     private int lastX, lastY;
 
-    private final float speed;
-    private final float sensitivity;
+    private float speed;
+    private float sensitivity;
 
     private Camera camera;
 
@@ -126,5 +126,13 @@ public class FreecamController implements CameraController, Framable {
     public void detachCamera() {
         camera = null;
         framableManager.removeFramable(this);
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
     }
 }

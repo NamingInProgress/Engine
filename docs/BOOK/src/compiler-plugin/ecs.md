@@ -58,4 +58,4 @@ public class MyComponent implements Component {
     
 }
 ```
-Ant that's it! The compiler will automatically generate all the needed methods and fields.
+And that's it! The compiler will automatically generate all the needed methods and fields.
