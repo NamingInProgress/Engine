@@ -21,6 +21,9 @@ public class Archetype {
     //JUST TEMPORARY REPLACE WITH MORE EFFICIENT IMMUTABLE MAP
     private final IntObjectHashMap<Component> compMap;
 
+    public static int IDS = 0;
+    private final int id = IDS++;
+
     public Archetype(ComponentMask mask, int usedComponents, ComponentRegistry registry) {
         this.mask = mask;
         this.entryAmount = 0;
@@ -137,5 +140,9 @@ public class Archetype {
         }
         owners[newIdx] = entity;
         return newIdx;
+    }
+
+    public int getId() {
+        return id;
     }
 }

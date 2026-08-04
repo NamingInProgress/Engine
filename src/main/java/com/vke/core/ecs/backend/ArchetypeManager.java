@@ -1,8 +1,14 @@
 package com.vke.core.ecs.backend;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
+import com.vke.utils.tuple.Ntel;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ArchetypeManager {
     private final MaskMap map;
@@ -38,5 +44,25 @@ public class ArchetypeManager {
         oldArch.dangleEntity(oldIdx, alloc);
         alloc.setArchetypeIndex(entity, newIdx);
         alloc.setArchetype(entity, newArch);
+    }
+
+    public void destroyEntity(int entity) {
+        Archetype arch = alloc.getArchetype(entity);
+        int index = alloc.getArchetypeIndex(entity);
+        arch.destroyEntity(index, alloc);
+    }
+
+    private static final int BATCHED_PATH_THRESHOLD = 128;
+
+    public void destroyEntities(int[] entities) {
+        if (entities.length < BATCHED_PATH_THRESHOLD) {
+            for (int entity : entities) {
+                destroyEntity(entity);
+            }
+        } else {
+            int maxArch = Archetype.IDS;
+            int educatedGuess = Math.min(entities.length / 50, Math.min(50, maxArch));
+            IntObjectHashMap<IntArrayList> byArch = new IntObjectHashMap<>(educatedGuess);
+        }
     }
 }
