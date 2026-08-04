@@ -1,6 +1,7 @@
 package com.vke.core.ecs.backend;
 
 import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.ObjectArrayList;
 import com.vke.api.annotation.PotentiallyUnsafe;
 import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.ecs.api.EntityInitializer;
@@ -21,10 +22,12 @@ public class Archetype {
     //JUST TEMPORARY REPLACE WITH MORE EFFICIENT IMMUTABLE MAP
     private final IntObjectHashMap<Component> compMap;
 
-    public static int IDS = 0;
-    private final int id = IDS++;
+    private final int id;
 
-    public Archetype(ComponentMask mask, int usedComponents, ComponentRegistry registry) {
+    public static int IDS = 0;
+    private static final ObjectArrayList<Archetype> ALL = new ObjectArrayList<>();
+
+    public Archetype(ComponentMask mask, int usedComponents) {
         this.mask = mask;
         this.entryAmount = 0;
         this.owners = new int[0];
@@ -39,7 +42,14 @@ public class Archetype {
             this.idxToId = null;
         }
 
-        createComponents(mask, registry);
+        createComponents(mask);
+
+        this.id = IDS++;
+        ALL.set(id, this);
+    }
+
+    public static Archetype findById(int id) {
+        return ALL.get(id);
     }
 
     public ComponentMask getMask() {
@@ -64,7 +74,9 @@ public class Archetype {
         int[] entities = new int[amount];
         for (int i = 0; i < amount; i++) {
             int id = allocator.genEntityId(this, left + i);
-            initializer.initialize(this, left, entryAmount - 1, i);
+            if (initializer != null) {
+                initializer.initialize(this, left, entryAmount - 1, i);
+            }
             entities[i] = id;
             owners[i + left] = id;
         }
@@ -112,16 +124,16 @@ public class Archetype {
         return compArr;
     }
 
-    private void createComponents(ComponentMask mask, ComponentRegistry registry) {
+    private void createComponents(ComponentMask mask) {
         int[] ids = mask.getComponents();
         if (compMap == null) {
             for (int id : ids) {
-                compArr[id] = registry.getInstance(id);
+                compArr[id] = ComponentRegistry.getInstance(id);
             }
         } else {
             for (int i = 0, idsLength = ids.length; i < idsLength; i++) {
                 int id = ids[i];
-                Component instance = registry.getInstance(id);
+                Component instance = ComponentRegistry.getInstance(id);
                 compMap.put(id, instance);
                 compArr[i] = instance;
                 idxToId[i] = id;
@@ -144,5 +156,33 @@ public class Archetype {
 
     public int getId() {
         return id;
+    }
+
+    public void destroyConsecutiveEntities(int index, int length, EntityAllocator alloc) {
+        //fast path: we are at the end. unlikely, but much much much much faster
+        int right = index + length;
+        if (right == entryAmount) {
+            entryAmount -= length;
+            return;
+        }
+
+        int tailAmount = entryAmount - right;
+        int toCopy = Math.min(tailAmount, length);
+        int copyStart = entryAmount - toCopy;
+        for (Component component : compArr) {
+            component.copyRange(copyStart, index, toCopy);
+        }
+
+        for (int i = 0; i < toCopy; i++) {
+            int oldIdx = i + copyStart;
+            int newIdx = i + index;
+            int entity = owners[oldIdx];
+            int oldEntity = owners[newIdx];
+            owners[newIdx] = entity;
+            alloc.freeEntityId(oldEntity);
+            alloc.updateLocationIndex(entity, newIdx);
+        }
+
+        entryAmount -= length;
     }
 }

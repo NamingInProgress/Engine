@@ -2,9 +2,13 @@ package com.vke.core.ecs.backend;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
+import com.vke.core.rendering.vertexconsumer.InstantResetIntArrayList;
+import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
 import com.vke.utils.tuple.Ntel;
 
 import java.util.ArrayList;
@@ -14,8 +18,9 @@ public class ArchetypeManager {
     private final MaskMap map;
     private final EntityAllocator alloc;
 
-    public ArchetypeManager(EntityAllocator alloc, int usedComponents, ComponentRegistry registry) {
-        this.map = new MaskMap(usedComponents, registry);
+    public ArchetypeManager(EntityAllocator alloc, int usedComponents) {
+        this.map = new MaskMap(usedComponents);
+
         this.alloc = alloc;
     }
 
@@ -39,7 +44,9 @@ public class ArchetypeManager {
             }
         }
 
-        initializer.initialize(newArch, newIdx);
+        if (initializer != null) {
+            initializer.initialize(newArch, newIdx);
+        }
 
         oldArch.dangleEntity(oldIdx, alloc);
         alloc.setArchetypeIndex(entity, newIdx);
@@ -63,6 +70,44 @@ public class ArchetypeManager {
             int maxArch = Archetype.IDS;
             int educatedGuess = Math.min(entities.length / 50, Math.min(50, maxArch));
             IntObjectHashMap<IntArrayList> byArch = new IntObjectHashMap<>(educatedGuess);
+            for (int entity : entities) {
+                Archetype arch = alloc.getArchetype(entity);
+                int index = alloc.getArchetypeIndex(entity);
+                int archId = arch.getId();
+                IntArrayList slot = byArch.get(archId);
+                if (slot == null) {
+                    slot = new IntArrayList();
+                    byArch.put(archId, slot);
+                }
+
+                slot.add(index);
+            }
+
+            for (IntObjectCursor<IntArrayList> cursor : byArch) {
+                Archetype arch = Archetype.findById(cursor.key);
+                IntArrayList list = cursor.value;
+                list.sort();
+
+                int size = list.size();
+                if (size == 0) continue;
+
+                int i = size - 1;
+                while (i >= 0) {
+                    int batchEnd = list.buffer[i];
+                    int batchStart = batchEnd;
+                    int batchSize = 1;
+
+                    while (i - 1 >= 0 && list.buffer[i - 1] == batchStart - 1) {
+                        i--;
+                        batchStart--;
+                        batchSize++;
+                    }
+
+                    arch.destroyConsecutiveEntities(batchStart, batchSize, alloc);
+
+                    i--;
+                }
+            }
         }
     }
 }

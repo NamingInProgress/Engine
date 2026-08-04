@@ -17,11 +17,9 @@ public class MaskMap {
     private int occupied;
 
     private final int arg_usedComponents;
-    private final ComponentRegistry arg_registry;
 
-    public MaskMap(int arg_usedComponents, ComponentRegistry arg_registry) {
+    public MaskMap(int arg_usedComponents) {
         this.arg_usedComponents = arg_usedComponents;
-        this.arg_registry = arg_registry;
 
         this.SLOTS = BASE_SLOTS;
         this.MASK = BASE_SLOTS - 1;
@@ -164,7 +162,7 @@ public class MaskMap {
         ComponentMask marker = keys[slot];
         //there wasnt any value
         if (marker == null) {
-            Archetype value = new Archetype(key, arg_usedComponents, arg_registry);
+            Archetype value = new Archetype(key, arg_usedComponents);
             insert1(slot, hash, key, value);
             return value;
         }
@@ -177,7 +175,7 @@ public class MaskMap {
             marker = keys[slot];
             //when the linear probe finds null, were done
             if (marker == null) {
-                Archetype value = new Archetype(key, arg_usedComponents, arg_registry);
+                Archetype value = new Archetype(key, arg_usedComponents);
                 insert1(slot, hash, key, value);
                 return value;
             }
