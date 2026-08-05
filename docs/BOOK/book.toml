@@ -3,3 +3,6 @@ authors = ["v22"]
 language = "en"
 src = "src"
 title = "vke-Documentation"
+
+[output.html]
+additional-css = ["theme/custom.css"]

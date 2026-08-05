@@ -8,12 +8,14 @@ import java.util.Objects;
 
 public class Ascii4 {
     private final byte a, b, c, d;
+    private final int combined;
 
     public Ascii4(byte a, byte b, byte c, byte d) {
         this.a = a;
         this.b = b;
         this.c = c;
         this.d = d;
+        this.combined = (a << 24) | (b << 16) | (c << 8) | d;
     }
 
     public Ascii4(char a, char b, char c, char d) {
@@ -21,6 +23,11 @@ public class Ascii4 {
         this.b = (byte) b;
         this.c = (byte) c;
         this.d = (byte) d;
+        this.combined = (a << 24) | (b << 16) | (c << 8) | d;
+    }
+
+    public int toInt() {
+        return combined;
     }
 
     public static Ascii4 of(CharSequence sequence) {

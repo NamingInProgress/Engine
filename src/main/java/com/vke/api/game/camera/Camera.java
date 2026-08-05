@@ -15,6 +15,9 @@ public interface Camera {
     Vector3f position();
     Quaternionf rotation();
 
+    default float zoom() { return 1; }
+    default void setZoom(float zoom) {}
+
     default Vector3f lookAt() {
         Vector3f forward = new Vector3f(0, 0, -1);
         rotation().transform(forward);

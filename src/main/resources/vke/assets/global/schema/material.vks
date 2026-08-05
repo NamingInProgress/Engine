@@ -1,0 +1,11 @@
+{
+    typedefs: {
+        layer: {};
+    };
+    schema: {
+        xml: meta;
+        !material: {
+            layers: [layer];
+        };
+    };
+}

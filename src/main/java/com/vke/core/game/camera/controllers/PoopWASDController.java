@@ -43,8 +43,6 @@ public class PoopWASDController implements CameraController, Framable {
 
         MouseInput mouse = input.mouse();
         MousePositionState position = mouse.position();
-        int x = position.getX();
-        int y = position.getY();
     }
 
     @Override

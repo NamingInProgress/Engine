@@ -94,7 +94,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float[] uvwh = uvwh();
         float u = uvwh[0]; float v = uvwh[1]; float tw = uvwh[2]; float th = uvwh[3];
         consumer.begin();
-        consumer.vertices(t,
+        consumer.vertices(
                 vIpltUV(x1, y1, z, minX, minY, bw, bh, u, v, tw, th),
                 vIpltUV(x2, y2, z, minX, minY, bw, bh, u, v, tw, th),
                 vIpltUV(x3, y3, z, minX, minY, bw, bh, u, v, tw, th)
@@ -117,7 +117,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
         float u = uvwh[0]; float v = uvwh[1]; float tw = uvwh[2]; float th = uvwh[3];
 
         consumer.begin();
-        consumer.vertices(t, vIpltUV(x, y, z, bx, by, bw, bh, u, v, tw, th));
+        consumer.vertices(vIpltUV(x, y, z, bx, by, bw, bh, u, v, tw, th));
         for (int i = 0; i <= triCnt; i++) {
             double t = (double) i / (triCnt);
             double angle = offRad + t * arcRad;
@@ -125,7 +125,7 @@ public class ShapeRenderer<T extends Vertex> implements Drawable {
             float vx = (float) (x + Math.cos(angle) * rx);
             float vy = (float) (y + Math.sin(angle) * ry);
 
-            consumer.vertices(this.t, vIpltUV(vx, vy, z, bx, by, bw, bh, u, v, tw, th));
+            consumer.vertices(vIpltUV(vx, vy, z, bx, by, bw, bh, u, v, tw, th));
         }
 
         for (int i = 1; i <= triCnt; i++) {

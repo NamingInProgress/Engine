@@ -2,8 +2,8 @@ package com.vke.core.rendering.vulkan.buffers.premade.vbo;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
-import com.vke.core.rendering.bytesink.VulkanTexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
+import com.vke.core.rendering.bytesink.VulkanRenderingEncoder;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 import java.util.List;
@@ -24,8 +24,8 @@ public class StaticVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     @Override
-    protected TexturableEncoder generateEncoder() {
-        return new VulkanTexturableEncoder(sys, data);
+    protected RenderingEncoder generateEncoder() {
+        return new VulkanRenderingEncoder(sys, data);
     }
 
     private void putVertex(T v) {

@@ -3,31 +3,47 @@ package com.vke.core.input.mouse;
 import com.vke.utils.collection.AbstractGlossary;
 
 public class MousePositionState {
-    private int x, y;
+    private double x, y, lastX, lastY, dx, dy;
     private final Listener.Glossary listeners = new Listener.Glossary();
 
-    void setX(int x) {
+    void setX(double x) {
         this.x = x;
         this.listeners.onPositionChange(x, y);
     }
 
-    void setY(int y) {
+    void setY(double y) {
         this.y = y;
         this.listeners.onPositionChange(x, y);
     }
 
-    void setXY(int x, int y) {
+    void setXY(double x, double y) {
         this.x = x;
         this.y = y;
         this.listeners.onPositionChange(x, y);
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
+    }
+
+    public double getDy() {
+        return dy;
+    }
+
+    public double getDx() {
+        return dx;
+    }
+
+    public double getLastY() {
+        return lastY;
+    }
+
+    public double getLastX() {
+        return lastX;
     }
 
     public void listen(Listener listener) {
@@ -38,12 +54,19 @@ public class MousePositionState {
         this.listeners.removeEntry(listener);
     }
 
+    public void onFrame() {
+        dx = x - lastX;
+        dy = y - lastY;
+        lastX = x;
+        lastY = y;
+    }
+
     public interface Listener {
-        void onPositionChange(int x, int y);
+        void onPositionChange(double x, double y);
 
         class Glossary extends AbstractGlossary<Listener> implements Listener {
             @Override
-            public void onPositionChange(int x, int y) {
+            public void onPositionChange(double x, double y) {
                 entries.forEach(l -> l.onPositionChange(x, y));
             }
         }

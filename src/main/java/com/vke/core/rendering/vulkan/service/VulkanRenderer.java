@@ -41,6 +41,7 @@ import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
+import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 
@@ -86,6 +87,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.RENDERER, context.getEngine());
+        Configuration.STACK_SIZE.set(256);
         this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.baseContext = context;
@@ -100,6 +102,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
         graphManager.initialize();
+        ctx.getEngine().EVENT_BUS.register(materialManager);
 
         framableManager.registerFramable(this);
 

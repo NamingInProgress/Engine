@@ -1,10 +1,8 @@
 package com.vke.api.rendering.abstraction.draw;
 
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 
 public interface Vertex {
-    int TEX_SIZE = 4;
-
-    int getByteStride();
-    void putSelf(TexturableEncoder buf);
+    default int getByteStride() { throw new RuntimeException("Stub!"); }
+    default void putSelf(RenderingEncoder buf) { throw new RuntimeException("Stub!"); }
 }

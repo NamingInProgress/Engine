@@ -30,7 +30,7 @@ public class PbrRenderPass extends RenderPass {
             throw new RuntimeException(e);
         }
 
-        ssbo_mat = this.pipeline.resource("materialBuffer");
+        ssbo_mat = this.pipeline.resource("u_MaterialBuffer");
     }
 
     @Override

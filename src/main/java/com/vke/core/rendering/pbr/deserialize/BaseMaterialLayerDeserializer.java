@@ -14,6 +14,7 @@ public class BaseMaterialLayerDeserializer extends MaterialLayerDeserializer<Bas
         var mr = node.getStringOption("metallic-roughness").map(R.textures::get).unwrapOr(BaseLayer.METALLIC_ROUGHNESS);
         var oc = node.getStringOption("occlusion").map(R.textures::get).unwrapOr(BaseLayer.OCCLUSION);
         var emissive = node.getStringOption("emissive").map(R.textures::get).unwrapOr(BaseLayer.EMISSIVE);
+        var specular = node.getStringOption("specular").map(R.textures::get).unwrapOr(BaseLayer.SPECULAR);
 
         float normalScale = node.getNumberOption("normal-scale").unwrapOrIdentity();
         float metallic = node.getNumberOption("metallic-scale").unwrapOrIdentity();
@@ -21,8 +22,10 @@ public class BaseMaterialLayerDeserializer extends MaterialLayerDeserializer<Bas
         float occlusion = node.getNumberOption("occlusion-scale").unwrapOrIdentity();
         Color emissiveColor = Color.parse(node.getString("emissive-color"));
         float emissiveScale = node.getNumberOption("emissive-scale").unwrapOrIdentity();
+        float specularScale = node.getNumberOption("specular-scale").unwrapOrIdentity();
 
-        return new BaseLayer(color, albedo, normal, mr, oc, emissive, normalScale, metallic, roughness, occlusion, emissiveColor, emissiveScale);
+        return new BaseLayer(color, albedo, normal, mr, oc, emissive, specular,
+                normalScale, metallic, roughness, occlusion, emissiveColor, emissiveScale, specularScale);
     }
 
     @Override

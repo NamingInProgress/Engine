@@ -31,7 +31,6 @@ import org.lwjgl.vulkan.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -101,38 +100,54 @@ public class VulkanCmdBuffers implements CommandBuffer {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             this.rendering = true;
 
-            VkRenderingAttachmentInfo.Buffer buffer = VkRenderingAttachmentInfo.calloc(info.colorAttachments().size(), stack);
+            VkRenderingAttachmentInfo.Buffer buffer = null;
 
-            List<AttachmentInfo> colorAttachments = info.colorAttachments();
-            for (int i = 0; i < colorAttachments.size(); i++) {
-                AttachmentInfo colorAttachment = colorAttachments.get(i);
-                VulkanTexture tex = (VulkanTexture) colorAttachment.tex();
-                tex.transition(this, ImageState.COLOR_ATTACHMENT);
-                VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
-                        .float32(0, colorAttachment.clearColor()[0])
-                        .float32(1, colorAttachment.clearColor()[1])
-                        .float32(2, colorAttachment.clearColor()[2])
-                        .float32(3, colorAttachment.clearColor()[3]));
+            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
+                buffer = VkRenderingAttachmentInfo.calloc(info.colorAttachments().size(), stack);
 
-                buffer.get(i)
-                        .sType$Default()
-                        .imageView(((VulkanImageView) colorAttachment.view()).getHandle())
-                        .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-                        .loadOp(colorAttachment.loadOp().getVkHandle())
-                        .storeOp(colorAttachment.storeOp().getVkHandle())
-                        .clearValue(clearColor);
+                List<AttachmentInfo> colorAttachments = info.colorAttachments();
+                for (int i = 0; i < colorAttachments.size(); i++) {
+                    AttachmentInfo colorAttachment = colorAttachments.get(i);
+                    VulkanTexture tex = (VulkanTexture) colorAttachment.tex();
+                    tex.transition(this, ImageState.COLOR_ATTACHMENT);
+                    VkClearValue clearColor = VkClearValue.calloc(stack).color(VkClearColorValue.calloc(stack)
+                            .float32(0, colorAttachment.clearColor()[0])
+                            .float32(1, colorAttachment.clearColor()[1])
+                            .float32(2, colorAttachment.clearColor()[2])
+                            .float32(3, colorAttachment.clearColor()[3]));
+
+                    buffer.get(i)
+                            .sType$Default()
+                            .imageView(((VulkanImageView) colorAttachment.view()).getHandle())
+                            .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+                            .loadOp(colorAttachment.loadOp().getVkHandle())
+                            .storeOp(colorAttachment.storeOp().getVkHandle())
+                            .clearValue(clearColor);
+                }
             }
 
             VkRenderingAttachmentInfo depth = null;
-            if (info.depthStencilAttachment() != null) {
-                ((VulkanTexture) info.depthStencilAttachment().tex()).transition(this, ImageState.DEPTH_ATTACHMENT);
+            VkRenderingAttachmentInfo stencil = null;
+            if (info.depthAttachment() != null) {
+                ((VulkanTexture) info.depthAttachment().tex()).transition(this, ImageState.DEPTH_STENCIL_ATTACHMENT);
                 depth = VkRenderingAttachmentInfo.calloc(stack)
                         .sType$Default()
-                        .imageView(((VulkanImageView) info.depthStencilAttachment().view()).getHandle())
+                        .imageView(((VulkanImageView) info.depthAttachment().view()).getHandle())
                         .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                        .loadOp(info.depthStencilAttachment().loadOp().getVkHandle())
-                        .storeOp(info.depthStencilAttachment().storeOp().getVkHandle())
-                        .clearValue((v) -> v.depthStencil().depth(info.depthStencilAttachment().clearColor()[0]));
+                        .loadOp(info.depthAttachment().loadOp().getVkHandle())
+                        .storeOp(info.depthAttachment().storeOp().getVkHandle())
+                        .clearValue((v) -> v.depthStencil().depth(info.depthAttachment().clearColor()[0]));
+            }
+
+            if (info.stencilAttachment() != null) {
+                ((VulkanTexture) info.stencilAttachment().tex()).transition(this, ImageState.DEPTH_STENCIL_ATTACHMENT);
+                stencil = VkRenderingAttachmentInfo.calloc(stack)
+                        .sType$Default()
+                        .imageView(((VulkanImageView) info.stencilAttachment().view()).getHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
+                        .loadOp(info.stencilAttachment().loadOp().getVkHandle())
+                        .storeOp(info.stencilAttachment().storeOp().getVkHandle())
+                        .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
             }
 
 
@@ -152,7 +167,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .renderArea(area)
                     .pColorAttachments(buffer);
 
-            if (info.depthStencilAttachment() != null) renderInfo.pDepthAttachment(depth);
+            if (info.depthAttachment() != null) renderInfo.pDepthAttachment(depth);
+            if (info.stencilAttachment() != null) renderInfo.pStencilAttachment(stencil);
 
             VK14.vkCmdBeginRendering(vk, renderInfo);
         }

@@ -14,7 +14,6 @@ import org.joml.Vector3f;
 
 public class PerspectiveCamera implements Camera {
 
-    private final Context context;
     private final RenderSystem renderSystem;
 
     private Matrix4f projection, view;
@@ -34,7 +33,6 @@ public class PerspectiveCamera implements Camera {
         this.FOV = FOV;
         this.near = near;
         this.far = far;
-        this.context = context;
         this.renderSystem = context.<Renderer>service(Services.RENDERER).renderSystem();
         this.remakeViewMatrix();
         onWindowChange(context.getEngine().getWindow());

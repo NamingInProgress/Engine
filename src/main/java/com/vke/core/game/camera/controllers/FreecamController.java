@@ -35,10 +35,8 @@ public class FreecamController implements CameraController, Framable {
 
     private final MousePositionState mousePosition;
 
-    private int lastX, lastY;
-
-    private final float speed;
-    private final float sensitivity;
+    private float speed;
+    private float sensitivity;
 
     private Camera camera;
 
@@ -76,11 +74,8 @@ public class FreecamController implements CameraController, Framable {
             return;
         }
 
-        int dx = mousePosition.getX() - lastX;
-        int dy = mousePosition.getY() - lastY;
-
-        yaw -= dx * sensitivity;
-        pitch += dy * sensitivity;
+        yaw = (float) (yaw - (mousePosition.getDx() * sensitivity));
+        pitch = (float) (pitch + mousePosition.getDy() * sensitivity);
 
         if (pitch > MAX_PITCH) pitch = MAX_PITCH;
         if (pitch < -MAX_PITCH) pitch = -MAX_PITCH;
@@ -105,10 +100,6 @@ public class FreecamController implements CameraController, Framable {
         if (shift.isPressed()) position.fma(-speed, up);
 
         camera.setPosition(position);
-
-        lastX = mousePosition.getX();
-        lastY = mousePosition.getY();
-
     }
 
     @Override
@@ -126,5 +117,13 @@ public class FreecamController implements CameraController, Framable {
     public void detachCamera() {
         camera = null;
         framableManager.removeFramable(this);
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
     }
 }

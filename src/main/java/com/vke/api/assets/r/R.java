@@ -2,6 +2,7 @@ package com.vke.api.assets.r;
 
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
+import com.vke.api.rendering.pbr.Material;
 import com.vke.core.audio.source.AudioClip;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
@@ -23,4 +24,5 @@ public class R {
     public static Category<MeshPrefab> meshprefabs = new Category<>();
     public static Category<AudioClip> audios = new Category<>();
     public static Category<ConfigSchema> schemas = new Category<>();
+    public static Category<Material> materials = new Category<>();
 }

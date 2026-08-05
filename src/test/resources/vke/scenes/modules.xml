@@ -1,6 +1,0 @@
-<scene>
-    <class name="com.vke.test.module.ModulesScene"/>
-    <bundles>
-        <bundle name="main"/>
-    </bundles>
-</scene>

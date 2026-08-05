@@ -1,5 +1,5 @@
 <render-graph>
-    <render-pass name="main" parent="simple-deferred">
+    <render-pass name="main" parent="deferred">
         <outputs>
             <render-target name="colorOut"/>
             <texture name="depthOut" type="DEPTH" format="DEPTH32F"/>

@@ -37,10 +37,7 @@ public class MouseInputImpl implements MouseInput {
         GLFW.glfwSetCursorPosCallback(windowHandle, new GLFWCursorPosCallback() {
             @Override
             public void invoke(long hwmd, double x, double y) {
-                //we dont support sub-pixel position
-                int ix = (int) x;
-                int iy = (int) y;
-                positionState.setXY(ix, window.getSize().height() - iy);
+                positionState.setXY(x, window.getSize().height() - y);
             }
         });
 
@@ -70,6 +67,7 @@ public class MouseInputImpl implements MouseInput {
             buttonState.onFrame();
         }
         scrollState.onFrame();
+        positionState.onFrame();
     }
 
     @Override

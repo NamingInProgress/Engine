@@ -1,5 +1,7 @@
 package com.vke.core.rendering.vulkan.buffers.premade.slice;
 
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
 import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
@@ -30,6 +32,19 @@ public class BufferSlice {
             );
         MemoryUtil.memCopy(MemoryUtil.memAddress(buf), writeAddress + cursor, buf.remaining());
         cursor += buf.remaining();
+    }
+
+    public void putSampler(RenderSystem sys, Texture tex) {
+        putInt(sys.textureManager().texture(tex));
+    }
+
+    public void putInt(int i) {
+        if (cursor + 4 > length)
+            throw new IndexOutOfBoundsException(
+                    "BufferSlice overflow: " + cursor + " / " + length
+            );
+        MemoryUtil.memPutInt(writeAddress + cursor, i);
+        cursor += 4;
     }
 
     public void putFloat(float f) {
