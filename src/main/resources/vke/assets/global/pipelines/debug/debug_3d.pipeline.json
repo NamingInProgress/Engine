@@ -1,0 +1,26 @@
+{
+  "dynamicStates": ["TOPOLOGY", "VIEWPORT", "SCISSOR"],
+  "topology": "TRIANGLES",
+  "lineWidth": 4,
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR"
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/debug/debug3d.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/debug/debug3d.fsh"
+    }
+  ]
+}

@@ -6,13 +6,12 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
-import com.vke.core.rendering.graph.deserializers.GeneralRenderPassDeserializer;
-import com.vke.core.rendering.graph.deserializers.PostRenderPassDeserializer;
-import com.vke.core.rendering.graph.deserializers.RenderPassDeserializer;
+import com.vke.core.rendering.graph.deserializers.*;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.passes.DeferredRenderPassDeserializer;
 import com.vke.core.rendering.pbr.PbrRenderPassDeserializer;
+import com.vke.impl.debug.DebugRenderPass;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
@@ -30,6 +29,8 @@ public class RenderGraphDefinition {
         DESERIALIZERS.put("post", new PostRenderPassDeserializer());
         DESERIALIZERS.put("pbr", new PbrRenderPassDeserializer());
         DESERIALIZERS.put("deferred", new DeferredRenderPassDeserializer());
+        DESERIALIZERS.put("debug", new SimpleRenderPassDeserializer(DebugRenderPass.class));
+        DESERIALIZERS.put("image-to-screen", new ITSRenderPassDeserializer());
     }
 
     public final List<RenderPassDefinition> renderPasses = new ArrayList<>();
@@ -41,6 +42,11 @@ public class RenderGraphDefinition {
         ConfigObjectNode root = doc.getRoot().getObject("render-graph");
         for (ConfigNode node : root.asArray().values()) {
             if (!(node instanceof ConfigObjectNode)) continue;
+            if (node.getNodeName().equalsIgnoreCase("image-to-screen")) {
+                renderPasses.add(DESERIALIZERS.get("image-to-screen").accept(node,"image-to-screen"));
+                continue;
+            }
+
             String name = node.getString("name");
             String parent = node.getStringOption("parent").unwrapOr("general");
 

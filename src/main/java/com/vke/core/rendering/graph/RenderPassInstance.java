@@ -8,6 +8,7 @@ import com.vke.core.rendering.graph.def.RenderPassDefinition;
 import com.vke.core.rendering.graph.def.SpecializedRenderPassDefinition;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -18,6 +19,7 @@ public class RenderPassInstance {
 
     private final HashMap<String, Texture> resolvedInputs = new HashMap<>();
     private final LinkedHashMap<String, Texture> resolvedOutputs = new LinkedHashMap<>();
+    private final ArrayList<String> outputsWithSources = new ArrayList<>();
 
     public RenderPassInstance(RenderSystem sys, RenderGraph graph, RenderPassDefinition def) throws NoSuchMethodException,
             InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -42,8 +44,11 @@ public class RenderPassInstance {
         this.resolvedInputs.put(localName, texture);
     }
 
-    public void addOutput(String name, Texture texture) {
+    public void addOutput(String name, Texture texture, boolean hasSource) {
         this.resolvedOutputs.put(name, texture);
+        if (hasSource) {
+            outputsWithSources.add(name);
+        }
     }
 
     public Texture getInputTexture(String localName) {
@@ -52,6 +57,10 @@ public class RenderPassInstance {
 
     public Texture getOutputTexture(String name) {
         return resolvedOutputs.get(name);
+    }
+
+    public boolean outputHasSource(String name) {
+        return this.outputsWithSources.contains(name);
     }
 
     public Texture getDynamicColorOutputTexture(String name, String newName) {

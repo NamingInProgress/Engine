@@ -39,6 +39,7 @@ import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
+import com.vke.impl.debug.DebugContext;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.io.Identifier;
 import org.lwjgl.system.Configuration;
@@ -228,6 +229,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     public void postFrame() {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
+        DebugContext.clear();
 
         try {
             VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {

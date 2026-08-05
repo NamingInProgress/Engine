@@ -1,4 +1,4 @@
-package com.vke.core.rendering.post;
+package com.vke.impl.vertex;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import pl.epsi.MakeVertex;
@@ -18,15 +18,4 @@ public class FullscreenQuadVertex implements Vertex {
         this.u = u;
         this.v = v;
     }
-
-//    @Override
-//    public int getByteStride() {
-//        return 4 * Float.BYTES;
-//    }
-//
-//    @Override
-//    public void putSelf(TexturableEncoder buf) {
-//        buf.float2(x, y);
-//        buf.float2(u, v);
-//    }
 }

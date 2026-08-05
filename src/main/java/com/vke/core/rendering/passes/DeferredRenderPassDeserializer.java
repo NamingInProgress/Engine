@@ -38,16 +38,6 @@ public class DeferredRenderPassDeserializer extends RenderPassDeserializer {
                 1
         ));
 
-        list.add(new RenderPassDefinition.OutputTextureDefinition(
-                "gbuf_depth",
-                null,
-                RenderPassDefinition.TextureType.DEPTH,
-                Format.DEPTH32F,
-                0,
-                0,
-                1
-        ));
-
         return list;
     }
 

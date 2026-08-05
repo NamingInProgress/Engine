@@ -48,8 +48,7 @@ public class RenderGraph {
     }
 
     public void updateWindowSize(int width, int height) {
-        this.windowWidth =
-                width;
+        this.windowWidth = width;
         this.windowHeight = height;
     }
 
@@ -67,9 +66,13 @@ public class RenderGraph {
             for (RenderPassDefinition.OutputTextureDefinition texDef : def.outputs()) {
                 String globalKey = def.name() + "." + texDef.name();
                 Texture tex;
-
                 if (texDef.source() != null) {
                     tex = physicalTextures.get(texDef.source());
+
+                    if (texDef.type() == RenderPassDefinition.TextureType.RENDER_TARGET) {
+                        pass.addOutput(texDef.name(), tex, false);
+                        continue;
+                    }
 
                     if (tex == null) {
                         throw new IllegalStateException("Render pass '" + def.name() + "' requires input '" + texDef.source() + "' but it was never created!");
@@ -81,12 +84,12 @@ public class RenderGraph {
                     tex = pool.acquire(width, height, texDef.type(), texDef.format());
 
                     if (texDef.type() == RenderPassDefinition.TextureType.RENDER_TARGET) {
-                        pass.addOutput(texDef.name(), tex);
+                        pass.addOutput(texDef.name(), tex, false);
                         continue;
                     }
                 }
                 physicalTextures.put(globalKey, tex);
-                pass.addOutput(texDef.name(), tex);
+                pass.addOutput(texDef.name(), tex, texDef.source() != null);
             }
         }
 

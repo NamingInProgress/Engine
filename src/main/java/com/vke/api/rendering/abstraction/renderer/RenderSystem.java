@@ -1,6 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
@@ -17,6 +18,10 @@ public abstract class RenderSystem extends ContextWrapper {
 
     public RenderSystem(Context baseContext) {
         super(baseContext);
+    }
+
+    public VertexConsumerProvider vcp() {
+        return renderer().getVertexConsumerProvider();
     }
 
     public abstract Renderer renderer();

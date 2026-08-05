@@ -8,6 +8,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.pbr.Material;
+import com.vke.core.color.Color;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
@@ -20,6 +21,7 @@ import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.services2.Services;
+import com.vke.impl.debug.DebugContext;
 import com.vke.impl.vertex.VertexFormatDeferred;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
@@ -133,6 +135,34 @@ public class DemoScene extends Scene {
 
             instances.add(instance);
         }
+
+        float scale = 10;
+
+        float half = size / 2;
+
+        for (Instance instance : instances) {
+            instance.position.fma(0.1f, instance.velocity);
+            instance.rotation.fma(0.01f, instance.angularVelocity);
+
+            // Bounce off cube walls
+            if (instance.position.x > half || instance.position.x < -half) {
+                instance.velocity.x *= -1;
+                instance.position.x = Math.clamp(instance.position.x, -half, half);
+            }
+
+            if (instance.position.y > half || instance.position.y < -half) {
+                instance.velocity.y *= -1;
+                instance.position.y = Math.clamp(instance.position.y, -half, half);
+            }
+
+            if (instance.position.z > half || instance.position.z < -half) {
+                instance.velocity.z *= -1;
+                instance.position.z = Math.clamp(instance.position.z, -half, half);
+            }
+
+            instance.matrix.identity()
+                    .translate(instance.position);
+        }
         buf = MemoryUtil.memAlloc(100000 * 64);
     }
 
@@ -160,41 +190,19 @@ public class DemoScene extends Scene {
 
         float speed = 1.0f;
 
-        float scale = 10;
 
-        float half = size / 2;
 
         buf.position(0);
         buf.limit(100000 * 64);
 
         for (Instance instance : instances) {
 
-            instance.position.fma(0.1f, instance.velocity);
-            instance.rotation.fma(0.01f, instance.angularVelocity);
 
-            // Bounce off cube walls
-            if (instance.position.x > half || instance.position.x < -half) {
-                instance.velocity.x *= -1;
-                instance.position.x = Math.clamp(instance.position.x, -half, half);
-            }
-
-            if (instance.position.y > half || instance.position.y < -half) {
-                instance.velocity.y *= -1;
-                instance.position.y = Math.clamp(instance.position.y, -half, half);
-            }
-
-            if (instance.position.z > half || instance.position.z < -half) {
-                instance.velocity.z *= -1;
-                instance.position.z = Math.clamp(instance.position.z, -half, half);
-            }
-
-            instance.matrix.identity()
-                    .translate(instance.position)
-                    .rotateXYZ(
-                            instance.rotation.x,
-                            instance.rotation.y,
-                            instance.rotation.z
-                    );
+//                    .rotateXYZ(
+//                            instance.rotation.x,
+//                            instance.rotation.y,
+//                            instance.rotation.z
+//                    );
 
             instance.matrix.get(buf);
             buf.position(buf.position() + 64);
@@ -207,6 +215,9 @@ public class DemoScene extends Scene {
 //                .rotateY(time * speed);
         context.put("mats", buf);
         //PostProcessingRenderPass.disableStages(context, "blur", "invert_colors", "idk_something");
+
+        DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
+        DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
     }
 
     @Override

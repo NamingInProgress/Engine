@@ -11,12 +11,12 @@ import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.post.service.PostProcessManager;
 import com.vke.core.services2.Services;
+import com.vke.impl.vertex.FullscreenQuadVertex;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class PostProcessingRenderPass extends RenderPass {

@@ -1,0 +1,24 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR"
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/util/full_screen.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/util/full_screen.fsh"
+    }
+  ]
+}

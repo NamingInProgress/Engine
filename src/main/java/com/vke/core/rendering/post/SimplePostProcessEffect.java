@@ -10,6 +10,8 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.CISRes
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.impl.vertex.FullscreenQuadVertex;
+import com.vke.utils.DrawUtils;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
@@ -43,11 +45,7 @@ public class SimplePostProcessEffect extends PostProcessEffect {
         cmd.bindPipeline(pipelineHandle);
         cmd.bindDescriptorSets(pipelineHandle);
 
-        vc.vertices(new FullscreenQuadVertex(-1.0f, -1.0f, 0.0f, 0.0f)); // 0
-        vc.vertices(new FullscreenQuadVertex( 1.0f, -1.0f, 1.0f, 0.0f)); // 1
-        vc.vertices(new FullscreenQuadVertex( 1.0f,  1.0f, 1.0f, 1.0f)); // 2
-        vc.vertices(new FullscreenQuadVertex(-1.0f,  1.0f, 0.0f, 1.0f)); // 3
-        vc.indices(0, 1, 2, 0, 2, 3);
+        DrawUtils.fullscreenQuad(vc);
 
         vc.draw();
     }

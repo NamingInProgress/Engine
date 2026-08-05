@@ -7,6 +7,7 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.core.rendering.pipeline.driver.DeferredLightPassDriver;
 import com.vke.core.rendering.pipeline.driver.DeferredPipelineDriver;
 import com.vke.core.rendering.pipeline.driver.ShapePipelineDriver;
+import com.vke.impl.driver.FullScreenDriver;
 
 public class RenderPipelines {
 
@@ -17,11 +18,13 @@ public class RenderPipelines {
     public static DeferredPipelineDriver DEFERRED;
     public static DeferredLightPassDriver DEFERRED_LIGHT_PASS;
     public static ShapePipelineDriver LOAD;
+    public static FullScreenDriver FULL_SCREEN;
 
     public static void init(RenderSystem context) {
         DEFERRED = new DeferredPipelineDriver(context, PIPELINE_DEFERRED);
         DEFERRED_LIGHT_PASS = new DeferredLightPassDriver(context, PIPELINE_DEFERRED_LIGHT);
         LOAD = new ShapePipelineDriver(context, PIPELINE_SHAPE);
+        FULL_SCREEN = new FullScreenDriver(context);
     }
 
 }

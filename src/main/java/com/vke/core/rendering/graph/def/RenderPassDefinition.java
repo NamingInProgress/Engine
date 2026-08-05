@@ -81,12 +81,13 @@ public class RenderPassDefinition {
         }
 
         public static TextureType fromString(String name) {
+            if (name == null) return COLOR;
             try {
                 return TextureType.valueOf(name);
             } catch (IllegalArgumentException e) {}
-            for (TextureType value : values()) {
-                if (value.name.equalsIgnoreCase(name)) return value;
-            }
+                for (TextureType value : values()) {
+                    if (value.name.equalsIgnoreCase(name)) return value;
+                }
             return COLOR;
         }
     }
