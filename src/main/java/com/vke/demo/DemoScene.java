@@ -6,8 +6,8 @@ import com.vke.api.game.camera.Camera;
 import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.pbr.Material;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
@@ -20,6 +20,7 @@ import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.services2.Services;
+import com.vke.impl.vertex.VertexFormatDeferred;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -58,11 +59,13 @@ public class DemoScene extends Scene {
     @Override
     public void onLoad() {
         MeshPrefab prefab;
+        Material mat;
         Texture t1, t2;
         try {
             prefab = R.meshprefabs.get("backpack.obj").acquire(context);
             t1 = R.textures.get("vke:textures/diffuse.png").acquire(context);
             t2 = R.textures.get("vke:textures/specular.png").acquire(context);
+            mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -72,7 +75,7 @@ public class DemoScene extends Scene {
         RenderResourceManager resManager = getRenderer().resourceManager();
 
         MESH = resManager.uploadStaticMesh(
-                prefab.toMesh((prefabVertex -> new CubeVertexFormat(
+                prefab.toMesh((prefabVertex -> new VertexFormatDeferred(
                         prefabVertex.position()[0],
                         prefabVertex.position()[1],
                         prefabVertex.position()[2],
@@ -83,8 +86,7 @@ public class DemoScene extends Scene {
 
                         prefabVertex.uv()[0],
                         prefabVertex.uv()[1],
-                        t1,
-                        t2)))
+                        mat)))
         );
 
         Camera camera = new PerspectiveCamera(context, 90);
@@ -203,45 +205,6 @@ public class DemoScene extends Scene {
     @Override
     public void free() {
 
-    }
-
-    @MakeVertex
-    public static class CubeVertexFormat implements Vertex {
-        public static final CubeVertexFormat TEMPLATE = null;
-        @Type.Float3
-        private float x, y, z, nx, ny, nz;
-        @Type.Float2
-        private float u, v;
-        @Type.Sampler2D
-        private Texture texId0, texId1;
-
-        public CubeVertexFormat(float x, float y, float z, float nx, float ny, float nz, float u, float v, Texture texId0, Texture texId1) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.nx = nx;
-            this.ny = ny;
-            this.nz = nz;
-            this.u = u;
-            this.v = v;
-            this.texId0 = texId0;
-            this.texId1 = texId1;
-            TexturableEncoder a = null;
-        }
-
-//        @Override
-//        public int getByteStride() {
-//            return 40;
-//        }
-//
-//        @Override
-//        public void putSelf(TexturableEncoder buf) {
-//            buf.float3(x, y, z);
-//            buf.float3(nx, ny, nz);
-//            buf.float2(u, v);
-//            buf.sampler2D(texId0);
-//            buf.sampler2D(texId1);
-//        }
     }
 
     public static class Instance {

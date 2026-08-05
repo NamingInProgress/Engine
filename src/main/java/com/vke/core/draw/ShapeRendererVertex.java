@@ -3,7 +3,6 @@ package com.vke.core.draw;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexFactory;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
 

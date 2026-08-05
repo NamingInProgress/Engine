@@ -1,9 +1,9 @@
 package com.vke.core.rendering.vulkan.buffers.premade.vbo;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.api.rendering.vulkan.buffer.VertexBuffer;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
-import com.vke.core.rendering.bytesink.VulkanTexturableEncoder;
+import com.vke.core.rendering.bytesink.VulkanRenderingEncoder;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 
 public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
@@ -48,8 +48,8 @@ public class DynamicVertexBuffer<T extends Vertex> extends VertexBuffer {
     }
 
     @Override
-    protected TexturableEncoder generateEncoder() {
-        return new VulkanTexturableEncoder(vkCtx, data);
+    protected RenderingEncoder generateEncoder() {
+        return new VulkanRenderingEncoder(vkCtx, data);
     }
 
 }

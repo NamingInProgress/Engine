@@ -1,7 +1,6 @@
 package com.vke.core.rendering.post;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
 

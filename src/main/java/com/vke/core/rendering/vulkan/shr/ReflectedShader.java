@@ -201,6 +201,9 @@ public class ReflectedShader implements Disposable {
                 member.idx = i;
 
                 member.name = Spvc.spvc_compiler_get_member_name(compiler, resource.baseTypeId, i);
+                if (member.name != null && member.name.isEmpty()) {
+                    member.name = Spvc.spvc_compiler_get_member_name(compiler, resource.typeId, i);
+                }
                 member.id = Spvc.spvc_type_get_member_type(typeHandle, i);
 
                 IntBuffer buf = stack.mallocInt(1);

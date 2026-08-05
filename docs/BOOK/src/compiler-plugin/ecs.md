@@ -46,6 +46,7 @@ public class MyComponent implements Component {
 ```
 However, as you can see, this can be very tedious and prone to breaking. This is why the VKECompilerPlugin
 offers the `@EcsComponent` annotation.
+
 With this annotation creating an ECS component is as simple as this:
 
 ```java

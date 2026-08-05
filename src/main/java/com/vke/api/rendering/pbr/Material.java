@@ -1,23 +1,32 @@
 package com.vke.api.rendering.pbr;
 
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public class Material {
 
+    private final RenderSystem sys;
+
     private final int flag;
 
     public BaseLayer base;
 
-    public Material(List<MaterialLayer> layers) {
+    public Material(RenderSystem sys, List<MaterialLayer> layers) {
+        this.sys = sys;
+
         for (MaterialLayer layer : layers) {
             switch (layer) {
                 case BaseLayer b -> this.base = b;
                 default -> {}
             }
         }
+
+        if (this.base == null) throw new IllegalStateException("Missing base layer for material!");
 
         this.flag = computeFlag();
     }
@@ -34,9 +43,13 @@ public class Material {
         return flag;
     }
 
-    public void putSelf(TexturableEncoder encoder) {
-        encoder.uint1(flag);
-        base.putSelf(encoder);
+    public void putSelf(BufferSlice encoder) {
+        encoder.putInt(flag);
+        try {
+            base.putSelf(sys, encoder);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

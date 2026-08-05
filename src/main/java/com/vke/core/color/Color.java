@@ -1,6 +1,7 @@
 package com.vke.core.color;
 
 import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import org.joml.Vector4f;
 
 public class Color extends Vector4f {
@@ -39,8 +40,8 @@ public class Color extends Vector4f {
         return w;
     }
 
-    public void putSelf(ByteEncoder encoder) {
-        encoder.float4(x, y, z, w);
+    public void putSelf(BufferSlice encoder) {
+        encoder.putFloat4(x, y, z, w);
     }
 
     public float[] toFloat() {
@@ -49,7 +50,7 @@ public class Color extends Vector4f {
 
     public static Color parse(String str) {
         if (str == null) return Color.BLACK;
-        return Color.RED; // TODO: v22 will replace :thumbsup:
+        return Color.WHITE; // TODO: v22 will replace :thumbsup:
     }
 
 }

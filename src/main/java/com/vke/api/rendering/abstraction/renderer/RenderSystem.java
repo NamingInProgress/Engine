@@ -4,10 +4,14 @@ import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.core.Context;
 import com.vke.core.ContextWrapper;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
+
+import java.nio.ByteBuffer;
 
 public abstract class RenderSystem extends ContextWrapper {
 
@@ -26,6 +30,8 @@ public abstract class RenderSystem extends ContextWrapper {
     public abstract CommandBuffer getCurrentCommandBuffer();
 
     public abstract FrameCounter getFrameCounter();
+
+    public abstract RenderingEncoder createRenderingEncoder(ByteBuffer buf);
 
     public abstract long windowHandle();
 

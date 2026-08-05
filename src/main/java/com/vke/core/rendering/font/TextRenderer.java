@@ -15,11 +15,9 @@ import com.vke.core.color.Color;
 import com.vke.core.font.ttf.Glyph;
 import com.vke.core.font.ttf.GlyphPoint;
 import com.vke.core.rendering.transform.MatrixStack;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 
 import java.util.List;
 

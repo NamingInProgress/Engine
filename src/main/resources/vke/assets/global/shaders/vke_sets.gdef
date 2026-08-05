@@ -22,5 +22,6 @@ vec4 vktexture(sampler2D sampl, vec2 uv) {
 }
 
 vec4 sampleTexture(int id, vec2 uv) {
+    if (id == -1) return vec4(1);
     return texture(textures[nonuniformEXT(id)], uv);
 }

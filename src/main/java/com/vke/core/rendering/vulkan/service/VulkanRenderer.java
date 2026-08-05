@@ -102,6 +102,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
         graphManager.initialize();
+        ctx.getEngine().EVENT_BUS.register(materialManager);
 
         framableManager.registerFramable(this);
 

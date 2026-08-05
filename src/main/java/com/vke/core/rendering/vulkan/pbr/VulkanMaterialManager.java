@@ -1,12 +1,19 @@
 package com.vke.core.rendering.vulkan.pbr;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
+import com.carrotsearch.hppc.cursors.ObjectIntCursor;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
+import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
+import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 
 public class VulkanMaterialManager implements MaterialManager, EventListener {
 
@@ -15,9 +22,13 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
     private final ObjectIntHashMap<Material> materials = new ObjectIntHashMap<>();
     private final Material[] mats = new Material[MATERIAL_MAX_COUNT];
 
-    private final Context ctx;
+    private final RenderSystem ctx;
 
-    public VulkanMaterialManager(Context ctx) {
+    private boolean dirty;
+
+    private MappedBuffer BUF;
+
+    public VulkanMaterialManager(RenderSystem ctx) {
         this.ctx = ctx;
     }
 
@@ -44,13 +55,14 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
 
         mats[firstFree] = mat;
         materials.put(mat, firstFree);
+        this.dirty = true;
     }
 
     @Override
     public int material(Material mat) {
         if (mat == null) return -1;
         int id = materials.getOrDefault(mat, -1);
-        if (id == -1) ctx.getLogger().warn("Failed to acquire texture ID for texture " + mat + ", was it registered?");
+        if (id == -1) ctx.getLogger().warn("Failed to acquire material ID for material " + mat + ", was it registered?");
         return id;
     }
 
@@ -58,4 +70,35 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
     public void removeMaterial(Material mat) {
         // TODO: implement, i am not doing ts bro :pray:
     }
+
+    @Override
+    public void upload(FieldArrayResource ssbo) {
+        if (this.dirty) {
+            for (ObjectIntCursor<Material> cursor : materials) {
+                ssbo.write(cursor.value, cursor.key::putSelf);
+            }
+
+            this.dirty = false;
+        }
+    }
+
+    @Override
+    public boolean isDirty() {
+        return this.dirty;
+    }
+
+    @Override
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+    public void setBuffer(MappedBuffer buffer) {
+        this.BUF = buffer;
+    }
+
+    // Generally shouldn't be null and if it is ur just unlucky
+    public MappedBuffer getBuffer() {
+        return BUF;
+    }
+
 }

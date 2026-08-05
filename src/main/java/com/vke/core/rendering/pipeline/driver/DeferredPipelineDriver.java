@@ -2,6 +2,7 @@ package com.vke.core.rendering.pipeline.driver;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.pipeline.MaterialPipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
@@ -10,7 +11,7 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArr
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class DeferredPipelineDriver extends PipelineDriver {
+public class DeferredPipelineDriver extends MaterialPipelineDriver {
 
     private final RenderPipeline p;
     private final FieldArrayResource local;

@@ -3,9 +3,11 @@ package com.vke.core.rendering.pbr.deserialize;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.api.rendering.pbr.MaterialLayer;
 import com.vke.core.Context;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
@@ -32,10 +34,10 @@ public class MaterialDeserializers {
                     .unwrapOrPanic(new IllegalArgumentException("Material layer must have a parent!"));
 
             MaterialLayerDeserializer<?> deserializer = DESERIALIZERS.get(parent);
-            deserializer.accept(value);
+            layers.add(deserializer.accept(value));
         }
 
-        return new Material(layers);
+        return new Material(ctx.<Renderer>service(Services.RENDERER).renderSystem(), layers);
     }
 
 }

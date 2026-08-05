@@ -3,12 +3,17 @@ package com.vke.core.rendering.vulkan.service;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.core.Context;
+import com.vke.core.rendering.bytesink.VulkanRenderingEncoder;
+import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
+
+import java.nio.ByteBuffer;
 
 public class VulkanRenderSystem extends RenderSystem {
     private final long windowHandle;
@@ -58,6 +63,11 @@ public class VulkanRenderSystem extends RenderSystem {
     @Override
     public FrameCounter getFrameCounter() {
         return this.renderer.frameCounter;
+    }
+
+    @Override
+    public RenderingEncoder createRenderingEncoder(ByteBuffer buf) {
+        return new VulkanRenderingEncoder(this, buf);
     }
 
     @Override

@@ -1,18 +1,21 @@
 struct Material {
     uint flags;
-    vec4 baseAlbedo;
     int baseColorId;
     int normalId;
     int metallicRoughnessId;
     int occlusionId;
     int emissiveId;
-
+    int specularId;
     float normalScale;
+
+    vec4 baseAlbedo;
+
     float metallicScale;
     float roughnessScale;
     float occlusionScale;
-    vec4 emissiveColor;
     float emissiveScale;
+    vec4 emissiveColor;
+    float specularScale;
 };
 
 struct MaterialInputs {
@@ -25,12 +28,15 @@ struct MaterialInputs {
     float occlusion;
 
     vec3 emissive;
+
+    float specular;
 };
 
+#Static
 layout (set = 2, binding = 0) readonly buffer Materials {
     #DefaultSize(1024)
     Material materials[];
-} materialBuffer;
+} u_MaterialBuffer;
 
 MaterialInputs evaluateMaterial(Material material, vec2 uv) {
     MaterialInputs m;
@@ -58,5 +64,15 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv) {
     m.emissive = emissiveTex * material.emissiveColor.rgb *
         material.emissiveScale;
 
+    m.specular = sampleTexture(material.specularId, uv).r * material.specularScale;
+
     return m;
+}
+
+MaterialInputs evaluateMaterial(int idx, vec2 uv) {
+    if (idx == -1) {
+        MaterialInputs m;
+        return m;
+    }
+    return evaluateMaterial(u_MaterialBuffer.materials[nonuniformEXT(idx)], uv);
 }

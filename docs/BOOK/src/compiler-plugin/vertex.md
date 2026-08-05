@@ -8,11 +8,11 @@ Let's take a look at a manual vertex definition:
 
 ```java
 import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 
 public class MyVertex implements Vertex {
-    /** 
+    /**
      * This field, while not strictly necessary is a nice helper
      * for creating vertex consumers via the VertexConsumerProvider
      **/
@@ -39,7 +39,7 @@ public class MyVertex implements Vertex {
     }
 
     @Override
-    public void putSelf(TexturableEncoder buf) {
+    public void putSelf(RenderingEncoder buf) {
         buf.float2(x, y);
         buf.float2(u, v);
         buf.sampler2D(texture);
@@ -52,7 +52,6 @@ or an incorrect byte stride. The vertex extension allows you to omit most of the
 
 ```java
 import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.abstraction.renderer.data.TexturableEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
@@ -113,3 +112,5 @@ Available types (Defined in the [Type Annotation](https://github.com/NamingInPro
    - UInt4
  - Textures
    - Sampler2D
+ - Materials
+   - Material
