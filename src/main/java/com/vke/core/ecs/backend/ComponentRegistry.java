@@ -1,6 +1,7 @@
 package com.vke.core.ecs.backend;
 
 import com.vke.core.ecs.component.Component;
+import com.vke.utils.Utils;
 import pl.epsi.EcsComponent;
 import pl.epsi.SearchAnnotation;
 
@@ -34,7 +35,7 @@ public class ComponentRegistry {
 
 
     public static Component getInstance(int id) {
-        Component c = COMPONENTS.get(id);
+        Component c = Utils.tryGet(COMPONENTS, id);
         if (c == null) {
             var clazz = CLASSES.get(id);
             try {
@@ -50,7 +51,7 @@ public class ComponentRegistry {
 
     public static int register(Class<? extends Component> clazz) {
         int idx = COUNTER++;
-        CLASSES.set(idx, clazz);
+        CLASSES.add(idx, clazz);
         return idx;
     }
 

@@ -11,6 +11,8 @@ public class ComponentMask {
     private final int last;
 
     public ComponentMask(int... ids) {
+        Arrays.sort(ids);
+
         this.ids = ids;
         this.first = ids[0];
         this.last = ids[ids.length - 1];
@@ -27,6 +29,13 @@ public class ComponentMask {
     }
 
     public boolean contains(ComponentMask other) {
+        if (other.ids.length == 0) return true;
+        if (this.ids.length < other.ids.length) return false;
+
+        if (other.first < this.first || other.last > this.last) {
+            return false;
+        }
+
         int a = 0;
         int b = 0;
 

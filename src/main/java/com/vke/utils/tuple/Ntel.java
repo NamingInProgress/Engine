@@ -7,7 +7,7 @@ public class Ntel {
         this.objects = objects;
     }
 
-    #[SuppressWarnings("unchecked")]
+    @SuppressWarnings("unchecked")
     public <T> T get(int i) {
         return (T) objects[i];
     }

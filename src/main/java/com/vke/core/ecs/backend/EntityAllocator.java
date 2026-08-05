@@ -17,7 +17,7 @@ public class EntityAllocator {
     private int nextId;
     private int pageSpaceLeft;
     private int pageIndex;
-    private IntArrayDeque freeQueue;
+    private final IntArrayDeque freeQueue;
 
     public EntityAllocator() {
         this.locationTableIndices = new int[LOCATION_TABLE_BASE_PAGES][LOCATION_TABLE_PAGE_SIZE];
@@ -36,6 +36,9 @@ public class EntityAllocator {
     }
 
     public Archetype getArchetype(int entity) {
+        if (entity == 255) {
+            System.out.println();
+        }
         return locationTableArchetypes[entity >>> LOCATION_TABLE_SHIFT][entity & LOCATION_TABLE_PAGE_MASK];
     }
 
@@ -59,12 +62,13 @@ public class EntityAllocator {
         }
 
         int id = nextId++;
-        if (--pageSpaceLeft <= 0) {
+        pageSpaceLeft--;
+        if (pageSpaceLeft < 0) {
             pageIndex++;
-            pageSpaceLeft = LOCATION_TABLE_PAGE_SIZE;
+            pageSpaceLeft = LOCATION_TABLE_PAGE_SIZE - 1;
         }
 
-        int onPageIndex = LOCATION_TABLE_PAGE_SIZE - (pageSpaceLeft - 1);
+        int onPageIndex = LOCATION_TABLE_PAGE_SIZE - (pageSpaceLeft + 1);
         int[] indexPage = locationTableIndices[pageIndex];
         Archetype[] archPage = locationTableArchetypes[pageIndex];
         indexPage[onPageIndex] = archetypeIndex;

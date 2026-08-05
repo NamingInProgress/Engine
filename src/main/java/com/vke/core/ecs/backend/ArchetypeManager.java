@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
+import com.vke.core.ecs.backend.query.QueryManager;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.rendering.vertexconsumer.InstantResetIntArrayList;
@@ -17,11 +18,13 @@ import java.util.HashMap;
 public class ArchetypeManager {
     private final MaskMap map;
     private final EntityAllocator alloc;
+    private final QueryManager qm;
 
-    public ArchetypeManager(EntityAllocator alloc, int usedComponents) {
+    public ArchetypeManager(EntityAllocator alloc, int usedComponents, QueryManager qm) {
         this.map = new MaskMap(usedComponents);
 
         this.alloc = alloc;
+        this.qm = qm;
     }
 
     public Archetype acquireArchetype(ComponentMask mask) {
@@ -34,6 +37,9 @@ public class ArchetypeManager {
 
         Archetype newArch = acquireArchetype(newMask);
         int newIdx = newArch.accomodateDangling(entity);
+
+        qm.onEntityTransitionOut(oldArch);
+        qm.onEntityTransitionIn(newMask, newArch, newIdx);
 
         Component[] oldComps = oldArch.getComponents();
 
@@ -56,7 +62,7 @@ public class ArchetypeManager {
     public void destroyEntity(int entity) {
         Archetype arch = alloc.getArchetype(entity);
         int index = alloc.getArchetypeIndex(entity);
-        arch.destroyEntity(index, alloc);
+        arch.destroyEntity(index, alloc, qm);
     }
 
     private static final int BATCHED_PATH_THRESHOLD = 128;
@@ -103,7 +109,7 @@ public class ArchetypeManager {
                         batchSize++;
                     }
 
-                    arch.destroyConsecutiveEntities(batchStart, batchSize, alloc);
+                    arch.destroyConsecutiveEntities(batchStart, batchSize, alloc, qm);
 
                     i--;
                 }

@@ -7,6 +7,7 @@ import com.vke.api.utils.OSType;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -296,5 +297,12 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static <T> List<T> emptyImmList() {
         return (List<T>) Collections.EMPTY_LIST;
+    }
+
+    public static <T> @Nullable T tryGet(List<T> coll, int i) {
+        if (Utils.verifyArrayIndex(i, coll.size())) {
+            return coll.get(i);
+        }
+        return null;
     }
 }
