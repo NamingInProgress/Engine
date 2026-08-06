@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan.service;
 import com.vke.api.framable.Framable;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
@@ -21,6 +22,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.graph.service.GraphManager;
+import com.vke.core.rendering.light.LightManagerImpl;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
@@ -78,6 +80,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private FramableManager framableManager;
     private SceneManager sceneManager;
     private GraphManager graphManager;
+    private LightManager lightManager;
 
     private VulkanVertexConsumerProvider vertexConsumerProvider;
 
@@ -102,6 +105,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
+        this.lightManager = new LightManagerImpl(ctx);
         graphManager.initialize();
         ctx.getEngine().EVENT_BUS.register(materialManager);
 
@@ -320,6 +324,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     public VulkanMaterialManager getMaterialManager() {
         return materialManager;
+    }
+
+    public LightManager getLightManager() {
+        return this.lightManager;
     }
 
     @Override

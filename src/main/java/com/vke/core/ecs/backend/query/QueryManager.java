@@ -24,14 +24,16 @@ public class QueryManager {
         l.add(new QueryCache(query));
     }
 
-    public void runCategory(int cat) {
+    public long runCategory(int cat) {
         var list = categories.get(cat);
+        long count = 0;
         if (list != null) {
             int limit = list.elementsCount;
             for (int i = 0; i < limit; i++) {
-                ((QueryCache) list.buffer[i]).execute();
+                count += ((QueryCache) list.buffer[i]).execute();
             }
         }
+        return count;
     }
 
     public void onEntityBatchSpawn(ComponentMask mask, Archetype at, int i, int n) {

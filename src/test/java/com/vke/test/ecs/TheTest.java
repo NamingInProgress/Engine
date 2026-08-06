@@ -1,6 +1,6 @@
 package com.vke.test.ecs;
 
-import com.vke.core.ecs.Ecs;
+import com.vke.core.ecs.services.EcsManagerImpl;
 import com.vke.core.ecs.EcsCreateInfo;
 import com.vke.core.ecs.component.mask.ComponentMask;
 
@@ -11,7 +11,7 @@ public class TheTest {
         int _ = Position.ID;
 
         EcsCreateInfo createInfo = new EcsCreateInfo();
-        Ecs ecs = new Ecs(createInfo);
+        EcsManagerImpl ecs = new EcsManagerImpl(createInfo);
 
         int STARTUP = ecs.createCategory();
 

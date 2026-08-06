@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
 import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
@@ -53,6 +54,11 @@ public class VulkanRenderSystem extends RenderSystem {
     @Override
     public MaterialManager materialManager() {
         return this.renderer.getMaterialManager();
+    }
+
+    @Override
+    public LightManager lightManager() {
+        return this.renderer.getLightManager();
     }
 
     @Override

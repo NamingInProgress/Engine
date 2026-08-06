@@ -2,6 +2,7 @@ package com.vke.api.rendering.abstraction.renderer;
 
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
+import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
@@ -31,6 +32,7 @@ public abstract class RenderSystem extends ContextWrapper {
     public abstract TextureManager textureManager();
     public abstract FrameDataManager frameDataManager();
     public abstract MaterialManager materialManager();
+    public abstract LightManager lightManager();
 
     public abstract CommandBuffer getCurrentCommandBuffer();
 

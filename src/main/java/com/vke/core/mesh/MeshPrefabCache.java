@@ -41,6 +41,8 @@ public class MeshPrefabCache implements AssetCache {
 
     @Override
     public @Nullable AssetData checkCache(PipelineContext context, Identifier assetName) throws AssetException {
+        if (Utils.TRUE) return null;
+
         return Utils.chainExceptions(() -> {
             Path cachedFile = getCacheDir(context, assetName);
             if (!Files.exists(cachedFile)) {

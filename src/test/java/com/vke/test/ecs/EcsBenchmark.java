@@ -1,13 +1,11 @@
 package com.vke.test.ecs;
 
-import com.vke.core.ecs.Ecs;
+import com.vke.core.ecs.services.EcsManagerImpl;
 import com.vke.core.ecs.EcsCreateInfo;
 import com.vke.core.ecs.api.Query;
 import com.vke.core.ecs.backend.Archetype;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.ecs.backend.ComponentRegistry;
-import com.vke.core.ecs.EcsUtils;
 import pl.epsi.EcsComponent;
 
 public class EcsBenchmark {
@@ -38,7 +36,7 @@ public class EcsBenchmark {
 
     private static void runBenchmarkSuite(boolean isWarmup) {
         EcsCreateInfo createInfo = new EcsCreateInfo();
-        Ecs ecs = new Ecs(createInfo);
+        EcsManagerImpl ecs = new EcsManagerImpl(createInfo);
 
         int systemCategory = ecs.createCategory();
         ecs.registerQuery(systemCategory, new BenchmarkHealthQuery());

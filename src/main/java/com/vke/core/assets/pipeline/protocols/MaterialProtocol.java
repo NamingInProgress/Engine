@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
@@ -9,6 +10,7 @@ import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.protocols.loader.UnsupportedLoader;
 
+@Protocol
 public class MaterialProtocol implements AssetProtocol<Material> {
     @Override
     public String getProtocolName() {

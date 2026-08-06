@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.core.Context;
@@ -10,6 +11,7 @@ import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.rendering.pbr.deserialize.MaterialDeserializers;
 
+@Converter
 public class ConfigMaterialConverter implements AssetConverter {
     @Override
     public String from() {

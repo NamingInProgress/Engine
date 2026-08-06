@@ -12,6 +12,8 @@ import com.vke.core.audio.playback2d.service.AudioManager2DAPI;
 import com.vke.core.audio.playback2d.service.AudioManager2DBaseImpl;
 import com.vke.core.audio.playback3d.service.AudioManager3DAPI;
 import com.vke.core.audio.playback3d.service.AudioManager3DBaseImpl;
+import com.vke.core.ecs.services.EcsManagerAPI;
+import com.vke.core.ecs.services.EcsManagerImpl;
 import com.vke.core.event.service.EventBusAPI;
 import com.vke.core.event.service.EventBusImpl;
 import com.vke.core.framable.service.FramableManagerAPI;
@@ -55,6 +57,7 @@ public class Services {
     public static final String FRAMABLE_MANAGER = "frm";
     public static final String GRAPH_MANAGER = "grp";
     public static final String POST_PROCESS = "ppe";
+    public static final String ECS = "ecs";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -75,6 +78,7 @@ public class Services {
         manager.registerNewService(FRAMABLE_MANAGER, new FramableManagerAPI(new FramableManagerImpl(engine)));
         manager.registerNewService(GRAPH_MANAGER, new GraphManagerAPI(new GraphManagerBaseImpl(engine)));
         manager.registerNewService(POST_PROCESS, new PostProcessManagerAPI(new PostProcessManagerBaseImpl(engine)));
+        manager.registerNewService(ECS, new EcsManagerAPI(new EcsManagerImpl(engine)));
     }
 
 }

@@ -9,6 +9,8 @@ import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.color.Color;
+import com.vke.core.ecs.component.mask.ComponentMask;
+import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.input.PressableState;
@@ -19,6 +21,8 @@ import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.services2.Services;
 import com.vke.impl.debug.DebugContext;
+import com.vke.impl.ecs.TransformC;
+import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.vertex.VertexFormatDeferred;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
@@ -39,9 +43,9 @@ public class DemoScene extends Scene {
     public static StaticMesh MESH;
 
     // Grid configuration
-    private static final int GRID_SIZE_X = 10;
-    private static final int GRID_SIZE_Y = 10;
-    private static final int GRID_SIZE_Z = 10;
+    private static final int GRID_SIZE_X = 1;
+    private static final int GRID_SIZE_Y = 1;
+    private static final int GRID_SIZE_Z = 1;
     private static final int TOTAL_INSTANCES = GRID_SIZE_X * GRID_SIZE_Y * GRID_SIZE_Z;
     private static final float SPACING = 10.0f;
 
@@ -53,6 +57,17 @@ public class DemoScene extends Scene {
     private PressableState keyToggleCursor;
     private PressableState keyLogCamera;
     private boolean lockedCursor = true;
+
+    public static float[][] positions = {
+            {45, -45, 45},
+            {-45, -45, 45},
+            {-45, -45, -45},
+            {45, -45, -45},
+            {45, 45, 45},
+            {-45, 45, 45},
+            {-45, 45, -45},
+            {45, 45, -45},
+    };
 
     public DemoScene(Identifier name, Context context) {
         super(name, context);
@@ -66,11 +81,23 @@ public class DemoScene extends Scene {
 
         // Allocate 64 bytes per 4x4 float matrix
         matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
+
+        EcsManager ecs = context.service(Services.ECS);
+        ecs.spawnEntities(8, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+            int i = left + entityIndex;
+            PointLightC pl = at.getComponentById(PointLightC.ID);
+            TransformC tf = at.getComponentById(TransformC.ID);
+            pl.initialize(i, new Color(0, 1, 1, 1), 10);
+            tf.initialize(i);
+            tf.x[i] = positions[entityIndex][0];
+            tf.y[i] = positions[entityIndex][1];
+            tf.z[i] = positions[entityIndex][2];
+        });
     }
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("backpack.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("room.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
 
             RenderResourceManager resManager = getRenderer().resourceManager();
@@ -118,7 +145,7 @@ public class DemoScene extends Scene {
                             z * SPACING - offsetZ
                     );
 
-                    instance.matrix.identity().translate(instance.position).rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
+                    instance.matrix.identity().translate(instance.position);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
                     instances.add(instance);
                 }
             }
@@ -142,9 +169,14 @@ public class DemoScene extends Scene {
 
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
-        DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
-//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(46, 46, 46), Color.RED);
-//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-46, -46, -46), Color.BLUE);
+        //DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
+        for (int i = 0; i < positions.length; i++) {
+            float[] poss = positions[i];
+            DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
+                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), Color.RED);
+        }
+//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
+//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);
     }
 
     private void handleInput() {

@@ -18,10 +18,13 @@ public class QueryCache {
         this.entries = new ArrayList<>();
     }
 
-    public void execute() {
+    public long execute() {
+        long c = 0;
         for (Entry entry : entries) {
+            c += entry.i1 - entry.i0;
             query.execute(entry.archetype, entry.i0, entry.i1);
         }
+        return c;
     }
 
     public void onEntityBatchSpawn(ComponentMask mask, Archetype at, int i, int n) {
