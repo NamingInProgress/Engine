@@ -12,6 +12,7 @@ import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.rendering.vulkan.descriptor.CompiledDescriptorSetLayout;
 import com.vke.core.rendering.vulkan.descriptor.DescriptorAllocator;
 import com.vke.core.rendering.vulkan.descriptor.DynamicDescriptorAllocator;
+import com.vke.core.rendering.vulkan.descriptor.SharedBufferHandler;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
@@ -135,12 +136,13 @@ public class DescriptorSetInstance implements Disposable {
     }
 
     public static MappedBuffer generateBuffer(VulkanRenderSystem ctx, BindingLayout layout, boolean test) {
-        if (test && layout.name.equals("u_MaterialBuffer")) {
-            VulkanMaterialManager mm = (VulkanMaterialManager) ctx.materialManager();
-            if (mm.getBuffer() == null) {
-                mm.setBuffer(generateBuffer(ctx, layout, false));
+        if (test && SharedBufferHandler.BUFFERS.containsKey(layout.name)) {
+            MappedBuffer buf = SharedBufferHandler.BUFFERS.get(layout.name);
+            if (buf == null) {
+                SharedBufferHandler.BUFFERS.put(layout.name, generateBuffer(ctx, layout, false));
             }
-            return mm.getBuffer();
+
+            return SharedBufferHandler.BUFFERS.get(layout.name);
         }
 
         BufferUsage usage = (layout.type == DescriptorType.UNIFORM_BUFFER || layout.type == DescriptorType.UNIFORM_BUFFER_DYNAMIC) ? BufferUsage.Bits.UBO.into() : BufferUsage.Bits.SSBO.into();

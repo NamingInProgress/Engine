@@ -143,8 +143,8 @@ public class DemoScene extends Scene {
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
         DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
-        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(46, 46, 46), Color.RED);
-        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-46, -46, -46), Color.BLUE);
+//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(46, 46, 46), Color.RED);
+//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-46, -46, -46), Color.BLUE);
     }
 
     private void handleInput() {

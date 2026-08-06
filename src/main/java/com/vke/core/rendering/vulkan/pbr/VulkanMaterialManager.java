@@ -26,8 +26,6 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
 
     private boolean dirty;
 
-    private MappedBuffer BUF;
-
     public VulkanMaterialManager(RenderSystem ctx) {
         this.ctx = ctx;
     }
@@ -90,15 +88,6 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
     @Override
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
-    }
-
-    public void setBuffer(MappedBuffer buffer) {
-        this.BUF = buffer;
-    }
-
-    // Generally shouldn't be null and if it is ur just unlucky
-    public MappedBuffer getBuffer() {
-        return BUF;
     }
 
 }

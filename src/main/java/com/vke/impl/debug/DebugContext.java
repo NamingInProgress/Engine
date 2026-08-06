@@ -130,34 +130,40 @@ public class DebugContext {
 
         @Override
         public void draw(VertexConsumer<DebugVertex> vc) {
-            Vector3f c = new Vector3f(a.x, a.y, b.z);
-            Vector3f d = new Vector3f(b.x, a.y, a.z);
-            Vector3f e = new Vector3f(b.x, a.y, b.z);
-            Vector3f f = new Vector3f(a.x, b.y, b.z);
-            Vector3f g = new Vector3f(b.x, b.y, a.z);
-            Vector3f h = new Vector3f(a.x, b.y, a.z);
+            vc.begin();
+            v(vc, a);
+            v(vc, b);
+            v(vc, new Vector3f(a.x, a.y, b.z));
+            v(vc, new Vector3f(b.x, a.y, a.z));
+            v(vc, new Vector3f(b.x, a.y, b.z));
+            v(vc, new Vector3f(a.x, b.y, b.z));
+            v(vc, new Vector3f(b.x, b.y, a.z));
+            v(vc, new Vector3f(a.x, b.y, a.z));
 
-            line(vc, a, c);
-            line(vc, a, d);
-            line(vc, b, f);
-            line(vc, b, g);
 
-            line(vc, e, c);
-            line(vc, e, d);
-            line(vc, h, f);
-            line(vc, h, g);
 
-            line(vc, a, h);
-            line(vc, c, f);
-            line(vc, d, g);
-            line(vc, e, b);
+            line(vc, 0, 2);
+            line(vc, 0, 3);
+            line(vc, 1, 5);
+            line(vc, 1, 6);
+
+            line(vc, 4, 2);
+            line(vc, 4, 3);
+            line(vc, 7, 5);
+            line(vc, 7, 6);
+
+            line(vc, 0, 7);
+            line(vc, 2, 5);
+            line(vc, 3, 6);
+            line(vc, 4, 1);
         }
 
-        void line(VertexConsumer<DebugVertex> vc, Vector3f a, Vector3f b) {
-            vc.begin();
-            vc.vertices(new DebugVertex(a.x, a.y, a.z, color.x, color.y, color.z, color.w),
-                    new DebugVertex(b.x, b.y, b.z, color.x, color.y, color.z, color.w));
-            vc.indices(0, 1);
+        void v(VertexConsumer<DebugVertex> vc, Vector3f v) {
+            vc.vertices(new DebugVertex(v.x, v.y, v.z, color.x, color.y, color.z, color.w));
+        }
+
+        void line(VertexConsumer<DebugVertex> vc, int idx, int idx2) {
+            vc.indices(idx, idx2);
         }
     }
 
