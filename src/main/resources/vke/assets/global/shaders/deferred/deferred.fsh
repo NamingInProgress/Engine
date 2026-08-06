@@ -3,6 +3,7 @@
 layout (location = 0) in vec2 fUV;
 layout (location = 1) in vec3 fNormal;
 layout (location = 2) in flat int fMaterialId;
+layout (location = 3) in vec3 fPos;
 
 layout (location = 0) out vec4 gNormal;
 layout (location = 1) out vec4 gAlbedoSpec;

@@ -43,7 +43,7 @@ public class DemoScene extends Scene {
     private static final int GRID_SIZE_Y = 10;
     private static final int GRID_SIZE_Z = 10;
     private static final int TOTAL_INSTANCES = GRID_SIZE_X * GRID_SIZE_Y * GRID_SIZE_Z;
-    private static final float SPACING = 5.0f;
+    private static final float SPACING = 10.0f;
 
     private final List<Instance> instances = new ArrayList<>(TOTAL_INSTANCES);
     private ByteBuffer matrixBuffer;
@@ -70,7 +70,7 @@ public class DemoScene extends Scene {
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("bck.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("backpack.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
 
             RenderResourceManager resManager = getRenderer().resourceManager();
@@ -118,7 +118,7 @@ public class DemoScene extends Scene {
                             z * SPACING - offsetZ
                     );
 
-                    instance.matrix.identity().translate(instance.position);
+                    instance.matrix.identity().translate(instance.position).rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
                     instances.add(instance);
                 }
             }
@@ -141,8 +141,10 @@ public class DemoScene extends Scene {
         context.put("inst", TOTAL_INSTANCES);
 
         // Debug visualizers
-        DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
+        //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
         DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
+        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(46, 46, 46), Color.RED);
+        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-46, -46, -46), Color.BLUE);
     }
 
     private void handleInput() {

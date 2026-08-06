@@ -19,7 +19,7 @@ import org.joml.Vector3f;
 
 public class FreecamController implements CameraController, Framable {
 
-    private static final float DEFAULT_SPEED = 1.15f;
+    private static final float DEFAULT_SPEED = 0.5f;
     private static final float DEFAULT_SENSITIVITY = 0.0025f;
     private static final float MAX_PITCH = (float) Math.toRadians(89);
 

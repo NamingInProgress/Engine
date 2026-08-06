@@ -22,7 +22,7 @@ layout (std430, set = 3, binding = 0) readonly buffer Lights {
 } u_Lights;
 
 vec3 reconstructWorldPosition() {
-    float depth = texture(u_DepthTex, fUV).r;
+    float depth = vktexture(u_DepthTex, fUV).r;
 
     vec4 clip = vec4(
             fUV * 2.0 - 1.0,
@@ -41,22 +41,20 @@ vec3 reconstructWorldPosition() {
 void main() {
     vec3 albedo = vktexture(u_AlbedoSpecTex, fUV).rgb;
 
-    vec3 normal = normalize(vktexture(u_NormalTex, fUV).xyz * 2.0 - 1.0);
+    vec3 normal = normalize(vktexture(u_NormalTex, fUV).xyz);
 
     vec3 fragPos = reconstructWorldPosition();
 
     Light light = u_Lights.lights[0];
 
-    vec3 lightDir = normalize(fragPos - vec3(light.pos));
+    vec3 lightDir = normalize(vec3(light.pos) - fragPos);
 
     float dist = distance(fragPos, light.pos.xyz);
 
-    float NdotL = max(dot(normal, lightDir) * -1.0, 0.0);
+    float NdotL = max(dot(normal, lightDir), 0.0);
 
     vec3 lighting = albedo * 0.1;
     lighting += albedo * vec3(light.color) * NdotL;
 
-    //FragColor = vec4(lighting, 1.0);
-
-    FragColor = vec4(vec3(NdotL), 1);
+    FragColor = vec4(lighting, 1);
 }
