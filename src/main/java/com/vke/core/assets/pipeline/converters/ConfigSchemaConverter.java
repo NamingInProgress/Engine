@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
@@ -11,6 +12,7 @@ import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 
+@Converter
 public class ConfigSchemaConverter implements AssetConverter {
     @Override
     public String from() {

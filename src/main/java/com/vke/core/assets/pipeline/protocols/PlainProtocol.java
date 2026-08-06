@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
@@ -14,6 +15,7 @@ import com.vke.utils.io.Identifier;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+@Protocol
 public class PlainProtocol implements AssetProtocol<String> {
     @Override
     public String getProtocolName() {

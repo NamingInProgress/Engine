@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.core.Context;
 import com.vke.core.assets.language.Language;
@@ -13,6 +14,7 @@ import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.io.Identifier;
 
+@Protocol
 public class LangProtocol implements AssetProtocol<Language> {
     @Override
     public String getProtocolName() {

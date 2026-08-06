@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols.shader;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
@@ -16,6 +17,7 @@ import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
+@Protocol
 public class VertexShaderProtocol implements AssetProtocol<Shader> {
 
     @Override

@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
@@ -17,6 +18,7 @@ import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.file.png.PngFile;
 import com.vke.core.file.png.PngInfo;
 
+@Converter
 public class PngTextureConverter implements AssetConverter {
     @Override
     public String from() {

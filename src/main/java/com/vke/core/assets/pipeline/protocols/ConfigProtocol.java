@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
@@ -16,6 +17,7 @@ import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 import com.vke.utils.io.SegmentedPath;
 
+@Protocol
 public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
     @Override
     public String getProtocolName() {

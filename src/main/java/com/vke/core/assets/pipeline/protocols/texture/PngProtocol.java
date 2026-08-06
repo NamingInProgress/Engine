@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols.texture;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
@@ -20,6 +21,7 @@ import com.vke.core.file.png.PngFile;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
+@Protocol
 public class PngProtocol implements AssetProtocol<Texture> {
     @Override
     public String getProtocolName() {

@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.converters;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.core.Context;
 import com.vke.core.assets.AssetException;
@@ -9,6 +10,7 @@ import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.file.obj.ObjFile;
 
+@Converter
 public class ObjMeshprefabConverter implements AssetConverter {
     @Override
     public String from() {

@@ -20,7 +20,6 @@
         <vke-plugin.version>1.3.4</vke-plugin.version>
     </properties>
 
-
     <profiles>
         <profile>
             <id>lwjgl-natives-linux-amd64</id>

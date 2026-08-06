@@ -1,6 +1,7 @@
 package com.vke.core.assets.pipeline.protocols.meta;
 
 import com.vke.api.assets.Protocols;
+import com.vke.api.assets.anot.Protocol;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.StageElement;
@@ -12,6 +13,7 @@ import com.vke.utils.Infallible;
 import com.vke.utils.Utils;
 import com.vke.utils.io.FileUtils;
 
+@Protocol
 public class FileProtocol implements AssetProtocol<Infallible> {
     private final Router router;
 
