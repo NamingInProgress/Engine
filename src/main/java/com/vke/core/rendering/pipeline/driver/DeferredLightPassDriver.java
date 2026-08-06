@@ -29,7 +29,7 @@ public class DeferredLightPassDriver extends PipelineDriver {
 
             lights.write((writer) -> {
                 writer.putFloat4(0, 0, 0, 0);
-                writer.putFloat4(0, 1, 1, 0);
+                writer.putFloat4(1, 1, 1, 0);
             });
         } catch (IOException e) {
             throw new RuntimeException(e);

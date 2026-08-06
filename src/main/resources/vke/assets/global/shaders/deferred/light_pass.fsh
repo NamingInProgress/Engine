@@ -22,13 +22,20 @@ layout (std430, set = 3, binding = 0) readonly buffer Lights {
 } u_Lights;
 
 vec3 reconstructWorldPosition() {
-    float depth = vktexture(u_DepthTex, fUV).r;
+    float depth = texture(u_DepthTex, fUV).r;
 
-    vec4 clipPos = vec4(fUV * 2.0 - 1.0, depth, 1.0);
+    vec4 clip = vec4(
+            fUV * 2.0 - 1.0,
+            depth,
+            1.0
+    );
 
-    vec4 worldPos = frameData.camera.inverse_view * frameData.camera.inverse_projection * clipPos;
+    vec4 view = frameData.camera.inverse_projection * clip;
+    view /= view.w;
 
-    return worldPos.xyz / worldPos.w;
+    vec4 world = frameData.camera.inverse_view * view;
+
+    return world.xyz;
 }
 
 void main() {
@@ -40,12 +47,16 @@ void main() {
 
     Light light = u_Lights.lights[0];
 
-    vec3 lightDir = normalize(vec3(light.pos) - fragPos);
+    vec3 lightDir = normalize(fragPos - vec3(light.pos));
 
-    float NdotL = max(dot(normal, lightDir), 0.0);
+    float dist = distance(fragPos, light.pos.xyz);
+
+    float NdotL = max(dot(normal, lightDir) * -1.0, 0.0);
 
     vec3 lighting = albedo * 0.1;
     lighting += albedo * vec3(light.color) * NdotL;
 
-    FragColor = vec4(lighting, 1.0);
+    //FragColor = vec4(lighting, 1.0);
+
+    FragColor = vec4(vec3(NdotL), 1);
 }

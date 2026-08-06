@@ -26,6 +26,7 @@ void main() {
 
     fUV = inUV;
     mat3 normalMatrix = transpose(inverse(mat3(transforms.local[gl_InstanceIndex])));
-    fNormal = normalize(normalMatrix * inNormal);
+    //fNormal = normalize(normalMatrix * inNormal);
+    fNormal = inNormal;
     fMaterialId = materialId;
 }

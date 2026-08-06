@@ -12,7 +12,7 @@ layout (location = 1) out vec4 gAlbedoSpec;
 
 void main() {
     MaterialInputs m = evaluateMaterial(fMaterialId, fUV);
-    gNormal = vec4(normalize(fNormal), 1.0);
+    gNormal = vec4(fNormal, 1.0);
 
     gAlbedoSpec.rgb = m.baseColor.rgb;
 

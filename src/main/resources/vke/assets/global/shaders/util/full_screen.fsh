@@ -9,5 +9,8 @@ layout (location = 0) out vec4 color;
 layout (set = 2, binding = 0) uniform sampler2D u_InTex;
 
 void main() {
-    color = vktexture(u_InTex, uv);
+    vec4 c = vktexture(u_InTex, uv);
+
+    //color = vec4(c.xyz + vec3(0.5), c.a);
+    color = c;
 }

@@ -35,11 +35,12 @@ public class DeferredRenderPass extends RenderPass {
 
         Texture depthOut = instance.getOutputTexture("depthOut");
 
-        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_albedo_spec"), "depthOut", Color.BLACK, Color.WHITE);
+        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_albedo_spec"), "depthOut", Color.VKE, Color.WHITE);
 
+        int inst = context.get("inst");
         RenderPipelines.DEFERRED.setLocal(context.get("mats"));
         RenderPipelines.DEFERRED.use();
-        DemoScene.MESH.drawInstanced(250);
+        DemoScene.MESH.drawInstanced(inst);
 
         cmd.endRendering();
 

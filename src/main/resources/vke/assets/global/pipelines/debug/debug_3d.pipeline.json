@@ -1,6 +1,6 @@
 {
   "dynamicStates": ["TOPOLOGY", "VIEWPORT", "SCISSOR"],
-  "topology": "TRIANGLES",
+  "topology": "LINES",
   "lineWidth": 4,
   "cullMode": "NONE",
   "polygonMode": "FILL",

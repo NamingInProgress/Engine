@@ -9,6 +9,7 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.CoreLogger;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.scene.SceneApp;
+import com.vke.utils.Utils;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = false;
+        createInfo.releaseMode = true;
         createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");

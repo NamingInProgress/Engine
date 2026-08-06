@@ -102,6 +102,7 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
 
     public void loadCacheFromArchive() {
         if (engine.isDebugMode()) return;
+        if (Utils.TRUE) return;
 
         try {
             Path cacheFolder = FileUtils.getCacheFolder(engine.getName(), false);
