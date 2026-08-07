@@ -20,12 +20,14 @@ public class Main {
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
-        CoreReflector reflector = new CoreReflector(new FileInputStream("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\test\\resources\\cube.vert.spv"));
-        reflector.reflect(null, null, null);
+        //CoreReflector reflector = new CoreReflector(new FileInputStream("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\test\\resources\\cube2.vert.spv"));
+        //reflector.reflect(null, null, null);
+//
+        //if (Utils.TRUE) return;
 
-        if (Utils.TRUE) return;
+
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = false;
+        createInfo.releaseMode = true;
         createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");

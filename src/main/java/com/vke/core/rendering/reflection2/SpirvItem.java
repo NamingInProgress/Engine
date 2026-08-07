@@ -16,6 +16,8 @@ public class SpirvItem {
     public int binding = -1;
     public int set = -1;
     public DescriptorCategory category;
+    public boolean rootOrIsVec;
+    public int bitWidth;
 
     // also value for constants (dw about parser internal cuz spirv retarded)
     public long scalarBits;

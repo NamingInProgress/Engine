@@ -209,7 +209,7 @@ public interface Iter<T> extends Iterable<T> {
         T max = next().unwrapOrNull();
         if (max == null) return null;
         for (T e : this) {
-            if (comparator.compare(max, e) > 0) {
+            if (comparator.compare(e, max) > 0) {
                 max = e;
             }
         }
@@ -236,7 +236,7 @@ public interface Iter<T> extends Iterable<T> {
         T min = next().unwrapOrNull();
         if (min == null) return null;
         for (T e : this) {
-            if (comparator.compare(min, e) < 0) {
+            if (comparator.compare(e, min) < 0) {
                 min = e;
             }
         }

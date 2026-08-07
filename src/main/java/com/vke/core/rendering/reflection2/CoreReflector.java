@@ -52,10 +52,11 @@ public class CoreReflector {
                 SpirvItem variable = getId(res);
                 SpirvItem actualType = getId(resType).componentType;
                 int storageClass = ops[2];
-                DescriptorCategory category = DescriptorCategory.fromStorageClass(storageClass);
+                DescriptorCategory category = DescriptorCategory.fromStorageClassOrType(storageClass, actualType);
                 variable.componentType = actualType;
                 variable.type = BaseType.TypePointer;
                 variable.category = category;
+                variable.rootOrIsVec = true;
             }
 
             if (isType(op)) {
@@ -80,15 +81,19 @@ public class CoreReflector {
             }
 
             if (op == Op.DECORATE_ID) {
+                System.out.println("GASP ALARM 2! This shader uses OpDecorateId for whatever reason");
+            }
+
+            if (op == Op.MEMBER_DECORATE) {
                 applyMemberDecoration(getMember(getId(ops[0]), ops[1]), ops[2], ops, 3);
             }
 
             if (op == Op.CONSTANT) {
                 int resType = ops[0];
                 int res = ops[1];
-                long value = ops[2];
+                long value = ops[2] & 0xFFFFFFFFL;
                 if (ops.length == 4) {
-                    long upper = ops[3];
+                    long upper = ops[3] & 0xFFFFFFFFL;
                     value |= (upper << 32);
                 }
                 SpirvItem typeType = getId(resType);
@@ -100,7 +105,7 @@ public class CoreReflector {
 
         var pushConstants = Iter.of(ids.values())
                 .map(t -> t.value)
-                .first(t -> t.category == DescriptorCategory.PUSH_CONSTANT)
+                .first(t -> t.category == DescriptorCategory.PUSH_CONSTANT && t.rootOrIsVec)
                 .unwrapOrNull();
 
         var descriptors = Iter.of(ids.values()).filterMap(t -> {
@@ -114,8 +119,6 @@ public class CoreReflector {
                 return Option.some(t.value);
             } return Option.none();
         }).collectToList();
-
-        System.out.println(descriptors);
 
         return new CoreReflectedShader(ident, shaderType, metadata, pushConstants, descriptors, vaos);
     }
@@ -135,14 +138,16 @@ public class CoreReflector {
                 int res = ops[0];
                 int width = ops[1];
                 int sign = ops[2];
-                newPrimType(BaseType.forInt(width, sign), res);
+                SpirvItem item = newPrimType(BaseType.forInt(width, sign), res);
+                item.bitWidth = width;
             }
             case Op.TYPE_FLOAT -> {
                 int res = ops[0];
                 int width = ops[1];
                 int enc = -1;
                 if (ops.length == 3) enc = ops[2];
-                newPrimType(BaseType.forFloat(width, enc), res);
+                SpirvItem item = newPrimType(BaseType.forFloat(width, enc), res);
+                item.bitWidth = width;
             }
             case Op.TYPE_VECTOR -> {
                 int res = ops[0];
@@ -153,6 +158,7 @@ public class CoreReflector {
                 vector.componentType = componentType;
                 vector.scalarBits = componentCount;
                 vector.type = BaseType.Array;
+                vector.rootOrIsVec = true;
             }
             case Op.TYPE_MATRIX -> {
                 int res = ops[0];
@@ -170,10 +176,11 @@ public class CoreReflector {
             case Op.TYPE_POINTER -> {
                 int res = ops[0];
                 int storageClass = ops[1];
-                DescriptorCategory category = DescriptorCategory.fromStorageClass(storageClass);
                 SpirvItem type = getId(res);
+                DescriptorCategory category = DescriptorCategory.fromStorageClass(storageClass);
                 type.componentType = getId(ops[2]);
                 type.category = category;
+                type.type = BaseType.TypePointer;
             }
 
             case Op.TYPE_STRUCT ->  {
@@ -200,7 +207,6 @@ public class CoreReflector {
                 type.type = BaseType.Array;
                 type.scalarBits = length;
                 type.componentType = getId(elemType);
-                System.out.println();
             }
             case Op.TYPE_RUNTIME_ARRAY -> {
                 int res = ops[0];
@@ -212,9 +218,14 @@ public class CoreReflector {
                 type.componentType = getId(elemType);
             }
             case Op.TYPE_FORWARD_POINTER -> {
+                int res = ops[0];
+                int storageClass = ops[1];
+
+                SpirvItem pointer = getId(res);
+                pointer.category = DescriptorCategory.fromStorageClass(storageClass);
+                pointer.type = BaseType.TypePointer;
 
             }
-            default -> System.out.println("GASP ALARM!" + op);
         }
     }
 
@@ -232,8 +243,11 @@ public class CoreReflector {
     }
 
     private void applyMemberDecoration(SpirvItem.Member member, int decoration, int[] ops, int off) {
-        if (decoration == Decoration.OFFSET) {
-            member.offset = ops[off];
+        switch (decoration) {
+            case Decoration.OFFSET -> member.offset = ops[off];
+            //case Decoration.ROW_MAJOR -> member.type.rowMajor = true;
+            //case Decoration.COL_MAJOR -> member.type.rowMajor = false;
+            //case Decoration.MATRIX_STRIDE -> member.type.matrixStride = ops[off];
         }
     }
 
@@ -280,7 +294,9 @@ public class CoreReflector {
         return m;
     }
 
-    private void newPrimType(BaseType baseType, int res) {
-        getId(res).type = baseType;
+    private SpirvItem newPrimType(BaseType baseType, int res) {
+        SpirvItem item = getId(res);
+        item.type = baseType;
+        return item;
     }
 }

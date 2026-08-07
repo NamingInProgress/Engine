@@ -34,11 +34,9 @@ public class ShaderReflector2Impl extends ServiceImpl implements ShaderReflector
     public ReflectedShader2 reflect(long id, Identifier ident, InputStream input, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata) {
         if (CACHE.containsKey(id)) return CACHE.get(id);
         CoreReflector reflector = new CoreReflector(input);
-        reflector.reflect(ident, shaderType, metadata);
-        //ReflectedShader s = new ReflectedShader(ident, spvcContext, spirv, shaderType, metadata);
-        //CACHE.put(id, s);
-        //return s;
-        return null;
+        ReflectedShader2 s = reflector.reflect(ident, shaderType, metadata);
+        CACHE.put(id, s);
+        return s;
     }
 
     @Override

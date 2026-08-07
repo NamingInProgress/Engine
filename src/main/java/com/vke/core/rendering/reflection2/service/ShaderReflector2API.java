@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 public class ShaderReflector2API extends ServiceAPI implements ShaderReflector2 {
     public ShaderReflector2API(ServiceImpl baseImpl) {
-        super(Services.SHADER_REFLECTION, baseImpl);
+        super(Services.SHADER_REFLECTION2, baseImpl);
     }
 
     private ShaderReflector2 getImpl() {

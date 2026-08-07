@@ -24,6 +24,7 @@ import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.rendering.light.LightManagerImpl;
 import com.vke.core.rendering.pipeline.RenderPipelines;
+import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
@@ -37,7 +38,6 @@ import com.vke.core.rendering.vulkan.data.VulkanResourceManager;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
-import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
@@ -135,7 +135,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             baseContext.throwException(new IllegalStateException("Couldnt load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
         }
         engineSetsManager = new EngineDescriptorSetsManager(ctx,
-                baseContext.<ShaderReflector>service(Services.SHADER_REFLECTION).get(0)
+                baseContext.<ShaderReflector2>service(Services.SHADER_REFLECTION2).get(0)
                         .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
         s.free();
         engineSetsManager.ENGINE_PIPELINE_LAYOUT = VulkanPipelineLayout.getLayout(ctx, null,

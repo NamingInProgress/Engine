@@ -15,7 +15,6 @@ public class PushConstantsResource {
         this.name = item.name;
         this.baseType = item.type;
         this.size = SpirvUtils.computeSize(item);
-        System.out.println("size: " + size);
+        this.struct = SpirvUtils.createStructType(item);
     }
-
 }

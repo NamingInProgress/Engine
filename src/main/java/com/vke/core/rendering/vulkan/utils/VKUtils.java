@@ -211,5 +211,4 @@ public class VKUtils {
     public static int set(long encoded) {
         return (int) (encoded >>> 32);
     }
-
 }

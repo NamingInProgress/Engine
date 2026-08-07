@@ -13,6 +13,8 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
+import com.vke.core.rendering.reflection2.api.DescriptorResource;
+import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
@@ -20,8 +22,6 @@ import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
-import com.vke.core.rendering.vulkan.service.VulkanRenderer;
-import com.vke.core.rendering.vulkan.shr.ReflectedShader;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.tuple.Pair;
@@ -46,12 +46,12 @@ public class EngineDescriptorSetsManager implements Disposable {
     private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, IntWrapper> scheduledBindingUpdates = new HashMap<>();
     private final RecyclerArrayList<Pair<VulkanPipelineLayout, UniformHandle>> toRemoveBindingUpdates = new RecyclerArrayList<>(20);
 
-    public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader truth) {
+    public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader2 truth) {
         this.textureManager = new VulkanTextureManager(ctx, this, ctx.renderer().getBindlessTexturesCount());
         ctx.getEngine().EVENT_BUS.register(textureManager);
 
-        for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : truth.getDescriptors().entrySet()) {
-            for (ReflectedShader.DescriptorResource descriptorResource : entry.getValue()) {
+        for (var entry : truth.descriptors().entrySet()) {
+            for (DescriptorResource descriptorResource : entry.getValue()) {
                 if (descriptorResource.set > highestSet) highestSet = descriptorResource.set;
                 var set = ENGINE_LAYOUTS.computeIfAbsent(descriptorResource.set, (_) -> new DescriptorSetLayout());
 

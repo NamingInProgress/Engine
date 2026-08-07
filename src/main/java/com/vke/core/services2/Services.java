@@ -28,8 +28,6 @@ import com.vke.core.rendering.post.service.PostProcessManagerBaseImpl;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2API;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2Impl;
 import com.vke.core.scene.service.SceneManagerAPI;
-import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorAPI;
-import com.vke.core.rendering.vulkan.shr.service.ShaderReflectorImpl;
 import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.scene.service.SceneManagerBaseImpl;
 import com.vke.core.vkz.service.VkzAPI;
@@ -48,8 +46,7 @@ public class Services {
     public static final String EVENT_BUS = "evt";
     public static final String ASSET_MANAGER = "asm";
     public static final String VKZ = "vkz";
-    public static final String SHADER_REFLECTION = "shr";
-    public static final String SHADER_REFLECTION2 = "shr2";
+    public static final String SHADER_REFLECTION2 = "shr";
     public static final String LANGUAGE_MANAGER = "lan";
     public static final String SCENE_MANAGER = "scn";
     public static final String INPUT_MANAGER = "ipm";
@@ -70,7 +67,6 @@ public class Services {
         manager.registerNewService(EVENT_BUS, new EventBusAPI(new EventBusImpl(engine)));
         manager.registerNewService(ASSET_MANAGER, new AssetManagerAPI(new AssetManagerBaseImpl(engine)));
         manager.registerNewService(VKZ, new VkzAPI(new VkzImpl(engine)));
-        manager.registerNewService(SHADER_REFLECTION, new ShaderReflectorAPI(new ShaderReflectorImpl(engine)));
         manager.registerNewService(SHADER_REFLECTION2, new ShaderReflector2API(new ShaderReflector2Impl(engine)));
         manager.registerNewService(LANGUAGE_MANAGER, new LanguageManagerAPI(new LanguageManagerBaseImpl(engine)));
         manager.registerNewService(SCENE_MANAGER, new SceneManagerAPI(new SceneManagerBaseImpl(engine)));
