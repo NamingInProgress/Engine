@@ -115,6 +115,8 @@ public class CoreReflector {
             } return Option.none();
         }).collectToList();
 
+        System.out.println(descriptors);
+
         return new CoreReflectedShader(ident, shaderType, metadata, pushConstants, descriptors, vaos);
     }
 
@@ -150,6 +152,7 @@ public class CoreReflector {
                 SpirvItem vector = getId(res);
                 vector.componentType = componentType;
                 vector.scalarBits = componentCount;
+                vector.type = BaseType.Array;
             }
             case Op.TYPE_MATRIX -> {
                 int res = ops[0];
@@ -159,6 +162,7 @@ public class CoreReflector {
                 SpirvItem matrix = getId(res);
                 matrix.componentType = columnType;
                 matrix.scalarBits = colCount;
+                matrix.type = BaseType.Matrix;
             }
             case Op.TYPE_IMAGE -> newPrimType(BaseType.Image, ops[0]);
             case Op.TYPE_SAMPLER -> newPrimType(BaseType.Sampler, ops[0]);
@@ -207,6 +211,10 @@ public class CoreReflector {
                 type.scalarBits = -1;
                 type.componentType = getId(elemType);
             }
+            case Op.TYPE_FORWARD_POINTER -> {
+
+            }
+            default -> System.out.println("GASP ALARM!" + op);
         }
     }
 

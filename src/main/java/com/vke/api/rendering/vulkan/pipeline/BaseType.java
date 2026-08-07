@@ -23,7 +23,7 @@ public enum BaseType {
     AccelerationStructure,
     AtomicCounter,
     TypePointer,
-    Unknown, Array;
+    Unknown, Array, Matrix;
 
     public static BaseType fromSpvc(int baseType) {
         return switch (baseType) {
