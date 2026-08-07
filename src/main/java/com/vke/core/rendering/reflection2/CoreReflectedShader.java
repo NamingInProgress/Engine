@@ -13,25 +13,33 @@ public class CoreReflectedShader implements ReflectedShader2 {
     private final ShaderPreprocessor.ShaderMetadata meta;
     private final Identifier ident;
 
+    private final PushConstantsResource pushConstantsResource;
+    private final Map<DescriptorCategory,  List<DescriptorResource>> descriptorResources;
+    private final List<VertexAttributeResource> vertexAttributeResources;
+
     public CoreReflectedShader(Identifier ident, ShaderType shaderType, ShaderPreprocessor.ShaderMetadata metadata, SpirvItem pushConstants, List<SpirvItem> descriptors, List<SpirvItem> vaos) {
         this.type = shaderType;
         this.meta = metadata;
         this.ident = ident;
+
+        this.pushConstantsResource = new PushConstantsResource(pushConstants);
+        this.descriptorResources = null;
+        this.vertexAttributeResources = null;
     }
 
     @Override
     public PushConstantsResource pushConstants() {
-        return null;
+        return pushConstantsResource;
     }
 
     @Override
     public Map<DescriptorCategory, List<DescriptorResource>> descriptors() {
-        return Map.of();
+        return descriptorResources;
     }
 
     @Override
     public List<VertexAttributeResource> vertexAttributes() {
-        return List.of();
+        return vertexAttributeResources;
     }
 
     @Override
