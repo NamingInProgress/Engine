@@ -19,11 +19,11 @@ import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
+import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.shader.service.ShaderCompiler;
-import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.rendering.vulkan.utils.VKUtils;
 import com.vke.core.rendering.vulkan.buffers.VulkanGpuBuffer;
@@ -38,6 +38,8 @@ import com.vke.core.rendering.vulkan.shader.VulkanShader;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
+import com.vke.utils.exception.Unreachable;
+import com.vke.utils.io.ByteBufferBackedInputStream;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
@@ -50,6 +52,7 @@ import org.lwjgl.vulkan.*;
 import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
@@ -249,20 +252,24 @@ public class VulkanRenderDevice implements RenderDevice {
         Pair<String, ShaderPreprocessor.ShaderMetadata> processed = ShaderPreprocessor.getInstance(getRenderer()).process(identifier);
         byte[] bytes = processed.v1.getBytes(StandardCharsets.UTF_8);
 
+        ByteBuffer spirv;
         try {
-            ByteBuffer spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER)
-                    .compileGlslToSpirV(bytes, shaderType, identifier);
-
-            VulkanShader shader = new VulkanShader(context, spirv, shaderType, SHADER_ID.get());
-            logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
-
-            // Only caches the IR and caches the reflected shader so the performance cost is negligible.
-            engine.<ShaderReflector>service(Services.SHADER_REFLECTION).reflect(SHADER_ID.getAndIncrement(), identifier, spirv, shaderType, processed.v2);
-
-            return shader;
+            spirv = engine.<ShaderCompiler>service(Services.SHADER_COMPILER).compileGlslToSpirV(bytes, shaderType, identifier);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            engine.throwException(e, "Compile Shader");
+            throw new Unreachable();
         }
+
+        VulkanShader shader = new VulkanShader(context, spirv, shaderType, SHADER_ID.get());
+        logger.trace("Creating Shader " + identifier + " for ID: " + SHADER_ID.get());
+
+        try (InputStream spirvStream = new ByteBufferBackedInputStream(spirv)) {
+            // Only caches the IR and caches the reflected shader so the performance cost is negligible.
+            ShaderReflector2 reflector2 = engine.service(Services.SHADER_REFLECTION2);
+            reflector2.reflect(SHADER_ID.getAndIncrement(), identifier, spirvStream, shaderType, processed.v2);
+        }
+
+        return shader;
     }
 
     @Override

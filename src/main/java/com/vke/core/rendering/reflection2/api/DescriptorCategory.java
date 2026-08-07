@@ -1,11 +1,13 @@
 package com.vke.core.rendering.reflection2.api;
 
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
+import com.vke.core.rendering.reflection2.SpirvItem;
 import com.vke.core.rendering.reflection2.StorageClass;
 
 public enum DescriptorCategory {
     UNKNOWN,
     UNIFORM_BUFFER,
+    UNIFORM_CONSTANT,
     STORAGE_BUFFER,
     STORAGE_IMAGE,
     SAMPLED_IMAGE,
@@ -19,6 +21,7 @@ public enum DescriptorCategory {
 
     public static DescriptorCategory fromStorageClass(int storageClass) {
         return switch (storageClass) {
+            case StorageClass.UNIFORM_CONSTANT -> UNIFORM_CONSTANT;
             case StorageClass.UNIFORM -> UNIFORM_BUFFER;
             case StorageClass.STORAGE_BUFFER,
                  StorageClass.PHYSICAL_STORAGE_BUFFER -> STORAGE_BUFFER;
@@ -30,11 +33,12 @@ public enum DescriptorCategory {
         };
     }
 
-    public static DescriptorCategory fromStorageClassOrType(int storageClass, BaseType type) {
-        return switch (type) {
+    public static DescriptorCategory fromStorageClassOrType(int storageClass, SpirvItem item) {
+        return switch (item.type) {
             case BaseType.Image -> DescriptorCategory.SEPARATE_IMAGE;
             case BaseType.Sampler -> DescriptorCategory.SEPARATE_SAMPLER;
             case BaseType.SampledImage -> DescriptorCategory.SAMPLED_IMAGE;
+            case BaseType.Array -> fromStorageClassOrType(storageClass, item.componentType);
             default -> fromStorageClass(storageClass);
         };
     }

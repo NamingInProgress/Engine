@@ -4,7 +4,10 @@ import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.rendering.reflection2.api.*;
 import com.vke.utils.io.Identifier;
+import com.vke.utils.iter.Iter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +25,23 @@ public class CoreReflectedShader implements ReflectedShader2 {
         this.meta = metadata;
         this.ident = ident;
 
-        this.pushConstantsResource = new PushConstantsResource(pushConstants);
-        this.descriptorResources = null;
-        this.vertexAttributeResources = null;
+        if (pushConstants != null) {
+            this.pushConstantsResource = new PushConstantsResource(pushConstants);
+        } else {
+            this.pushConstantsResource = null;
+        }
+
+        this.descriptorResources = new HashMap<>();
+        for (SpirvItem item : descriptors) {
+            DescriptorResource res = new DescriptorResource(item, meta);
+            DescriptorCategory category = item.category;
+            List<DescriptorResource> list = descriptorResources.computeIfAbsent(category, _ -> new ArrayList<>());
+            list.add(res);
+        }
+
+        this.vertexAttributeResources = Iter.of(vaos)
+                .map(VertexAttributeResource::new)
+                .collectToList();
     }
 
     @Override
