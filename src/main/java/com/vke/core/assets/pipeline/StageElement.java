@@ -1,28 +1,30 @@
 package com.vke.core.assets.pipeline;
 
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.meta.AssetMetaAttributes;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.io.FileUtils;
-import com.vke.utils.io.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 
 public class StageElement {
     private final Path path;
+    private String bundleName;
     private AssetData data;
     private Identifier assetName;
     private final AssetMetaAttributes metaAttribs;
     private boolean wasProcessed;
 
-    public StageElement(Path path, AssetData data, AssetMetaAttributes meta) {
+    public StageElement(String namespace, Path path, String bundleName, AssetData data, AssetMetaAttributes meta) {
         this.path = path;
+        this.bundleName = bundleName;
         this.data = data;
-        this.assetName = new Identifier(path.getName(0).toString(), FileUtils.getFileName(path));
+        this.assetName = new Identifier(namespace, FileUtils.getFileName(path));
         this.metaAttribs = meta;
     }
 
@@ -84,5 +86,9 @@ public class StageElement {
 
     public void setProcessed() {
         wasProcessed = true;
+    }
+
+    public String getBundleName() {
+        return bundleName;
     }
 }

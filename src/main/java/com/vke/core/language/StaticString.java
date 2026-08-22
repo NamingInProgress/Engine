@@ -1,7 +1,6 @@
-package com.vke.core.assets.language;
+package com.vke.core.language;
 
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
 
 public class StaticString implements Str {
     private final String content;

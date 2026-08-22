@@ -2,8 +2,8 @@ package com.vke.core.services2;
 
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
-import com.vke.core.assets.language.service.LanguageManagerAPI;
-import com.vke.core.assets.language.service.LanguageManagerBaseImpl;
+import com.vke.core.language.service.LanguageManagerAPI;
+import com.vke.core.language.service.LanguageManagerBaseImpl;
 import com.vke.core.assets.service.AssetManagerAPI;
 import com.vke.core.assets.service.AssetManagerBaseImpl;
 import com.vke.core.audio.playback.service.AudioManagerMasterAPI;

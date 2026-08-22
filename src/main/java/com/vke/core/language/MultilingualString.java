@@ -1,7 +1,7 @@
-package com.vke.core.assets.language;
+package com.vke.core.language;
 
 import com.vke.core.Context;
-import com.vke.core.assets.language.service.LanguageManagerScopedImpl;
+import com.vke.core.language.service.LanguageManagerScopedImpl;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.SegmentedPath;
 

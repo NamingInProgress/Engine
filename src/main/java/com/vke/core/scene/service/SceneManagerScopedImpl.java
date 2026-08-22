@@ -1,15 +1,12 @@
 package com.vke.core.scene.service;
 
-import com.vke.api.framable.CompoundFramable;
-import com.vke.api.framable.Framable;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.assets.service.AssetManager;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
-import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
-import com.vke.utils.iter.Iter;
 
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class SceneManagerScopedImpl implements SceneManager {
         init = true;
         AssetManager manager = context.service(Services.ASSET_MANAGER);
         manager.initAssets();
-        Identifier sceneDirectory = context.id("scenes/");
+        FileIdentifier sceneDirectory = context.fid("scenes/");
         base.registerScenes(sceneDirectory, context);
     }
 

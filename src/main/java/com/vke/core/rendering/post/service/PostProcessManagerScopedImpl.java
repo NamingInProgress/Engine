@@ -1,9 +1,8 @@
 package com.vke.core.rendering.post.service;
 
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.post.PostEffectProvider;
-import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class PostProcessManagerScopedImpl implements PostProcessManager {
 
     @Override
     public void initialize() {
-        base.registerStages(context, context.id("post-stages.vcl"));
+        base.registerStages(context, context.fid("post-stages.vcl"));
     }
 
     @Override

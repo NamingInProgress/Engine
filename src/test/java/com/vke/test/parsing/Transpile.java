@@ -4,7 +4,6 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.parsing.config.utils.stringify.JsonStringifier;
 import com.vke.core.parsing.config.utils.stringify.XmlStringifier;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

@@ -3,7 +3,7 @@ package com.vke.test.asset;
 import com.vke.api.assets.AssetHandle;
 import com.vke.core.assets.service.AssetManager;
 import com.vke.api.assets.r.R;
-import com.vke.core.assets.language.Language;
+import com.vke.core.language.Language;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.api.window.WindowCreateInfo;

@@ -1,8 +1,8 @@
-package com.vke.core.assets.language;
+package com.vke.core.language;
 
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
 
@@ -20,6 +20,10 @@ public interface Str {
 
     static Str MULTILINGUAL(SegmentedPath key) {
         return new MultilingualString(key);
+    }
+
+    static Str MULTILINGUAL(String key) {
+        return MULTILINGUAL(new SegmentedPath(key, "."));
     }
 
     static Str ASSET(Identifier identifier) {

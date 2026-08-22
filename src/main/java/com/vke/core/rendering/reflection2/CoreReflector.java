@@ -4,11 +4,11 @@ import com.carrotsearch.hppc.ByteArrayList;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.rendering.vulkan.pipeline.BaseType;
+import com.vke.core.Identifier;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.file.spirv.SpirvDecoder;
 import com.vke.core.file.spirv.SpirvInstruction;
 import com.vke.core.rendering.reflection2.api.DescriptorCategory;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 

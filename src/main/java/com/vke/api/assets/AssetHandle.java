@@ -2,7 +2,6 @@ package com.vke.api.assets;
 
 import com.vke.core.Context;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

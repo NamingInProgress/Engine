@@ -1,10 +1,10 @@
-package com.vke.core.assets.language.service;
+package com.vke.core.language.service;
 
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
-import com.vke.core.assets.language.Language;
+import com.vke.core.Identifier;
+import com.vke.core.language.Language;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

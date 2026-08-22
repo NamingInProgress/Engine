@@ -6,6 +6,8 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.assets.BundleCollector;
 import com.vke.core.assets.pipeline.AssetPipeline;
 import com.vke.core.assets.pipeline.AssetPipelinePhase;
@@ -14,7 +16,6 @@ import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.parsing.config.xml.XmlParser;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 
 import java.io.IOException;
@@ -64,10 +65,10 @@ public class AssetManagerScopedImpl implements AssetManager {
     }
 
     private void initPipeline() {
-        Identifier assetsXMLIdent = context.id("assets/assets.vcl");
+        FileIdentifier assetsXMLIdent = context.fid("assets/assets.vcl");
         if (assetsXMLIdent.existsFile()) {
             try {
-                ConfigDocument document = parseXml(assetsXMLIdent);
+                ConfigDocument document = ConfigDocument.parseIdentifier(assetsXMLIdent);
                 ConfigArrayNode assetsNode = document.getRoot().getArray("assets");
                 //i will probably validate the assets.vcl against a schema so thats probably fine here lmao
 
@@ -84,14 +85,6 @@ public class AssetManagerScopedImpl implements AssetManager {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static ConfigDocument parseXml(Identifier identifier) throws IOException, ConfigParser.ConfigParseException {
-        //yes i hardcode this to xml here, go cry somewhere
-        ConfigParser parser = new XmlParser();
-        char[] source = Utils.readCharsFromInputStream(identifier.asInputStream());
-        parser.setSource(source);
-        return parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
     }
 
     @Override

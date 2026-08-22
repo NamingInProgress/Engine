@@ -1,10 +1,10 @@
 package com.vke.core.rendering.graph.service;
 
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.core.Context;
 import com.vke.core.rendering.post.service.PostProcessManager;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class GraphManagerScopedImpl implements GraphManager {
         m.initialize();
 
         try {
-            base.registerGraphs(context, context.id("/graphs"));
+            base.registerGraphs(context, context.fid("/graphs"));
         } catch (Exception e) {
             context.throwException(e, "GraphManagerScopedImpl#initialize");
         }

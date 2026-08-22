@@ -1,16 +1,17 @@
 package com.vke.core.scene.service;
 
-import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.scene.LoadingScene;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.SceneVCL;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
+import com.vke.utils.io.FileUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -34,13 +35,13 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         this.awaitingDependencies = new HashMap<>();
     }
 
-    void registerScenes(Identifier sceneDirectory, Context context) {
+    void registerScenes(FileIdentifier sceneDirectory, Context context) {
         sceneDirectory.walkFiles()
                 .filter(this::isSceneFile)
                 .forEach(sceneFile -> registerScene(sceneFile, context));
     }
 
-    private void registerScene(Identifier sceneFile, Context context) {
+    private void registerScene(FileIdentifier sceneFile, Context context) {
         try {
             SceneVCL sceneVCL = new SceneVCL(sceneFile, context);
             Identifier thisName = sceneVCL.name;
@@ -159,8 +160,8 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         }
     }
 
-    private boolean isSceneFile(Identifier identifier) {
-        return "vcl".equals(identifier.getExtensionLower());
+    private boolean isSceneFile(FileIdentifier identifier) {
+        return "vcl".equals(FileUtils.getExtensionLower(identifier));
     }
 
     private record SceneEntry(Scene scene, SceneVCL sceneVCL) {}

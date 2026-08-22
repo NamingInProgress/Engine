@@ -1,10 +1,10 @@
 package com.vke.core.assets.pipeline.protocols.shader;
 
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.pipeline.protocols.shader.spp.SPPLexer;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.utils.Utils;
 import com.vke.utils.functionalinterface.TriConsumer;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.tuple.Pair;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class ShaderPreprocessor {
         this.renderer = renderer;
     }
 
-    public Pair<String, ShaderMetadata> process(Identifier ident) throws IOException {
+    public Pair<String, ShaderMetadata> process(FileIdentifier ident) throws IOException {
         ShaderMetadata meta = new ShaderMetadata(new HashMap<>(), new ArrayList<>(), new HashMap<>());
 
         String source = processFile(ident, meta, new HashSet<>());
@@ -49,12 +49,12 @@ public class ShaderPreprocessor {
         }
     }
 
-    private String processFile(Identifier ident, ShaderMetadata meta, Set<Identifier> includeStack) throws IOException {
+    private String processFile(FileIdentifier ident, ShaderMetadata meta, Set<FileIdentifier> includeStack) throws IOException {
         if (!includeStack.add(ident)) {
             throw new IllegalStateException("Circular shader include: " + ident);
         }
 
-        String code = Utils.readStringFromInputStream(ident.asInputStream());
+        String code = Utils.readStringFromInputStream(ident.openInputStream());
 
         SPPLexer lexer = new SPPLexer(code.toCharArray());
 
@@ -150,7 +150,7 @@ public class ShaderPreprocessor {
         meta.defaultRuntimeSizes.put(structName + "." + name, count);
     }
 
-    private Replacement parseInclude(SPPLexer lexer, ArrayList<SPPLexer.SPPToken> remove, ShaderMetadata meta, Set<Identifier> includeStack) throws IOException {
+    private Replacement parseInclude(SPPLexer lexer, ArrayList<SPPLexer.SPPToken> remove, ShaderMetadata meta, Set<FileIdentifier> includeStack) throws IOException {
         consume(remove, expectAfter(lexer, SPPLexer.TokenType.LPAREN));
 
         String path = (String) consume(remove, expectAfter(lexer, SPPLexer.TokenType.LITERAL)).value;
@@ -158,15 +158,15 @@ public class ShaderPreprocessor {
 
         SPPLexer.SPPToken close = consume(remove, expectAfter(lexer, SPPLexer.TokenType.RPAREN));
 
-        Identifier included = resolveInclude(path);
+        FileIdentifier included = resolveInclude(path);
 
         String result = processFile(included, meta, includeStack);
 
         return new Replacement(close.end, "\n" + result + "\n");
     }
 
-    private Identifier resolveInclude(String path) {
-        return Identifier.of(path);
+    private FileIdentifier resolveInclude(String path) {
+        return FileIdentifier.of(path);
     }
 
     private SPPLexer.SPPToken consume(ArrayList<SPPLexer.SPPToken> list, SPPLexer.SPPToken token) {

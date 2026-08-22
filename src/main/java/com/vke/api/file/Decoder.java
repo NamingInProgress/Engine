@@ -1,6 +1,6 @@
 package com.vke.api.file;
 
-import com.vke.utils.io.Identifier;
+import com.vke.core.FileIdentifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,9 +13,9 @@ public interface Decoder<F> extends AnyDecoder {
         return decode(Decoder.class.getResourceAsStream(path));
     }
 
-    default F decode(Identifier identifier) throws DecodeException {
+    default F decode(FileIdentifier identifier) throws DecodeException {
         try {
-            return decode(identifier.asInputStream());
+            return decode(identifier.openInputStream());
         } catch (IOException e) {
             throw new DecodeException(e);
         }

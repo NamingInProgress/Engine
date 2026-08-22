@@ -4,10 +4,10 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.impl.vertex.FullscreenQuadVertex;
-import com.vke.utils.io.Identifier;
 
 public abstract class PostProcessEffect {
     protected final Identifier identifier;

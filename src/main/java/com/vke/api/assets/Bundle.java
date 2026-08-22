@@ -1,10 +1,9 @@
 package com.vke.api.assets;
 
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.event.events.assets.AssetLoadEvent;
-import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.Iter;
 import org.jetbrains.annotations.Nullable;
 

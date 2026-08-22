@@ -3,7 +3,6 @@ package com.vke.test;
 import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
-import com.vke.utils.io.Identifier;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

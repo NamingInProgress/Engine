@@ -10,6 +10,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.TextureType;
 import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -19,7 +20,6 @@ import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.file.png.PngFile;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 
 @Protocol
 public class PngProtocol implements AssetProtocol<Texture> {
@@ -46,13 +46,13 @@ public class PngProtocol implements AssetProtocol<Texture> {
     public static class PngTextureLoader implements Loader {
 
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
+        public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             return Utils.chainExceptions(() -> {
                 EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
                 Renderer renderer = context.service(rendererType.serviceName);
                 RenderDevice device = renderer.getDevice();
 
-                PngFile pngFile = new PngFile(identifier.asInputStream(), renderer.renderSystem().flipImages());
+                PngFile pngFile = new PngFile(identifier.openInputStream(), renderer.renderSystem().flipImages());
                 Pixels pixels = pngFile.getOutput();
                 Texture.TextureDesc desc = Texture.TextureDesc.builder()
                         .width(pngFile.getPngInfo().width)

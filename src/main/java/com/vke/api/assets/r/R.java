@@ -9,7 +9,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
-import com.vke.core.assets.language.Language;
+import com.vke.core.language.Language;
 
 public class R {
     public static Category<RenderPipeline> pipelines = new Category<>();

@@ -3,6 +3,8 @@ package com.vke.core.rendering.graph.service;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.core.rendering.graph.TexturePool;
 import com.vke.core.rendering.graph.def.RenderGraphDefinition;
@@ -11,7 +13,6 @@ import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -71,11 +72,11 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
         pool.free();
     }
 
-    public void registerGraphs(Context caller, Identifier dir) throws SchemaMismatchException, IOException, ClassNotFoundException {
-        for (Identifier graphVclFile : dir.walkFiles()) {
+    public void registerGraphs(Context caller, FileIdentifier dir) throws SchemaMismatchException, IOException, ClassNotFoundException {
+        for (FileIdentifier graphVclFile : dir.walkFiles()) {
             RenderGraphDefinition def = new RenderGraphDefinition(caller, graphVclFile);
             RenderGraph graph = new RenderGraph(sys, def, pool);
-            graphs.put(graphVclFile.strip(), graph);
+            graphs.put(graphVclFile.dropPrefix().strip(), graph);
         }
         onWindowResize(caller.getEngine().getWindow().getSize());
     }

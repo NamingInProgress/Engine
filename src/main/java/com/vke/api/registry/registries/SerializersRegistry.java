@@ -1,7 +1,7 @@
 package com.vke.api.registry.registries;
 
 import com.vke.api.serializer.Serializer;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 public class SerializersRegistry extends VKERegistry<Class<?>, Serializer<?>> {
 
