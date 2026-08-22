@@ -11,8 +11,8 @@ import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
+import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
-import com.vke.core.rendering.vulkan.shr.ReflectedShader;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -88,12 +88,12 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     //    return this.layout.pushConstants().resolve(path);
     //}
 
-    private VertexLayoutData createVertexLayouts(RenderPipelineData data, ArrayList<ReflectedShader> shaders) {
+    private VertexLayoutData createVertexLayouts(RenderPipelineData data, ArrayList<ReflectedShader2> shaders) {
         ArrayList<VertexLayoutData.Attribute> attribs = new ArrayList<>();
 
-        for (ReflectedShader shader : shaders) {
+        for (ReflectedShader2 shader : shaders) {
             if (shader.getShaderType() == ShaderType.FRAGMENT) continue;
-            var vaos = shader.getVAOs().stream().sorted(Comparator.comparingInt(c -> c.location));
+            var vaos = shader.vertexAttributes().stream().sorted(Comparator.comparingInt(c -> c.location));
 
             vaos.forEach(resource -> attribs.add(
                     new VertexLayoutData.Attribute(resource.stride, Format.fromBaseType(resource.baseType, resource.vecSize))

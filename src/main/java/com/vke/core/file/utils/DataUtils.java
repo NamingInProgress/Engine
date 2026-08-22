@@ -15,6 +15,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class DataUtils {
+    private static boolean THROW_ON_EOF = false;
+    private static boolean oldToeof;
+
+    public static void enableThrowOnEOF() {
+        oldToeof = THROW_ON_EOF;
+        THROW_ON_EOF = true;
+    }
+
+    public static void popConfig() {
+        THROW_ON_EOF = oldToeof;
+    }
+
     public static int abcd(int a, int b, int c, int d) {
         return (a << 24) | (b << 16) | (c << 8) | d;
     }
@@ -25,13 +37,17 @@ public class DataUtils {
 
     public static int readU8(InputStream stream) throws IOException {
         int i = stream.read();
+        if (i == -1 && THROW_ON_EOF) throw new EOFException();
         return i == -1 ? -1 : i & 0xFF;
     }
 
     public static int readU16LittleEndian(InputStream stream) throws IOException {
         int a = stream.read();
         int b = stream.read();
-        if (a == -1 || b == -1) return -1;
+        if (a == -1 || b == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(0, 0, b, a);
     }
 
@@ -40,14 +56,20 @@ public class DataUtils {
         int b = stream.read();
         int c = stream.read();
         int d = stream.read();
-        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (a == -1 || b == -1 || c == -1 || d == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(d, c, b, a);
     }
 
     public static int readU16BigEndian(InputStream stream) throws IOException {
         int a = stream.read();
         int b = stream.read();
-        if (a == -1 || b == -1) return -1;
+        if (a == -1 || b == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return abcd(0, 0, a, b);
     }
 
@@ -56,36 +78,11 @@ public class DataUtils {
         int b = stream.read();
         int c = stream.read();
         int d = stream.read();
-        if (a == -1 || b == -1 || c == -1 || d == -1) return -1;
+        if (a == -1 || b == -1 || c == -1 || d == -1) {
+            if (THROW_ON_EOF) throw new EOFException();
+            return -1;
+        }
         return dcba(d, c, b, a);
-    }
-
-    public static void writeU8(OutputStream stream, int u8) throws IOException {
-        stream.write(u8);
-    }
-
-    public static void writeU16LittleEndian(OutputStream stream, int value) throws IOException {
-        stream.write(value & 0xFF);
-        stream.write((value >> 8) & 0xFF);
-    }
-
-    public static void writeU32LittleEndian(OutputStream stream, int value) throws IOException {
-        stream.write(value & 0xFF);
-        stream.write((value >> 8) & 0xFF);
-        stream.write((value >> 16) & 0xFF);
-        stream.write((value >> 24) & 0xFF);
-    }
-
-    public static void writeU16BigEndian(OutputStream stream, int value) throws IOException {
-        stream.write((value >> 8) & 0xFF);
-        stream.write(value & 0xFF);
-    }
-
-    public static void writeU32BigEndian(OutputStream stream, int value) throws IOException {
-        stream.write((value >> 24) & 0xFF);
-        stream.write((value >> 16) & 0xFF);
-        stream.write((value >> 8) & 0xFF);
-        stream.write(value & 0xFF);
     }
 
     public static long readU64LittleEndian(InputStream stream) throws IOException {
@@ -132,6 +129,35 @@ public class DataUtils {
                 | h;
     }
 
+
+    public static void writeU8(OutputStream stream, int u8) throws IOException {
+        stream.write(u8);
+    }
+
+    public static void writeU16LittleEndian(OutputStream stream, int value) throws IOException {
+        stream.write(value & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+    }
+
+    public static void writeU32LittleEndian(OutputStream stream, int value) throws IOException {
+        stream.write(value & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+        stream.write((value >> 16) & 0xFF);
+        stream.write((value >> 24) & 0xFF);
+    }
+
+    public static void writeU16BigEndian(OutputStream stream, int value) throws IOException {
+        stream.write((value >> 8) & 0xFF);
+        stream.write(value & 0xFF);
+    }
+
+    public static void writeU32BigEndian(OutputStream stream, int value) throws IOException {
+        stream.write((value >> 24) & 0xFF);
+        stream.write((value >> 16) & 0xFF);
+        stream.write((value >> 8) & 0xFF);
+        stream.write(value & 0xFF);
+    }
+
     public static long unsign32(int size) {
         return Integer.toUnsignedLong(size);
     }
@@ -161,13 +187,13 @@ public class DataUtils {
 
         return new UUID(msb, lsb);
     }
-    
+
     public static void writeNullStringUTF8(OutputStream stream, String value) throws IOException {
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         stream.write(bytes);
         stream.write('\0');
     }
-    
+
     public static String readNullStringUTF8(InputStream stream) throws IOException {
         ByteArrayList bytes = new ByteArrayList();
         int current = stream.read();
@@ -177,7 +203,7 @@ public class DataUtils {
             if (counter >= 65536) {
                 throw new IOException("I think your string is kinda infinite...");
             }
-            
+
             bytes.add((byte) current);
             current = stream.read();
             counter++;
@@ -188,20 +214,6 @@ public class DataUtils {
 
     public static Iter<String> readerLines(Reader reader) {
         return new LineReader(reader);
-    }
-
-    public static int[] readU8N(int n, InputStream stream) throws IOException {
-        int[] out = new int[n];
-        for (int i = 0; i < n; i++) {
-            out[i] = readU8(stream);
-        }
-        return out;
-    }
-
-    public static void transferBytes(InputStream inputStream, OutputStream outputStream, int n) throws IOException {
-        byte[] read = inputStream.readNBytes(n);
-        if (read.length != n) throw new EOFException();
-        outputStream.write(read);
     }
 
     private static class LineReader implements Iter<String> {
@@ -220,6 +232,12 @@ public class DataUtils {
                 return Option.none();
             }
         }
+    }
+
+    public static void transferBytes(InputStream inputStream, OutputStream outputStream, int n) throws IOException {
+        byte[] read = inputStream.readNBytes(n);
+        if (read.length != n) throw new EOFException();
+        outputStream.write(read);
     }
 
     public static byte[] deflate(byte[] data) throws IOException {
@@ -244,5 +262,13 @@ public class DataUtils {
             out.add((byte) n);
         }
         return out.toArray();
+    }
+
+    public static int[] readU8N(int n, InputStream stream) throws IOException {
+        int[] out = new int[n];
+        for (int i = 0; i < n; i++) {
+            out[i] = readU8(stream);
+        }
+        return out;
     }
 }
