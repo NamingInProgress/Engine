@@ -13,6 +13,7 @@ import com.vke.utils.Utils;
 import com.vke.utils.io.Identifier;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     private final VKEngine engine;
     private HashMap<Identifier, SceneEntry> sceneRegistry;
     private Scene currentlyLoadedScene;
-    private Map<Identifier, AwaitingDependency> awaitingDependencies;
+    private Map<Identifier, List<AwaitingDependency>> awaitingDependencies;
 
     public SceneManagerBaseImpl(VKEngine engine) {
         super(Services.SCENE_MANAGER, engine);
@@ -41,6 +42,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     }
 
     private void registerScene(Identifier sceneFile, Context context) {
+        System.out.println("Registering " + sceneFile);
         try {
             SceneVCL sceneVCL = new SceneVCL(sceneFile, context);
             Identifier thisName = sceneVCL.name;
@@ -65,13 +67,16 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
 
             SceneEntry tried = sceneRegistry.get(loadingSceneName);
             if (tried == null) {
-                awaitingDependencies.put(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
+                awaitDependency(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
             } else {
                 instance.setLoadingScene((LoadingScene) tried.scene);
             }
 
-            AwaitingDependency awaitingDependency = awaitingDependencies.get(thisName);
-            if (awaitingDependency != null && awaitingDependency.tryParent(instance)) {
+            List<AwaitingDependency> awaitingDependency = awaitingDependencies.get(thisName);
+            if (awaitingDependency != null) {
+                for (AwaitingDependency waiting : awaitingDependency) {
+                    waiting.tryParent(instance);
+                }
                 awaitingDependencies.remove(thisName);
             }
 
@@ -79,6 +84,11 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         } catch (SceneException e) {
             engine.throwException(e, "Loading scene " + sceneFile);
         }
+    }
+
+    private void awaitDependency(Identifier depName, AwaitingDependency waiting) {
+        List<AwaitingDependency> list = awaitingDependencies.computeIfAbsent(depName, _ -> new ArrayList<>());
+        list.add(waiting);
     }
 
     private void verifyClassHierarchy(Class<?> sceneClass) throws SceneException {

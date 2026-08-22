@@ -5,9 +5,9 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
 
-public class ShapePipelineDriver extends PipelineDriver {
+public class LoadPipelineDriver extends PipelineDriver {
 
-    public ShapePipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
+    public LoadPipelineDriver(RenderSystem sys, AssetHandle<? extends Pipeline> pipeline) {
         super(sys, pipeline);
     }
 
