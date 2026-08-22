@@ -80,8 +80,9 @@ public class CoreReflector {
                 applyDecoration(getId(ops[0]), ops[1], ops, 2);
             }
 
-            if (op == Op.DECORATE_ID) {
+            if (op == Op.DECORATE_ID || op == Op.GROUP_DECORATE || op == Op.GROUP_MEMBER_DECORATE || op == Op.DECORATION_GROUP) {
                 System.out.println("GASP ALARM 2! This shader uses OpDecorateId for whatever reason");
+                throw new UnsupportedOperationException("GASP ALARM 2! This shader uses weird decoration ops for whatever reason");
             }
 
             if (op == Op.MEMBER_DECORATE) {
