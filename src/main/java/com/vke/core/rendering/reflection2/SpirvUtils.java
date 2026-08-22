@@ -64,9 +64,6 @@ public class SpirvUtils {
                 }
             }
         };
-        if (item.name != null && !item.name.isEmpty()) {
-            System.out.println("Computed size " + size + " for " + item.name);
-        }
         return size;
     }
 
