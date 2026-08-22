@@ -7,6 +7,7 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -14,7 +15,6 @@ import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.io.SegmentedPath;
 
 @Protocol
@@ -77,7 +77,7 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
 
     public static class ConfigProtocolLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
+        public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             return Utils.chainExceptions(() -> AssetData.config(ConfigDocument.parseIdentifier(identifier)));
         }
     }

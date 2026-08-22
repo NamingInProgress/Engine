@@ -108,6 +108,9 @@ public class StageFilter extends CompoundPipelineStage {
         AssetData data;
         try {
             data = dataProtocol.getField(resolvedData, uri);
+            if (data.getData() == null) {
+                System.out.println(uri.getUri());
+            }
         } catch (AssetException e) {
             //if the field doesnt exist or smth, we dont care
             return;
@@ -116,7 +119,7 @@ public class StageFilter extends CompoundPipelineStage {
 
         dataProtocolName = data.getProtocol();
         dataProtocol = context.getProtocol(dataProtocolName);
-        StageElement dataElement = new StageElement(stageElement.getPath(), data, stageElement.getMetaAttributes());
+        StageElement dataElement = new StageElement(stageElement.getAssetName().getNamespace(), stageElement.getPath(), stageElement.getBundleName(), data, stageElement.getMetaAttributes());
 
         String queryProtocolName = Protocols.PLAIN;
         AssetProtocol<?> queryProtocol = context.getProtocol(queryProtocolName);

@@ -5,8 +5,8 @@ import com.vke.api.services2.ServiceImpl;
 import com.vke.api.vkz.ArchiveType;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzOpenException;
+import com.vke.core.FileIdentifier;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public class VkzAPI extends ServiceAPI implements Vkz {
     }
 
     @Override
-    public VkzArchive open(Identifier identifier, ArchiveType type) {
+    public VkzArchive open(FileIdentifier identifier, ArchiveType type) {
         return getImpl().open(identifier, type);
     }
 

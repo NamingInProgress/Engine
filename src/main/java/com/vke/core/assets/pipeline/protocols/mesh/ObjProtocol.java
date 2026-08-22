@@ -3,6 +3,7 @@ package com.vke.core.assets.pipeline.protocols.mesh;
 import com.vke.api.assets.Protocols;
 import com.vke.api.assets.anot.Protocol;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
@@ -11,7 +12,6 @@ import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.core.file.obj.ObjFile;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 
 @Protocol
 public class ObjProtocol implements AssetProtocol<ObjFile> {
@@ -37,8 +37,8 @@ public class ObjProtocol implements AssetProtocol<ObjFile> {
 
     public static class ObjLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
-            return Utils.chainExceptions(() -> new AssetData(Protocols.OBJ, new ObjFile(identifier.asInputStream())));
+        public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
+            return Utils.chainExceptions(() -> new AssetData(Protocols.OBJ, new ObjFile(identifier.openInputStream())));
         }
     }
 }

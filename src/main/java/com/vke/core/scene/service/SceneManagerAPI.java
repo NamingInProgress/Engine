@@ -4,8 +4,8 @@ import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.api.services2.ServiceImpl;
+import com.vke.core.Identifier;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 public class SceneManagerAPI extends ServiceAPI implements SceneManager {
     public SceneManagerAPI(ServiceImpl baseImpl) {

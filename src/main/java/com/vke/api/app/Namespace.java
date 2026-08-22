@@ -1,11 +1,14 @@
 package com.vke.api.app;
 
-import com.vke.utils.io.Identifier;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 
 public interface Namespace {
     String getName();
 
     Identifier id(String value);
+
+    FileIdentifier fid(String value);
 
     static Namespace of(String namespace) {
         return new Simple(namespace);
@@ -26,6 +29,11 @@ public interface Namespace {
         @Override
         public Identifier id(String value) {
             return Identifier.ofSafe(value, ns);
+        }
+
+        @Override
+        public FileIdentifier fid(String value) {
+            return FileIdentifier.ofSafe(value, ns);
         }
     }
 }

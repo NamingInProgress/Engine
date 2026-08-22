@@ -3,7 +3,7 @@ package com.vke.core.scene.loading;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 public class RectLoadingScene extends LoadingScene {
 

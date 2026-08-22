@@ -1,10 +1,9 @@
-package com.vke.core.assets.language;
+package com.vke.core.language;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.core.Context;
-import com.vke.core.VKEngine;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.vke.core.assets.language;
+package com.vke.core.language;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;

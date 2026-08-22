@@ -6,13 +6,13 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.core.FileIdentifier;
 import com.vke.core.rendering.graph.deserializers.*;
 import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.passes.DeferredRenderPassDeserializer;
 import com.vke.core.rendering.pbr.PbrRenderPassDeserializer;
 import com.vke.impl.debug.DebugRenderPass;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class RenderGraphDefinition {
 
     public final List<RenderPassDefinition> renderPasses = new ArrayList<>();
 
-    public RenderGraphDefinition(Context context, Identifier id) throws IOException, SchemaMismatchException, ClassNotFoundException {
+    public RenderGraphDefinition(Context context, FileIdentifier id) throws IOException, SchemaMismatchException, ClassNotFoundException {
         ConfigDocument doc = ConfigDocument.parseIdentifier(id);
         //doc.validate(SCHEMA.assume(context), id.toString());
 

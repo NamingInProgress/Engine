@@ -1,10 +1,8 @@
 package com.vke.api.assets;
 
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface BundleLoadingCallback {

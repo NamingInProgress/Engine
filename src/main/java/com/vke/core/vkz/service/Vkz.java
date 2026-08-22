@@ -4,7 +4,7 @@ import com.vke.api.services2.Service;
 import com.vke.api.vkz.ArchiveType;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzOpenException;
-import com.vke.utils.io.Identifier;
+import com.vke.core.FileIdentifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,7 @@ public interface Vkz extends Service {
 
     void unpackToDisk(VkzArchive archive, Path targetRoot) throws IOException;
 
-    VkzArchive open(Identifier identifier, ArchiveType type);
+    VkzArchive open(FileIdentifier identifier, ArchiveType type);
 
     VkzArchive open(InputStream stream, ArchiveType type) throws VkzOpenException;
 

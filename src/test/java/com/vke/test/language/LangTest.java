@@ -1,8 +1,8 @@
 package com.vke.test.language;
 
 import com.vke.core.assets.service.AssetManager;
-import com.vke.core.assets.language.service.LanguageManagerBaseImpl;
-import com.vke.core.assets.language.Str;
+import com.vke.core.language.service.LanguageManagerBaseImpl;
+import com.vke.core.language.Str;
 import com.vke.api.window.WindowCreateInfo;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;

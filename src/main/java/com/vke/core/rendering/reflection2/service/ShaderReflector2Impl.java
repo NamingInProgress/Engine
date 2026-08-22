@@ -5,6 +5,7 @@ import com.carrotsearch.hppc.procedures.ObjectProcedure;
 import com.vke.api.logger.Logger;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.services2.ServiceImpl;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
@@ -12,7 +13,6 @@ import com.vke.core.rendering.reflection2.CoreReflector;
 import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 
 import java.io.InputStream;

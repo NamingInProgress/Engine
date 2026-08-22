@@ -1,7 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer.shader;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 public class ShaderProgram {
 

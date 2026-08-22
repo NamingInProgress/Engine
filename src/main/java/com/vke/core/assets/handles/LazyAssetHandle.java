@@ -2,11 +2,11 @@ package com.vke.core.assets.handles;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetMeta;
-import com.vke.core.assets.meta.SpatialAssetMeta;
+import com.vke.core.Identifier;
+import com.vke.core.assets.meta.PartialAssetMeta;
 import com.vke.core.assets.service.AssetManager;
 import com.vke.core.Context;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
     private AssetHandle<T> cache;
 
     public LazyAssetHandle(Identifier identifier) {
-        this.backupMeta = new SpatialAssetMeta(identifier);
+        this.backupMeta = new PartialAssetMeta(identifier);
         this.identifier = identifier;
         this.cache = null;
     }
@@ -31,7 +31,7 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
         }
         if ("\0".equals(identifier.getNamespace())) {
             identifier = context.id(identifier.getPath());
-            backupMeta = new SpatialAssetMeta(identifier);
+            backupMeta = new PartialAssetMeta(identifier);
         }
         AssetManager manager = context.service(Services.ASSET_MANAGER);
         AssetHandle<T> assetHandle = manager.getAsset(identifier);

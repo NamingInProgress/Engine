@@ -2,7 +2,7 @@ package com.vke.core.rendering.graph;
 
 import com.vke.core.Context;
 import com.vke.core.ContextWrapper;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 import com.vke.utils.iter.helpers.Option;
 
 import java.util.HashMap;
@@ -43,6 +43,7 @@ public class GraphContext extends ContextWrapper {
     public void setPostDisabledStages(List<Identifier> list) {
         this.postDisabledStages = list;
     }
+
     public List<Identifier> getPostDisabledStages() {
         return postDisabledStages;
     }

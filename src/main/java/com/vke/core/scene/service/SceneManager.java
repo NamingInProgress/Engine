@@ -3,7 +3,7 @@ package com.vke.core.scene.service;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.api.services2.Service;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 public interface SceneManager extends Service {
     void initialize();

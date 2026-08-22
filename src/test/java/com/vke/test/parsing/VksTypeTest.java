@@ -2,7 +2,6 @@ package com.vke.test.parsing;
 
 import com.vke.core.parsing.config.schema.vks.doc.VksDocument;
 import com.vke.core.parsing.config.utils.stringify.XmlStringifier;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

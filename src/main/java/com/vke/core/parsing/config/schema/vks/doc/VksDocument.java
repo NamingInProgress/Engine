@@ -2,8 +2,9 @@ package com.vke.core.parsing.config.schema.vks.doc;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.parsing.config.schema.vks.parser.VksPullParser;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
@@ -11,10 +12,10 @@ public class VksDocument implements ConfigDocument {
     private final VksSchema schema;
     private final String name;
 
-    public VksDocument(Identifier identifier) throws IOException {
+    public VksDocument(FileIdentifier identifier) throws IOException {
         VksPullParser parser = new VksPullParser(identifier);
         this.schema = new VksSchema(parser);
-        this.name = identifier.getPath();
+        this.name = identifier.dropPrefix().getPath();
     }
 
     public VksDocument(char[] source) throws IOException {

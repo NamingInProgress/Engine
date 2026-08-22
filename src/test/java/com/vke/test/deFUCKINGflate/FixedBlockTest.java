@@ -7,7 +7,6 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.profiler.ProfilerPrinter;
 import com.vke.utils.Colors;
-import com.vke.utils.io.Identifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
