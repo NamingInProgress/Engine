@@ -11,16 +11,21 @@ public class VertexAttributeResource {
     public int vecSize;
 
     public VertexAttributeResource(SpirvItem item) {
+        this.name = item.name;
+        this.location = item.location;
+
         while (item.type == BaseType.TypePointer || item.type == BaseType.Unknown) {
             item = item.componentType;
         }
 
-        this.name = item.name;
-        this.location = item.location;
         if (item.type == BaseType.Array) {
             vecSize = (int) item.scalarBits;
-            baseType = item.componentType.type;
-            this.stride = (int) ((item.bitWidth / 8) * item.scalarBits);
+            var inner = item.componentType;
+            while (inner.type == BaseType.TypePointer || inner.type == BaseType.Unknown) {
+                inner = inner.componentType;
+            }
+            baseType = inner.type;
+            this.stride = (int) ((inner.bitWidth / 8) * item.scalarBits);
         } else {
             vecSize = 1;
             baseType = item.type;
