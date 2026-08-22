@@ -115,7 +115,7 @@ public class CoreReflector {
         }).collectToList();
 
         var vaos = Iter.of(ids.values()).filterMap(t -> {
-            if (t.value.location >= 0) {
+            if (t.value.location >= 0 && t.value.category == DescriptorCategory.INPUT) {
                 return Option.some(t.value);
             } return Option.none();
         }).collectToList();

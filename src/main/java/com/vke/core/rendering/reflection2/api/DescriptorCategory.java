@@ -17,7 +17,9 @@ public enum DescriptorCategory {
     PUSH_CONSTANT,
     ACCELERATION_STRUCTURE,
     RAY_QUERY,
-    SHADER_RECORD_BUFFER;
+    SHADER_RECORD_BUFFER,
+    INPUT,
+    OUTPUT;
 
     public static DescriptorCategory fromStorageClass(int storageClass) {
         return switch (storageClass) {
@@ -29,6 +31,8 @@ public enum DescriptorCategory {
             case StorageClass.ATOMIC_COUNTER -> ATOMIC_COUNTER;
             case StorageClass.PUSH_CONSTANT -> PUSH_CONSTANT;
             case StorageClass.SHADER_RECORD_BUFFER_KHR -> SHADER_RECORD_BUFFER;
+            case StorageClass.INPUT -> INPUT;
+            case StorageClass.OUTPUT -> OUTPUT;
             default -> UNKNOWN;
         };
     }
