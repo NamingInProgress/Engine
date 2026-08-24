@@ -2,6 +2,7 @@ package com.vke.test.parsing;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.parsing.config.utils.stringify.JsonStringifier;
 import com.vke.core.parsing.config.utils.stringify.XmlStringifier;
 
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 public class Transpile {
     public static void main(String[] args) throws IOException {
-        Identifier identifier = new Identifier("assets/global/pipelines/demo.pipeline.json");
+        FileIdentifier identifier = FileIdentifier.of("assets/global/pipelines/demo.pipeline.json");
         ConfigDocument document = ConfigDocument.parseIdentifier(identifier);
         ConfigNode node = document.getRoot();
         boolean toXml = true;

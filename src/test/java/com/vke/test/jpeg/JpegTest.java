@@ -1,12 +1,11 @@
 package com.vke.test.jpeg;
 
 import com.vke.api.window.WindowCreateInfo;
-import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.SceneApp;
 
-public class JpegRenderTest {
+public class JpegTest {
     public static void main(String[] args) {
         EngineCreateInfo createInfo = new EngineCreateInfo("JPEG", "vke");
         createInfo.releaseMode = true;

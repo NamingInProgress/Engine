@@ -6,6 +6,7 @@ import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.core.font.ttf.TTFFont;

@@ -46,7 +46,7 @@ public class DecodeStage extends ParameterizedStage {
             if (anyDecoder instanceof LazyDecoder<?>) {
                 throw new AssetException("Lazy decoders are not supported in the <decode> stage! Using decoder " + using);
             } else if (anyDecoder instanceof Decoder<?> decoder) {
-                Object decoded = decoder.decode(identifier);
+                Object decoded = decoder.decode(context, identifier);
                 stageElement.setData(new AssetData(toName, decoded));
             }
         } catch (DecodeException e) {

@@ -4,6 +4,7 @@ import com.vke.api.file.DecodeException;
 import com.vke.api.file.Decoder;
 import com.vke.api.file.LazyArray;
 import com.vke.api.file.LazyDecoder;
+import com.vke.core.Context;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.io.InputStream;
 
 public abstract class HBFLazyDecoder<S extends HBFDecodeSource<LazyT>, LazyT, CombinedT> implements LazyDecoder<LazyT>, Decoder<CombinedT> {
     @Override
-    public CombinedT decode(InputStream input) throws DecodeException {
+    public CombinedT decode(Context context, InputStream input) throws DecodeException {
         Lazy lazy = new Lazy(fromStream(input));
 
         startCollecting();

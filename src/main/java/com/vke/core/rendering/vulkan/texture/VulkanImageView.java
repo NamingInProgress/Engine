@@ -27,7 +27,7 @@ public class VulkanImageView implements ImageView {
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange subresourceRange = VkImageSubresourceRange.calloc(stack)
-                    .aspectMask(desc.aspect.getVkHandle())
+                    .aspectMask(desc.aspect.getIntVal())
                     .baseMipLevel(desc.baseMip)
                     .levelCount(desc.mipCount)
                     .baseArrayLayer(desc.baseLayer)
@@ -36,8 +36,8 @@ public class VulkanImageView implements ImageView {
             VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack)
                     .sType$Default()
                     .image(((VulkanTexture) desc.tex).getHandle())
-                    .viewType(desc.type.getVkHandle())
-                    .format(desc.format.getVkHandle())
+                    .viewType(desc.type.getIntVal())
+                    .format(desc.format.getIntVal())
                     .subresourceRange(subresourceRange);
 
             LongBuffer pImageView = stack.mallocLong(1);

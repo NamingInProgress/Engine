@@ -13,6 +13,7 @@ import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
+import com.vke.utils.io.FileUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -74,9 +75,11 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
 
     public void registerGraphs(Context caller, FileIdentifier dir) throws SchemaMismatchException, IOException, ClassNotFoundException {
         for (FileIdentifier graphVclFile : dir.walkFiles()) {
-            RenderGraphDefinition def = new RenderGraphDefinition(caller, graphVclFile);
-            RenderGraph graph = new RenderGraph(sys, def, pool);
-            graphs.put(graphVclFile.dropPrefix().strip(), graph);
+            if ("vcl".equals(FileUtils.getExtensionLower(graphVclFile))) {
+                RenderGraphDefinition def = new RenderGraphDefinition(caller, graphVclFile);
+                RenderGraph graph = new RenderGraph(sys, def, pool);
+                graphs.put(graphVclFile.dropPrefix().strip(), graph);
+            }
         }
         onWindowResize(caller.getEngine().getWindow().getSize());
     }

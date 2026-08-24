@@ -11,7 +11,7 @@ public class UnsupportedLoader implements AssetProtocol.Loader {
     private final String errorMessage;
 
     public UnsupportedLoader(String protocol) {
-        this.errorMessage = String.format("The protocol %s cannot be loaded!", protocol);
+        this.errorMessage = String.format("The protocol %s cannot be loaded! Maybe use the <decode> stage instead?", protocol);
     }
 
     @Override

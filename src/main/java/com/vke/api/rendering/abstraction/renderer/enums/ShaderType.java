@@ -25,7 +25,7 @@ public enum ShaderType implements IntEnum {
         return this.shadercHandle;
     }
 
-    public int getVkHandle() {
+    public int getIntVal() {
         return switch (this) {
             case VERTEX -> VK14.VK_SHADER_STAGE_VERTEX_BIT;
             case FRAGMENT -> VK14.VK_SHADER_STAGE_FRAGMENT_BIT;

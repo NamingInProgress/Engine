@@ -48,11 +48,11 @@ public class VulkanGpuBuffer implements GpuBuffer {
             VkBufferCreateInfo bufferCreateInfo = VkBufferCreateInfo.calloc(stack)
                     .sType$Default()
                     .size(size)
-                    .usage(usageFlags.getVkHandle())
+                    .usage(usageFlags.getIntVal())
                     .sharingMode(VK14.VK_SHARING_MODE_EXCLUSIVE);
 
             VmaAllocationCreateInfo allocationCreateInfo = VmaAllocationCreateInfo.calloc(stack)
-                    .usage(memoryUsage.getVkHandle())
+                    .usage(memoryUsage.getIntVal())
                     .flags(Vma.VMA_ALLOCATION_CREATE_MAPPED_BIT | Arrays.stream(flags).reduce(0, (a, b) -> a | b));
 
             LongBuffer pBuffer = stack.mallocLong(1);

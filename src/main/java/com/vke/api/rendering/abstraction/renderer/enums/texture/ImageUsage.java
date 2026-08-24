@@ -15,7 +15,7 @@ public class ImageUsage implements IntBitEnum<ImageUsage, ImageUsage.Bits> {
     @Override
     public ImageUsage or(ImageUsage.Bits... bits) {
         for (ImageUsage.Bits bit : bits) {
-            mask |= bit.getVkHandle();
+            mask |= bit.getIntVal();
         }
         return this;
     }
@@ -27,7 +27,7 @@ public class ImageUsage implements IntBitEnum<ImageUsage, ImageUsage.Bits> {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return mask;
     }
 
@@ -49,7 +49,7 @@ public class ImageUsage implements IntBitEnum<ImageUsage, ImageUsage.Bits> {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
     }

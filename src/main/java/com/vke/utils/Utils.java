@@ -4,6 +4,7 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.utils.OSType;
+import com.vke.core.file.jpeg.jfif.JfifMarker;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
@@ -37,6 +38,7 @@ public class Utils {
         return false;
     }
 
+    @SafeVarargs
     public static <T> boolean TsContain(T query, T... arr) {
         for (T t : arr) {
             if (t.equals(query)) {
@@ -303,6 +305,10 @@ public class Utils {
         if (Utils.verifyArrayIndex(i, coll.size())) {
             return coll.get(i);
         }
+        return null;
+    }
+
+    public static <T> T NULL() {
         return null;
     }
 }

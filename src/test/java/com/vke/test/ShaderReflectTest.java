@@ -38,8 +38,8 @@ public class ShaderReflectTest {
                 ByteBuffer spv;
 
                 try {
-                    bytes = Utils.readAllBytesAndClose(engine.id("shaders/test.vsh").asInputStream());
-                    spv = sc.compileGlslToSpirV(bytes, ShaderType.VERTEX, engine.id("shaders/test.vsh"));
+                    bytes = Utils.readAllBytesAndClose(engine.fid("shaders/test.vsh").openInputStream());
+                    spv = sc.compileGlslToSpirV(bytes, ShaderType.VERTEX, engine.fid("shaders/test.vsh"));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

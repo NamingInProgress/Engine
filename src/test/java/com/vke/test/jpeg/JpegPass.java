@@ -31,14 +31,17 @@ public class JpegPass extends RenderPass {
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
         AssetHandle<Texture> texture = context.get("tex");
+        int[] rect = context.get("rect");
 
         Texture output = instance.getOutputTexture("colorOut");
         cmd.beginRendering(new CommandBuffer.RenderingInfo(
                 new CommandBuffer.AttachmentInfo(output, LoadOp.CLEAR, StoreOp.STORE),
                 null
         ));
-        sr.color(1, 0, 0, 1);
-        sr.rect(100, 100, 100, 100);
+
+        sr.color(0, 0, 0, 0);
+        sr.texture(texture.get());
+        sr.rect(rect[0], rect[1], rect[2], rect[3]);
 
         RenderPipelines.SHAPE.setMatrices(sr.getMatrixStack());
         RenderPipelines.SHAPE.use();

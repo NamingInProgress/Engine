@@ -59,7 +59,7 @@ public class DynamicBlock implements DeflateBlock {
         //System.out.println("CODE LENGTH CODE LENGTHS:");
         //System.out.println(Arrays.toString(codeLenCodeLengths));
 
-        HMSymbolDecoder codeLengthDecoder = new HMSymbolDecoder(codeLenCodeLengths);
+        HMSymbolDecoder codeLengthDecoder = new HMSymbolDecoder(codeLenCodeLengths, BitOrdering.LSB_FIRST);
         int total = HLIT + HDIST;
         int[] llAndDistLengths = new int[total];
 

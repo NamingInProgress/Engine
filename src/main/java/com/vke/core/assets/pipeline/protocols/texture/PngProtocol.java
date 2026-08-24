@@ -16,6 +16,7 @@ import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
+import com.vke.core.assets.pipeline.protocols.loader.UnsupportedLoader;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.core.file.png.Pixels;
 import com.vke.core.file.png.PngFile;
@@ -35,36 +36,11 @@ public class PngProtocol implements AssetProtocol<Texture> {
 
     @Override
     public Loader getLoader() {
-        return new PngTextureLoader();
+        return new UnsupportedLoader(getProtocolName());
     }
 
     @Override
     public boolean applies(AssetData a, AssetData b, Op op) {
         return false;
     }
-
-    public static class PngTextureLoader implements Loader {
-
-        @Override
-        public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
-            return Utils.chainExceptions(() -> {
-                EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-                Renderer renderer = context.service(rendererType.serviceName);
-                RenderDevice device = renderer.getDevice();
-
-                PngFile pngFile = new PngFile(identifier.openInputStream(), renderer.renderSystem().flipImages());
-                Pixels pixels = pngFile.getOutput();
-                Texture.TextureDesc desc = Texture.TextureDesc.builder()
-                        .width(pngFile.getPngInfo().width)
-                        .height(pngFile.getPngInfo().height)
-                        .format(Format.RGBA8_SRGB)
-                        .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
-                        .type(TextureType.TEX_2D)
-                        .build();
-
-                return new AssetData(Protocols.PNG, device.createTexture(desc).upload(pixels));
-            });
-        }
-    }
-
 }

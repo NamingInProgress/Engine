@@ -15,7 +15,7 @@ public enum Filter implements IntEnum {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return this.vkHandle;
     }
 }

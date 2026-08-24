@@ -16,10 +16,10 @@ public class Lz77Decoder {
 
 
     public Lz77Decoder(int[] literalCodeLengths, int[] distanceCodeLengths, SlidingWindow window) {
-        this.literalLengthDecoder = new HMSymbolDecoder(literalCodeLengths);
+        this.literalLengthDecoder = new HMSymbolDecoder(literalCodeLengths, BitOrdering.LSB_FIRST);
         this.slidingWindow = window;
         this.finished = false;
-        this.distanceDecoder = new HMSymbolDecoder(distanceCodeLengths);
+        this.distanceDecoder = new HMSymbolDecoder(distanceCodeLengths, BitOrdering.LSB_FIRST);
     }
 
     public int decodeNextByte(BitInputStream bitStream) throws IOException {

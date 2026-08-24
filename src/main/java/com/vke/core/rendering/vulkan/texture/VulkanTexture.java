@@ -66,20 +66,20 @@ public class VulkanTexture implements Texture {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCreateInfo imageCreateInfo = VkImageCreateInfo.calloc(stack)
                     .sType$Default()
-                    .imageType(desc.type.getVkHandle())
-                    .format(desc.format.getVkHandle())
+                    .imageType(desc.type.getIntVal())
+                    .format(desc.format.getIntVal())
                     .extent(VulkanExtentUtils.createVk3D(stack, desc.extent))
                     .mipLevels(desc.mipLevels)
                     .arrayLayers(desc.arrayLayers)
-                    .samples(desc.samples.getVkHandle())
-                    .tiling(desc.tiling.getVkHandle())
-                    .usage(desc.usage.getVkHandle());
+                    .samples(desc.samples.getIntVal())
+                    .tiling(desc.tiling.getIntVal())
+                    .usage(desc.usage.getIntVal());
 
             if (desc.cubeMap)
                 imageCreateInfo.flags(VK14.VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
 
             VmaAllocationCreateInfo allocInfo = VmaAllocationCreateInfo.calloc(stack)
-                    .usage(desc.memUsage.getVkHandle())
+                    .usage(desc.memUsage.getIntVal())
                     .requiredFlags(VK14.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
             LongBuffer pImage = stack.mallocLong(1);
@@ -166,7 +166,7 @@ public class VulkanTexture implements Texture {
     public void transition(VulkanCmdBuffers cmd, VulkanImageBarrier barrier, ImageState newState) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange range = VkImageSubresourceRange.calloc(stack)
-                    .aspectMask(barrier.aspect().getVkHandle())
+                    .aspectMask(barrier.aspect().getIntVal())
                     .baseMipLevel(barrier.baseMip())
                     .levelCount(barrier.mipCount())
                     .baseArrayLayer(barrier.baseLayer())
@@ -180,8 +180,8 @@ public class VulkanTexture implements Texture {
                     .srcAccessMask(barrier.srcAccess())
                     .dstStageMask(barrier.dstStage())
                     .dstAccessMask(barrier.dstAccess())
-                    .oldLayout(barrier.oldLayout().getVkHandle())
-                    .newLayout(barrier.newLayout().getVkHandle())
+                    .oldLayout(barrier.oldLayout().getIntVal())
+                    .newLayout(barrier.newLayout().getIntVal())
                     .srcQueueFamilyIndex(barrier.srcQueueFamily())
                     .dstQueueFamilyIndex(barrier.dstQueueFamily())
                     .image(this.handle)

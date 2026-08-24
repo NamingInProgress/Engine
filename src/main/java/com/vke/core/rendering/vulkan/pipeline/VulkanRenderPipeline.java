@@ -9,7 +9,6 @@ import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.vulkan.pipeline.VertexLayoutData;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
-import com.vke.api.rendering.vulkan.pushconstants.PushConstantHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
@@ -42,7 +41,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         data.vertexLayoutData = createVertexLayouts(data, shaders);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(RenderPipelineData.DynamicState::getVkHandle).toArray());
+            var dynamicStates = getDynamicStates(stack, data.dynamicStates.stream().mapToInt(RenderPipelineData.DynamicState::getIntVal).toArray());
             var vertexInputs = getVertexInputs(stack, data.vertexLayoutData);
             var rasterInfo = getRasterInfo(stack, data);
             var inputAssemblyInfo = getInputAssemblyInfo(stack, data);
@@ -123,7 +122,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
                     .location(i)
                     .binding(0)
                     .offset(offset)
-                    .format(attr.getFormat().getVkHandle())
+                    .format(attr.getFormat().getIntVal())
             ; //This semicolon wants to have its own line
             offset += attr.getByteStride();
             i++;
@@ -144,9 +143,9 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     private VkPipelineRasterizationStateCreateInfo getRasterInfo(MemoryStack stack, RenderPipelineData data) {
         return VkPipelineRasterizationStateCreateInfo.calloc(stack)
                 .sType$Default()
-                .polygonMode(data.polygonMode.getVkHandle())
-                .cullMode(data.cullMode.getVkHandle())
-                .frontFace(data.windingOrder.getVkHandle())
+                .polygonMode(data.polygonMode.getIntVal())
+                .cullMode(data.cullMode.getIntVal())
+                .frontFace(data.windingOrder.getIntVal())
                 .lineWidth(data.lineWidth)
                 .depthBiasEnable(data.depthBiasEnable)
                 .depthBiasClamp(data.depthBiasClamp)
@@ -158,7 +157,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     private VkPipelineInputAssemblyStateCreateInfo getInputAssemblyInfo(MemoryStack stack, RenderPipelineData data) {
         return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
                 .sType$Default()
-                .topology(data.topology.getVkHandle())
+                .topology(data.topology.getIntVal())
                 .primitiveRestartEnable(data.primitiveRestartEnable);
     }
 
@@ -177,12 +176,12 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
             RenderPipelineData.ColorAttachmentInfo colorAttachment = data.colorAttachments.get(i);
 
             attachments.get(i)
-                .srcAlphaBlendFactor(colorAttachment.srcAlphaBlendFactor.getVkHandle())
-                .dstAlphaBlendFactor(colorAttachment.dstAlphaBlendFactor.getVkHandle())
-                .alphaBlendOp(colorAttachment.alphaBlendOperation.getVkHandle())
-                .srcColorBlendFactor(colorAttachment.srcBlendFactor.getVkHandle())
-                .dstColorBlendFactor(colorAttachment.dstBlendFactor.getVkHandle())
-                .colorBlendOp(colorAttachment.colorBlendOperation.getVkHandle())
+                .srcAlphaBlendFactor(colorAttachment.srcAlphaBlendFactor.getIntVal())
+                .dstAlphaBlendFactor(colorAttachment.dstAlphaBlendFactor.getIntVal())
+                .alphaBlendOp(colorAttachment.alphaBlendOperation.getIntVal())
+                .srcColorBlendFactor(colorAttachment.srcBlendFactor.getIntVal())
+                .dstColorBlendFactor(colorAttachment.dstBlendFactor.getIntVal())
+                .colorBlendOp(colorAttachment.colorBlendOperation.getIntVal())
                 .blendEnable(colorAttachment.blendEnable)
                 .colorWriteMask(colorAttachment.colorWriteMask);
         }
@@ -214,7 +213,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
         if (data.depthAttachment != null) {
             info.depthTestEnable(data.depthAttachment.depthTestEnable);
             info.depthWriteEnable(data.depthAttachment.depthWriteEnable);
-            info.depthCompareOp(data.depthAttachment.depthCompareOp.getVkHandle());
+            info.depthCompareOp(data.depthAttachment.depthCompareOp.getIntVal());
         }
 
         if (data.stencilAttachment != null) {
@@ -228,7 +227,7 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
 
     private IntBuffer getColorAttachmentFormats(MemoryStack stack, RenderPipelineData data) {
         IntBuffer attachmentFormats = stack.mallocInt(data.colorAttachments.size());
-        data.colorAttachments.forEach(att -> attachmentFormats.put(att.format.getVkHandle()));
+        data.colorAttachments.forEach(att -> attachmentFormats.put(att.format.getIntVal()));
         attachmentFormats.flip();
         return attachmentFormats;
     }
@@ -238,8 +237,8 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
                 .sType$Default()
                 .colorAttachmentCount(data.colorAttachments.size())
                 .pColorAttachmentFormats(attachmentFormats)
-                .depthAttachmentFormat(data.depthAttachment == null ? 0 : data.depthAttachment.format.getVkHandle())
-                .stencilAttachmentFormat(data.stencilAttachment == null ? 0 : data.stencilAttachment.format.getVkHandle());
+                .depthAttachmentFormat(data.depthAttachment == null ? 0 : data.depthAttachment.format.getIntVal())
+                .stencilAttachmentFormat(data.stencilAttachment == null ? 0 : data.stencilAttachment.format.getIntVal());
     }
 
     private VkPipelineViewportStateCreateInfo getViewportInfo(MemoryStack stack) {

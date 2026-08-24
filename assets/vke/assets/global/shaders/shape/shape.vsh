@@ -8,11 +8,11 @@ layout(location = 4) in int texId;
 
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec2 outUv;
-layout(location = 2) out flat int outTexId;
+layout(location = 2) out int outTexId;
 
 #include("vke:assets/global/shaders/vke_sets.gdef")
 
-layout (std430, set = 3, binding = 0) readonly buffer Transforms {
+layout (std430, set = 2, binding = 0) readonly buffer Transforms {
     #DefaultSize(1024)
     mat4 transform[];
 } transforms;

@@ -120,8 +120,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                             .sType$Default()
                             .imageView(((VulkanImageView) colorAttachment.view()).getHandle())
                             .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-                            .loadOp(colorAttachment.loadOp().getVkHandle())
-                            .storeOp(colorAttachment.storeOp().getVkHandle())
+                            .loadOp(colorAttachment.loadOp().getIntVal())
+                            .storeOp(colorAttachment.storeOp().getIntVal())
                             .clearValue(clearColor);
                 }
             }
@@ -133,9 +133,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 depth = VkRenderingAttachmentInfo.calloc(stack)
                         .sType$Default()
                         .imageView(((VulkanImageView) info.depthAttachment().view()).getHandle())
-                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                        .loadOp(info.depthAttachment().loadOp().getVkHandle())
-                        .storeOp(info.depthAttachment().storeOp().getVkHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
+                        .loadOp(info.depthAttachment().loadOp().getIntVal())
+                        .storeOp(info.depthAttachment().storeOp().getIntVal())
                         .clearValue((v) -> v.depthStencil().depth(info.depthAttachment().clearColor()[0]));
             }
 
@@ -144,9 +144,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 stencil = VkRenderingAttachmentInfo.calloc(stack)
                         .sType$Default()
                         .imageView(((VulkanImageView) info.stencilAttachment().view()).getHandle())
-                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                        .loadOp(info.stencilAttachment().loadOp().getVkHandle())
-                        .storeOp(info.stencilAttachment().storeOp().getVkHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
+                        .loadOp(info.stencilAttachment().loadOp().getIntVal())
+                        .storeOp(info.stencilAttachment().storeOp().getIntVal())
                         .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
             }
 
@@ -333,7 +333,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .bufferRowLength(0)
                     .bufferImageHeight(0)
                     .imageSubresource()
-                    .aspectMask(((VulkanTexture) image).getAspect().getVkHandle())
+                    .aspectMask(((VulkanTexture) image).getAspect().getIntVal())
                     .mipLevel(mip)
                     .baseArrayLayer(layer)
                     .layerCount(1);
@@ -367,12 +367,12 @@ public class VulkanCmdBuffers implements CommandBuffer {
             region.get(0)
                     .sType$Default()
                     .srcSubresource(s -> s
-                            .aspectMask(vkSrc.getAspect().getVkHandle())
+                            .aspectMask(vkSrc.getAspect().getIntVal())
                             .mipLevel(srcMip)
                             .baseArrayLayer(srcLayer)
                             .layerCount(1))
                     .dstSubresource(s -> s
-                            .aspectMask(vkDst.getAspect().getVkHandle())
+                            .aspectMask(vkDst.getAspect().getIntVal())
                             .mipLevel(dstMip)
                             .baseArrayLayer(dstLayer)
                             .layerCount(1));

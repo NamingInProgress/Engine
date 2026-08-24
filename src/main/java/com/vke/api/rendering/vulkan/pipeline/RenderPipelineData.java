@@ -391,10 +391,10 @@ public class RenderPipelineData {
 
         public VkStencilOpState asVkObject(MemoryStack stack) {
             return VkStencilOpState.calloc(stack)
-                    .failOp(this.failOp().getVkHandle())
-                    .passOp(this.passOp().getVkHandle())
-                    .depthFailOp(this.depthFailOp.getVkHandle())
-                    .compareOp(this.compareOp.getVkHandle())
+                    .failOp(this.failOp().getIntVal())
+                    .passOp(this.passOp().getIntVal())
+                    .depthFailOp(this.depthFailOp.getIntVal())
+                    .compareOp(this.compareOp.getIntVal())
                     .compareMask(this.compareMask())
                     .writeMask(this.writeMask())
                     .reference(this.reference());
@@ -427,7 +427,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
     }
@@ -445,7 +445,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -468,7 +468,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -489,7 +489,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -526,7 +526,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -550,7 +550,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -577,7 +577,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 
@@ -610,7 +610,7 @@ public class RenderPipelineData {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 

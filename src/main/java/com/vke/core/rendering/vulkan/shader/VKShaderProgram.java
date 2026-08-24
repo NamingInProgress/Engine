@@ -46,7 +46,7 @@ public class VKShaderProgram implements Disposable {
             VulkanShader shader = shaders[i];
             infos[i] = alloc.allocStruct(VkPipelineShaderStageCreateInfo.SIZEOF, VkPipelineShaderStageCreateInfo::new)
                     .sType$Default()
-                    .stage(shader.type().getVkHandle())
+                    .stage(shader.type().getIntVal())
                     .module(shader.getHandle())
                     .pName(MemoryUtil.memUTF8("main", true));
         }

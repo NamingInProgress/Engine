@@ -75,7 +75,7 @@ public enum ImageState {
     }
 
     public int getLayoutHandle() {
-        return layout.getVkHandle();
+        return layout.getIntVal();
     }
 
     public long getStageMask() {

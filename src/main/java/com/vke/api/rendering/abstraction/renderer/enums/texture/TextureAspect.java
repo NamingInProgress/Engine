@@ -15,13 +15,13 @@ public class TextureAspect implements IntBitEnum<TextureAspect, TextureAspect.Bi
     @Override
     public TextureAspect or(Bits... bits) {
         for (Bits bit : bits) {
-            mask |= bit.getVkHandle();
+            mask |= bit.getIntVal();
         }
         return this;
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return mask;
     }
 
@@ -43,7 +43,7 @@ public class TextureAspect implements IntBitEnum<TextureAspect, TextureAspect.Bi
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return this.vkHandle;
         }
 
