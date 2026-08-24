@@ -4,6 +4,7 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.backend.query.QueryManager;
 import com.vke.core.ecs.component.Component;
@@ -19,12 +20,15 @@ public class ArchetypeManager {
     private final MaskMap map;
     private final EntityAllocator alloc;
     private final QueryManager qm;
+    private final IntObjectHashMap<IntObjectHashMap<ComponentReference<?>>> references;
 
     public ArchetypeManager(EntityAllocator alloc, int usedComponents, QueryManager qm) {
         this.map = new MaskMap(usedComponents);
 
         this.alloc = alloc;
         this.qm = qm;
+
+        this.references = new IntObjectHashMap<>();
     }
 
     public Archetype acquireArchetype(ComponentMask mask) {
@@ -57,12 +61,34 @@ public class ArchetypeManager {
         oldArch.dangleEntity(oldIdx, alloc);
         alloc.setArchetypeIndex(entity, newIdx);
         alloc.setArchetype(entity, newArch);
+
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        if (refs != null) {
+            Archetype at = alloc.getArchetype(entity);
+            int i = alloc.getArchetypeIndex(entity);
+            for (var o : refs) {
+                o.value.__0(at.getComponentById(o.value.__2()));
+                o.value.__1(i);
+            }
+        }
+    }
+
+    private void cleanupRefsForEntity(int entity) {
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        if (refs != null) {
+            for (var o : refs) {
+                o.value.__0(null);
+            }
+
+            references.remove(entity);
+        }
     }
 
     public void destroyEntity(int entity) {
         Archetype arch = alloc.getArchetype(entity);
         int index = alloc.getArchetypeIndex(entity);
         arch.destroyEntity(index, alloc, qm);
+        cleanupRefsForEntity(entity);
     }
 
     private static final int BATCHED_PATH_THRESHOLD = 128;
@@ -71,6 +97,7 @@ public class ArchetypeManager {
         if (entities.length < BATCHED_PATH_THRESHOLD) {
             for (int entity : entities) {
                 destroyEntity(entity);
+                cleanupRefsForEntity(entity);
             }
         } else {
             int maxArch = Archetype.IDS;
@@ -87,6 +114,8 @@ public class ArchetypeManager {
                 }
 
                 slot.add(index);
+
+                cleanupRefsForEntity(entity);
             }
 
             for (IntObjectCursor<IntArrayList> cursor : byArch) {
@@ -113,6 +142,48 @@ public class ArchetypeManager {
 
                     i--;
                 }
+            }
+        }
+    }
+
+    public ComponentReference<? extends Component> createCompRef(int entity, int componentId) {
+        ComponentReference<?> ref = new ComponentReference<>(this, entity);
+        Archetype at = alloc.getArchetype(entity);
+        int i = alloc.getArchetypeIndex(entity);
+        ref.__0(at.getComponentById(componentId));
+        ref.__1(i);
+
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        if (refs == null) {
+            refs = new IntObjectHashMap<>();
+            references.put(entity, refs);
+        }
+        refs.put(componentId, ref);
+
+        return ref;
+    }
+
+    public void updateLocationIndex(int entity, int newIndex) {
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        if (refs != null) {
+            for (var o : refs) {
+                o.value.__1(newIndex);
+            }
+        }
+    }
+
+    public void destroyComponentReference(ComponentReference<?> compRef) {
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(compRef.getEntity());
+        if (refs != null) {
+            int key = -1;
+            for (var o : refs) {
+                if (o.value == compRef) {
+                    key = o.key;
+                }
+            }
+
+            if (key != -1) {
+                refs.remove(key);
             }
         }
     }

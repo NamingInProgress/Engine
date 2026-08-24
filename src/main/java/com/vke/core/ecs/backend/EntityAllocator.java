@@ -1,6 +1,8 @@
 package com.vke.core.ecs.backend;
 
 import com.carrotsearch.hppc.IntArrayDeque;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.vke.core.ecs.ComponentReference;
 
 import java.util.Arrays;
 
@@ -11,6 +13,7 @@ public class EntityAllocator {
     private final static int LOCATION_TABLE_SHIFT = Integer.numberOfTrailingZeros(LOCATION_TABLE_PAGE_SIZE); //fast path for ilog2 for numbers that are power of 2
     private final static int LOCATION_TABLE_BASE_PAGES = 1;
 
+    private ArchetypeManager am;
     private int[][] locationTableIndices;
     private Archetype[][] locationTableArchetypes;
     private int capacity;
@@ -25,6 +28,10 @@ public class EntityAllocator {
         this.nextId = 0;
         this.pageSpaceLeft = LOCATION_TABLE_PAGE_SIZE;
         this.freeQueue = new IntArrayDeque();
+    }
+
+    public void setArchetypeManager(ArchetypeManager am) {
+        this.am = am;
     }
 
     public int getArchetypeIndex(int entity) {
@@ -79,6 +86,7 @@ public class EntityAllocator {
     public void updateLocationIndex(int entity, int newIndex) {
         //after swap remove i have to recompute the swapped entities location
         setArchetypeIndex(entity, newIndex);
+        am.updateLocationIndex(entity, newIndex);
     }
 
     public void freeEntityId(int entity) {

@@ -8,6 +8,7 @@ import com.vke.core.ecs.backend.ArchetypeManager;
 import com.vke.core.ecs.backend.ComponentRegistry;
 import com.vke.core.ecs.backend.EntityAllocator;
 import com.vke.core.ecs.backend.query.QueryManager;
+import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.TestComponent;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +28,7 @@ public class Ecs {
         int usedComponents = createInfo.usedComponentCount >= 0 ? createInfo.usedComponentCount : allComponents;
         this.queryManager = new QueryManager();
         this.archetypeManager = new ArchetypeManager(entityAllocator, usedComponents, queryManager);
+        this.entityAllocator.setArchetypeManager(archetypeManager);
     }
 
     public int[] spawnEntities(int amount, ComponentMask mask, @Nullable EntityInitializer initializer) {
@@ -56,5 +58,10 @@ public class Ecs {
 
     public void runQueries(int category) {
         queryManager.runCategory(category);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId) {
+        return (ComponentReference<T>) archetypeManager.createCompRef(entity, componentId);
     }
 }
