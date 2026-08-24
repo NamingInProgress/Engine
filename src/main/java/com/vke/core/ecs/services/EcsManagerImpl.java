@@ -88,6 +88,7 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
 
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId) {
         return (ComponentReference<T>) archetypeManager.createCompRef(entity, componentId);

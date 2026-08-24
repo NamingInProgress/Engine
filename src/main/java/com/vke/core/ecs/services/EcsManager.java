@@ -1,9 +1,11 @@
 package com.vke.core.ecs.services;
 
 import com.vke.api.services2.PinnedService;
+import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.api.Query;
+import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,4 +17,5 @@ public interface EcsManager extends PinnedService {
     int createCategory();
     void registerQuery(int category, Query query);
     long runQueries(int category);
+    <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId);
 }

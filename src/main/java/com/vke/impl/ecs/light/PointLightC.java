@@ -12,7 +12,7 @@ public class PointLightC implements Component {
     public float[] intensity, range;
 
     public void initialize(int i, Color col, float intensity) {
-        this.initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity));
+        this.initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity, 0.01f));
     }
 
     public void initialize(int i, Color col, float intensity, float range) {

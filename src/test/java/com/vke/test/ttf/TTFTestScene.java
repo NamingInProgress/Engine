@@ -54,7 +54,7 @@ public class TTFTestScene extends Scene {
         cursor.write("Hello World!");
         tx.accept(cursor, true);
 
-        cursor.setFontSize(120);
+        cursor.setFontSize(12);
         cursor.setY(-100);
         cursor.write("Bigger HW!");
         tx.accept(cursor, true);
@@ -69,7 +69,7 @@ public class TTFTestScene extends Scene {
     public void onLoad() throws Exception {
         this.vc = getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE);
         this.sr = new ShapeRenderer<>(getRenderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE), ShapeRendererVertex::new);
-        this.tx = new TextRenderer(getRenderSystem(), file, getRenderer().getVertexConsumerProvider());
+        this.tx = new TextRenderer(getRenderSystem(), file);
     }
 
     @Override

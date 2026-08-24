@@ -41,9 +41,10 @@ public class TextRenderer implements Drawable {
     private float fontSize; // This is **not** the font scale calculated by size / font.unitsPerEm(). This is the size.
     private float fontScale;
 
-    public TextRenderer(RenderSystem sys, Font font, VertexConsumerProvider provider) {
+    public TextRenderer(RenderSystem sys, Font font) {
         this.font = font;
 
+        var provider = sys.renderer().getVertexConsumerProvider();
         this.bezier = provider.get(BezierVertex.TEMPLATE);
         this.regular = provider.get(RegularVertex.TEMPLATE);
         this.quad = provider.get(QuadVertex.TEMPLATE);

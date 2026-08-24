@@ -13,7 +13,7 @@ public class SpotLightC implements Component {
     public float[] innerConeCos, outerConeCos;
 
     public void initialize(int i, Color col, float intensity, float innerConeAngle, float outerConeAngle) {
-        initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity), innerConeAngle, outerConeAngle);
+        initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity, 0.001f), innerConeAngle, outerConeAngle);
     }
 
     public void initialize(int i, Color col, float intensity, float range, float ica, float oca) {

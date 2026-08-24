@@ -26,8 +26,7 @@ void main() {
 
     vec3 lighting = albedo * 0.01; // Ambient
 
-    for (int i = 0; i < u_LightsBuffer.lightCount; ++i)
-    {
+    for (int i = 0; i < u_LightsBuffer.lightCount; ++i) {
         Light light = u_LightsBuffer.lights[i];
         vec3 radiance = calculateLight(light, normal, fragPos);
         lighting += albedo * radiance;

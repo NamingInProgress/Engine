@@ -55,7 +55,7 @@ public class LightManagerImpl implements LightManager {
             TransformC tf = at.getComponentById(TransformC.ID);
             for (int i = i0; i < i1; i++) {
                 float x = tf.x[i], y = tf.y[i], z = tf.z[i];
-                Vector3f rot = tf.getNormalizedRotation(i);
+                Vector3f rot = tf.forward(i);
                 float r = sl.r[i], g = sl.g[i], b = sl.b[i];
                 float range = sl.range[i];
                 float inte = sl.intensity[i];

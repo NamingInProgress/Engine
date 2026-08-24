@@ -9,6 +9,7 @@ import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.color.Color;
+import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.PerspectiveCamera;
@@ -73,6 +74,8 @@ public class DemoScene extends Scene {
 
     private int id;
 
+    private ComponentReference<TransformC> spotlightRef;
+
     public DemoScene(Identifier name, Context context) {
         super(name, context);
     }
@@ -98,7 +101,7 @@ public class DemoScene extends Scene {
             tf.z[i] = positions[entityIndex][2];
         });
 
-        ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+        int spotlightId = ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
             int i = left + entityIndex;
             SpotLightC sl = at.getComponentById(SpotLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
@@ -106,14 +109,16 @@ public class DemoScene extends Scene {
             tf.initialize(i);
             tf.y[i] = 20;
             //tf.ry[i] = 90;
-        });
+        })[0];
 
         id = ids[ids.length - 1];
+
+        spotlightRef = ecs.createComponentReference(spotlightId, TransformC.ID);
     }
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("room.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("bear.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
 
             RenderResourceManager resManager = getRenderer().resourceManager();
@@ -183,7 +188,12 @@ public class DemoScene extends Scene {
         context.put("mats", matrixBuffer);
         context.put("inst", TOTAL_INSTANCES);
 
-
+        spotlightRef.update((c, idx) -> {
+            c.x[idx] = camera.position().x;
+            c.y[idx] = camera.position().y;
+            c.z[idx] = camera.position().z;
+            c.setQuaternion(idx, camera.rotation());
+        });
 
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);

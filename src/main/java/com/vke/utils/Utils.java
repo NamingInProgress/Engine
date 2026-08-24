@@ -306,8 +306,8 @@ public class Utils {
         return null;
     }
 
-    public static float rangeFromIntensityLight(float intensity) {
-        return (float) Math.sqrt(intensity / 0.01);
+    public static float rangeFromIntensityLight(float intensity, float threshold) {
+        return (float) Math.sqrt(intensity / threshold);
     }
 
 }
