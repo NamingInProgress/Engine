@@ -2,6 +2,7 @@ package com.vke.core.ecs.services;
 
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
+import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.EcsCreateInfo;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
@@ -11,6 +12,7 @@ import com.vke.core.ecs.backend.ArchetypeManager;
 import com.vke.core.ecs.backend.ComponentRegistry;
 import com.vke.core.ecs.backend.EntityAllocator;
 import com.vke.core.ecs.backend.query.QueryManager;
+import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.services2.Services;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +39,7 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
         int usedComponents = createInfo.usedComponentCount >= 0 ? createInfo.usedComponentCount : allComponents;
         this.queryManager = new QueryManager();
         this.archetypeManager = new ArchetypeManager(entityAllocator, usedComponents, queryManager);
+        this.entityAllocator.setArchetypeManager(archetypeManager);
     }
 
     @Override
@@ -83,5 +86,10 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
     @Override
     public void free() {
 
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId) {
+        return (ComponentReference<T>) archetypeManager.createCompRef(entity, componentId);
     }
 }
