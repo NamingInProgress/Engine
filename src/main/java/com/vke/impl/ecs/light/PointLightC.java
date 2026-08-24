@@ -2,6 +2,7 @@ package com.vke.impl.ecs.light;
 
 import com.vke.core.color.Color;
 import com.vke.core.ecs.component.Component;
+import com.vke.utils.Utils;
 import pl.epsi.EcsComponent;
 
 @EcsComponent
@@ -11,7 +12,7 @@ public class PointLightC implements Component {
     public float[] intensity, range;
 
     public void initialize(int i, Color col, float intensity) {
-        this.initialize(i, col, intensity, (float) Math.sqrt(intensity / 0.01));
+        this.initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity));
     }
 
     public void initialize(int i, Color col, float intensity, float range) {

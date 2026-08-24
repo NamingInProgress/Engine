@@ -11,7 +11,7 @@ public class TheTest {
         int _ = Position.ID;
 
         EcsCreateInfo createInfo = new EcsCreateInfo();
-        EcsManagerImpl ecs = new EcsManagerImpl(createInfo);
+        EcsManagerImpl ecs = new EcsManagerImpl(null);
 
         int STARTUP = ecs.createCategory();
 

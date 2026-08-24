@@ -25,6 +25,14 @@ public class BufferSlice {
         this.packing = packingType;
     }
 
+    public void skip(int amount) {
+        if (cursor + amount > length)
+            throw new IndexOutOfBoundsException(
+                    "BufferSlice overflow: " + cursor + " / " + length
+            );
+        cursor += amount;
+    }
+
     public void putData(ByteBuffer buf) {
         if (cursor + buf.remaining() > length)
             throw new IndexOutOfBoundsException(
@@ -32,6 +40,14 @@ public class BufferSlice {
             );
         MemoryUtil.memCopy(MemoryUtil.memAddress(buf), writeAddress + cursor, buf.remaining());
         cursor += buf.remaining();
+    }
+
+    public void putIntAt(int byteOffset, int val) {
+        if (byteOffset + 4 > length)
+            throw new IndexOutOfBoundsException(
+                    "BufferSlice overflow: " + byteOffset + " / " + length
+            );
+        MemoryUtil.memPutInt(writeAddress + byteOffset, val);
     }
 
     public void putSampler(RenderSystem sys, Texture tex) {

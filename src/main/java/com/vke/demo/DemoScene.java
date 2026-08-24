@@ -23,6 +23,7 @@ import com.vke.core.services2.Services;
 import com.vke.impl.debug.DebugContext;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.light.PointLightC;
+import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.vertex.VertexFormatDeferred;
 import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
@@ -67,7 +68,10 @@ public class DemoScene extends Scene {
             {-45, 45, 45},
             {-45, 45, -45},
             {45, 45, -45},
+            //{0, 20, 0}
     };
+
+    private int id;
 
     public DemoScene(Identifier name, Context context) {
         super(name, context);
@@ -83,7 +87,7 @@ public class DemoScene extends Scene {
         matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
 
         EcsManager ecs = context.service(Services.ECS);
-        ecs.spawnEntities(8, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+        int[] ids = ecs.spawnEntities(positions.length, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
             int i = left + entityIndex;
             PointLightC pl = at.getComponentById(PointLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
@@ -93,6 +97,18 @@ public class DemoScene extends Scene {
             tf.y[i] = positions[entityIndex][1];
             tf.z[i] = positions[entityIndex][2];
         });
+
+        ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+            int i = left + entityIndex;
+            SpotLightC sl = at.getComponentById(SpotLightC.ID);
+            TransformC tf = at.getComponentById(TransformC.ID);
+            sl.initialize(i, new Color(0, 1, 1, 1), 10, 5, 30);
+            tf.initialize(i);
+            tf.y[i] = 20;
+            //tf.ry[i] = 90;
+        });
+
+        id = ids[ids.length - 1];
     }
 
     private void loadMeshResources() {
@@ -167,13 +183,20 @@ public class DemoScene extends Scene {
         context.put("mats", matrixBuffer);
         context.put("inst", TOTAL_INSTANCES);
 
+
+
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
         //DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
         for (int i = 0; i < positions.length; i++) {
             float[] poss = positions[i];
+            float y = poss[1];
+//            if (i == positions.length - 1) {
+//                poss[1] += (float) (20 * Math.max(Math.sin(System.nanoTime() / 1_000_000_000.0), 0.0));
+//            }
             DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
                     new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), Color.RED);
+            poss[1] = y;
         }
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);

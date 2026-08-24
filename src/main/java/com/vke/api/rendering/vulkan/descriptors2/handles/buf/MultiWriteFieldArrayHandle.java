@@ -31,7 +31,19 @@ public class MultiWriteFieldArrayHandle extends FieldArrayHandle implements Mult
 
     @Override
     public void write(int index, Consumer<BufferSlice> writer) {
-        if (index >= this.elementCount) throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + elementCount);
+        if (index >= this.elementCount) {
+            if (parent.bufBinding.layout.type == DescriptorType.STORAGE_BUFFER || parent.bufBinding.layout.type == DescriptorType.STORAGE_BUFFER_DYNAMIC) {
+                int newCount = this.elementCount;
+
+                while (newCount <= index) {
+                    newCount *= 2;
+                }
+
+                parent.growRuntimeSizeArray(newCount);
+            } else {
+                throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + elementCount);
+            }
+        }
         writer.accept(new BufferSlice(this.parent.cpuAddress, this.parent.getOffset() + fieldOffset + (long) index * this.stride,
                 this.stride, PackingType.fromDescriptorType(type)));
     }

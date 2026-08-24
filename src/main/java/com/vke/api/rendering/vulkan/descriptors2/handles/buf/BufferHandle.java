@@ -56,7 +56,7 @@ public class BufferHandle extends UniformHandle implements BufferResource {
     }
 
     private void useNewBuffer() {
-        var newBuffer = DescriptorSetInstance.generateBuffer(group.getRenderSystem(), this.bufBinding.layout);
+        var newBuffer = DescriptorSetInstance.generateBuffer(group.getRenderSystem(), this.bufBinding.layout, true, true);
         this.bufferSize = newBuffer.getSize();
         this.cpuAddress = newBuffer.getMappedAddress();
         this.gpuAddress = newBuffer.getGpuBuffer().getBuffer();

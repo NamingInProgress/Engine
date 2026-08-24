@@ -132,14 +132,14 @@ public class DescriptorSetInstance implements Disposable {
     }
 
     public static MappedBuffer generateBuffer(VulkanRenderSystem ctx, BindingLayout layout) {
-        return generateBuffer(ctx, layout, true);
+        return generateBuffer(ctx, layout, true, false);
     }
 
-    public static MappedBuffer generateBuffer(VulkanRenderSystem ctx, BindingLayout layout, boolean test) {
+    public static MappedBuffer generateBuffer(VulkanRenderSystem ctx, BindingLayout layout, boolean test, boolean remake) {
         if (test && SharedBufferHandler.BUFFERS.containsKey(layout.name)) {
             MappedBuffer buf = SharedBufferHandler.BUFFERS.get(layout.name);
-            if (buf == null) {
-                SharedBufferHandler.BUFFERS.put(layout.name, generateBuffer(ctx, layout, false));
+            if (buf == null || remake) {
+                SharedBufferHandler.BUFFERS.put(layout.name, generateBuffer(ctx, layout, false, remake));
             }
 
             return SharedBufferHandler.BUFFERS.get(layout.name);

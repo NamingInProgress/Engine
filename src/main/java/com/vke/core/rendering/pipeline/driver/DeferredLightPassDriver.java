@@ -27,8 +27,8 @@ public class DeferredLightPassDriver extends PipelineDriver {
             this.normal = p.resource("u_NormalTex");
             this.albedoSpec = p.resource("u_AlbedoSpecTex");
             this.depth = p.resource("u_DepthTex");
-            this.lightCount = p.resource("u_Lights.lightCount");
-            this.lights = p.resource("u_Lights.lights");
+            this.lightCount = p.resource("u_LightsBuffer.lightCount");
+            this.lights = p.resource("u_LightsBuffer.lights");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

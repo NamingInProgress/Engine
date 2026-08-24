@@ -36,7 +36,7 @@ public class EcsBenchmark {
 
     private static void runBenchmarkSuite(boolean isWarmup) {
         EcsCreateInfo createInfo = new EcsCreateInfo();
-        EcsManagerImpl ecs = new EcsManagerImpl(createInfo);
+        EcsManagerImpl ecs = new EcsManagerImpl(null);
 
         int systemCategory = ecs.createCategory();
         ecs.registerQuery(systemCategory, new BenchmarkHealthQuery());

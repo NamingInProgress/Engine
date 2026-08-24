@@ -305,4 +305,9 @@ public class Utils {
         }
         return null;
     }
+
+    public static float rangeFromIntensityLight(float intensity) {
+        return (float) Math.sqrt(intensity / 0.01);
+    }
+
 }

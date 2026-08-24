@@ -10,6 +10,7 @@ public class SharedBufferHandler {
 
     static {
         requestSharedBuffer("u_MaterialBuffer");
+        requestSharedBuffer("u_LightsBuffer");
     }
 
     public static void requestSharedBuffer(String name) {

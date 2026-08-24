@@ -55,7 +55,6 @@ public class VulkanPipelineLayout implements PipelineLayout {
     public final DescriptorWriter writer;
 
     public static VulkanPipelineLayout getLayout(VulkanRenderSystem ctx, PushConstants pc, List<DescriptorSetLayout> layouts) {
-        // TODO: Fix this making a new pipeline layout (This is technically fine but it is recommended to reuse)
         FrameCounter fc = ctx.renderer().getFrameCounter();
 
         LayoutCapabilities cap = new LayoutCapabilities(pc == null ? null : pc.getLayout(), layouts);
