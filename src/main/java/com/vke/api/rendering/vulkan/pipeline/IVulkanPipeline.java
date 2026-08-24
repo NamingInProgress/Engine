@@ -10,12 +10,14 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstantLayout;
 import com.vke.api.rendering.vulkan.pushconstants.PushConstants;
 import com.vke.core.Context;
+import com.vke.core.rendering.reflection2.api.DescriptorResource;
+import com.vke.core.rendering.reflection2.api.PushConstantsResource;
+import com.vke.core.rendering.reflection2.api.ReflectedShader2;
+import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.service.VulkanRendererAPI;
-import com.vke.core.rendering.vulkan.shr.ReflectedShader;
-import com.vke.core.rendering.vulkan.shr.service.ShaderReflector;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
 import com.vke.core.rendering.vulkan.shader.VulkanShader;
 import com.vke.utils.Utils;
@@ -33,14 +35,14 @@ public interface IVulkanPipeline extends Pipeline {
     PipelineLayout layout();
 
     // Info create methods that are shared between compute and render pipelines
-    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, ArrayList<ReflectedShader> shaders) {
+    default List<DescriptorSetLayout> createDescriptorSets(Context ctx, ArrayList<ReflectedShader2> shaders) {
         HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
 
-        for (ReflectedShader shader : shaders) {
-            var reflectedDescriptors = shader.getDescriptors();
+        for (ReflectedShader2 shader : shaders) {
+            var reflectedDescriptors = shader.descriptors();
 
-            for (Map.Entry<ReflectedShader.ResourceType, ArrayList<ReflectedShader.DescriptorResource>> entry : reflectedDescriptors.entrySet()) {
-                for (ReflectedShader.DescriptorResource resource : entry.getValue()) {
+            for (var entry : reflectedDescriptors.entrySet()) {
+                for (DescriptorResource resource : entry.getValue()) {
                     DescriptorSetLayout descriptor = sets.computeIfAbsent(resource.set, (_) -> new DescriptorSetLayout());
 
                     BindingLayout binding = BindingLayout.fromDescriptorResource(resource, entry.getKey(),
@@ -64,10 +66,10 @@ public interface IVulkanPipeline extends Pipeline {
                 .toList();
     }
 
-    default PushConstants createPushConstants(ArrayList<ReflectedShader> shaders) {
+    default PushConstants createPushConstants(ArrayList<ReflectedShader2> shaders) {
         PushConstantLayout layout = null;
-        for (ReflectedShader shader : shaders) {
-            ReflectedShader.PushConstantsResource pc = shader.getPushConstants();
+        for (ReflectedShader2 shader : shaders) {
+            PushConstantsResource pc = shader.pushConstants();
             if (pc == null) continue;
 
             layout = new PushConstantLayout(pc.name, 0, pc.size, pc.struct, PackingType.STD140);
@@ -76,12 +78,12 @@ public interface IVulkanPipeline extends Pipeline {
         return layout == null ? null : new PushConstants(layout);
     }
 
-    default ArrayList<ReflectedShader> getReflectedShaders(Context context, VKShaderProgram program) {
-        ShaderReflector refl = context.service(Services.SHADER_REFLECTION);
-        ArrayList<ReflectedShader> reflectedShaders = new ArrayList<>();
+    default ArrayList<ReflectedShader2> getReflectedShaders(Context context, VKShaderProgram program) {
+        ShaderReflector2 refl = context.service(Services.SHADER_REFLECTION2);
+        ArrayList<ReflectedShader2> reflectedShaders = new ArrayList<>();
 
         for (Long id : Iter.of(program.getShaders()).map(VulkanShader::getShaderID)) {
-            Option<ReflectedShader> shaderOpt = refl.get(id);
+            Option<ReflectedShader2> shaderOpt = refl.get(id);
             if (shaderOpt.isNone()) {
                 throw new IllegalStateException("Requested reflected shader but none was found! This error should not happen");
             }

@@ -151,8 +151,8 @@ public class DescriptorSetInstance implements Disposable {
         if (layout.staticBuffer) {
             return new MappedBuffer(ctx, layout.typeLayout.size, usage);
         } else {
-            return new MappedGpuRingBuffer(ctx, Utils.alignUpFast(layout.typeLayout.size,
-                    getAlign(ctx.device(), layout)), framesInFlight * layout.multiWrite, usage);
+            long alignOrSmth = Utils.alignUpFast(layout.typeLayout.size, getAlign(ctx.device(), layout));
+            return new MappedGpuRingBuffer(ctx, alignOrSmth, framesInFlight * layout.multiWrite, usage);
         }
     }
 

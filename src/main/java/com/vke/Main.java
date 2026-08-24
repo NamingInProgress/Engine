@@ -8,9 +8,11 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.CoreLogger;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.reflection2.CoreReflector;
 import com.vke.core.scene.SceneApp;
 import com.vke.utils.Utils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class Main {
@@ -18,8 +20,14 @@ public class Main {
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
+        //CoreReflector reflector = new CoreReflector(new FileInputStream("C:\\Users\\v22ju\\Desktop\\coding\\java\\..VKEngine\\src\\test\\resources\\cube2.vert.spv"));
+        //reflector.reflect(null, null, null);
+//
+        //if (Utils.TRUE) return;
+
+
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = false;
+        createInfo.releaseMode = true;
         createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");

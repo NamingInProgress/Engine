@@ -5,7 +5,8 @@ import com.vke.api.rendering.vulkan.descriptors.DescriptorType;
 import com.vke.api.rendering.vulkan.descriptors.types.ArrayType;
 import com.vke.api.rendering.vulkan.descriptors.types.StructType;
 import com.vke.api.rendering.vulkan.descriptors.types.TypeLayout;
-import com.vke.core.rendering.vulkan.shr.ReflectedShader;
+import com.vke.core.rendering.reflection2.api.DescriptorCategory;
+import com.vke.core.rendering.reflection2.api.DescriptorResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -40,10 +41,10 @@ public class BindingLayout {
         this.staticBuffer = staticBuffer;
     }
 
-    public static BindingLayout fromDescriptorResource(ReflectedShader.DescriptorResource resource, ReflectedShader.ResourceType rt, boolean staticBuffer) {
+    public static BindingLayout fromDescriptorResource(DescriptorResource resource, DescriptorCategory rt, boolean staticBuffer) {
         int count = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
 
-            DescriptorType type = DescriptorType.fromBaseType(rt, !staticBuffer);
+        DescriptorType type = DescriptorType.fromBaseType(rt, !staticBuffer);
         return new BindingLayout(resource.name, resource.set, resource.binding,
                 type, count, resource.struct, PackingType.fromDescriptorType(type), resource.multiWrite, staticBuffer);
     }
