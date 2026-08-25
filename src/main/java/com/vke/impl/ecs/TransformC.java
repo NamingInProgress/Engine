@@ -49,7 +49,7 @@ public class TransformC implements Component {
     }
 
     public Vector3f forward(int i) {
-        return rotation(i).transform(0, 0, -1, new Vector3f());
+        return rotation(i).transform(0, 0, -1, new Vector3f()).normalize();
     }
 
 }

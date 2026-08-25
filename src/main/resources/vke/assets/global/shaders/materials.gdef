@@ -72,6 +72,13 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv) {
 MaterialInputs evaluateMaterial(int idx, vec2 uv) {
     if (idx == -1) {
         MaterialInputs m;
+        m.baseColor = vec4(1.0);
+        m.normal = vec3(0, 0, 1);
+        m.roughness = 0.5;
+        m.metallic = 0.0;
+        m.occlusion = 1.0;
+        m.emissive = vec3(0.0);
+        m.specular = 0.5;
         return m;
     }
     return evaluateMaterial(u_MaterialBuffer.materials[nonuniformEXT(idx)], uv);

@@ -1,3 +1,6 @@
+const uint LIGHT_POINT = 0;
+const uint LIGHT_SPOT = 1;
+
 struct Light {
     vec3 pos;
     float range;
@@ -60,9 +63,9 @@ vec3 pointLight(Light l) {
     return l.color * l.intensity;
 }
 
-vec3 spotLight(Light l, vec3 lightVec) {
-    vec3 L = -normalize(lightVec);
-    vec3 D = normalize(l.direction);
+vec3 spotLight(Light l, vec3 lightDir) {
+    vec3 L = -lightDir;
+    vec3 D = l.direction;
     float cosAngle = dot(D, L);
 
     float spot = smoothstep(
@@ -89,12 +92,11 @@ vec3 calculateLight(Light l, vec3 normal, vec3 fragPos) {
 
     float mul = NdotL * getAttenuation(l, distance);
     switch (l.lightType) {
-        case 0:
+        case LIGHT_POINT:
             return mul * pointLight(l);
-            break;
-        case 1:
-            return mul * spotLight(l, lightVec);
-            break;
+        case LIGHT_SPOT:
+            return mul * spotLight(l, lightDir);
+
     }
     return vec3(1);
 }
