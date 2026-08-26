@@ -1,10 +1,13 @@
 package com.vke.core.window;
 
+import com.vke.api.event.EventBus;
 import com.vke.api.utils.OSType;
 import com.vke.api.window.Window;
 import com.vke.api.window.WindowCreateInfo;
+import com.vke.api.window.WindowResizeEvent;
 import com.vke.core.VKEngine;
 import com.vke.core.framable.service.FramableManager;
+import com.vke.core.services2.Services;
 import com.vke.core.window.callbacks.FramebufferCallbacks;
 import com.vke.utils.Utils;
 import com.vke.utils.console.AnsiColors;
@@ -21,9 +24,11 @@ public class GlfwWindow implements Window {
     private boolean minimized;
     private Size size;
     private final FramableManager framableManager;
+    private final EventBus bus;
 
     public GlfwWindow(VKEngine engine, WindowCreateInfo windowCreateInfo, FramableManager framableManager) throws IllegalStateException {
         this.framableManager = framableManager;
+        this.bus = engine.service(Services.EVENT_BUS);
 
         if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
             GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11); // thjis is for testing cuz linux and wayland wants to be funny
@@ -76,6 +81,9 @@ public class GlfwWindow implements Window {
 
         FramebufferCallbacks.minimize((state) -> minimized = state);
         FramebufferCallbacks.resize((w, h) -> size = new Size(w, h));
+        FramebufferCallbacks.resize((w, h) -> {
+            bus.fire(new WindowResizeEvent(this, w, h));
+        });
     }
 
     private void fetchSize() {

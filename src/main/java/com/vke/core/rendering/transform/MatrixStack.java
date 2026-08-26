@@ -109,7 +109,7 @@ public class MatrixStack {
 
     public void upload(BufferSlice sink) {
         for (int i = 0; i < nextListIndex; i++) {
-            sink.putMat4(stack.get(i));
+            sink.mat4(stack.get(i));
         }
     }
 }

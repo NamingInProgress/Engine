@@ -41,6 +41,11 @@ public class EcsManagerAPI extends ServiceAPI implements EcsManager {
     }
 
     @Override
+    public int duplicateEntity(int entity) {
+        return getImpl().duplicateEntity(entity);
+    }
+
+    @Override
     public int createCategory() {
         return getImpl().createCategory();
     }
@@ -56,7 +61,12 @@ public class EcsManagerAPI extends ServiceAPI implements EcsManager {
     }
 
     @Override
-    public <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId) {
-        return getImpl().createComponentReference(entity, componentId);
+    public <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId) {
+        return getImpl().obtainComponentReference(entity, componentId);
+    }
+
+    @Override
+    public String getComponentName(int componentId) {
+        return getImpl().getComponentName(componentId);
     }
 }

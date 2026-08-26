@@ -39,7 +39,7 @@ public class LightManagerImpl implements LightManager {
         this.counter = 0;
         this.buf = buf;
         long count = ecs.runQueries(LIGHTS_CATEGORY);
-        lightCount.write(writer -> writer.putInt((int) count));
+        lightCount.write(writer -> writer.int1((int) count));
     }
 
     private class SpotLightsQuery implements Query {
@@ -67,12 +67,12 @@ public class LightManagerImpl implements LightManager {
 
                 float finalY = y;
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, finalY, z, range);
-                    writer.putFloat4(r, g, b, inte);
-                    writer.putFloat4(rot.x, rot.y, rot.z, 1);
+                    writer.float4(x, finalY, z, range);
+                    writer.float4(r, g, b, inte);
+                    writer.float4(rot.x, rot.y, rot.z, 1);
 
-                    writer.putFloat4(0, 0, 0, ica);
-                    writer.putFloat4(0 ,0, 0, oca);
+                    writer.float4(0, 0, 0, ica);
+                    writer.float4(0 ,0, 0, oca);
                     putLightFlag(writer, 1);
                 });
             }
@@ -102,8 +102,8 @@ public class LightManagerImpl implements LightManager {
 
                 float finalY = y;
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, finalY, z, range);
-                    writer.putFloat4(r, g, b, inte);
+                    writer.float4(x, finalY, z, range);
+                    writer.float4(r, g, b, inte);
                     putLightFlag(writer, 0);
                 });
             }
@@ -111,6 +111,6 @@ public class LightManagerImpl implements LightManager {
     }
 
     private static void putLightFlag(BufferSlice writer, int flag) {
-        writer.putIntAt(44, flag);
+        writer.int1At(44, flag);
     }
 }

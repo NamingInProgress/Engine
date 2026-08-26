@@ -14,15 +14,18 @@ import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
+import com.vke.core.game.object.CameraGameObject;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.services2.Services;
 import com.vke.impl.debug.DebugContext;
 import com.vke.impl.ecs.TransformC;
+import com.vke.impl.ecs.camera.CameraC;
 import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.vertex.VertexFormatDeferred;
@@ -90,7 +93,7 @@ public class DemoScene extends Scene {
         matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
 
         EcsManager ecs = context.service(Services.ECS);
-        int[] ids = ecs.spawnEntities(positions.length, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+        int[] ids = ecs.spawnEntities(positions.length, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex, entityId) -> {
             int i = left + entityIndex;
             PointLightC pl = at.getComponentById(PointLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
@@ -101,11 +104,11 @@ public class DemoScene extends Scene {
             tf.z[i] = positions[entityIndex][2];
         });
 
-        int spotlightId = ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex) -> {
+        int spotlightId = ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex, entityId) -> {
             int i = left + entityIndex;
             SpotLightC sl = at.getComponentById(SpotLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
-            sl.initialize(i, new Color(0, 1, 1, 1), 10, 5, 30);
+            sl.initialize(i, new Color(0, 1, 1, 1), 10, 5, 60);
             tf.initialize(i);
             tf.y[i] = 20;
             //tf.ry[i] = 90;
@@ -113,7 +116,7 @@ public class DemoScene extends Scene {
 
         id = ids[ids.length - 1];
 
-        spotlightRef = ecs.createComponentReference(spotlightId, TransformC.ID);
+        spotlightRef = ecs.obtainComponentReference(spotlightId, TransformC.ID);
     }
 
     private void loadMeshResources() {
@@ -136,6 +139,10 @@ public class DemoScene extends Scene {
     }
 
     private void setupInputAndCamera() {
+        CameraGameObject cam = new CameraGameObject(context);
+        cam.spawn();
+        getRenderSystem().frameDataManager().setCamera(cam);
+
         camera = new PerspectiveCamera(context, 90);
         CameraController controller = new FreecamController(context);
         camera.setController(controller);
@@ -188,12 +195,12 @@ public class DemoScene extends Scene {
         context.put("mats", matrixBuffer);
         context.put("inst", TOTAL_INSTANCES);
 
-        spotlightRef.update((c, idx) -> {
-            c.x[idx] = camera.position().x;
-            c.y[idx] = camera.position().y;
-            c.z[idx] = camera.position().z;
-            c.setQuaternion(idx, camera.rotation());
-        });
+//        spotlightRef.update((c, idx) -> {
+//            c.x[idx] = camera.position().x;
+//            c.y[idx] = camera.position().y;
+//            c.z[idx] = camera.position().z;
+//            c.setQuaternion(idx, camera.rotation());
+//        });
 
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);

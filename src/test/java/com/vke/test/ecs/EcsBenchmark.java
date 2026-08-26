@@ -130,11 +130,21 @@ public class EcsBenchmark {
     @EcsComponent
     public static class Position implements Component {
         public float[] x, y, z;
+
+        @Override
+        public void initialize(int i) {
+
+        }
     }
 
     @EcsComponent
     public static class Health implements Component {
         public int[] hp;
+
+        @Override
+        public void initialize(int i) {
+
+        }
     }
 
     public static class BenchmarkHealthQuery implements Query {

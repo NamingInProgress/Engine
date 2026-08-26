@@ -12,9 +12,10 @@ public class TransformC implements Component {
     public float[] rx, ry, rz, rw;
     public float[] sx, sy, sz;
 
+    @Override
     public void initialize(int i) {
         sx[i] = sy[i] = sz[i] = 1f;
-        ry[i] = 90f;
+        setRotation(i, new Vector3f(0, 90, 0));
     }
 
     public void setQuaternion(int i, Quaternionf quaternionf) {

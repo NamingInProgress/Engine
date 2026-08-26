@@ -6,4 +6,9 @@ import pl.epsi.EcsComponent;
 @EcsComponent
 public class Position implements Component {
     public float[] x, y, z;
+
+    @Override
+    public void initialize(int i) {
+
+    }
 }

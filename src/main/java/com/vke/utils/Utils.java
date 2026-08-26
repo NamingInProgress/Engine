@@ -310,4 +310,29 @@ public class Utils {
         return (float) Math.sqrt(intensity / threshold);
     }
 
+    public static boolean intsContainAnyInt(int[] pool, int[] test) {
+        for (int t : test) {
+            if (Utils.intsContain(pool, t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int intsContainAnyIntThenReturnInt(int[] pool, int[] test) {
+        for (int t : test) {
+            int i;
+            if ((i = Utils.intsContainThenReturnInt(pool, t)) != -1) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int intsContainThenReturnInt(int[] pool, int i) {
+        for (int p : pool) {
+            if (p == i) return i;
+        }
+        return -1;
+    }
 }

@@ -11,7 +11,13 @@ public class ComponentMask {
     private final int last;
 
     public ComponentMask(int... ids) {
-        Arrays.sort(ids);
+        this(false, ids);
+    }
+
+    public ComponentMask(boolean sorted, int... ids) {
+        if (!sorted) {
+            Arrays.sort(ids);
+        }
 
         this.ids = ids;
         this.first = ids[0];
@@ -55,6 +61,113 @@ public class ComponentMask {
 
     public ComponentMask union(ComponentMask other) {
         throw new Unreachable();
+    }
+
+    public ComponentMask addComponent(int id) {
+        int idx = Arrays.binarySearch(ids, id);
+        if (idx >= 0) return this;
+        int whereToInsert = ~idx;
+        int l = ids.length - whereToInsert;
+        int[] newIds = Arrays.copyOf(ids, ids.length + 1);
+        System.arraycopy(newIds, whereToInsert, newIds, whereToInsert + 1, l);
+        newIds[whereToInsert] = id;
+        return new ComponentMask(true, newIds);
+    }
+
+    public ComponentMask addComponents(int... ids) {
+        if (ids.length == 0) return this;
+        if (ids.length == 1) return addComponent(ids[0]);
+
+        int[] additions = ids.clone();
+        Arrays.sort(additions);
+
+        int unique = 1;
+        for (int i = 1; i < additions.length; i++) {
+            if (additions[i] != additions[unique - 1]) {
+                additions[unique++] = additions[i];
+            }
+        }
+
+        int[] result = new int[this.ids.length + unique];
+
+        int a = 0;
+        int b = 0;
+        int r = 0;
+
+        while (a < this.ids.length && b < unique) {
+            int x = this.ids[a];
+            int y = additions[b];
+
+            if (x < y) {
+                result[r++] = x;
+                a++;
+            } else if (x > y) {
+                result[r++] = y;
+                b++;
+            } else {
+                result[r++] = x;
+                a++;
+                b++;
+            }
+        }
+
+        while (a < this.ids.length) result[r++] = this.ids[a++];
+        while (b < unique) result[r++] = additions[b++];
+
+        if (r == this.ids.length) return this;
+
+        return new ComponentMask(true, Arrays.copyOf(result, r));
+    }
+
+    public ComponentMask removeComponent(int id) {
+        int idx = Arrays.binarySearch(ids, id);
+        if (idx < 0) return this;
+        int[] newIds = ids.clone();
+        System.arraycopy(newIds, idx + 1, newIds, idx, ids.length - idx - 1);
+        newIds = Arrays.copyOf(newIds, ids.length - 1);
+        return new ComponentMask(true, newIds);
+    }
+
+    public ComponentMask removeComponents(int... ids) {
+        if (ids.length == 0) return this;
+        if (ids.length == 1) return removeComponent(ids[0]);
+
+        int[] removals = ids.clone();
+        Arrays.sort(removals);
+
+        int unique = 1;
+        for (int i = 1; i < removals.length; i++) {
+            if (removals[i] != removals[unique - 1]) {
+                removals[unique++] = removals[i];
+            }
+        }
+
+        int[] result = new int[this.ids.length];
+
+        int a = 0;
+        int b = 0;
+        int r = 0;
+
+        while (a < this.ids.length && b < unique) {
+            int x = this.ids[a];
+            int y = removals[b];
+
+            if (x < y) {
+                result[r++] = x;
+                a++;
+            } else if (x > y) {
+                b++;
+            } else {
+                a++;
+                b++;
+            }
+        }
+
+        while (a < this.ids.length) result[r++] = this.ids[a++];
+
+        if (r == this.ids.length) return this;
+
+        return new ComponentMask(true, Arrays.copyOf(result, r));
     }
 
     public long fastHash() {

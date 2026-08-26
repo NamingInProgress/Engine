@@ -26,4 +26,8 @@ public class SpotLightC implements Component {
         this.outerConeCos[i] = (float) Math.cos(Math.toRadians(oca / 2));
     }
 
+    @Override
+    public void initialize(int i) {
+        initialize(i, Color.WHITE, 10, 15, 30);
+    }
 }

@@ -34,7 +34,7 @@ public class DeferredPipelineDriver extends MaterialPipelineDriver {
 
     @Override
     public void use() {
-        local.write((slice) -> slice.putData(mats));
+        local.write((slice) -> slice.data(mats));
         bind();
         bindDescriptorSets();
         //bindPushConstants();

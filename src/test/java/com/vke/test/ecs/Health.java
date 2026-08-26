@@ -6,4 +6,9 @@ import pl.epsi.EcsComponent;
 @EcsComponent
 public class Health implements Component {
     public int[] hp;
+
+    @Override
+    public void initialize(int i) {
+        hp[i] = 0;
+    }
 }

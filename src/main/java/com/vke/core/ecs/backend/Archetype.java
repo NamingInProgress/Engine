@@ -91,7 +91,7 @@ public class Archetype {
         for (int i = 0; i < amount; i++) {
             int entityId = allocator.genEntityId(this, left + i);
             if (initializer != null) {
-                initializer.initialize(this, left, entryAmount - 1, i);
+                initializer.initialize(this, left, entryAmount - 1, i, entityId);
             }
             entities[i] = entityId;
             owners[left + i] = entityId;
@@ -175,5 +175,27 @@ public class Archetype {
         }
 
         entryAmount -= length;
+    }
+
+    public int duplicateEntity(int oldIndex, EntityAllocator allocator, QueryManager qm) {
+        int index = entryAmount;
+        entryAmount += 1;
+
+        for (Component component : compArr) {
+            component.resize(entryAmount);
+            component.copyFrom(component, index, oldIndex);
+        }
+
+        allocator.allocateEntities(1);
+
+        if (owners.length < entryAmount) {
+            owners = Arrays.copyOf(owners, entryAmount);
+        }
+
+        owners[index] = allocator.genEntityId(this, index);
+
+        qm.onEntityBatchSpawn(mask, this, index, 1);
+
+        return index;
     }
 }

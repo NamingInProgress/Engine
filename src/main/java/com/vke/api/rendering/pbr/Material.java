@@ -44,7 +44,7 @@ public class Material {
     }
 
     public void putSelf(BufferSlice encoder) {
-        encoder.putInt(flag);
+        encoder.int1(flag);
         try {
             base.putSelf(sys, encoder);
         } catch (IOException e) {

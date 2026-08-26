@@ -41,7 +41,7 @@ public class Color extends Vector4f {
     }
 
     public void putSelf(BufferSlice encoder) {
-        encoder.putFloat4(x, y, z, w);
+        encoder.float4(x, y, z, w);
     }
 
     public float[] toFloat() {

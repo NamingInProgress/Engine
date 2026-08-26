@@ -7,6 +7,8 @@ public interface Component {
     default int getId() { throw new RuntimeException("stub"); }
     default ComponentMask ofSelf() { return null; }
 
+    void initialize(int i);
+
     default void resize(int newSize) { throw new RuntimeException("stub"); }
     default void swap(int from, int to) { throw new RuntimeException("stub"); }
     default void copyFrom(Component other, int thisIndex, int otherIndex) { throw new RuntimeException("stub"); }

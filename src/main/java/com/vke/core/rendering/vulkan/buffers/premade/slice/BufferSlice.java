@@ -1,14 +1,18 @@
 package com.vke.core.rendering.vulkan.buffers.premade.slice;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
+import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
+import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.PackingType;
+import com.vke.api.rendering.pbr.Material;
+import org.jetbrains.annotations.Nullable;
 import org.joml.*;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class BufferSlice {
+public class BufferSlice implements ByteEncoder {
     protected final long bufferAddress;
     protected final long offset;
     protected final int length;
@@ -33,7 +37,7 @@ public class BufferSlice {
         cursor += amount;
     }
 
-    public void putData(ByteBuffer buf) {
+    public void data(ByteBuffer buf) {
         if (cursor + buf.remaining() > length)
             throw new IndexOutOfBoundsException(
                     "BufferSlice overflow: " + cursor + " / " + length
@@ -42,7 +46,7 @@ public class BufferSlice {
         cursor += buf.remaining();
     }
 
-    public void putIntAt(int byteOffset, int val) {
+    public void int1At(int byteOffset, int val) {
         if (byteOffset + 4 > length)
             throw new IndexOutOfBoundsException(
                     "BufferSlice overflow: " + byteOffset + " / " + length
@@ -50,124 +54,103 @@ public class BufferSlice {
         MemoryUtil.memPutInt(writeAddress + byteOffset, val);
     }
 
-    public void putSampler(RenderSystem sys, Texture tex) {
-        putInt(sys.textureManager().texture(tex));
+    public void mat4(Matrix4f m) {
+        float1(m.m00());
+        float1(m.m01());
+        float1(m.m02());
+        float1(m.m03());
+
+        // Column 1
+        float1(m.m10());
+        float1(m.m11());
+        float1(m.m12());
+        float1(m.m13());
+
+        // Column 2
+        float1(m.m20());
+        float1(m.m21());
+        float1(m.m22());
+        float1(m.m23());
+
+        // Column 3
+        float1(m.m30());
+        float1(m.m31());
+        float1(m.m32());
+        float1(m.m33());
     }
 
-    public void putInt(int i) {
+    public void mat3(Matrix3f m) {
+        // column 0
+        float1(m.m00());
+        float1(m.m01());
+        float1(m.m02());
+        float1(0.0f);
+
+        // column 1
+        float1(m.m10());
+        float1(m.m11());
+        float1(m.m12());
+
+        float1(0.0f);
+
+
+        // column 2
+        float1(m.m20());
+        float1(m.m21());
+        float1(m.m22());
+
+        float1(0.0f);
+    }
+
+    public void mat2(Matrix2f m) {
+        // column 0
+        float1(m.m00());
+        float1(m.m01());
+        // column 1
+        float1(m.m10());
+        float1(m.m11());
+    }
+    
+    public void sampler2D(RenderSystem sys, @Nullable Texture texture) {
+        int1(sys.textureManager().texture(texture));
+    }
+    
+    public void material(RenderSystem sys, @Nullable Material material) {
+        int1(sys.materialManager().material(material));
+    }
+
+    @Override
+    public void float1(float x) {
         if (cursor + 4 > length)
             throw new IndexOutOfBoundsException(
                     "BufferSlice overflow: " + cursor + " / " + length
             );
-        MemoryUtil.memPutInt(writeAddress + cursor, i);
+        MemoryUtil.memPutFloat(writeAddress + cursor, x);
         cursor += 4;
     }
 
-    public void putFloat(float f) {
+    @Override
+    public void int1(int x) {
         if (cursor + 4 > length)
             throw new IndexOutOfBoundsException(
                     "BufferSlice overflow: " + cursor + " / " + length
             );
-        MemoryUtil.memPutFloat(writeAddress + cursor, f);
+        MemoryUtil.memPutInt(writeAddress + cursor, x);
         cursor += 4;
     }
 
-    public void putLong(long l) {
+    @Override
+    public void uint1(int x) {
+        int1(x);
+    }
+
+    @Override
+    public void double1(double x) {
         if (cursor + 8 > length) throw new IndexOutOfBoundsException(
                 "BufferSlice overflow: " + cursor + " / " + length
         );
-        MemoryUtil.memPutLong(writeAddress + cursor, l);
+        MemoryUtil.memPutDouble(writeAddress + cursor, x);
         cursor += 8;
-    }
-
-    public void putFloat2(float a, float b) {
-        putFloat(a);
-        putFloat(b);
-    }
-
-    public void putFloat3(float a, float b, float c) {
-        putFloat(a);
-        putFloat(b);
-        putFloat(c);
-        if (packing == PackingType.STD140) putFloat(0.0f);
-    }
-
-    public void putFloat4(float a, float b, float c, float d) {
-        putFloat(a);
-        putFloat(b);
-        putFloat(c);
-        putFloat(d);
-    }
-
-    public void putVec2(Vector2f v) {
-        putFloat2(v.x, v.y);
-    }
-
-    public void putVec3(Vector3f v) {
-        putFloat3(v.x, v.y, v.z);
-    }
-
-    public void putVec4(Vector4f v) {
-        putFloat4(v.x, v.y, v.z, v.w);
-    }
-
-    public void putMat4(Matrix4f m) {
-        putFloat(m.m00());
-        putFloat(m.m01());
-        putFloat(m.m02());
-        putFloat(m.m03());
-
-        // Column 1
-        putFloat(m.m10());
-        putFloat(m.m11());
-        putFloat(m.m12());
-        putFloat(m.m13());
-
-        // Column 2
-        putFloat(m.m20());
-        putFloat(m.m21());
-        putFloat(m.m22());
-        putFloat(m.m23());
-
-        // Column 3
-        putFloat(m.m30());
-        putFloat(m.m31());
-        putFloat(m.m32());
-        putFloat(m.m33());
-    }
-
-    public void putMat3(Matrix3f m) {
-        // column 0
-        putFloat(m.m00());
-        putFloat(m.m01());
-        putFloat(m.m02());
-
-        if (packing == PackingType.STD140) {
-            putFloat(0.0f);
-        }
-
-        // column 1
-        putFloat(m.m10());
-        putFloat(m.m11());
-        putFloat(m.m12());
-
-        if (packing == PackingType.STD140) {
-            putFloat(0.0f);
-        }
-
-        // column 2
-        putFloat(m.m20());
-        putFloat(m.m21());
-        putFloat(m.m22());
-    }
-
-    public void putMat2(Matrix2f m) {
-        // column 0
-        putFloat(m.m00());
-        putFloat(m.m01());
-        // column 1
-        putFloat(m.m10());
-        putFloat(m.m11());
     }
 
 }

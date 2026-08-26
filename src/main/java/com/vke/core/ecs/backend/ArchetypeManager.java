@@ -2,19 +2,12 @@ package com.vke.core.ecs.backend;
 
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.backend.query.QueryManager;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.rendering.vertexconsumer.InstantResetIntArrayList;
-import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
-import com.vke.utils.tuple.Ntel;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class ArchetypeManager {
     private final MaskMap map;
@@ -71,6 +64,12 @@ public class ArchetypeManager {
                 o.value.__1(i);
             }
         }
+    }
+
+    public int duplicateEntity(int entity) {
+        Archetype at = alloc.getArchetype(entity);
+        int index = alloc.getArchetypeIndex(entity);
+        return at.duplicateEntity(index, alloc, qm);
     }
 
     private void cleanupRefsForEntity(int entity) {
@@ -146,14 +145,17 @@ public class ArchetypeManager {
         }
     }
 
-    public ComponentReference<? extends Component> createCompRef(int entity, int componentId) {
-        ComponentReference<?> ref = new ComponentReference<>(this, entity);
+    public ComponentReference<? extends Component> obtainCompRef(int entity, int componentId) {
+        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        ComponentReference<?> ref;
+        if (refs != null && (ref = refs.get(componentId)) != null) return ref;
+
+        ref = new ComponentReference<>(this, entity);
         Archetype at = alloc.getArchetype(entity);
         int i = alloc.getArchetypeIndex(entity);
         ref.__0(at.getComponentById(componentId));
         ref.__1(i);
 
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
         if (refs == null) {
             refs = new IntObjectHashMap<>();
             references.put(entity, refs);

@@ -23,4 +23,8 @@ public class PointLightC implements Component {
         this.range[i] = range;
     }
 
+    @Override
+    public void initialize(int i) {
+        initialize(i, Color.WHITE, 10f);
+    }
 }

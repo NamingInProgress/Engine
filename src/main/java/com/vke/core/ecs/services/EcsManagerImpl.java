@@ -64,6 +64,11 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
     }
 
     @Override
+    public int duplicateEntity(int entity) {
+        return archetypeManager.duplicateEntity(entity);
+    }
+
+    @Override
     public int createCategory() {
         return nextCategory++;
     }
@@ -90,7 +95,12 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId) {
-        return (ComponentReference<T>) archetypeManager.createCompRef(entity, componentId);
+    public <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId) {
+        return (ComponentReference<T>) archetypeManager.obtainCompRef(entity, componentId);
+    }
+
+    @Override
+    public String getComponentName(int compId) {
+        return ComponentRegistry.getInstance(compId).getClass().getSimpleName();
     }
 }

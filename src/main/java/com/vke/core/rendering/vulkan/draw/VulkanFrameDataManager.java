@@ -1,11 +1,10 @@
 package com.vke.core.rendering.vulkan.draw;
 
-import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
 import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
-import com.vke.api.rendering.vulkan.descriptors2.handles.buf.MultiWriteFieldHandle;
+import com.vke.core.game.object.CameraGameObject;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import org.joml.Matrix4f;
 
@@ -17,7 +16,7 @@ public class VulkanFrameDataManager implements FrameDataManager {
     private final FieldHandle cameraHandle;
     private final FieldHandle time;
 
-    private Camera camera;
+    private CameraGameObject camera;
 
     private final long startTime = System.nanoTime();
 
@@ -32,7 +31,7 @@ public class VulkanFrameDataManager implements FrameDataManager {
     }
 
     @Override
-    public void setCamera(Camera camera) {
+    public void setCamera(CameraGameObject camera) {
         this.camera = camera;
     }
 
@@ -40,14 +39,15 @@ public class VulkanFrameDataManager implements FrameDataManager {
     public void onDraw() {
         if (camera != null) {
             cameraHandle.write((slice) -> {
-                slice.putMat4(camera.projectionMatrix());
-                slice.putMat4(camera.viewMatrix());
-                slice.putMat4(new Matrix4f(camera.projectionMatrix()).invert());
-                slice.putMat4(new Matrix4f(camera.viewMatrix()).invert());
-                slice.putFloat3(camera.lookAt().x, camera.lookAt().y, camera.lookAt().z);
-                slice.putFloat3(camera.position().x, camera.position().y, camera.position().z);
+                Matrix4f proj = camera.getProjectionMatrix(), view = camera.getViewMatrix();
+                slice.mat4(proj);
+                slice.mat4(view);
+                slice.mat4(new Matrix4f(proj).invert());
+                slice.mat4(new Matrix4f(view).invert());
+                slice.float3(camera.lookAt().x, camera.lookAt().y, camera.lookAt().z);
+                slice.float3(camera.getX(), camera.getY(), camera.getZ());
             });
         }
-        time.write((slice) -> slice.putFloat((System.nanoTime() - startTime) / 1_000_000_000f));
+        time.write((slice) -> slice.float1((System.nanoTime() - startTime) / 1_000_000_000f));
     }
 }

@@ -37,11 +37,15 @@ public class ComponentReference<T extends Component> {
         return entity;
     }
 
-    public void update(Updater<T> updater) {
+    public T getComponent() {
         if (component == null) {
-            throw new IllegalStateException("This entity has been destroyed or the component has been removed!");
+            throw new IllegalStateException("Entity has been destroyed or this component has been removed from owner");
         }
-        updater.update(component, i);
+        return component;
+    }
+
+    public int getIndex() {
+        return i;
     }
 
     public ComponentReference<T> createLinked() {
@@ -56,10 +60,5 @@ public class ComponentReference<T extends Component> {
 
     public void drop() {
         am.destroyComponentReference(this);
-    }
-
-    @FunctionalInterface
-    public interface Updater<T> {
-        void update(T component, int index);
     }
 }

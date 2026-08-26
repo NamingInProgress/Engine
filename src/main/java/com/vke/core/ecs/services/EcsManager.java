@@ -14,8 +14,10 @@ public interface EcsManager extends PinnedService {
     void destroyEntity(int entity);
     void destroyEntities(int[] entities);
     void transitionEntity(int entity, ComponentMask newMask, @Nullable EntityTransitionInitializer initializer);
+    int duplicateEntity(int entity);
     int createCategory();
     void registerQuery(int category, Query query);
     long runQueries(int category);
-    <T extends Component> ComponentReference<T> createComponentReference(int entity, int componentId);
+    <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId);
+    String getComponentName(int id);
 }

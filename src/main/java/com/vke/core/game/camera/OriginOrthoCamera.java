@@ -117,7 +117,7 @@ public class OriginOrthoCamera implements Camera {
 
     @Override
     public void use() {
-        this.renderSystem.frameDataManager().setCamera(this);
+        //this.renderSystem.frameDataManager().setCamera(this);
     }
 
     public void remakeViewMatrix() {

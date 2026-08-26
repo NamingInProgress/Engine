@@ -82,25 +82,25 @@ public class BaseLayer extends MaterialLayer {
 
     @Override
     public void putSelf(RenderSystem sys, BufferSlice encoder) throws IOException {
-        encoder.putSampler(sys, albedo.acquire(sys));
-        encoder.putSampler(sys, normal.acquire(sys));
-        encoder.putSampler(sys, metallicRoughness.acquire(sys));
-        encoder.putSampler(sys, occlusionTexture.acquire(sys));
-        encoder.putSampler(sys, emissive.acquire(sys));
-        encoder.putSampler(sys, specular.acquire(sys));
+        encoder.sampler2D(sys, albedo.acquire(sys));
+        encoder.sampler2D(sys, normal.acquire(sys));
+        encoder.sampler2D(sys, metallicRoughness.acquire(sys));
+        encoder.sampler2D(sys, occlusionTexture.acquire(sys));
+        encoder.sampler2D(sys, emissive.acquire(sys));
+        encoder.sampler2D(sys, specular.acquire(sys));
 
-        encoder.putFloat(normalScale);
+        encoder.float1(normalScale);
 
         baseAlbedo.putSelf(encoder);
 
-        encoder.putFloat(metallic);
-        encoder.putFloat(roughness);
-        encoder.putFloat(occlusionStrength);
+        encoder.float1(metallic);
+        encoder.float1(roughness);
+        encoder.float1(occlusionStrength);
 
-        encoder.putFloat(emissiveStrength);
+        encoder.float1(emissiveStrength);
         emissiveColor.putSelf(encoder);
 
-        encoder.putFloat(specularScale);
+        encoder.float1(specularScale);
     }
 
     @Override
