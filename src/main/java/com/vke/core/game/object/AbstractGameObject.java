@@ -10,7 +10,7 @@ import com.vke.utils.Utils;
 
 import java.util.HashSet;
 
-public abstract class AbstractGameObject implements GameObject {
+public abstract class AbstractGameObject extends TransformedGameObject {
     protected final Context ctx;
     protected final EcsManager ecs;
 
@@ -25,7 +25,10 @@ public abstract class AbstractGameObject implements GameObject {
         this.entityId = -1;
 
         this.activeRefs = new HashSet<>();
+        this.mask = createMask();
     }
+
+    protected abstract ComponentMask createMask();
 
     @Override
     public int entityId() {
@@ -42,6 +45,11 @@ public abstract class AbstractGameObject implements GameObject {
                 c.initialize(idx);
             }
         })[0];
+
+        //initialize the component
+        transformComponent();
+
+        onSpawned();
     }
 
     protected abstract void onSpawned();
@@ -77,7 +85,12 @@ public abstract class AbstractGameObject implements GameObject {
                 Component c = components[i];
                 c.copyFrom(references[i], left + entityIndex, indices[i]);
             }
-            array[entityIndex] = createFromSpawnedEntity(entityId);
+            GameObject obj = createFromSpawnedEntity(entityId);
+            if (obj instanceof TransformedGameObject t) {
+                //init transform as well
+                t.transformComponent();
+            }
+            array[entityIndex] = obj;
         });
         return array;
     }

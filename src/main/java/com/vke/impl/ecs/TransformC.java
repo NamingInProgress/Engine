@@ -7,8 +7,8 @@ import pl.epsi.EcsComponent;
 
 @EcsComponent
 public class TransformC implements Component {
-
     public float[] x, y, z;
+    public float[] ox, oy, oz;
     public float[] rx, ry, rz, rw;
     public float[] sx, sy, sz;
 

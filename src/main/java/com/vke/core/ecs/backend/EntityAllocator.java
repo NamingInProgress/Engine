@@ -43,9 +43,6 @@ public class EntityAllocator {
     }
 
     public Archetype getArchetype(int entity) {
-        if (entity == 255) {
-            System.out.println();
-        }
         return locationTableArchetypes[entity >>> LOCATION_TABLE_SHIFT][entity & LOCATION_TABLE_PAGE_MASK];
     }
 

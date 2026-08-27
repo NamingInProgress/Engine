@@ -6,7 +6,6 @@ import pl.epsi.EcsComponent;
 
 @EcsComponent
 public class CameraC implements Component {
-
     public float[] fov;
     public float[] nearPlane;
     public float[] farPlane;
@@ -14,10 +13,9 @@ public class CameraC implements Component {
     public int[] renderTexture;
     public float[] zoom;
 
-
     /*
 
-                                     _____  _____
+                                 _____  _____
                                 <     `/     |
                                  >          (
                                 |   _     _  |
@@ -28,8 +26,8 @@ public class CameraC implements Component {
                _/                                       \|     |
               |               COOL OPTIMIZATIOn              <
               |_____.-._________              ____/|___________|
-                                | * fi/ll/in |
-                                | + 19/10/97 |
+                                | * 26/08/26 |
+                                | + 26/08/26 |
                                 |            |
                                 |            |
                                 |   _        <
@@ -43,9 +41,6 @@ public class CameraC implements Component {
 
     */
 
-
-    //used fields by the projection matrix
-    public float[] p1, p2, p3, p4, p5, p6;
     public boolean[] isOrtho;
 
     @Override

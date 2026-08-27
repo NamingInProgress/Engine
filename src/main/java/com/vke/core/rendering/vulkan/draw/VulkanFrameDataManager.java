@@ -32,6 +32,9 @@ public class VulkanFrameDataManager implements FrameDataManager {
 
     @Override
     public void setCamera(CameraGameObject camera) {
+        if (!camera.isSpawned()) {
+            throw new IllegalStateException("This camera hasnt been spawned in yet!");
+        }
         this.camera = camera;
     }
 

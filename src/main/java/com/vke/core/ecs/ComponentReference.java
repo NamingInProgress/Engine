@@ -12,6 +12,7 @@ public class ComponentReference<T extends Component> {
     private int i;
 
     private @Nullable ComponentReference<T> next;
+    private @Nullable ComponentProxy<T> proxy;
 
     public ComponentReference(ArchetypeManager am, int entity) {
         this.entity = entity;
@@ -21,11 +22,17 @@ public class ComponentReference<T extends Component> {
     @SuppressWarnings("all")
     public void __0(Component component) {
         this.component = (T) component;
+        if (proxy != null) {
+            this.proxy.setComponentInternal((T) component);
+        }
         if (next != null) next.__0(component);
     }
 
     public void __1(int i) {
         this.i = i;
+        if (proxy != null) {
+            this.proxy.setIndexInternal(i);
+        }
         if (next != null) next.__1(i);
     }
 
@@ -56,6 +63,14 @@ public class ComponentReference<T extends Component> {
         }
         parent.next = n;
         return n;
+    }
+
+    public void linkProxy(ComponentProxy<T> proxy) {
+        this.proxy = proxy;
+        if (proxy != null) {
+            proxy.setComponentInternal(component);
+            proxy.setIndexInternal(i);
+        }
     }
 
     public void drop() {

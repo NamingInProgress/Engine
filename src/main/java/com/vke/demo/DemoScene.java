@@ -141,6 +141,7 @@ public class DemoScene extends Scene {
     private void setupInputAndCamera() {
         CameraGameObject cam = new CameraGameObject(context);
         cam.spawn();
+
         getRenderSystem().frameDataManager().setCamera(cam);
 
         camera = new PerspectiveCamera(context, 90);

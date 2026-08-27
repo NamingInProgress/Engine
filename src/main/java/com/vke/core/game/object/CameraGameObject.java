@@ -5,9 +5,11 @@ import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
+import com.vke.api.window.Window;
 import com.vke.api.window.WindowResizeEvent;
 import com.vke.core.Context;
 import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.rendering.SmartMatrixUtils;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
@@ -16,7 +18,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class CameraGameObject extends AbstractGameObject implements RestrictedGameObject, TransformedGameObject, EventListener {
+public class CameraGameObject extends AbstractGameObject implements RestrictedGameObject, EventListener {
 
     private static final int[] CONST_IDS = new int[] { TransformC.ID, CameraC.ID };
 
@@ -31,10 +33,16 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     }
 
     @Override
+    protected ComponentMask createMask() {
+        return new ComponentMask(TransformC.ID, CameraC.ID);
+    }
+
+    @Override
     protected void onSpawned() {
         this.cameraComponentRef = ecs.obtainComponentReference(entityId, CameraC.ID);
-        var size = ctx.getEngine().getWindow().getSize();
-        onWindowResize(new WindowResizeEvent(ctx.getEngine().getWindow(), size.width(), size.height()));
+        Window window = ctx.getEngine().getWindow();
+        Window.Size size = window.getSize();
+        onWindowResize(new WindowResizeEvent(window, size.width(), size.height()));
     }
 
     @SubscribeEvent
@@ -59,6 +67,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     protected GameObject createFromSpawnedEntity(int entity) {
         CameraGameObject n = new CameraGameObject(ctx);
         n.entityId = entity;
+        n.projMatrix = new Matrix4f(projMatrix);
         return n;
     }
 
