@@ -36,7 +36,7 @@ public interface RenderDevice extends Disposable {
     /** COMMAND BUFFERS **/
     CommandBuffer createCommandBuffer();
 
-    <T extends CommandBuffer> void submit(T cmd, CommandBuffer.SubmitInfo info);
+    void submit(CommandBuffer cmd, CommandBuffer.SubmitInfo info);
     void waitIdle();
 
     /** SWAPCHAIN **/

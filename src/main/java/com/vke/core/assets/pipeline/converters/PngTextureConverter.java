@@ -17,6 +17,7 @@ import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.file.png.PngFile;
 import com.vke.core.file.png.PngInfo;
+import com.vke.core.services2.Services;
 
 @Converter
 public class PngTextureConverter implements AssetConverter {
@@ -34,13 +35,12 @@ public class PngTextureConverter implements AssetConverter {
     public AssetData performConversion(Context context, StageElement input, ConfigArrayNode arguments) throws AssetException {
         PngFile png = input.getAssetData().getDataAs();
         PngInfo info = png.getPngInfo();
-        EngineCreateInfo.RendererType rt = context.getEngine().rendererType();
-        Renderer renderer = context.service(rt.serviceName);
+        Renderer renderer = context.service(Services.RENDERER);
         RenderDevice device = renderer.getDevice();
         Texture.TextureDesc desc = Texture.TextureDesc.builder()
                 .width(info.width)
                 .height(info.height)
-                .format(Format.RGBA8_SRGB)
+                .format(Format.RGBA8)
                 .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
                 .type(TextureType.TEX_2D)
                 .build();

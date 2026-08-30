@@ -50,7 +50,7 @@ public class Color extends Vector4f {
 
     public static Color parse(String str) {
         if (str == null) return Color.BLACK;
-        return Color.WHITE; // TODO: v22 will replace :thumbsup:
+        return new Color(1.0f, 1.0f, 0.0f, 1.0f); // TODO: v22 will replace :thumbsup:
     }
 
 }

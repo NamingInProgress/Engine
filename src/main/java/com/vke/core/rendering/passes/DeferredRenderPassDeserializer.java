@@ -28,11 +28,31 @@ public class DeferredRenderPassDeserializer extends RenderPassDeserializer {
                 1
         ));
 
+//        list.add(new RenderPassDefinition.OutputTextureDefinition(
+//                "gbuf_albedo_spec",
+//                null,
+//                RenderPassDefinition.TextureType.COLOR,
+//                Format.RGBA8_SRGB,
+//                0,
+//                0,
+//                1
+//        ));
+
         list.add(new RenderPassDefinition.OutputTextureDefinition(
-                "gbuf_albedo_spec",
+                "gbuf_material_idx",
                 null,
                 RenderPassDefinition.TextureType.COLOR,
-                Format.RGBA8_SRGB,
+                Format.R32I,
+                0,
+                0,
+                1
+        ));
+
+        list.add(new RenderPassDefinition.OutputTextureDefinition(
+                "gbuf_mesh_uvs",
+                null,
+                RenderPassDefinition.TextureType.COLOR,
+                Format.RG16F,
                 0,
                 0,
                 1

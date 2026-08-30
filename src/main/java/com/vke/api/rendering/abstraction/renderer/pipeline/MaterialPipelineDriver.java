@@ -17,8 +17,7 @@ public abstract class MaterialPipelineDriver extends PipelineDriver {
     }
 
     @Override
-    public void bindDescriptorSets() {
+    public void use() {
         materialManager.upload(u_MaterialBuffer);
-        super.bindDescriptorSets();
     }
 }

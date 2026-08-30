@@ -1,3 +1,5 @@
+const int NO_MATERIAL = -1;
+
 struct Material {
     uint flags;
     int baseColorId;
@@ -38,17 +40,22 @@ layout (set = 2, binding = 0) readonly buffer Materials {
     Material materials[];
 } u_MaterialBuffer;
 
-MaterialInputs evaluateMaterial(Material material, vec2 uv) {
+MaterialInputs evaluateMaterial(Material material, vec2 uv, vec3 normal, vec4 tangent) {
     MaterialInputs m;
 
     vec4 baseTex = sampleTexture(material.baseColorId, uv);
     m.baseColor = baseTex * material.baseAlbedo;
 
-    vec3 n = sampleTexture(material.normalId, uv).xyz;
-    n = n * 2.0 - 1.0;
+    vec3 N = normalize(normal);
+    vec3 T = normalize(tangent.xyz - N * dot(N, tangent.xyz));
+    vec3 B = cross(N, T) * tangent.w;
+    mat3 TBN = mat3(T, B, N);
 
-    n.xy *= material.normalScale; // TODO: TBN
-    m.normal = normalize(n);
+    vec3 tangentNormal = sampleTexture(material.normalId, fUV).xyz * 2.0 - 1.0;
+    m.normal = normalize(TBN * tangentNormal);
+
+    m.normal.xy *= material.normalScale;
+    m.normal = normalize(m.normal);
 
     vec4 mr = sampleTexture(material.metallicRoughnessId, uv);
 
@@ -69,8 +76,8 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv) {
     return m;
 }
 
-MaterialInputs evaluateMaterial(int idx, vec2 uv) {
-    if (idx == -1) {
+MaterialInputs evaluateMaterial(int idx, vec2 uv, vec3 normal, vec4 tangent) {
+    if (idx == NO_MATERIAL) {
         MaterialInputs m;
         m.baseColor = vec4(1.0);
         m.normal = vec3(0, 0, 1);
@@ -81,5 +88,9 @@ MaterialInputs evaluateMaterial(int idx, vec2 uv) {
         m.specular = 0.5;
         return m;
     }
-    return evaluateMaterial(u_MaterialBuffer.materials[nonuniformEXT(idx)], uv);
+    return evaluateMaterial(u_MaterialBuffer.materials[idx], uv, normal, tangent);
+}
+
+Material getMaterial(int idx) {
+    return u_MaterialBuffer.materials[idx];
 }

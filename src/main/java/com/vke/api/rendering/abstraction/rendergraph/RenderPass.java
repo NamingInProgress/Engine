@@ -24,18 +24,23 @@ public abstract class RenderPass {
     public void onLoad() {}
 
     public void beginRendering(CommandBuffer cmd, List<String> color, Color clear) {
-        this.beginRendering(cmd, color, null, null, clear, null, null);
+        this.beginRendering(cmd, color, null, null, List.of(clear), null, null);
     }
 
     public void beginRendering(CommandBuffer cmd, List<String> color, String depth, Color clear, Color depthClear) {
+        this.beginRendering(cmd, color, depth, null, List.of(clear), depthClear, null);
+    }
+
+    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, List<Color> clear, Color depthClear) {
         this.beginRendering(cmd, color, depth, null, clear, depthClear, null);
     }
 
-    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, String stencil, Color clear, Color depthClear, Color stencilClear) {
+    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, String stencil, List<Color> clear, Color depthClear, Color stencilClear) {
         List<CommandBuffer.AttachmentInfo> colorInfos = new ArrayList<>();
         CommandBuffer.AttachmentInfo da = null, sa = null;
-        for (String s : color) {
-            colorInfos.add(new CommandBuffer.AttachmentInfo(instance.getOutputTexture(s), getLoadOp(s), StoreOp.STORE, clear.toFloat()));
+        for (int i = 0; i < color.size(); i++) {
+            String s = color.get(i);
+            colorInfos.add(new CommandBuffer.AttachmentInfo(instance.getOutputTexture(s), getLoadOp(s), StoreOp.STORE, clear.get(i).toFloat()));
         }
 
         if (depth != null) {

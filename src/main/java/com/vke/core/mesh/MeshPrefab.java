@@ -30,7 +30,7 @@ public class MeshPrefab {
         Serializer.registerSerializerFor(MeshPrefab.class, new MeshPrefab.S());
     }
 
-    public record PrefabVertex(float[] position, float[] normal, float[] uv) {
+    public record PrefabVertex(float[] position, float[] normal, float[] uv, float[] tangent) {
         public static class S implements Serializer<PrefabVertex> {
             @Override
             public Class<?> getObjectClass() {
@@ -49,6 +49,11 @@ public class MeshPrefab {
 
                 saver.saveFloat(value.uv[0]);
                 saver.saveFloat(value.uv[1]);
+
+                saver.saveFloat(value.tangent[0]);
+                saver.saveFloat(value.tangent[1]);
+                saver.saveFloat(value.tangent[2]);
+                saver.saveFloat(value.tangent[3]);
             }
 
             @Override
@@ -67,7 +72,13 @@ public class MeshPrefab {
                 uv[0] = loader.loadFloat();
                 uv[1] = loader.loadFloat();
 
-                return new PrefabVertex(position, normal, uv);
+                float[] tangent = new float[4];
+                tangent[0] = loader.loadFloat();
+                tangent[1] = loader.loadFloat();
+                tangent[2] = loader.loadFloat();
+                tangent[3] = loader.loadFloat();
+
+                return new PrefabVertex(position, normal, uv, tangent);
             }
         }
     }

@@ -31,11 +31,12 @@ public class DeferredRenderPass extends RenderPass {
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
         Texture gbuf_normal = instance.getOutputTexture("gbuf_normal");
-        Texture gbuf_albedo_spec = instance.getOutputTexture("gbuf_albedo_spec");
+        Texture gbuf_material_idx = instance.getOutputTexture("gbuf_material_idx");
+        Texture gbuf_mesh_uvs = instance.getOutputTexture("gbuf_mesh_uvs");
 
         Texture depthOut = instance.getOutputTexture("depthOut");
 
-        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_albedo_spec"), "depthOut", Color.VKE, Color.WHITE);
+        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_material_idx", "gbuf_mesh_uvs"), "depthOut", List.of(Color.BLACK, new Color(-1, -1, -1, -1), Color.BLACK), Color.WHITE);
 
         int inst = context.get("inst");
         RenderPipelines.DEFERRED.setLocal(context.get("mats"));
@@ -47,10 +48,11 @@ public class DeferredRenderPass extends RenderPass {
         this.beginRendering(cmd, List.of("colorOut"), Color.BLACK);
 
         gbuf_normal.useInShader();
-        gbuf_albedo_spec.useInShader();
+        gbuf_material_idx.useInShader();
+        gbuf_mesh_uvs.useInShader();
         depthOut.useInShader();
 
-        RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_albedo_spec, depthOut);
+        RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_material_idx, gbuf_mesh_uvs, depthOut);
         RenderPipelines.DEFERRED_LIGHT_PASS.use();
 
         DrawUtils.fullscreenQuad(vc);

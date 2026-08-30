@@ -69,7 +69,7 @@ public class DemoScene extends Scene {
             {-45, 45, 45},
             {-45, 45, -45},
             {45, 45, -45},
-            //{0, 20, 0}
+            {0, 20, 0}
     };
 
     private int id;
@@ -118,7 +118,7 @@ public class DemoScene extends Scene {
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("bear.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("bear_smooth.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
 
             RenderResourceManager resManager = getRenderer().resourceManager();
@@ -127,7 +127,8 @@ public class DemoScene extends Scene {
                             prefabVertex.position()[0], prefabVertex.position()[1], prefabVertex.position()[2],
                             prefabVertex.normal()[0], prefabVertex.normal()[1], prefabVertex.normal()[2],
                             prefabVertex.uv()[0], prefabVertex.uv()[1],
-                            mat
+                            mat,
+                            prefabVertex.tangent()[0], prefabVertex.tangent()[1], prefabVertex.tangent()[2], prefabVertex.tangent()[3]
                     ))
             );
         } catch (IOException e) {
@@ -166,7 +167,7 @@ public class DemoScene extends Scene {
                             z * SPACING - offsetZ
                     );
 
-                    instance.matrix.identity().translate(instance.position);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
+                    instance.matrix.identity().translate(instance.position);//.scale(3, 3, 3);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
                     instances.add(instance);
                 }
             }

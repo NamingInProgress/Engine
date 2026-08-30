@@ -61,13 +61,11 @@ public class LightManagerImpl implements LightManager {
                 float inte = sl.intensity[i];
                 float ica = sl.innerConeCos[i], oca = sl.outerConeCos[i];
 
-                //y += (float) (20 * Math.sin(System.nanoTime() / 1_000_000_000.0));
                 DebugContext.boundingBox(new Vector3f(x - 1, y - 1, z - 1), new Vector3f(x + 1, y + 1, z + 1),
                         Color.RED);
 
-                float finalY = y;
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, finalY, z, range);
+                    writer.putFloat4(x, y, z, range);
                     writer.putFloat4(r, g, b, inte);
                     writer.putFloat4(rot.x, rot.y, rot.z, 1);
 
@@ -96,13 +94,8 @@ public class LightManagerImpl implements LightManager {
                 float range = pl.range[i];
                 float inte = pl.intensity[i];
 
-                if (x == 0) {
-                    y += (float) (20 * Math.max(Math.sin(System.nanoTime() / 1_000_000_000.0), 0.0));
-                }
-
-                float finalY = y;
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, finalY, z, range);
+                    writer.putFloat4(x, y, z, range);
                     writer.putFloat4(r, g, b, inte);
                     putLightFlag(writer, 0);
                 });

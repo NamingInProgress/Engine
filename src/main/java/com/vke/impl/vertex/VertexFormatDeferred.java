@@ -16,8 +16,10 @@ public class VertexFormatDeferred implements Vertex {
     private final float u, v;
     @Type.Material
     private final Material material;
+    @Type.Float4
+    private final float tx, ty, tz, tw;
 
-    public VertexFormatDeferred(float x, float y, float z, float nx, float ny, float nz, float u, float v, Material material) {
+    public VertexFormatDeferred(float x, float y, float z, float nx, float ny, float nz, float u, float v, Material material, float tx, float ty, float tz, float tw) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -27,5 +29,9 @@ public class VertexFormatDeferred implements Vertex {
         this.u = u;
         this.v = v;
         this.material = material;
+        this.tx = tx;
+        this.ty = ty;
+        this.tz = tz;
+        this.tw = tw;
     }
 }
