@@ -2,6 +2,8 @@ package com.vke.core.services2;
 
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.color.service.ColorManagerAPI;
+import com.vke.core.color.service.ColorManagerImpl;
 import com.vke.core.language.service.LanguageManagerAPI;
 import com.vke.core.language.service.LanguageManagerBaseImpl;
 import com.vke.core.assets.service.AssetManagerAPI;
@@ -58,6 +60,7 @@ public class Services {
     public static final String GRAPH_MANAGER = "grp";
     public static final String POST_PROCESS = "ppe";
     public static final String ECS = "ecs";
+    public static final String COLOR = "col";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -79,6 +82,7 @@ public class Services {
         manager.registerNewService(GRAPH_MANAGER, new GraphManagerAPI(new GraphManagerBaseImpl(engine)));
         manager.registerNewService(POST_PROCESS, new PostProcessManagerAPI(new PostProcessManagerBaseImpl(engine)));
         manager.registerNewService(ECS, new EcsManagerAPI(new EcsManagerImpl(engine)));
+        manager.registerNewService(COLOR, new ColorManagerAPI(new ColorManagerImpl(engine)));
     }
 
 }

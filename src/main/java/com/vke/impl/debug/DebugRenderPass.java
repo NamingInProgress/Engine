@@ -5,7 +5,7 @@ import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
@@ -32,7 +32,7 @@ public class DebugRenderPass extends RenderPass {
 
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
-        this.beginRendering(cmd, List.of("colorOut"), "depthOut", Color.VKE, Color.WHITE);
+        this.beginRendering(cmd, List.of("colorOut"), "depthOut", OldColor.VKE, OldColor.WHITE);
 
         driver.use();
         VK14.vkCmdSetPrimitiveTopology(((VulkanCmdBuffers) cmd).getBuffer(), VK14.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);

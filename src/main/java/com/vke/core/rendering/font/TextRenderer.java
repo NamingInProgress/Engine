@@ -11,7 +11,7 @@ import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.core.font.ttf.Glyph;
 import com.vke.core.font.ttf.GlyphPoint;
 import com.vke.core.rendering.transform.MatrixStack;
@@ -146,7 +146,7 @@ public class TextRenderer implements Drawable {
         return matrixStack;
     }
 
-    public void color(Color color) {
+    public void color(OldColor color) {
         this.r = color.r();
         this.g = color.g();
         this.b = color.b();

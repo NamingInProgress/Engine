@@ -9,7 +9,7 @@ import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.PerspectiveCamera;
@@ -87,7 +87,7 @@ public class DemoScene extends Scene {
             int i = left + entityIndex;
             PointLightC pl = at.getComponentById(PointLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
-            pl.initialize(i, new Color(0, 1, 1, 1), 10);
+            pl.initialize(i, new OldColor(0, 1, 1, 1), 10);
             tf.initialize(i);
             tf.x[i] = positions[entityIndex][0];
             tf.y[i] = positions[entityIndex][1];
@@ -173,7 +173,7 @@ public class DemoScene extends Scene {
         for (int i = 0; i < positions.length; i++) {
             float[] poss = positions[i];
             DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
-                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), Color.RED);
+                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), OldColor.RED);
         }
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);

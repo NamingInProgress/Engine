@@ -5,7 +5,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.pipeline.RenderPipelines;
@@ -35,7 +35,7 @@ public class DeferredRenderPass extends RenderPass {
 
         Texture depthOut = instance.getOutputTexture("depthOut");
 
-        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_albedo_spec"), "depthOut", Color.VKE, Color.WHITE);
+        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_albedo_spec"), "depthOut", OldColor.VKE, OldColor.WHITE);
 
         int inst = context.get("inst");
         RenderPipelines.DEFERRED.setLocal(context.get("mats"));
@@ -44,7 +44,7 @@ public class DeferredRenderPass extends RenderPass {
 
         cmd.endRendering();
 
-        this.beginRendering(cmd, List.of("colorOut"), Color.BLACK);
+        this.beginRendering(cmd, List.of("colorOut"), OldColor.BLACK);
 
         gbuf_normal.useInShader();
         gbuf_albedo_spec.useInShader();

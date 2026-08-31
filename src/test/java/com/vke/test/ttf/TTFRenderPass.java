@@ -2,7 +2,6 @@ package com.vke.test.ttf;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
@@ -12,16 +11,13 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.color.Color;
-import com.vke.core.draw.ShapeRenderer;
-import com.vke.core.draw.ShapeRendererVertex;
+import com.vke.core.color.OldColor;
 import com.vke.core.rendering.font.TextRenderer;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
-import java.util.List;
 
 public class TTFRenderPass extends RenderPass {
 
@@ -64,6 +60,6 @@ public class TTFRenderPass extends RenderPass {
 
         TextRenderer tx = context.get("tx");
 
-        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, Color.VKE.toFloat()), stencil, depth);
+        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, OldColor.VKE.toFloat()), stencil, depth);
     }
 }
