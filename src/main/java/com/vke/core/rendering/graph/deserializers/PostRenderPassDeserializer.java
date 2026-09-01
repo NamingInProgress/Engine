@@ -1,9 +1,9 @@
 package com.vke.core.rendering.graph.deserializers;
 
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.def.RenderPassDefinition;
 import com.vke.core.rendering.graph.def.PostRenderPassDefinition;
-import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
 

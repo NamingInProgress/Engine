@@ -64,13 +64,13 @@ public class VulkanShader implements Shader {
         @Override
         public Stages or(ShaderType... flags) {
             for (ShaderType type : flags) {
-                mask |= type.getVkHandle();
+                mask |= type.getIntVal();
             }
             return this;
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return this.mask;
         }
 

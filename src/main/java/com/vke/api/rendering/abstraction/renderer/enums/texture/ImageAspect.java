@@ -23,13 +23,13 @@ public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
     @Override
     public ImageAspect or(Bits... bits) {
         for (Bits bit : bits) {
-            mask |= bit.getVkHandle();
+            mask |= bit.getIntVal();
         }
         return this;
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return this.mask;
     }
 
@@ -62,7 +62,7 @@ public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
     }

@@ -4,6 +4,7 @@ import org.joml.Math;
 import org.joml.Vector2f;
 
 public class GeomUtils {
+    public static final float PI2F = Math.PI_TIMES_2_f;
 
     public static Vector2f lerp(Vector2f start, Vector2f end, float t) {
         return new Vector2f(Math.lerp(start.x, end.x, t), Math.lerp(start.y, end.y, t));

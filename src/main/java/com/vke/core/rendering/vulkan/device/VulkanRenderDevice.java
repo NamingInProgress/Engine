@@ -15,6 +15,7 @@ import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.logger.LogLevel;
 import com.vke.api.logger.Logger;
 import com.vke.core.EngineCreateInfo;
+import com.vke.core.FileIdentifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
@@ -49,7 +50,6 @@ import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
 import org.lwjgl.vulkan.*;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -248,7 +248,7 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public VulkanShader createShader(Identifier identifier, ShaderType shaderType) throws IOException {
+    public VulkanShader createShader(FileIdentifier identifier, ShaderType shaderType) throws IOException {
         Pair<String, ShaderPreprocessor.ShaderMetadata> processed = ShaderPreprocessor.getInstance(getRenderer()).process(identifier);
         byte[] bytes = processed.v1.getBytes(StandardCharsets.UTF_8);
 
@@ -266,7 +266,7 @@ public class VulkanRenderDevice implements RenderDevice {
         try (InputStream spirvStream = new ByteBufferBackedInputStream(spirv)) {
             // Only caches the IR and caches the reflected shader so the performance cost is negligible.
             ShaderReflector2 reflector2 = engine.service(Services.SHADER_REFLECTION2);
-            reflector2.reflect(SHADER_ID.getAndIncrement(), identifier, spirvStream, shaderType, processed.v2);
+            reflector2.reflect(SHADER_ID.getAndIncrement(), identifier.dropPrefix(), spirvStream, shaderType, processed.v2);
         }
 
         return shader;

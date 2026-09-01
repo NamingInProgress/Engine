@@ -10,7 +10,6 @@ import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
-import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
@@ -100,7 +99,7 @@ public class VulkanSwapchain implements Swapchain {
                 .imageExtent(extent2D)
                 .imageArrayLayers(1)
                 .imageUsage(new ImageUsage(ImageUsage.Bits.COLOR_ATTACHMENT_BIT, ImageUsage.Bits.TRANSFER_DST_BIT, ImageUsage.Bits.SAMPLED_BIT)
-                        .getVkHandle())
+                        .getIntVal())
                 .preTransform(capabilities.currentTransform())
                 .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
                 .presentMode(presentMode)

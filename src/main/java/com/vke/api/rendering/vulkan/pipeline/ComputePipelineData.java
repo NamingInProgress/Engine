@@ -7,8 +7,8 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.rendering.abstraction.renderer.shader.ShaderProgram;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorsInfo;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.vulkan.shader.VKShaderProgram;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 
 public class ComputePipelineData {

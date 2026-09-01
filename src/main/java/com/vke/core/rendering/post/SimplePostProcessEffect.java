@@ -7,12 +7,12 @@ import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.CISResource;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.impl.vertex.FullscreenQuadVertex;
 import com.vke.utils.DrawUtils;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 

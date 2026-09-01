@@ -3,12 +3,12 @@ package com.vke.core.rendering.pbr.deserialize;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.rendering.pbr.BaseLayer;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 
 public class BaseMaterialLayerDeserializer extends MaterialLayerDeserializer<BaseLayer> {
 
     private BaseLayer getBaseLayer(ConfigNode node) {
-        Color color = Color.parse(node.getString("base-albedo"));
+        OldColor color = OldColor.parse(node.getString("base-albedo"));
         var albedo = node.getStringOption("albedo").map(R.textures::get).unwrapOr(BaseLayer.ALBEDO);
         var normal = node.getStringOption("normal").map(R.textures::get).unwrapOr(BaseLayer.NORMAL);
         var mr = node.getStringOption("metallic-roughness").map(R.textures::get).unwrapOr(BaseLayer.METALLIC_ROUGHNESS);
@@ -20,7 +20,7 @@ public class BaseMaterialLayerDeserializer extends MaterialLayerDeserializer<Bas
         float metallic = node.getNumberOption("metallic-scale").unwrapOrIdentity();
         float roughness = node.getNumberOption("roughness-scale").unwrapOrIdentity();
         float occlusion = node.getNumberOption("occlusion-scale").unwrapOrIdentity();
-        Color emissiveColor = Color.parse(node.getString("emissive-color"));
+        OldColor emissiveColor = OldColor.parse(node.getString("emissive-color"));
         float emissiveScale = node.getNumberOption("emissive-scale").unwrapOrIdentity();
         float specularScale = node.getNumberOption("specular-scale").unwrapOrIdentity();
 

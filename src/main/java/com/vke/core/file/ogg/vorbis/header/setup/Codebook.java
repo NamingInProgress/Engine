@@ -3,6 +3,7 @@ package com.vke.core.file.ogg.vorbis.header.setup;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.vke.core.file.deflate.decompress.huffman.Code;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
+import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.input.BitInputStream;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class Codebook {
 
     public HMSymbolDecoder getSymbolDecoder() {
         if (decoder == null) {
-            decoder = new HMSymbolDecoder(codewords);
+            decoder = new HMSymbolDecoder(codewords, BitOrdering.LSB_FIRST);
         }
 
         return decoder;

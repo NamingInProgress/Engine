@@ -1,13 +1,12 @@
 package com.vke.api.parsing.config;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
-import com.vke.utils.io.Identifier;
+import com.vke.core.FileIdentifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
@@ -43,13 +42,13 @@ public interface ConfigDocument {
         return (ConfigArrayNode) resolve(path);
     }
 
-    static ConfigDocument parseIdentifier(Identifier identifier) throws IOException {
-        String filename = identifier.strip().getPath();
+    static ConfigDocument parseIdentifier(FileIdentifier identifier) throws IOException {
+        String filename = identifier.dropPrefix().strip().getPath();
         ConfigParser parser = ConfigParser.forFileType(filename);
         if (parser == null) {
             throw new IOException("No suitable parser found for " + filename);
         }
-        char[] source = Utils.readCharsFromInputStream(identifier.asInputStream());
+        char[] source = Utils.readCharsFromInputStream(identifier.openInputStream());
         parser.setSource(source);
         try {
             return parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);

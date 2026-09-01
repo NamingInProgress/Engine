@@ -6,17 +6,14 @@ import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
 import com.vke.core.font.ttf.TTFFont;
 import com.vke.core.game.camera.OriginOrthoCamera;
 import com.vke.core.game.camera.controllers.CameraController2DMB;
-import com.vke.core.input.mouse.ScrollDirection;
-import com.vke.core.input.service.InputManager;
 import com.vke.core.rendering.font.TextRenderer;
 import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.io.FileInputStream;
 import java.io.IOException;

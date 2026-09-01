@@ -2,7 +2,7 @@ package com.vke.utils;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.impl.vertex.FullscreenQuadVertex;
 import org.joml.Vector3f;
 
@@ -17,13 +17,13 @@ public class DrawUtils {
         vc.indices(0, 1, 2, 0, 2, 3);
     }
 
-    public static <T extends Vertex> void tri(VertexConsumer<T> vc, DrawUtilsVF<T> f, Vector3f a, Vector3f b, Vector3f c, Color col) {
+    public static <T extends Vertex> void tri(VertexConsumer<T> vc, DrawUtilsVF<T> f, Vector3f a, Vector3f b, Vector3f c, OldColor col) {
         vc.begin();
         vc.vertices(f.apply(a, col), f.apply(b, col), f.apply(c, col));
         vc.indices(0, 1, 2);
     }
 
-    public static <T extends Vertex> void quad(VertexConsumer<T> vc, DrawUtilsVF<T> f, Vector3f a, Vector3f b, Color col) {
+    public static <T extends Vertex> void quad(VertexConsumer<T> vc, DrawUtilsVF<T> f, Vector3f a, Vector3f b, OldColor col) {
         Vector3f c = new Vector3f(a.x, b.y, a.z);
         Vector3f d = new Vector3f(b.x, a.y, b.z);
         tri(vc, f, a, b, c, col);
@@ -32,7 +32,7 @@ public class DrawUtils {
 
     @FunctionalInterface
     public interface DrawUtilsVF<T extends Vertex> {
-        T apply(Vector3f v, Color c);
+        T apply(Vector3f v, OldColor c);
     }
 
 }

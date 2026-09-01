@@ -1,7 +1,7 @@
 package com.vke.impl.debug;
 
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
-import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.impl.vertex.DebugVertex;
 import com.vke.utils.DrawUtils;
 import org.joml.Vector3f;
@@ -15,11 +15,11 @@ public class DebugContext {
     static final ArrayList<DebugCommand> tri_commands = new ArrayList<>();
     static final ArrayList<DebugCommand> line_commands = new ArrayList<>();
 
-    public static void arrow(Vector3f position, Vector3f direction, Color color) {
+    public static void arrow(Vector3f position, Vector3f direction, OldColor color) {
         tri_commands.add(new ArrowCommand(position, direction, color));
     }
 
-    public static void boundingBox(Vector3f a, Vector3f b, Color color) {
+    public static void boundingBox(Vector3f a, Vector3f b, OldColor color) {
         line_commands.add(new BoundingBoxCommand(a, b, color));
     }
 
@@ -34,11 +34,11 @@ public class DebugContext {
 
     public static class ArrowCommand extends DebugCommand {
         public final Vector3f pos, dir;
-        public final Color color;
+        public final OldColor color;
 
         private VertexConsumer<DebugVertex> vc;
 
-        public ArrowCommand(Vector3f pos, Vector3f dir, Color color) {
+        public ArrowCommand(Vector3f pos, Vector3f dir, OldColor color) {
             this.pos = pos;
             this.dir = dir;
             this.color = color;
@@ -120,9 +120,9 @@ public class DebugContext {
 
     public static class BoundingBoxCommand extends DebugCommand {
         private final Vector3f a, b;
-        private final Color color;
+        private final OldColor color;
 
-        public BoundingBoxCommand(Vector3f a, Vector3f b, Color color) {
+        public BoundingBoxCommand(Vector3f a, Vector3f b, OldColor color) {
             this.a = a;
             this.b = b;
             this.color = color;

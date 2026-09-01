@@ -15,7 +15,7 @@ public enum ImageTiling implements IntEnum {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return 0;
     }
 }

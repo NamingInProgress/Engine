@@ -7,7 +7,6 @@ import com.vke.api.services2.Service;
 import com.vke.api.services2.ServiceAPI;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.Infallible;
-import com.vke.utils.io.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Context implements Namespace {
@@ -36,6 +35,12 @@ public abstract class Context implements Namespace {
     @Override
     public Identifier id(String value) {
         return namespace.id(value);
+    }
+
+    @Override
+    public FileIdentifier fid(String value) {
+        Identifier id = namespace.id(value);
+        return new FileIdentifier(false, id, "./assets");
     }
 
     public abstract VKEngine getEngine();

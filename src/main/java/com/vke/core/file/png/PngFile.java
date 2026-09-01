@@ -46,7 +46,6 @@ public class PngFile {
         loop:
         while (true) {
             PngChunk chunk = PngChunk.readNextChunk(inputStream);
-            //System.out.println(chunk.getChunkTypeString());
             switch (chunk) {
                 case IEND _:
                     break loop;

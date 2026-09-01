@@ -5,8 +5,9 @@ import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.scene.SceneException;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.utils.io.FileUtils;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class SceneVCL {
     public final Identifier renderGraph;
     public final ConfigNode config;
 
-    public SceneVCL(Identifier file, Context context) throws SceneException {
+    public SceneVCL(FileIdentifier file, Context context) throws SceneException {
         try {
             String filename = FileUtils.getFileNickname(file.toPath());
             this.name = new Identifier(file.getNamespace(), filename);

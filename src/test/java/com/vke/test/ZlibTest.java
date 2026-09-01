@@ -1,9 +1,9 @@
 package com.vke.test;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.core.FileIdentifier;
 import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
-import com.vke.utils.io.Identifier;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,7 @@ import java.util.zip.DeflaterInputStream;
 
 public class ZlibTest {
     public static void main(String[] args) throws IOException {
-        InputStream is = new Identifier("test.txt").asInputStream();
+        InputStream is = FileIdentifier.of("test.txt").openInputStream();
         String data = new String(is.readAllBytes(), StandardCharsets.UTF_8);
         byte[] raw = data.getBytes(StandardCharsets.UTF_8);
 

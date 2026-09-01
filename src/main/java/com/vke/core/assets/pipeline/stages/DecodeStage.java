@@ -2,13 +2,11 @@ package com.vke.core.assets.pipeline.stages;
 
 import com.vke.api.file.*;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.utils.io.Identifier;
-
-import java.io.InputStream;
 
 public class DecodeStage extends ParameterizedStage {
     public static final String STAGE = "decode";
@@ -42,13 +40,13 @@ public class DecodeStage extends ParameterizedStage {
         if (data.isResolved()) {
             throw new AssetException("The <decode> stage can only be used  for unresolved assets! Make sure that no filter requests data from the asset beforehand, so it doesnt get loaded in!");
         }
-        Identifier identifier = data.getUnresolved();
+        FileIdentifier identifier = data.getUnresolved();
 
         try {
             if (anyDecoder instanceof LazyDecoder<?>) {
                 throw new AssetException("Lazy decoders are not supported in the <decode> stage! Using decoder " + using);
             } else if (anyDecoder instanceof Decoder<?> decoder) {
-                Object decoded = decoder.decode(identifier);
+                Object decoded = decoder.decode(context, identifier);
                 stageElement.setData(new AssetData(toName, decoded));
             }
         } catch (DecodeException e) {

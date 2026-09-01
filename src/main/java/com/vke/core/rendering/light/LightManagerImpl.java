@@ -5,6 +5,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldResource;
 import com.vke.core.color.Color;
+import com.vke.core.color.OldColor;
 import com.vke.core.ecs.api.Query;
 import com.vke.core.ecs.backend.Archetype;
 import com.vke.core.ecs.component.mask.ComponentMask;
@@ -62,7 +63,7 @@ public class LightManagerImpl implements LightManager {
                 float ica = sl.innerConeCos[i], oca = sl.outerConeCos[i];
 
                 DebugContext.boundingBox(new Vector3f(x - 1, y - 1, z - 1), new Vector3f(x + 1, y + 1, z + 1),
-                        Color.RED);
+                        OldColor.RED);
 
                 buf.write(counter++, writer -> {
                     writer.putFloat4(x, y, z, range);

@@ -3,12 +3,12 @@ package com.vke.core.file.deflate.decompress.huffman;
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
-import com.vke.utils.Utils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
 public class HMSymbolDecoder {
-    public static final int MAX_CODE_LENGTH = 15;
+    public static final int MAX_DEFLATE_CODE_LENGTH = 15;
     private static final int FAST_BITS = 8;
     private static final int SLOW_BITS = 12;
     
@@ -18,18 +18,21 @@ public class HMSymbolDecoder {
     private final CodeLookupTable upperTable;
     private final HuffmanBinaryTree tree;
     private final int maxUsedCodeLength;
+
+    private final BitOrdering bitOrdering;
     
-    public HMSymbolDecoder(int[] codeLengths, Code[] codes) {
+    public HMSymbolDecoder(int[] codeLengths, Code[] codes, BitOrdering bitOrdering) {
         this.codeLengths = codeLengths;
         this.codes = codes;
 
-        this.tree = new HuffmanBinaryTree(codes);
+        this.tree = new HuffmanBinaryTree(codes, bitOrdering);
 
         //in theory, the smaller lower table will fit into the cpu L1 cache and is much much faster than
         //the bigger upper table
         this.lowerTable = new CodeLookupTable(codes, FAST_BITS);
         this.upperTable = new CodeLookupTable(codes, SLOW_BITS);
-        
+        this.bitOrdering = bitOrdering;
+
         int maxUsedCodeLength = 0;
         for (int len : codeLengths) {
             maxUsedCodeLength = Math.max(maxUsedCodeLength, len);
@@ -37,12 +40,12 @@ public class HMSymbolDecoder {
         this.maxUsedCodeLength = maxUsedCodeLength;
     }
 
-    public HMSymbolDecoder(Code[] codes) {
-        this(lengthsFromCodes(codes), codes);
+    public HMSymbolDecoder(Code[] codes, BitOrdering bitOrdering) {
+        this(lengthsFromCodes(codes), codes, bitOrdering);
     }
 
-    public HMSymbolDecoder(int[] codeLengths) {
-        this(codeLengths, createCodesFromLengths(codeLengths));
+    public HMSymbolDecoder(int[] codeLengths, BitOrdering bitOrdering) {
+        this(codeLengths, createCodesFromLengths(codeLengths), bitOrdering);
     }
 
     private static int[] lengthsFromCodes(Code[] codes) {
@@ -55,33 +58,45 @@ public class HMSymbolDecoder {
     }
     
     public static Code[] createCodesFromLengths(int[] codeLengths) {
+        return createCodesFromLengthsAndSymbols(codeLengths, null, MAX_DEFLATE_CODE_LENGTH);
+    }
+
+    public static Code[] createCodesFromLengthsAndSymbols(int[] codeLengths, @SuppressWarnings("all") @Nullable int[] symbols, int maxCodeLength) {
         //see: https://www.nayuki.io/page/deflate-specification-v1-3-html#section-3-2-2
         Code[] codes = new Code[codeLengths.length];
-        int[] blCount = new int[MAX_CODE_LENGTH + 1];
+        int[] blCount = new int[maxCodeLength + 1];
         for (int length : codeLengths) {
             if (length > 0) {
                 blCount[length]++;
             }
         }
 
-        int[] nextCode = new int[MAX_CODE_LENGTH + 1];
+        int[] nextCode = new int[maxCodeLength + 1];
         int code = 0;
         blCount[0] = 0;
-        for (int bits = 1; bits <= MAX_CODE_LENGTH; bits++) {
+        for (int bits = 1; bits <= maxCodeLength; bits++) {
             code = (code + blCount[bits - 1]) << 1;
             nextCode[bits] = code;
         }
 
         for (int i = 0; i < codeLengths.length; i++) {
             int len = codeLengths[i];
+
+            int sym;
+            if (symbols != null) {
+                sym = symbols[i];
+            } else {
+                sym = i;
+            }
+
             if (len != 0) {
                 int rawCode = nextCode[len];
                 //fix bit ordering cuz for some reason huffman codes are reversed here lol
                 //thats what the specification says
-                codes[i] = new Code(rawCode, len, i);
+                codes[i] = new Code(rawCode, len, sym);
                 nextCode[len]++;
             } else {
-                codes[i] = new Code(0, 0, i);
+                codes[i] = new Code(0, 0, sym);
             }
         }
 
@@ -89,7 +104,7 @@ public class HMSymbolDecoder {
     }
 
     public int decodeSymbol(BitInputStream bitStream) throws IOException {
-        bitStream.setOrdering(BitOrdering.LSB_FIRST);
+        bitStream.setOrdering(bitOrdering);
         int nextBits = bitStream.peekBits(maxUsedCodeLength);
         int fastBits = BitUtils.lowBits(nextBits, FAST_BITS);
         Code tried = lowerTable.tryLookupCode(fastBits);
@@ -136,5 +151,9 @@ public class HMSymbolDecoder {
         }
         //System.out.println("decoded symbol: " + tried.symbol() + ", as char: " + ((char) tried.symbol()) + ", using code: " + BitUtils.intToBinStr(tried.code()) + ", len: " + tried.codeLength());
         return tried.symbol();
+    }
+
+    public Code[] getCodes() {
+        return codes;
     }
 }

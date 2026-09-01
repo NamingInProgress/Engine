@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PipelineContext extends ContextWrapper {
-
     @SearchAnnotation(target = Protocol.class)
     private static final List<Class<? extends AssetProtocol<?>>> PROTOCOLS = null;
 
@@ -102,11 +101,12 @@ public class PipelineContext extends ContextWrapper {
     }
 
     @SuppressWarnings("all") // stfu intellij it gets ✨ COMPILE TIME COLLECTED ✨
-    public void registerProtocols() throws NoSuchMethodException, InvocationTargetException,
-            InstantiationException, IllegalAccessException {
+    public void registerProtocols() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         if (PROTOCOLS == null) return;
         for (Class<? extends AssetProtocol<?>> protocol : PROTOCOLS) {
-            registerProtocol(protocol.getDeclaredConstructor().newInstance());
+            AssetProtocol<?> prot = protocol.getDeclaredConstructor().newInstance();
+            System.out.println("registered protocol " + prot.getProtocolName());
+            registerProtocol(prot);
         }
     }
 

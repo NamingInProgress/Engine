@@ -3,7 +3,6 @@ package com.vke.core.rendering.post.service;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
 import com.vke.api.parsing.config.ConfigDocument;
-import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
@@ -11,6 +10,8 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.graph.RenderPassInstance;
@@ -19,7 +20,6 @@ import com.vke.core.rendering.post.PostProcessEffect;
 import com.vke.core.rendering.post.SimplePostProcessEffect;
 import com.vke.core.services2.Services;
 import com.vke.utils.exception.Unreachable;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -47,7 +47,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
     }
 
     @SuppressWarnings("unchecked")
-    void registerStages(Context caller, Identifier vclFile) {
+    void registerStages(Context caller, FileIdentifier vclFile) {
         try {
             ConfigDocument doc = ConfigDocument.parseIdentifier(vclFile);
             doc.validate(SCHEMA.assume(engine), vclFile.toString());

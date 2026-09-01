@@ -1,6 +1,7 @@
 package com.vke.core.file.wav;
 
 import com.vke.api.file.DecodeException;
+import com.vke.core.Context;
 import com.vke.core.file.riff.RIFFBinaryPayload;
 import com.vke.core.file.riff.RIFFDecoder;
 import com.vke.core.file.riff.chunks.RIFFRootChunk;
@@ -18,7 +19,7 @@ public class WAVDecoder extends RIFFDecoder<WAVFile> {
     }
 
     @Override
-    public WAVFile decode(InputStream stream) throws DecodeException {
+    public WAVFile decode(Context context, InputStream stream) throws DecodeException {
         RIFFRootChunk root = null;
         try {
             root = (RIFFRootChunk) format.readNextChunk(stream);

@@ -4,15 +4,15 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.assets.anot.Protocol;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.core.Context;
-import com.vke.core.assets.language.Language;
-import com.vke.core.assets.language.LanguageParser;
+import com.vke.core.FileIdentifier;
+import com.vke.core.language.Language;
+import com.vke.core.language.LanguageParser;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
-import com.vke.utils.io.Identifier;
 
 @Protocol
 public class LangProtocol implements AssetProtocol<Language> {
@@ -43,7 +43,7 @@ public class LangProtocol implements AssetProtocol<Language> {
 
     public static class LangProtocolLoader implements Loader {
         @Override
-        public AssetData load(Context context, Identifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
+        public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             ConfigDocument document = new ConfigProtocol.ConfigProtocolLoader().load(context, identifier, executionTarget).getDataAs();
             return AssetData.lang(LanguageParser.parseFromConfig(document));
         }

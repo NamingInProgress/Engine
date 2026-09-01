@@ -8,6 +8,8 @@ import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
+import com.vke.core.Identifier;
+import com.vke.core.color.OldColor;
 import com.vke.core.color.Color;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
@@ -26,7 +28,6 @@ import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.vertex.VertexFormatDeferred;
-import com.vke.utils.io.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
@@ -94,7 +95,7 @@ public class DemoScene extends Scene {
             int i = left + entityIndex;
             PointLightC pl = at.getComponentById(PointLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
-            pl.initialize(i, new Color(0, 1, 1, 1), 10);
+            pl.initialize(i, new OldColor(0, 1, 1, 1), 10);
             tf.initialize(i);
             tf.x[i] = positions[entityIndex][0];
             tf.y[i] = positions[entityIndex][1];
@@ -105,7 +106,7 @@ public class DemoScene extends Scene {
             int i = left + entityIndex;
             SpotLightC sl = at.getComponentById(SpotLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
-            sl.initialize(i, new Color(0, 1, 1, 1), 10, 5, 30);
+            sl.initialize(i, new OldColor(0, 1, 1, 1), 10, 5, 30);
             tf.initialize(i);
             tf.y[i] = 20;
             //tf.ry[i] = 90;
@@ -206,7 +207,7 @@ public class DemoScene extends Scene {
 //                poss[1] += (float) (20 * Math.max(Math.sin(System.nanoTime() / 1_000_000_000.0), 0.0));
 //            }
             DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
-                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), Color.RED);
+                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), OldColor.RED);
             poss[1] = y;
         }
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);

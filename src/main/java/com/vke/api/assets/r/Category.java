@@ -1,7 +1,7 @@
 package com.vke.api.assets.r;
 
+import com.vke.core.Identifier;
 import com.vke.core.assets.handles.LazyAssetHandle;
-import com.vke.utils.io.Identifier;
 
 import java.util.HashMap;
 
