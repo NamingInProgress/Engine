@@ -11,7 +11,6 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.color.OldColor;
 import com.vke.core.rendering.font.TextRenderer;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
@@ -60,6 +59,6 @@ public class TTFRenderPass extends RenderPass {
 
         TextRenderer tx = context.get("tx");
 
-        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, OldColor.VKE.toFloat()), stencil, depth);
+        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, RgbColor.VKE.toFloat()), stencil, depth);
     }
 }

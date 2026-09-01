@@ -11,11 +11,13 @@ import com.vke.core.assets.handles.ResolvedAssetHandle;
 import com.vke.core.assets.meta.BasicAssetMeta;
 import com.vke.core.assets.meta.AssetMetaAttributes;
 import com.vke.core.assets.pipeline.AssetPipeline;
+import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
+import com.vke.core.color.Color;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.io.FileUtils;
 import com.vke.utils.iter.helpers.Option;
@@ -40,7 +42,6 @@ public class BundleCollector {
                 System.exit(67);
             }
         }
-        Logger logger = LoggerFactory.get("AssetPipeline");
         try {
             HashSet<FileIdentifier> processedFiles = new HashSet<>();
             if (!ident.isJavaEmbed()) {
@@ -58,7 +59,7 @@ public class BundleCollector {
             }
 
             pipeline.forEachPhase(phase -> {
-                logger.info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
+                PipelineContext.ASSET_PIPELINE_LOGGER.info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
 
                 for (FileIdentifier file : ident.walkFiles()) {
                     if (file.equals(bundleVCLIdent)) continue;
@@ -71,7 +72,7 @@ public class BundleCollector {
                         AssetMetaAttributes.PhaseFilter phaseFilter = attribs.getPhaseFilter();
                         if (phaseFilter != null) {
                             if (!phaseFilter.isAccepted(phase.getName())) {
-                                logger.info("Asset '%s' would be added to the current phase '%s', but its pipeline-config's phase-filter blocked it.", file, phase.getName());
+                                PipelineContext.ASSET_PIPELINE_LOGGER.info("Asset '%s' would be added to the current phase '%s', but its pipeline-config's phase-filter blocked it.", file, phase.getName());
                                 continue;
                             }
                         }
@@ -79,7 +80,7 @@ public class BundleCollector {
                         AssetHandle<?> handle = phase.extractHandle(element, attribs);
                         Identifier overrideName = attribs.getOverrideName();
                         if (overrideName != null) {
-                            logger.info("Asset '%s' got renamed by their vka config: '%s' -> '%s'", file, element.getAssetName(), overrideName);
+                            PipelineContext.ASSET_PIPELINE_LOGGER.info("Asset '%s' got renamed by their vka config: '%s' -> '%s'", file, element.getAssetName(), overrideName);
                             bundle.addAsset(overrideName, handle);
                         } else {
                             bundle.addAsset(element.getAssetName(), handle);
@@ -134,6 +135,7 @@ public class BundleCollector {
                 case "bool" -> target.addAsset(id, new ResolvedAssetHandle<>(value.asBoolean(), new BasicAssetMeta(Protocols.PRIMITIVE_BOOL, bundleName, id)));
                 case "string" -> target.addAsset(id, new ResolvedAssetHandle<>(value.asString(), new BasicAssetMeta(Protocols.PLAIN, bundleName, id)));
                 case "number" -> target.addAsset(id, new ResolvedAssetHandle<>(value.asNumber(), new BasicAssetMeta(Protocols.PRIMITIVE_NUMBER, bundleName, id)));
+                case "color" -> target.addAsset(id, new ResolvedAssetHandle<>(Color.parse(context, value.asString()), new BasicAssetMeta(Protocols.PRIMITIVE_COLOR, bundleName, id)));
                 default -> throw new IllegalStateException("Unknown asset type: " + asset.getNodeName());
             }
         }

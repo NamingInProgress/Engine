@@ -15,7 +15,7 @@ public class Protocols {
     public static final String PNG = "png";
     public static final String TEXTURE = "texture";
 
-    public static final String RENDERPIPELINE = "pipeline";
+    public static final String RENDER_PIPELINE = "pipeline";
     public static final String COMPUTE_PIPELINE = "compute_pipeline";
 
     public static final String VERTSHADER = "vertshader";
@@ -31,4 +31,5 @@ public class Protocols {
     public static final String AUDIO_STREAMING = "audio_stream";
     public static final String WAV = "wav";
     public static final String SCHEMA = "schema";
+    public static final String PRIMITIVE_COLOR = "color";
 }

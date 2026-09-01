@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.rendering.graph.RenderPassInstance;
-import com.vke.impl.pass.ITSRenderPass;
+import com.vke.impl.rendering.pass.ITSRenderPass;
 
 import java.util.List;
 

@@ -4,6 +4,7 @@ import com.vke.api.assets.anot.Cache;
 import com.vke.api.assets.anot.Converter;
 import com.vke.api.assets.anot.Processor;
 import com.vke.api.assets.anot.Protocol;
+import com.vke.api.logger.Logger;
 import com.vke.core.Context;
 import com.vke.core.ContextWrapper;
 import com.vke.core.assets.AssetException;
@@ -31,6 +32,7 @@ import com.vke.core.assets.pipeline.protocols.texture.PngProtocol;
 import com.vke.core.assets.pipeline.protocols.texture.TextureProtocol;
 import com.vke.core.assets.pipeline.stages.*;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.logger.LoggerFactory;
 import com.vke.core.mesh.MeshPrefabCache;
 import pl.epsi.SearchAnnotation;
 
@@ -39,6 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PipelineContext extends ContextWrapper {
+
+    public static final Logger ASSET_PIPELINE_LOGGER = LoggerFactory.get("Asset Pipeline");
+
     @SearchAnnotation(target = Protocol.class)
     private static final List<Class<? extends AssetProtocol<?>>> PROTOCOLS = null;
 
@@ -105,7 +110,7 @@ public class PipelineContext extends ContextWrapper {
         if (PROTOCOLS == null) return;
         for (Class<? extends AssetProtocol<?>> protocol : PROTOCOLS) {
             AssetProtocol<?> prot = protocol.getDeclaredConstructor().newInstance();
-            System.out.println("registered protocol " + prot.getProtocolName());
+            ASSET_PIPELINE_LOGGER.trace("Registered protocol: " + prot.getProtocolName());
             registerProtocol(prot);
         }
     }

@@ -14,4 +14,8 @@
         <name>idk_something</name>
         <pipeline>idk_something.pipeline.json</pipeline>
     </simple-stage>
+    <custom-stage>
+        <name>bloom</name>
+        <class>com.vke.impl.rendering.post.BloomPostEffect</class>
+    </custom-stage>
 </stages>

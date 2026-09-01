@@ -17,7 +17,7 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/deferred/light_pass.vsh"
+      "src": "shaders/util/full_screen.vsh"
     },
     {
       "type": "frag",

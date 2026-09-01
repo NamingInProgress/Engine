@@ -13,8 +13,9 @@ public class TransformC implements Component {
     public float[] sx, sy, sz;
 
     public void initialize(int i) {
+        x[i] = y[i] = z[i] = 0;
         sx[i] = sy[i] = sz[i] = 1f;
-        ry[i] = 90f;
+        setRotation(i, new Vector3f(0, 90, 0));
     }
 
     public void setQuaternion(int i, Quaternionf quaternionf) {
@@ -25,7 +26,8 @@ public class TransformC implements Component {
     }
 
     public void setRotation(int i, Vector3f angles) {
-        setQuaternion(i, new Quaternionf().rotationXYZ(angles.x, angles.y, angles.z));
+        setQuaternion(i, new Quaternionf().rotationXYZ((float) Math.toRadians(angles.x), (float) Math.toRadians(angles.y),
+                (float) Math.toRadians(angles.z)));
     }
 
     public Vector3f position(int i) {

@@ -7,8 +7,8 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.core.rendering.pipeline.driver.DeferredLightPassDriver;
 import com.vke.core.rendering.pipeline.driver.DeferredPipelineDriver;
 import com.vke.core.rendering.pipeline.driver.LoadPipelineDriver;
-import com.vke.impl.driver.FullScreenDriver;
-import com.vke.impl.driver.ShapePipelineDriver;
+import com.vke.impl.rendering.driver.FullScreenDriver;
+import com.vke.impl.rendering.driver.ShapePipelineDriver;
 
 public class RenderPipelines {
 

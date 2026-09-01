@@ -41,7 +41,7 @@ import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
-import com.vke.impl.debug.DebugContext;
+import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.utils.console.AnsiColors;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;

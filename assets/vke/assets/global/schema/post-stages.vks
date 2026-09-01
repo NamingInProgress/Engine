@@ -10,8 +10,12 @@
             !type: string;
             default: string | number;
         };
+        custom-stage: {
+            !name: string;
+            !class: string;
+        };
     };
     schema: {
-        stages: [simple-stage];
+        stages: [simple-stage | custom-stage];
     };
 }

@@ -12,7 +12,7 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/post/default.vsh"
+      "src": "shaders/util/full_screen.vsh"
     },
     {
       "type": "frag",

@@ -42,7 +42,7 @@ public abstract class RenderPassDeserializer {
             int height = output.getIntOption("height").unwrapOrDefault();
             float scale = output.getNumberOption("scale").unwrapOr(1f);
             RenderPassDefinition.TextureType type = RenderPassDefinition.TextureType.fromString(output.getString("type"));
-            Format format = Format.valueOfOption(output.getStringOption("format").unwrapOrNull()).unwrapOr(Format.BGRA8_SRGB);
+            Format format = Format.valueOfOption(output.getStringOption("format").unwrapOrNull()).unwrapOr(Format.RGBA16F);
 
             outputs.add(new RenderPassDefinition.OutputTextureDefinition(name, source, type, format, width, height, scale));
         }

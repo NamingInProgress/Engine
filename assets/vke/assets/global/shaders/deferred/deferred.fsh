@@ -23,8 +23,7 @@ void main() {
         vec3 B = cross(N, T) * fTangent.w;
         mat3 TBN = mat3(T, B, N);
 
-        //vec3 tangentNormal = sampleTexture(m.normalId, fUV).xyz * 2.0 - 1.0;
-        vec3 tangentNormal = vec3(0.0, 0.0, 1.0);
+        vec3 tangentNormal = sampleTexture(m.normalId, fUV).xyz * 2.0 - 1.0;
         gNormal = vec4(normalize(TBN * tangentNormal), 1.0);
     }
 

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class HslColor extends Color {
     //H S L A
-    //H in radiants
+    //H in radians THIS GUY V22 REALLY THOUGH ITS CALLED RADIANTS LMAOO
     //S, L, A in 0..1
     private float[] components;
 

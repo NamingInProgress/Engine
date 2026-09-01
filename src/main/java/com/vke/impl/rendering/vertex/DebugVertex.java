@@ -1,4 +1,4 @@
-package com.vke.impl.vertex;
+package com.vke.impl.rendering.vertex;
 
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import pl.epsi.MakeVertex;

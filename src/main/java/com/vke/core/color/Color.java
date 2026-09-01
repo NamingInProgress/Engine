@@ -131,7 +131,6 @@ public abstract class Color {
                     continue top;
                 } else if (task == 4) {
                     String word = return2;
-                    System.out.println(word);
                     AssetManager assets = ctx.service(Services.ASSET_MANAGER);
                     AssetHandle<Color> color = assets.getAsset(word);
                     try {
@@ -354,6 +353,6 @@ public abstract class Color {
         } else if (digits.length == 3) {
             return new RgbColor(digits[0], digits[1], digits[2]);
         }
-        return null;
+        throw new IllegalArgumentException("illegal color: " + value);
     }
 }

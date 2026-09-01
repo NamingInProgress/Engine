@@ -63,10 +63,6 @@ public class RenderPassInstance {
         return this.outputsWithSources.contains(name);
     }
 
-    public Texture getDynamicColorOutputTexture(String name, String newName) {
-        return graph.getDynamicColorOutputTexture(this.getOutputTexture(name), newName);
-    }
-
     public RenderPassDefinition getDefinition() {
         return def;
     }
@@ -74,5 +70,6 @@ public class RenderPassInstance {
     public void clear() {
         this.resolvedInputs.clear();
         this.resolvedOutputs.clear();
+        this.outputsWithSources.clear();
     }
 }

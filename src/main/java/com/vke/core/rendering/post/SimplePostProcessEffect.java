@@ -1,7 +1,6 @@
 package com.vke.core.rendering.post;
 
 import com.vke.api.assets.AssetHandle;
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
@@ -11,7 +10,6 @@ import com.vke.core.Identifier;
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
-import com.vke.impl.vertex.FullscreenQuadVertex;
 import com.vke.utils.DrawUtils;
 
 import java.io.IOException;
@@ -40,14 +38,12 @@ public class SimplePostProcessEffect extends PostProcessEffect {
     protected void onInitEffect() {}
 
     @Override
-    public void draw(CommandBuffer cmd, GraphContext ctx, VertexConsumer<FullscreenQuadVertex> vc, Texture colorInput) {
+    public void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput) {
         setupUniforms(colorInput);
         cmd.bindPipeline(pipelineHandle);
         cmd.bindDescriptorSets(pipelineHandle);
 
-        DrawUtils.fullscreenQuad(vc);
-
-        vc.draw();
+        DrawUtils.fullscreenTri(cmd);
     }
 
     protected void setupUniforms(Texture colorInput) {

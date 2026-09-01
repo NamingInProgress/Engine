@@ -13,5 +13,19 @@
         </outputs>
     </render-pass>
 
-    <image-to-screen source="debug.colorOut"/>
+<!--    <image-to-screen source="debug.colorOut"/>-->
+<!---->
+    <render-pass name="post" parent="post">
+        <inputs>
+            <input name="colorIn" source="debug.colorOut"/>
+        </inputs>
+        <outputs>
+            <texture name="colorOut"/>
+        </outputs>
+        <stages>
+            <stage name="bloom"/>
+        </stages>
+    </render-pass>
+<!---->
+    <image-to-screen source="post.colorOut"/>
 </render-graph>

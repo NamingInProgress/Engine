@@ -96,6 +96,6 @@ public class AssetData {
     }
     
     public static AssetData renderPipeline(RenderPipeline pl) {
-        return new AssetData(RENDERPIPELINE, pl);
+        return new AssetData(RENDER_PIPELINE, pl);
     }
 }

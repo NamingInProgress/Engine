@@ -20,7 +20,7 @@ public class ConfigRenderPipelineConverter implements AssetConverter {
 
     @Override
     public String to() {
-        return Protocols.RENDERPIPELINE;
+        return Protocols.RENDER_PIPELINE;
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.vke.core.Context;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.passes.DeferredRenderPassDeserializer;
 import com.vke.core.rendering.pbr.PbrRenderPassDeserializer;
-import com.vke.impl.debug.DebugRenderPass;
+import com.vke.impl.rendering.debug.DebugRenderPass;
 
 import java.io.IOException;
 import java.util.ArrayList;

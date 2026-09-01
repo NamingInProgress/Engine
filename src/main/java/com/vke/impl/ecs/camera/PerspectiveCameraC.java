@@ -1,7 +1,6 @@
 package com.vke.impl.ecs.camera;
 
-import com.vke.core.color.Color;
-import com.vke.core.color.OldColor;
+import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.component.Component;
 import pl.epsi.EcsComponent;
 
@@ -13,15 +12,15 @@ public class PerspectiveCameraC implements Component {
     public float[] farPlane;
     public float[] clearR, clearG, clearB, clearA;
 
-    public void setClearColor(int i, OldColor color) {
-        this.clearR[i] = color.x;
-        this.clearG[i] = color.y;
-        this.clearB[i] = color.z;
-        this.clearA[i] = color.w;
+    public void setClearColor(int i, RgbColor color) {
+        this.clearR[i] = color.r();
+        this.clearG[i] = color.g();
+        this.clearB[i] = color.b();
+        this.clearA[i] = color.a();
     }
 
-    public OldColor getClearColor(int i) {
-        return new OldColor(this.clearR[i], this.clearG[i], this.clearB[i], this.clearA[i]);
+    public RgbColor getClearColor(int i) {
+        return new RgbColor(this.clearR[i], this.clearG[i], this.clearB[i], this.clearA[i]);
     }
 
 }

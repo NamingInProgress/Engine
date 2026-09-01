@@ -11,6 +11,7 @@ import com.vke.core.window.callbacks.FramebufferCallbacks;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class RenderGraph {
 
@@ -18,6 +19,7 @@ public class RenderGraph {
 
     private final ArrayList<RenderPassInstance> passes = new ArrayList<>();
     private final HashMap<String, Texture> physicalTextures = new HashMap<>();
+    private final HashSet<Texture> usedTextures = new HashSet<>();
 
     private final TexturePool pool;
 
@@ -52,12 +54,6 @@ public class RenderGraph {
         this.windowHeight = height;
     }
 
-    public Texture getDynamicColorOutputTexture(Texture template, String newName) {
-        var t = pool.acquire(template.width(), template.height(), RenderPassDefinition.TextureType.COLOR, template.format());
-        physicalTextures.put(newName, t);
-        return t;
-    }
-
     public void prepare() {
         for (RenderPassInstance pass : passes) {
             pass.clear();
@@ -88,6 +84,7 @@ public class RenderGraph {
                         continue;
                     }
                 }
+                usedTextures.add(tex);
                 physicalTextures.put(globalKey, tex);
                 pass.addOutput(texDef.name(), tex, texDef.source() != null);
             }
@@ -124,10 +121,8 @@ public class RenderGraph {
     }
 
     public void endRendering() {
-        for (var entry : physicalTextures.entrySet()) {
-            if (entry.getKey().contains("render-target")) continue;
-            pool.release(entry.getValue());
-        }
+        usedTextures.forEach(pool::release);
+        usedTextures.clear();
         physicalTextures.clear();
         context.clear();
     }

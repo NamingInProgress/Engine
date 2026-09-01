@@ -1,8 +1,8 @@
-package com.vke.impl.debug;
+package com.vke.impl.rendering.debug;
 
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
-import com.vke.core.color.OldColor;
-import com.vke.impl.vertex.DebugVertex;
+import com.vke.core.color.RgbColor;
+import com.vke.impl.rendering.vertex.DebugVertex;
 import com.vke.utils.DrawUtils;
 import org.joml.Vector3f;
 
@@ -10,16 +10,16 @@ import java.util.ArrayList;
 
 public class DebugContext {
 
-    private static final DrawUtils.DrawUtilsVF<DebugVertex> FACTORY = (a, b) -> new DebugVertex(a.x, a.y, a.z, b.x, b.y, b.z, b.w);
+    private static final DrawUtils.DrawUtilsVF<DebugVertex> FACTORY = (a, b) -> new DebugVertex(a.x, a.y, a.z, b.r(), b.g(), b.b(), b.a());
 
     static final ArrayList<DebugCommand> tri_commands = new ArrayList<>();
     static final ArrayList<DebugCommand> line_commands = new ArrayList<>();
 
-    public static void arrow(Vector3f position, Vector3f direction, OldColor color) {
+    public static void arrow(Vector3f position, Vector3f direction, RgbColor color) {
         tri_commands.add(new ArrowCommand(position, direction, color));
     }
 
-    public static void boundingBox(Vector3f a, Vector3f b, OldColor color) {
+    public static void boundingBox(Vector3f a, Vector3f b, RgbColor color) {
         line_commands.add(new BoundingBoxCommand(a, b, color));
     }
 
@@ -34,22 +34,22 @@ public class DebugContext {
 
     public static class ArrowCommand extends DebugCommand {
         public final Vector3f pos, dir;
-        public final OldColor color;
+        public final float length;
+        public final RgbColor color;
 
         private VertexConsumer<DebugVertex> vc;
 
-        public ArrowCommand(Vector3f pos, Vector3f dir, OldColor color) {
+        public ArrowCommand(Vector3f pos, Vector3f dir, RgbColor color) {
             this.pos = pos;
             this.dir = dir;
             this.color = color;
+            this.length = dir.length();
         }
 
         @Override
         public void draw(VertexConsumer<DebugVertex> vc) {
             this.vc = vc;
-            Vector3f axis = new Vector3f(dir).sub(pos);
-            float length = axis.length();
-            axis.normalize();
+            Vector3f axis = new Vector3f(dir).normalize();
 
             float shaftRadius = length * 0.03f;
             float headRadius = shaftRadius * 2.5f;
@@ -62,7 +62,15 @@ public class DebugContext {
             Vector3f right = up.cross(axis, new Vector3f()).normalize();
             up = axis.cross(right, new Vector3f()).normalize();
 
-            Vector3f headBase = new Vector3f(dir).fma(-headLength, axis);
+            // Tip of the arrow
+            Vector3f tip = new Vector3f(pos).fma(length, axis);
+
+            // Where the cone/head starts
+            Vector3f headBase = new Vector3f(tip).fma(-headLength, axis);
+
+            // --------------------
+            // Shaft
+            // --------------------
 
             Vector3f r = new Vector3f(right).mul(shaftRadius);
             Vector3f u = new Vector3f(up).mul(shaftRadius);
@@ -82,7 +90,12 @@ public class DebugContext {
             quad(s2, s3, e3, e2);
             quad(s3, s0, e0, e3);
 
+            // Shaft back cap
             quad(s0, s3, s2, s1);
+
+            // --------------------
+            // Arrow head
+            // --------------------
 
             Vector3f hr = new Vector3f(right).mul(headRadius);
             Vector3f hu = new Vector3f(up).mul(headRadius);
@@ -92,16 +105,19 @@ public class DebugContext {
             Vector3f h2 = new Vector3f(headBase).sub(hr).sub(hu);
             Vector3f h3 = new Vector3f(headBase).add(hr).sub(hu);
 
-            tri(h0, h1, dir);
-            tri(h1, h2, dir);
-            tri(h2, h3, dir);
-            tri(h3, h0, dir);
+            // Cone
+            tri(h0, h1, tip);
+            tri(h1, h2, tip);
+            tri(h2, h3, tip);
+            tri(h3, h0, tip);
 
+            // Head back cap
             quad(h0, h3, h2, h1);
         }
 
         void v(Vector3f a) {
-            vc.vertices(new DebugVertex(a.x, a.y, a.x, color.r(), color.g(), color.b(), color.a()));
+            // Fixed: changed second 'a.x' to 'a.z'
+            vc.vertices(new DebugVertex(a.x, a.y, a.z, color.r(), color.g(), color.b(), color.a()));
         }
 
         void tri(Vector3f a, Vector3f b, Vector3f c) {
@@ -120,9 +136,9 @@ public class DebugContext {
 
     public static class BoundingBoxCommand extends DebugCommand {
         private final Vector3f a, b;
-        private final OldColor color;
+        private final RgbColor color;
 
-        public BoundingBoxCommand(Vector3f a, Vector3f b, OldColor color) {
+        public BoundingBoxCommand(Vector3f a, Vector3f b, RgbColor color) {
             this.a = a;
             this.b = b;
             this.color = color;
@@ -159,7 +175,7 @@ public class DebugContext {
         }
 
         void v(VertexConsumer<DebugVertex> vc, Vector3f v) {
-            vc.vertices(new DebugVertex(v.x, v.y, v.z, color.x, color.y, color.z, color.w));
+            vc.vertices(new DebugVertex(v.x, v.y, v.z, color.r(), color.g(), color.b(), color.a()));
         }
 
         void line(VertexConsumer<DebugVertex> vc, int idx, int idx2) {

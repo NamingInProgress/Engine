@@ -1,15 +1,13 @@
 package com.vke.core.rendering.passes;
 
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.color.OldColor;
+import com.vke.core.color.RgbColor;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.pipeline.RenderPipelines;
-import com.vke.impl.vertex.FullscreenQuadVertex;
 import com.vke.demo.DemoScene;
 import com.vke.utils.DrawUtils;
 
@@ -17,15 +15,8 @@ import java.util.List;
 
 public class DeferredRenderPass extends RenderPass {
 
-    private VertexConsumer<FullscreenQuadVertex> vc;
-
     public DeferredRenderPass(RenderSystem renderSystem, RenderPassInstance instance) {
         super(renderSystem, instance);
-    }
-
-    @Override
-    public void onLoad() {
-        this.vc = renderSystem.renderer().getVertexConsumerProvider().get(FullscreenQuadVertex.TEMPLATE);
     }
 
     @Override
@@ -36,7 +27,8 @@ public class DeferredRenderPass extends RenderPass {
 
         Texture depthOut = instance.getOutputTexture("depthOut");
 
-        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_material_idx", "gbuf_mesh_uvs"), "depthOut", List.of(OldColor.BLACK, new OldColor(-1, -1, -1, -1), OldColor.BLACK), OldColor.WHITE);
+        this.beginRendering(cmd, List.of("gbuf_normal", "gbuf_material_idx", "gbuf_mesh_uvs"), "depthOut",
+                List.of(RgbColor.BLACK, RgbColor.INVALID, RgbColor.BLACK), RgbColor.WHITE);
 
         int inst = context.get("inst");
         RenderPipelines.DEFERRED.setLocal(context.get("mats"));
@@ -45,7 +37,7 @@ public class DeferredRenderPass extends RenderPass {
 
         cmd.endRendering();
 
-        this.beginRendering(cmd, List.of("colorOut"), OldColor.BLACK);
+        this.beginRendering(cmd, List.of("colorOut"), RgbColor.BLACK);
 
         gbuf_normal.useInShader();
         gbuf_material_idx.useInShader();
@@ -55,9 +47,7 @@ public class DeferredRenderPass extends RenderPass {
         RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_material_idx, gbuf_mesh_uvs, depthOut);
         RenderPipelines.DEFERRED_LIGHT_PASS.use();
 
-        DrawUtils.fullscreenQuad(vc);
-
-        vc.draw();
+        DrawUtils.fullscreenTri(cmd);
 
         cmd.endRendering();
     }

@@ -1,5 +1,8 @@
 package com.vke.utils.iter.helpers;
 
+import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
+import com.vke.utils.Utils;
 import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import org.jetbrains.annotations.Nullable;
@@ -179,6 +182,7 @@ public class Option<T> {
         if (isSome()) return value;
 
         Class<T> clazz = (Class<T>) ignore.getClass().getComponentType();
+        if (Utils.TsContain(clazz, Color.class, RgbColor.class)) return (T) RgbColor.WHITE;
         if (clazz == byte.class || clazz == Byte.class) return (T) (Byte) (byte) 1;
         if (clazz == short.class || clazz == Short.class) return (T) (Short) (short) 1;
         if (clazz == int.class || clazz == Integer.class) return (T) (Integer) 1;

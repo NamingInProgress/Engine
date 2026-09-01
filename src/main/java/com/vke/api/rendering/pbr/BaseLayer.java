@@ -5,7 +5,7 @@ import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.core.assets.handles.LazyAssetHandle;
-import com.vke.core.color.OldColor;
+import com.vke.core.color.RgbColor;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class BaseLayer extends MaterialLayer {
     public static final LazyAssetHandle<Texture> EMISSIVE = R.textures.get("vke:textures/material/defaults/default_emissive.png");
     public static final LazyAssetHandle<Texture> SPECULAR = R.textures.get("vke:textures/material/defaults/default_specular.png");
 
-    public final OldColor baseAlbedo;
+    public final RgbColor baseAlbedo;
     public final AssetHandle<Texture> albedo;
     public final AssetHandle<Texture> normal;
     public final AssetHandle<Texture> metallicRoughness;
@@ -37,13 +37,13 @@ public class BaseLayer extends MaterialLayer {
 
     public final float occlusionStrength;
 
-    public final OldColor emissiveColor;
+    public final RgbColor emissiveColor;
     public final float emissiveStrength;
 
     public final float specularScale;
 
     private BaseLayer() {
-        this(OldColor.WHITE, ALBEDO, NORMAL, METALLIC_ROUGHNESS, OCCLUSION, EMISSIVE, SPECULAR);
+        this(RgbColor.WHITE, ALBEDO, NORMAL, METALLIC_ROUGHNESS, OCCLUSION, EMISSIVE, SPECULAR);
     }
 
     public BaseLayer(BaseLayer copy) {
@@ -51,17 +51,17 @@ public class BaseLayer extends MaterialLayer {
                 copy.normalScale, copy.metallic, copy.roughness, copy.occlusionStrength, copy.emissiveColor, copy.emissiveStrength, copy.specularScale);
     }
 
-    public BaseLayer(OldColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
+    public BaseLayer(RgbColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
                      AssetHandle<Texture> metallicRoughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
                      AssetHandle<Texture> specular) {
         this(baseAlbedo, albedo, normal, metallicRoughness, occlusionTexture, emissive, specular, 1.0f, 1.0f,
-                1.0f, 1.0f, OldColor.BLACK, 1.0f, 1.0f);
+                1.0f, 1.0f, RgbColor.BLACK, 0.0f, 1.0f);
     }
 
-    public BaseLayer(OldColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
+    public BaseLayer(RgbColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
                      AssetHandle<Texture> metallicRoughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
                      AssetHandle<Texture> specular,
-                     float normalScale, float metallic, float roughness, float occlusionStrength, OldColor emissiveColor, float emissiveStrength,
+                     float normalScale, float metallic, float roughness, float occlusionStrength, RgbColor emissiveColor, float emissiveStrength,
                      float specularScale) {
         this.baseAlbedo = baseAlbedo;
         this.albedo = albedo;

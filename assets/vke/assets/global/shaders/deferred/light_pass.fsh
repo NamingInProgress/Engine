@@ -35,32 +35,5 @@ void main() {
     MaterialInputs mat = evaluateMaterial(materialIdx, meshUV, vec3(0, 0, 1), vec4(0, 0, 1, 1));
     mat.normal = normal;
 
-    vec3 color = calculateLighting(normal, normalize(frameData.camera.position.xyz - fragPos), fragPos, mat);
-    FragColor = correctColor(color);
-//    FragColor = vec4(1.0);
-//    FragColor = vec4(color, 1.0);
-
-//    vec3 albedo = vec3(mat.baseColor);
-//
-//    vec3 lighting = albedo * 0.01; // Ambient
-//
-//    for (int i = 0; i < u_LightsBuffer.lightCount; ++i) {
-//        Light light = u_LightsBuffer.lights[i];
-//        vec3 radiance = calculateLight(light, normal, fragPos);
-//        lighting += albedo * radiance;
-//    }
-//
-//    // ====================================================
-//    // POST PROCESSING
-//    // This stops the hotspot from clipping into a harsh shape
-//    // and brightens up the dark falloff areas.
-//    // ====================================================
-//
-//    // 1. Reinhard Tonemapping (Compress HDR to 0.0-1.0)
-//    lighting = lighting / (lighting + vec3(1.0));
-//
-//    // 2. Gamma Correction (Linear space to sRGB monitor space)
-//    lighting = pow(lighting, vec3(1.0 / 2.2));
-//
-//    FragColor = vec4(lighting, 1.0);
+    FragColor = vec4(calculateLighting(normal, normalize(frameData.camera.position.xyz - fragPos), fragPos, mat), 1);
 }

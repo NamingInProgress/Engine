@@ -24,7 +24,7 @@ import java.io.IOException;
 public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
     @Override
     public String getProtocolName() {
-        return Protocols.RENDERPIPELINE;
+        return Protocols.RENDER_PIPELINE;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class RenderPipelineProtocol implements AssetProtocol<RenderPipeline> {
             Renderer renderer = context.service(rendererType.serviceName);
             RenderDevice device = renderer.getDevice();
 
-            return new AssetData(Protocols.RENDERPIPELINE, device.createRenderPipeline(data));
+            return new AssetData(Protocols.RENDER_PIPELINE, device.createRenderPipeline(data));
         });
     }
 
