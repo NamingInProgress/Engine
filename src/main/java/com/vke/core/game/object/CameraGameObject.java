@@ -47,11 +47,11 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
 
     @SubscribeEvent
     public void onWindowResize(WindowResizeEvent event) {
-        //PLEASE BRO i hate these one liners with the generic
+        //PLEASE BRO I hate these one-liners with the generic
         RenderSystem sys = ctx.<Renderer>service(Services.RENDERER).renderSystem();
         CameraC c = cameraComponentRef.getComponent();
         int idx = cameraComponentRef.getIndex();
-        if (c.isOrtho[idx]) {// MAKE THESE PLSSSSS
+        if (c.isOrtho[idx]) {
             projMatrix = new Matrix4f()
                     .perspective(c.fov[idx], (float) event.width / event.height, c.nearPlane[idx], c.farPlane[idx], sys.zZeroToOne());
         } else {

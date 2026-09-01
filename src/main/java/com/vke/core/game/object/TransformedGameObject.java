@@ -119,7 +119,7 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
         tc.x[i] = x;
     }
 
-    public void changeoriginX(float dx) {
+    public void changeOriginX(float dx) {
         tc.x[i] += dx;
     }
 
