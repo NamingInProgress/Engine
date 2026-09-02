@@ -3,7 +3,7 @@ package com.vke.core.game.object;
 import com.vke.core.ecs.ComponentProxy;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.impl.ecs.TransformC;
-import org.joml.Matrix4f;
+import com.vke.impl.ecs.WorldTransformC;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -28,16 +28,18 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
     @Override
     public void setComponentInternal(TransformC component) {
         this.tc = component;
+        tc.dirty[i] = true;
     }
 
     @Override
     public void setIndexInternal(int index) {
         this.i = index;
+        tc.dirty[i] = true;
     }
 
     @Override
     public int[] getFixedComponents() {
-        return new int[] { TransformC.ID };
+        return new int[] { TransformC.ID, WorldTransformC.ID };
     }
 
     public float getX() {
@@ -46,10 +48,12 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setX(float x) {
         tc.x[i] = x;
+        tc.dirty[i] = true;
     }
 
     public void changeX(float dx) {
         tc.x[i] += dx;
+        tc.dirty[i] = true;
     }
 
     public float getY() {
@@ -58,10 +62,12 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setY(float dy) {
         tc.y[i] = dy;
+        tc.dirty[i] = true;
     }
 
     public void changeY(float dy) {
         tc.y[i] += dy;
+        tc.dirty[i] = true;
     }
 
     public float getZ() {
@@ -70,97 +76,144 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setZ(float z) {
         tc.z[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeZ(float dz) {
         tc.z[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public void setXYZ(float x, float y, float z) {
         tc.x[i] = x;
         tc.y[i] = y;
         tc.z[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeXYZ(float dx, float dy, float dz) {
         tc.x[i] += dx;
         tc.y[i] += dy;
         tc.z[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public Vector3f getPosition() {
         return new Vector3f(getX(), getY(), getZ());
     }
 
+    public void getPosition(Vector3f dest) {
+        dest.set(tc.x[i], tc.y[i], tc.z[i]);
+    }
+
     public void setPosition(Vector3f pos) {
         setXYZ(pos.x, pos.y, pos.z);
+        tc.dirty[i] = true;
     }
 
     public void changePosition(Vector3f delta) {
         changeXYZ(delta.x, delta.y, delta.z);
+        tc.dirty[i] = true;
     }
 
     public Quaternionf getRotation() {
         return new Quaternionf(tc.rx[i], tc.ry[i], tc.rz[i], tc.rw[i]);
     }
 
+    public void getRotation(Quaternionf dest) {
+        dest.set(tc.rx[i], tc.ry[i], tc.rz[i], tc.rw[i]);
+    }
+
     public void setRotation(Quaternionf quat) {
-        tc.rx[i] = quat.x;
-        tc.ry[i] = quat.y;
-        tc.rz[i] = quat.z;
-        tc.rw[i] = quat.w;
+        tc.setQuaternion(i, quat);
+    }
+
+    public void setRotation(Vector3f angles) {
+        tc.setRotation(i, angles);
+    }
+
+    public void setRotationXYZ(float x, float y, float z) {
+        tc.setRotation(i, x, y, z);
+    }
+
+    public float getRQX() {
+        return tc.rx[i];
+    }
+
+    public float getRQY() {
+        return tc.ry[i];
+    }
+
+    public float getRQZ() {
+        return tc.rz[i];
+    }
+
+    public float getRQW() {
+        return tc.rw[i];
     }
 
     public float getOriginX() {
-        return tc.x[i];
+        return tc.ox[i];
     }
 
     public void setOriginX(float x) {
-        tc.x[i] = x;
+        tc.ox[i] = x;
+        tc.dirty[i] = true;
     }
 
     public void changeOriginX(float dx) {
-        tc.x[i] += dx;
+        tc.ox[i] += dx;
+        tc.dirty[i] = true;
     }
 
     public float getOriginY() {
-        return tc.y[i];
+        return tc.oy[i];
     }
 
     public void setOriginY(float dy) {
-        tc.y[i] = dy;
+        tc.oy[i] = dy;
+        tc.dirty[i] = true;
     }
 
     public void changeOriginY(float dy) {
-        tc.y[i] += dy;
+        tc.oy[i] += dy;
+        tc.dirty[i] = true;
     }
 
     public float getOriginZ() {
-        return tc.z[i];
+        return tc.oz[i];
     }
 
     public void setOriginZ(float z) {
-        tc.z[i] = z;
+        tc.oz[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeOriginZ(float dz) {
-        tc.z[i] += dz;
+        tc.oz[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public void setOriginXYZ(float x, float y, float z) {
-        tc.x[i] = x;
-        tc.y[i] = y;
-        tc.z[i] = z;
+        tc.ox[i] = x;
+        tc.oy[i] = y;
+        tc.oz[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeOriginXYZ(float dx, float dy, float dz) {
-        tc.x[i] += dx;
-        tc.y[i] += dy;
-        tc.z[i] += dz;
+        tc.ox[i] += dx;
+        tc.oy[i] += dy;
+        tc.oz[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public Vector3f getOrigin() {
         return new Vector3f(getOriginX(), getOriginY(), getOriginZ());
+    }
+
+    public void getOrigin(Vector3f dest) {
+        dest.set(tc.ox[i], tc.oy[i], tc.oz[i]);
     }
 
     public void setOrigin(Vector3f origin) {
@@ -177,10 +230,12 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setScaleX(float x) {
         tc.sx[i] = x;
+        tc.dirty[i] = true;
     }
 
     public void changeScaleX(float dx) {
         tc.sx[i] += dx;
+        tc.dirty[i] = true;
     }
 
     public float getScaleY() {
@@ -189,10 +244,12 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setScaleY(float dy) {
         tc.sy[i] = dy;
+        tc.dirty[i] = true;
     }
 
     public void changeScaleY(float dy) {
         tc.sy[i] += dy;
+        tc.dirty[i] = true;
     }
 
     public float getScaleZ() {
@@ -201,26 +258,34 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void setScaleZ(float z) {
         tc.sz[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeScaleZ(float dz) {
         tc.sz[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public void setScaleXYZ(float x, float y, float z) {
         tc.sx[i] = x;
         tc.sy[i] = y;
         tc.sz[i] = z;
+        tc.dirty[i] = true;
     }
 
     public void changeScaleXYZ(float dx, float dy, float dz) {
         tc.sx[i] += dx;
         tc.sy[i] += dy;
         tc.sz[i] += dz;
+        tc.dirty[i] = true;
     }
 
     public Vector3f getScale() {
         return new Vector3f(getScaleX(), getScaleY(), getScaleZ());
+    }
+
+    public void getScale(Vector3f dest) {
+        dest.set(tc.sx[i], tc.sy[i], tc.sz[i]);
     }
 
     public void setScale(Vector3f scale) {
@@ -229,12 +294,5 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void changeScale(Vector3f delta) {
         changeScaleXYZ(delta.x, delta.y, delta.z);
-    }
-
-    public Matrix4f buildTransformMatrix() {
-        return new Matrix4f()
-                .translate(getX(), getY(), getZ())
-                .rotateAround(getRotation(), getOriginX(), getOriginY(), getOriginZ())
-                .scaleAround(getScaleX(), getScaleY(), getScaleZ(), getOriginX(), getOriginY(), getOriginZ());
     }
 }

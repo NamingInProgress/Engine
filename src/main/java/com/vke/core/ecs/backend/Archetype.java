@@ -198,4 +198,8 @@ public class Archetype {
 
         return index;
     }
+
+    public int whoResidesHere(int index) {
+        return owners[index];
+    }
 }

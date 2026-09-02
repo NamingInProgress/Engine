@@ -10,7 +10,6 @@ import com.vke.api.window.WindowResizeEvent;
 import com.vke.core.Context;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.rendering.SmartMatrixUtils;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.camera.CameraC;
@@ -19,7 +18,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CameraGameObject extends AbstractGameObject implements RestrictedGameObject, EventListener {
-
+    private static final Vector3f NEG_Z = new Vector3f(0, 0, -1);
     private static final int[] CONST_IDS = new int[] { TransformC.ID, CameraC.ID };
 
     private ComponentReference<CameraC> cameraComponentRef;
@@ -81,19 +80,23 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
         return null;
     }
 
-    public Vector3f lookAt() {
-        Vector3f forward = new Vector3f(0, 0, -1);
-        getRotation().transform(forward);
-        return forward;
+    public void lookAt(Vector3f lookAt) {
+        float x = getRQX();
+        float y = getRQY();
+        float z = getRQZ();
+        float w = getRQW();
+
+        //im trusting gemini on ts
+        lookAt.x = -2.0f * (x * z + w * y);
+        lookAt.y = -2.0f * (y * z - w * x);
+        lookAt.z = 2.0f * (x * x + y * y) - 1.0f;
     }
 
     public Matrix4f getProjectionMatrix() {
         return projMatrix;
     }
 
-    public Matrix4f getViewMatrix() {
-        return new Matrix4f()
-                .rotate(getRotation().conjugate(new Quaternionf()))
-                .translate(-getX(), -getY(), -getZ());
+    public void getViewMatrix(Matrix4f viewMatrix) {
+        viewMatrix.translationRotate(-getX(), -getY(), -getZ(), getRQX(), getRQY(), getRQZ(), getRQW());
     }
 }

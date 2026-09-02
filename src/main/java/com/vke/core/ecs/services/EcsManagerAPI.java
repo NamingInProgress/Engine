@@ -69,4 +69,9 @@ public class EcsManagerAPI extends ServiceAPI implements EcsManager {
     public String getComponentName(int componentId) {
         return getImpl().getComponentName(componentId);
     }
+
+    @Override
+    public EntityLocation locateEntity(int entity) {
+        return getImpl().locateEntity(entity);
+    }
 }

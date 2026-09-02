@@ -39,16 +39,24 @@ public class VulkanFrameDataManager implements FrameDataManager {
         this.camera = camera;
     }
 
+    private final Matrix4f viewMatrix = new Matrix4f();
+    private final Vector3f lookAt = new Vector3f();
+    private final Matrix4f invertProj = new Matrix4f();
+    private final Matrix4f invertView = new Matrix4f();
+
     @Override
     public void onDraw() {
         if (camera != null) {
             cameraHandle.write((slice) -> {
-                Matrix4f proj = camera.getProjectionMatrix(), view = camera.getViewMatrix();
-                Vector3f lookAt = camera.lookAt();
+                Matrix4f proj = camera.getProjectionMatrix();
+                camera.getViewMatrix(viewMatrix);
+                proj.invert(invertProj);
+                viewMatrix.invert(invertView);
+                camera.lookAt(lookAt);
                 slice.mat4(proj);
-                slice.mat4(view);
-                slice.mat4(new Matrix4f(proj).invert());
-                slice.mat4(new Matrix4f(view).invert());
+                slice.mat4(viewMatrix);
+                slice.mat4(invertProj);
+                slice.mat4(invertView);
                 slice.float3(lookAt.x, lookAt.y, lookAt.z);
                 slice.float3(camera.getX(), camera.getY(), camera.getZ());
             });

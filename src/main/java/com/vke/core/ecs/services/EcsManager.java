@@ -5,6 +5,7 @@ import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.api.Query;
+import com.vke.core.ecs.backend.Archetype;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import org.jetbrains.annotations.Nullable;
@@ -20,4 +21,8 @@ public interface EcsManager extends PinnedService {
     long runQueries(int category);
     <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId);
     String getComponentName(int id);
+    EntityLocation locateEntity(int entity);
+
+    record EntityLocation(Archetype archetype, int index) {
+    }
 }

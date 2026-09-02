@@ -11,6 +11,7 @@ public class TransformC implements Component {
     public float[] ox, oy, oz;
     public float[] rx, ry, rz, rw;
     public float[] sx, sy, sz;
+    public boolean[] dirty;
 
     @Override
     public void initialize(int i) {
@@ -23,34 +24,30 @@ public class TransformC implements Component {
         this.ry[i] = quaternionf.y;
         this.rz[i] = quaternionf.z;
         this.rw[i] = quaternionf.w;
+        this.dirty[i] = true;
     }
 
     public void setRotation(int i, Vector3f angles) {
-        setQuaternion(i, new Quaternionf().rotationXYZ(angles.x, angles.y, angles.z));
+        setRotation(i, angles.x, angles.y, angles.z);
     }
 
-    public Vector3f position(int i) {
-        return new Vector3f(x[i], y[i], z[i]);
-    }
+    public void setRotation(int i, float x, float y, float z) {
+        //took from Quaternionf.java:2000 just so we dont make a new object every time just java objects are kinda expensive unlike rust
+        float sx = org.joml.Math.sin(x * 0.5f);
+        float cx = org.joml.Math.cosFromSin(sx, x * 0.5f);
+        float sy = org.joml.Math.sin(y * 0.5f);
+        float cy = org.joml.Math.cosFromSin(sy, y * 0.5f);
+        float sz = org.joml.Math.sin(z * 0.5f);
+        float cz = org.joml.Math.cosFromSin(sz, z * 0.5f);
 
-    public Quaternionf rotation(int i) {
-        return new Quaternionf(rx[i], ry[i], rz[i], rw[i]);
+        float cycz = cy * cz;
+        float sysz = sy * sz;
+        float sycz = sy * cz;
+        float cysz = cy * sz;
+        this.rw[i] = cx*cycz - sx*sysz;
+        this.rx[i] = sx*cycz + cx*sysz;
+        this.ry[i] = cx*sycz - sx*cysz;
+        this.rz[i] = cx*cysz + sx*sycz;
+        this.dirty[i] = true;
     }
-
-    public Vector3f rotationEulerRad(int i) {
-        return rotation(i).getEulerAnglesXYZ(new Vector3f());
-    }
-
-    public Vector3f rotationEuler(int i) {
-        return rotationEulerRad(i).mul((float) Math.toDegrees(1.0));
-    }
-
-    public Vector3f scale(int i) {
-        return new Vector3f(sx[i], sy[i], sz[i]);
-    }
-
-    public Vector3f forward(int i) {
-        return rotation(i).transform(0, 0, -1, new Vector3f()).normalize();
-    }
-
 }

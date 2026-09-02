@@ -103,4 +103,11 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
     public String getComponentName(int compId) {
         return ComponentRegistry.getInstance(compId).getClass().getSimpleName();
     }
+
+    @Override
+    public EntityLocation locateEntity(int entity) {
+        Archetype at = entityAllocator.getArchetype(entity);
+        int idx = entityAllocator.getArchetypeIndex(entity);
+        return new EntityLocation(at, idx);
+    }
 }
