@@ -12,9 +12,9 @@ import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
+import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.ecs.camera.CameraC;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CameraGameObject extends AbstractGameObject implements RestrictedGameObject, EventListener {
@@ -33,7 +33,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
 
     @Override
     protected ComponentMask createMask() {
-        return new ComponentMask(TransformC.ID, CameraC.ID);
+        return new ComponentMask(TransformC.ID, WorldTransformC.ID, CameraC.ID);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
         RenderSystem sys = ctx.<Renderer>service(Services.RENDERER).renderSystem();
         CameraC c = cameraComponentRef.getComponent();
         int idx = cameraComponentRef.getIndex();
-        if (c.isOrtho[idx]) {
+        if (!c.isOrtho[idx]) {
             projMatrix = new Matrix4f()
                     .perspective(c.fov[idx], (float) event.width / event.height, c.nearPlane[idx], c.farPlane[idx], sys.zZeroToOne());
         } else {
@@ -81,10 +81,11 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     }
 
     public void lookAt(Vector3f lookAt) {
-        float x = getRQX();
-        float y = getRQY();
-        float z = getRQZ();
-        float w = getRQW();
+        GameObjectTransform t = getTransform();
+        float x = t.getRQX();
+        float y = t.getRQY();
+        float z = t.getRQZ();
+        float w = t.getRQW();
 
         //im trusting gemini on ts
         lookAt.x = -2.0f * (x * z + w * y);
@@ -96,7 +97,22 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
         return projMatrix;
     }
 
-    public void getViewMatrix(Matrix4f viewMatrix) {
-        viewMatrix.translationRotate(-getX(), -getY(), -getZ(), getRQX(), getRQY(), getRQZ(), getRQW());
+    public void getViewMatrixInvert(Matrix4f viewMatrix) {
+        GameObjectTransform t = getTransform();
+        t.getWorldMatrix(viewMatrix);
+    }
+
+    public void setIsOrtho(boolean ortho) {
+        CameraC c = cameraComponentRef.getComponent();
+        c.isOrtho[cameraComponentRef.getIndex()] = ortho;
+
+        Window window = ctx.getEngine().getWindow();
+        Window.Size size = window.getSize();
+        onWindowResize(new WindowResizeEvent(window, size.width(), size.height()));
+    }
+
+    public boolean isOrtho() {
+        CameraC c = cameraComponentRef.getComponent();
+        return c.isOrtho[cameraComponentRef.getIndex()];
     }
 }

@@ -13,7 +13,10 @@ import org.jetbrains.annotations.Nullable;
 public interface EcsManager extends PinnedService {
     int[] spawnEntities(int amount, ComponentMask mask, @Nullable EntityInitializer initializer);
     void destroyEntity(int entity);
-    void destroyEntities(int[] entities);
+    void destroyEntities(int[] entities, int start, int length);
+    default void destroyEntities(int[] entities) {
+        destroyEntities(entities, 0, entities.length);
+    }
     void transitionEntity(int entity, ComponentMask newMask, @Nullable EntityTransitionInitializer initializer);
     int duplicateEntity(int entity);
     int createCategory();

@@ -92,17 +92,19 @@ public class ArchetypeManager {
 
     private static final int BATCHED_PATH_THRESHOLD = 128;
 
-    public void destroyEntities(int[] entities) {
-        if (entities.length < BATCHED_PATH_THRESHOLD) {
-            for (int entity : entities) {
+    public void destroyEntities(int[] entities, int start, int length) {
+        if (length < BATCHED_PATH_THRESHOLD) {
+            for (int i = start; i < length; i++) {
+                int entity = entities[i];
                 destroyEntity(entity);
                 cleanupRefsForEntity(entity);
             }
         } else {
             int maxArch = Archetype.IDS;
-            int educatedGuess = Math.min(entities.length / 50, Math.min(50, maxArch));
+            int educatedGuess = Math.min(length / 50, Math.min(50, maxArch));
             IntObjectHashMap<IntArrayList> byArch = new IntObjectHashMap<>(educatedGuess);
-            for (int entity : entities) {
+            for (int i = start; i < length; i++) {
+                int entity = entities[i];
                 Archetype arch = alloc.getArchetype(entity);
                 int index = alloc.getArchetypeIndex(entity);
                 int archId = arch.getId();

@@ -5,12 +5,19 @@ import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
+import com.vke.core.game.object.controller.GameObjectController;
+import com.vke.core.game.scene.service.HierarchyManager;
+import com.vke.core.game.scene.NodeHierarchy;
 import com.vke.core.services2.Services;
+import com.vke.impl.ecs.TransformC;
+import com.vke.impl.ecs.WorldTransformC;
 import com.vke.utils.Utils;
 
 import java.util.HashSet;
 
-public abstract class AbstractGameObject extends TransformedGameObject {
+public abstract class AbstractGameObject implements GameObject {
+    private static final int[] FIXED_COMPONENTS = {TransformC.ID, WorldTransformC.ID};
+
     protected final Context ctx;
     protected final EcsManager ecs;
 
@@ -19,13 +26,20 @@ public abstract class AbstractGameObject extends TransformedGameObject {
     protected int entityId;
     private ComponentMask mask;
 
+    private final GameObjectTransform transform;
+    private final NodeHierarchy hierarchy;
+
     public AbstractGameObject(Context ctx) {
         this.ctx = ctx;
+        HierarchyManager gom = ctx.service(Services.HIERARCHY);
+        this.hierarchy = gom.getHierarchy();
         this.ecs = ctx.service(Services.ECS);
         this.entityId = -1;
 
         this.activeRefs = new HashSet<>();
         this.mask = createMask();
+
+        this.transform = new GameObjectTransform(this, hierarchy);
     }
 
     protected abstract ComponentMask createMask();
@@ -47,12 +61,20 @@ public abstract class AbstractGameObject extends TransformedGameObject {
         })[0];
 
         //initialize the component
-        transformComponent();
+        getTransform().transformComponent();
+
+        hierarchy.addChild(-1, entityId);
+        hierarchy.spawned(entityId, this);
 
         onSpawned();
     }
 
     protected abstract void onSpawned();
+
+    @Override
+    public GameObjectTransform getTransform() {
+        return transform;
+    }
 
     protected abstract GameObject createFromSpawnedEntity(int entity);
 
@@ -86,10 +108,12 @@ public abstract class AbstractGameObject extends TransformedGameObject {
                 c.copyFrom(references[i], left + entityIndex, indices[i]);
             }
             GameObject obj = createFromSpawnedEntity(entityId);
-            if (obj instanceof TransformedGameObject t) {
+            if (obj instanceof GameObjectTransform t) {
                 //init transform as well
                 t.transformComponent();
             }
+            hierarchy.addChild(-1, entityId);
+            hierarchy.spawned(entityId, obj);
             array[entityIndex] = obj;
         });
         return array;
@@ -103,6 +127,7 @@ public abstract class AbstractGameObject extends TransformedGameObject {
             r.drop();
         }
         activeRefs.clear();
+        hierarchy.deleted(entityId);
         this.entityId = -1;
     }
 
@@ -128,6 +153,12 @@ public abstract class AbstractGameObject extends TransformedGameObject {
             }
         }
 
+        int culprit;
+        if ((culprit = Utils.intsContainAnyIntThenReturnInt(componentIds, FIXED_COMPONENTS)) != -1) {
+            String compName = ecs.getComponentName(culprit);
+            throw new UnsupportedOperationException(String.format("Cannot remove component %s from %s!", compName, getClass().getSimpleName()));
+        }
+
         ecs.transitionEntity(entityId, mask, null);
     }
 
@@ -141,5 +172,10 @@ public abstract class AbstractGameObject extends TransformedGameObject {
     @Override
     public ComponentMask components() {
         return this.mask;
+    }
+
+    @Override
+    public void control(GameObjectController controller) {
+        controller.setAttachedObject(this);
     }
 }

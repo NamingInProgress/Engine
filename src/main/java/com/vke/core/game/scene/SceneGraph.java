@@ -1,5 +1,7 @@
 package com.vke.core.game.scene;
 
+import com.carrotsearch.hppc.IntArrayList;
+
 import java.util.Arrays;
 
 public class SceneGraph {
@@ -107,5 +109,27 @@ public class SceneGraph {
 
     public int parentOf(int entity) {
         return parent[entity] - 1;
+    }
+
+    public void deleteNode(int entityId, IntArrayList deletedEntities) {
+        detachFromParentInternal(entityId);
+        deleteNodeInternal(entityId, deletedEntities);
+    }
+
+    private void deleteNodeInternal(int entityId, IntArrayList deletedEntities) {
+        deletedEntities.add(entityId);
+
+        int child = iterChildren(entityId);
+        while (child != -1) {
+            int next = nextChild(child);
+            deleteNodeInternal(child, deletedEntities);
+            child = next;
+        }
+
+        int internalIdx = entityId + 1;
+        parent[internalIdx] = 0;
+        firstChild[internalIdx] = -1;
+        nextSibling[internalIdx] = -1;
+        prevSibling[internalIdx] = -1;
     }
 }

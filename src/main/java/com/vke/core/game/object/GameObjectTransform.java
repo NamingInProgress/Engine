@@ -2,27 +2,48 @@ package com.vke.core.game.object;
 
 import com.vke.core.ecs.ComponentProxy;
 import com.vke.core.ecs.ComponentReference;
+import com.vke.core.game.scene.NodeHierarchy;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public abstract class TransformedGameObject extends ComponentProxy<TransformC> implements RestrictedGameObject {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameObjectTransform extends ComponentProxy<TransformC> {
     private TransformC tc;
     private int i;
 
+    private final GameObject owner;
+    private final NodeHierarchy hierarchy;
+
     private ComponentReference<TransformC> comp;
+    private ComponentReference<WorldTransformC> world;
 
-    public TransformedGameObject() {
-
+    public GameObjectTransform(GameObject owner, NodeHierarchy hierarchy) {
+        this.owner = owner;
+        this.hierarchy = hierarchy;
     }
 
     public ComponentReference<TransformC> transformComponent() {
         if (comp == null) {
-            comp = getComponent(TransformC.ID);
+            comp = owner.getComponent(TransformC.ID);
             comp.linkProxy(this);
         }
         return comp;
+    }
+
+    public ComponentReference<WorldTransformC> worldComponent() {
+        if (world == null) {
+            world = owner.getComponent(WorldTransformC.ID);
+        }
+        return world;
+    }
+
+    public GameObject getGameObject() {
+        return owner;
     }
 
     @Override
@@ -35,11 +56,6 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
     public void setIndexInternal(int index) {
         this.i = index;
         tc.dirty[i] = true;
-    }
-
-    @Override
-    public int[] getFixedComponents() {
-        return new int[] { TransformC.ID, WorldTransformC.ID };
     }
 
     public float getX() {
@@ -294,5 +310,53 @@ public abstract class TransformedGameObject extends ComponentProxy<TransformC> i
 
     public void changeScale(Vector3f delta) {
         changeScaleXYZ(delta.x, delta.y, delta.z);
+    }
+
+    public GameObject getParent() {
+        return hierarchy.getParent(getGameObject().entityId());
+    }
+
+    public List<GameObject> getChildren() {
+        List<GameObject> dest = new ArrayList<>();
+        getChildren(dest);
+        return dest;
+    }
+
+    /**
+     * @param dest The MODIFYABLE list that will be populated by this GameObjects children. Previous contents are kept.
+     */
+    public void getChildren(List<GameObject> dest) {
+        hierarchy.getChildren(getGameObject().entityId(), dest);
+    }
+
+    public void addChild(GameObject object) {
+        hierarchy.addChild(getGameObject().entityId(), object.entityId());
+    }
+
+    public void getWorldMatrix(float[] arr) {
+        worldComponent();
+        float[] allMats = world.getComponent().worldMatrix;
+        int index = world.getIndex() * 16;
+        System.arraycopy(allMats, index, arr, 0, 16);
+    }
+
+    public void getWorldMatrix(Matrix4f dest) {
+        worldComponent();
+        dest.set(world.getComponent().worldMatrix, world.getIndex() * 16);
+    }
+
+    public Vector3f getWorldPosition() {
+        Vector3f dest = new Vector3f();
+        getWorldPosition(dest);
+        return dest;
+    }
+
+    public void getWorldPosition(Vector3f dest) {
+        worldComponent();
+        float[] allMats = world.getComponent().worldMatrix;
+        int index = world.getIndex() * 16;
+        dest.x = allMats[index + 12];
+        dest.y = allMats[index + 13];
+        dest.z = allMats[index + 14];
     }
 }

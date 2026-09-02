@@ -9,8 +9,8 @@ public class CompiledTransformNode {
     public float[] ox, oy, oz;
     public float[] rx, ry, rz, rw;
     public float[] sx, sy, sz;
+    public boolean[] dirty;
 
     public int parentNode;
     public int subSize;
-    public boolean isDirty;
 }

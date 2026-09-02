@@ -15,6 +15,7 @@ import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.game.object.CameraGameObject;
+import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
@@ -63,6 +64,8 @@ public class DemoScene extends Scene {
     private PressableState keyLogCamera;
     private boolean lockedCursor = true;
 
+    private HierarchyManager hierarchyManager;
+
     public static float[][] positions = {
             {45, -45, 45},
             {-45, -45, 45},
@@ -88,6 +91,8 @@ public class DemoScene extends Scene {
         loadMeshResources();
         setupInputAndCamera();
         buildGridInstances();
+
+        hierarchyManager = context.service(Services.HIERARCHY);
 
         // Allocate 64 bytes per 4x4 float matrix
         matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
@@ -141,13 +146,10 @@ public class DemoScene extends Scene {
     private void setupInputAndCamera() {
         CameraGameObject cam = new CameraGameObject(context);
         cam.spawn();
+        cam.setIsOrtho(false);
+        cam.control(new FreecamController(context));
 
         getRenderSystem().frameDataManager().setCamera(cam);
-
-        camera = new PerspectiveCamera(context, 90);
-        CameraController controller = new FreecamController(context);
-        camera.setController(controller);
-        camera.use();
 
         InputManager input = context.service(Services.INPUT_MANAGER);
         KeyboardInput keyboard = input.keyboard();
@@ -184,6 +186,8 @@ public class DemoScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
+
+        hierarchyManager.updateTransforms();
 
         // Populate matrix buffer
         matrixBuffer.clear();

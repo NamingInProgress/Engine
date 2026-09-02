@@ -31,8 +31,8 @@ public class EcsManagerAPI extends ServiceAPI implements EcsManager {
     }
 
     @Override
-    public void destroyEntities(int[] entities) {
-        getImpl().destroyEntities(entities);
+    public void destroyEntities(int[] entities, int start, int length) {
+        getImpl().destroyEntities(entities, start, length);
     }
 
     @Override

@@ -54,8 +54,8 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
     }
 
     @Override
-    public void destroyEntities(int[] entities) {
-        archetypeManager.destroyEntities(entities);
+    public void destroyEntities(int[] entities, int start, int length) {
+        archetypeManager.destroyEntities(entities, start, length);
     }
 
     @Override

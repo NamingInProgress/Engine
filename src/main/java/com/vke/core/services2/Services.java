@@ -18,6 +18,8 @@ import com.vke.core.event.service.EventBusAPI;
 import com.vke.core.event.service.EventBusImpl;
 import com.vke.core.framable.service.FramableManagerAPI;
 import com.vke.core.framable.service.FramableManagerImpl;
+import com.vke.core.game.scene.service.HierarchyManagerAPI;
+import com.vke.core.game.scene.service.HierarchyManagerImpl;
 import com.vke.core.input.service.InputManagerAPI;
 import com.vke.core.input.service.InputManagerImpl;
 import com.vke.core.profiler.service.ProfilerAPI;
@@ -58,6 +60,7 @@ public class Services {
     public static final String GRAPH_MANAGER = "grp";
     public static final String POST_PROCESS = "ppe";
     public static final String ECS = "ecs";
+    public static final String HIERARCHY = "hir";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();
@@ -79,6 +82,7 @@ public class Services {
         manager.registerNewService(GRAPH_MANAGER, new GraphManagerAPI(new GraphManagerBaseImpl(engine)));
         manager.registerNewService(POST_PROCESS, new PostProcessManagerAPI(new PostProcessManagerBaseImpl(engine)));
         manager.registerNewService(ECS, new EcsManagerAPI(new EcsManagerImpl(engine)));
+        manager.registerNewService(HIERARCHY, new HierarchyManagerAPI(new HierarchyManagerImpl(engine)));
     }
 
 }

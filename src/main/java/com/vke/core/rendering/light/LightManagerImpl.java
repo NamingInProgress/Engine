@@ -53,6 +53,8 @@ public class LightManagerImpl implements LightManager {
         public void execute(Archetype at, int i0, int i1) {
             SpotLightC sl = at.getComponentById(SpotLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
+
+            /*
             for (int i = i0; i < i1; i++) {
                 float x = tf.x[i], y = tf.y[i], z = tf.z[i];
                 Vector3f rot = tf.forward(i);
@@ -76,6 +78,7 @@ public class LightManagerImpl implements LightManager {
                     putLightFlag(writer, 1);
                 });
             }
+            */
         }
     }
 
