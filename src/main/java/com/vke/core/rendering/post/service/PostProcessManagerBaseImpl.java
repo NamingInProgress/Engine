@@ -61,7 +61,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
                     String pipelineName = stageNode.getString("pipeline");
                     Identifier pipelineIdent = caller.id(pipelineName);
                     //todo: handle uniforms
-                    AssetHandle<? extends RenderPipeline> pipelineHandle = R.pipelines.get(pipelineIdent);
+                    AssetHandle<RenderPipeline> pipelineHandle = R.pipelines.get(pipelineIdent);
 
                     class SimpleProvider implements PostEffectProvider {
                         @Override

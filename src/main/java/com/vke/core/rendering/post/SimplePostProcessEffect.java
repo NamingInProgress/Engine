@@ -15,11 +15,11 @@ import com.vke.utils.DrawUtils;
 import java.io.IOException;
 
 public class SimplePostProcessEffect extends PostProcessEffect {
-    protected final AssetHandle<? extends RenderPipeline> pipelineHandle;
+    protected final AssetHandle<RenderPipeline> pipelineHandle;
     protected RenderPipeline pipeline;
     protected CISResource u_ColorTex;
 
-    public SimplePostProcessEffect(Identifier identifier, RenderSystem renderSystem, RenderPassInstance instance, AssetHandle<? extends RenderPipeline> pipelineHandle) {
+    public SimplePostProcessEffect(Identifier identifier, RenderSystem renderSystem, RenderPassInstance instance, AssetHandle<RenderPipeline> pipelineHandle) {
         super(identifier, renderSystem, instance);
         this.pipelineHandle = pipelineHandle;
     }
@@ -38,7 +38,7 @@ public class SimplePostProcessEffect extends PostProcessEffect {
     protected void onInitEffect() {}
 
     @Override
-    public void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput) {
+    public void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput, Texture colorOutput) {
         setupUniforms(colorInput);
         cmd.bindPipeline(pipelineHandle);
         cmd.bindDescriptorSets(pipelineHandle);

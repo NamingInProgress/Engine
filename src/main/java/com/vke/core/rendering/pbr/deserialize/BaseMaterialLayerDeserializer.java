@@ -24,7 +24,7 @@ public class BaseMaterialLayerDeserializer extends MaterialLayerDeserializer<Bas
         float roughness = node.getNumberOption("roughness-scale").unwrapOrIdentity();
         float occlusion = node.getNumberOption("occlusion-scale").unwrapOrIdentity();
         RgbColor emissiveColor = node.getStringOption("emissive-color").map(c -> Color.parse(context, c).toRgb()).unwrapOrIdentity();
-        float emissiveScale = node.getNumberOption("emissive-scale").unwrapOrIdentity();
+        float emissiveScale = node.getNumberOption("emissive-scale").unwrapOrDefault();
         float specularScale = node.getNumberOption("specular-scale").unwrapOrIdentity();
 
         return new BaseLayer(color, albedo, normal, mr, oc, emissive, specular,

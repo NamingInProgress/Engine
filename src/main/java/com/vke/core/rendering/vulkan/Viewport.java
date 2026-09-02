@@ -1,5 +1,7 @@
 package com.vke.core.rendering.vulkan;
 
+import java.util.Objects;
+
 public class Viewport {
     public int x, y, w, h;
     public int minDepth, maxDepth;
@@ -27,5 +29,17 @@ public class Viewport {
 
     public int height() {
         return h;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Viewport viewport = (Viewport) o;
+        return x == viewport.x && y == viewport.y && w == viewport.w && h == viewport.h && minDepth == viewport.minDepth && maxDepth == viewport.maxDepth;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, w, h, minDepth, maxDepth);
     }
 }

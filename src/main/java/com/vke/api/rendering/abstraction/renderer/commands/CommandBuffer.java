@@ -65,28 +65,22 @@ public interface CommandBuffer extends Disposable {
 
     record RenderingInfo(List<AttachmentInfo> colorAttachments,
                          @Nullable AttachmentInfo depthAttachment,
-                         @Nullable AttachmentInfo stencilAttachment,
-                         Rect renderArea) {
+                         @Nullable AttachmentInfo stencilAttachment) {
         public RenderingInfo(@Nullable AttachmentInfo... colorAttachments) {
-            this(Arrays.stream(colorAttachments).toList(), null, null, null);
+            this(Arrays.stream(colorAttachments).toList(), null, null);
         }
 
         public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachments, depthAttachment, null, null);
-        }
-
-        public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment,
-                             @Nullable AttachmentInfo stencilAttachment) {
-            this(colorAttachments, depthAttachment, stencilAttachment, null);
+            this(colorAttachments, depthAttachment, null);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null, null);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment,
                              @Nullable AttachmentInfo stencilAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment, null);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment);
         }
     }
 
@@ -146,8 +140,11 @@ public interface CommandBuffer extends Disposable {
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
     void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline);
 
-    void setViewport(Viewport viewport);
     void setScissor(Scissor scissor);
+    void setScissor(int x, int y, int width, int height);
+    void setViewport(Viewport viewport);
+    void setViewport(int x, int y, int width, int height);
+    void setViewport(int x, int y, int width, int height, int minDepth, int maxDepth);
 
     void draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance);
     void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance);

@@ -5,13 +5,8 @@
   "lineWidth": 4,
   "attachments": [
     {
-      "type": "COLOR"
-    },
-    {
-      "type": "DEPTH",
-      "format": "DEPTH32F",
-      "depthCompareOperation": "LESS",
-      "depthTestEnable": true
+      "type": "COLOR",
+      "blendEnable": true
     }
   ],
   "shaders": [
@@ -21,7 +16,7 @@
     },
     {
       "type": "frag",
-      "src": "shaders/deferred/light_pass.fsh"
+      "src": "shaders/post/bloom/combine.fsh"
     }
   ]
 }

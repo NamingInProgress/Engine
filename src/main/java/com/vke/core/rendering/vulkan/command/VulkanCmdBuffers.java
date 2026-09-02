@@ -43,6 +43,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VulkanRenderSystem ctx;
     private final VulkanSwapchain swapchain;
 
+    private int vx, vy, vw, vh, vmin, vmax;
+    private int sx, sy, sw, sh;
+
     private boolean recording, rendering;
 
     public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
@@ -124,6 +127,10 @@ public class VulkanCmdBuffers implements CommandBuffer {
                             .storeOp(colorAttachment.storeOp().getIntVal())
                             .clearValue(clearColor);
                 }
+
+                Texture main = info.colorAttachments().getFirst().tex();
+                setViewport(0, 0, main.width(), main.height(), 0, 1);
+                setScissor(0, 0, main.width(), main.height());
             }
 
             VkRenderingAttachmentInfo depth = null;
@@ -150,12 +157,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
                         .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
             }
 
-
             VkRect2D area = VkRect2D.calloc(stack);
-            Rect renderArea = info.renderArea();
-            if (renderArea != null) {
-                area.offset(offset -> offset.set(renderArea.x, renderArea.y));
-                area.extent(extent -> extent.set(renderArea.width, renderArea.height));
+            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
+                Texture tex = info.colorAttachments().getFirst().tex();
+                area.offset(offset -> offset.set(0, 0));
+                area.extent(extent -> extent.set(tex.width(), tex.height()));
             } else {
                 area.offset(offset -> offset.set(0, 0));
                 area.extent(swapchain.getExtent());
@@ -198,6 +204,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
         currentImage.transition(this, ImageState.PRESENT);
 
         VK14.vkEndCommandBuffer(vk);
+
+        vx = -1;
+        sx = -1;
     }
 
     @Override
@@ -284,28 +293,55 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void setViewport(Viewport viewport) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkViewport.Buffer viewportBuffer = VkViewport.calloc(1, stack);
-            viewportBuffer.get(0)
-                    .set(viewport.x, viewport.h,
-                            viewport.w, -viewport.h,
-                            viewport.minDepth, viewport.maxDepth);
-
-            VK14.vkCmdSetViewport(this.getBuffer(), 0, viewportBuffer);
-        }
+        setViewport(viewport.x, viewport.y, viewport.w, viewport.h, viewport.minDepth, viewport.maxDepth);
     }
 
     @Override
     public void setScissor(Scissor scissor) {
+        setScissor(scissor.x, scissor.y, scissor.w, scissor.h);
+    }
+
+    @Override
+    public void setViewport(int x, int y, int width, int height, int minDepth, int maxDepth) {
+        if (vx == x && vy == y && vw == width && vh == height && vmin == minDepth && vmax == maxDepth) return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkViewport.Buffer viewportBuffer = VkViewport.calloc(1, stack);
+            viewportBuffer.get(0)
+                    .set(x, height, width, -height, minDepth, maxDepth);
+
+            VK14.vkCmdSetViewport(this.getBuffer(), 0, viewportBuffer);
+            vx = x;
+            vy = y;
+            vw = width;
+            vh = height;
+            vmin = minDepth;
+            vmax = maxDepth;
+        }
+    }
+
+    @Override
+    public void setViewport(int x, int y, int width, int height) {
+        this.setViewport(x, y, width, height, 0, 1);
+    }
+
+    @Override
+    public void setScissor(int x, int y, int width, int height) {
+        if (sx == x && sy == y && sw == width && sh == height) return;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkRect2D.Buffer scissorBuffer = VkRect2D.calloc(1, stack);
             scissorBuffer.get(0)
                     .set(VkRect2D.calloc(stack)
-                            .offset(VkOffset2D.calloc(stack).set(scissor.x, scissor.y))
-                            .extent(VkExtent2D.calloc(stack).set(scissor.w, scissor.h))
+                            .offset(VkOffset2D.calloc(stack).set(x, y))
+                            .extent(VkExtent2D.calloc(stack).set(width, height))
                     );
 
             VK14.vkCmdSetScissor(this.getBuffer(), 0, scissorBuffer);
+            sx = x;
+            sy = y;
+            sw = width;
+            sh = height;
         }
     }
 

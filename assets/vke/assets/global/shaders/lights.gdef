@@ -174,5 +174,5 @@ vec3 calculateLighting(vec3 N, vec3 V, vec3 fragPos, MaterialInputs mat) {
 
     vec3 ambient = vec3(1) * mat.baseColor.xyz * mat.occlusion;
 
-    return ambient + Lo;
+    return ambient + Lo + mat.emissive;
 }

@@ -27,7 +27,7 @@ public class Main {
 
 
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("Cube test");

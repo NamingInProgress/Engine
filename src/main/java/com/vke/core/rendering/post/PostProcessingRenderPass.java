@@ -1,6 +1,5 @@
 package com.vke.core.rendering.post;
 
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
@@ -59,13 +58,17 @@ public class PostProcessingRenderPass extends RenderPass {
 
             colorCopy.useInShader();
 
-            cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
-                    new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{0.2f, 0.3f, 0.3f, 1.0f})
-            ), null));
+            if (effect.autoStartRendering()) {
+                cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
+                        new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{0.2f, 0.3f, 0.3f, 1.0f})
+                ), null));
+            }
 
-            effect.draw(cmd, context, runs == 0 ? input : colorCopy);
+            effect.draw(cmd, context, runs == 0 ? input : colorCopy, color);
 
-            cmd.endRendering();
+            if (effect.autoStartRendering()) {
+                cmd.endRendering();
+            }
 
             var temp = colorCopy;
             colorCopy = color;

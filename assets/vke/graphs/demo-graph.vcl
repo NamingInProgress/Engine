@@ -14,7 +14,7 @@
     </render-pass>
 
 <!--    <image-to-screen source="debug.colorOut"/>-->
-<!---->
+
     <render-pass name="post" parent="post">
         <inputs>
             <input name="colorIn" source="debug.colorOut"/>
@@ -26,6 +26,6 @@
             <stage name="bloom"/>
         </stages>
     </render-pass>
-<!---->
+
     <image-to-screen source="post.colorOut"/>
 </render-graph>

@@ -20,5 +20,7 @@ public abstract class PostProcessEffect {
 
     public void onInitialize() {}
 
-    public abstract void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput);
+    public boolean autoStartRendering() { return true; }
+
+    public abstract void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput, Texture colorOutput);
 }

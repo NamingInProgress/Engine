@@ -116,7 +116,7 @@ public class DemoScene extends Scene {
             int i = left + eid;
             DirectionalLightC dl = at.getComponentById(DirectionalLightC.ID);
             TransformC tf = at.getComponentById(TransformC.ID);
-            dl.initialize(i, new RgbColor(0, 0, 1, 1), 1000);
+            dl.initialize(i, new RgbColor(0, 0, 1, 1), 10);
             tf.initialize(i);
             tf.x[i] = 20;
         });
