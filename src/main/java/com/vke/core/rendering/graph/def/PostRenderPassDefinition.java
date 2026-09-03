@@ -2,9 +2,9 @@ package com.vke.core.rendering.graph.def;
 
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.rendering.post.PostProcessingRenderPass;
-import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;

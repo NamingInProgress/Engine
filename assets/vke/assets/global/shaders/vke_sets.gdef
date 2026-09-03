@@ -1,0 +1,40 @@
+#extension GL_EXT_nonuniform_qualifier : require
+
+const int NO_TEXTURE = -1;
+
+struct Camera {
+    mat4 projection;
+    mat4 view;
+    mat4 inverse_projection;
+    mat4 inverse_view;
+    vec4 lookAt;
+    vec4 position;
+};
+
+#MultiWriteHint(3)
+layout (set = 0, binding = 0) uniform FrameData {
+    Camera camera;
+    float time;
+} frameData;
+
+layout (set = 1, binding = 0) uniform #DefaultSize(1024) sampler2D textures[];
+
+vec4 vktexture(sampler2D sampl, vec2 uv) {
+    return texture(sampl, vec2(uv.x, 1 - uv.y));
+}
+
+vec4 sampleTexture(int id, vec2 uv) {
+    if (id == NO_TEXTURE) return vec4(1);
+    return texture(textures[nonuniformEXT(id)], uv);
+}
+
+vec4 correctColor(vec4 col) {
+    vec4 color = col;
+    color = color / (color + vec4(1.0));
+    color = pow(color, vec4(1.0 / 2.2));
+    return color;
+}
+
+vec4 correctColor(vec3 col) {
+    return correctColor(vec4(col, 1.0));
+}

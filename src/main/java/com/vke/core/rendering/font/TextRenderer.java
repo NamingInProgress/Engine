@@ -5,13 +5,12 @@ import com.vke.api.font.FontCursor;
 import com.vke.api.rendering.abstraction.draw.Drawable;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
-import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
 import com.vke.core.font.ttf.Glyph;
 import com.vke.core.font.ttf.GlyphPoint;
 import com.vke.core.rendering.transform.MatrixStack;
@@ -147,7 +146,7 @@ public class TextRenderer implements Drawable {
         return matrixStack;
     }
 
-    public void color(Color color) {
+    public void color(RgbColor color) {
         this.r = color.r();
         this.g = color.g();
         this.b = color.b();

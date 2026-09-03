@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 
@@ -23,27 +23,32 @@ public abstract class RenderPass {
 
     public void onLoad() {}
 
-    public void beginRendering(CommandBuffer cmd, List<String> color, Color clear) {
-        this.beginRendering(cmd, color, null, null, clear, null, null);
+    public void beginRendering(CommandBuffer cmd, List<String> color, RgbColor clear) {
+        this.beginRendering(cmd, color, null, null, List.of(clear), null, null);
     }
 
-    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, Color clear, Color depthClear) {
+    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, RgbColor clear, RgbColor depthClear) {
+        this.beginRendering(cmd, color, depth, null, List.of(clear), depthClear, null);
+    }
+
+    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, List<RgbColor> clear, RgbColor depthClear) {
         this.beginRendering(cmd, color, depth, null, clear, depthClear, null);
     }
 
-    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, String stencil, Color clear, Color depthClear, Color stencilClear) {
+    public void beginRendering(CommandBuffer cmd, List<String> color, String depth, String stencil, List<RgbColor> clear, RgbColor depthClear, RgbColor stencilClear) {
         List<CommandBuffer.AttachmentInfo> colorInfos = new ArrayList<>();
         CommandBuffer.AttachmentInfo da = null, sa = null;
-        for (String s : color) {
-            colorInfos.add(new CommandBuffer.AttachmentInfo(instance.getOutputTexture(s), getLoadOp(s), StoreOp.STORE, clear.toFloat()));
+        for (int i = 0; i < color.size(); i++) {
+            String s = color.get(i);
+            colorInfos.add(new CommandBuffer.AttachmentInfo(instance.getOutputTexture(s), getLoadOp(s), StoreOp.STORE, clear.get(i).getComponents()));
         }
 
         if (depth != null) {
-            da = new CommandBuffer.AttachmentInfo(instance.getOutputTexture(depth), getLoadOp(depth), StoreOp.STORE, depthClear.toFloat());
+            da = new CommandBuffer.AttachmentInfo(instance.getOutputTexture(depth), getLoadOp(depth), StoreOp.STORE, depthClear.getComponents());
         }
 
         if (stencil != null) {
-            sa = new CommandBuffer.AttachmentInfo(instance.getOutputTexture(stencil), getLoadOp(stencil), StoreOp.STORE, stencilClear.toFloat());
+            sa = new CommandBuffer.AttachmentInfo(instance.getOutputTexture(stencil), getLoadOp(stencil), StoreOp.STORE, stencilClear.getComponents());
         }
 
         cmd.beginRendering(new CommandBuffer.RenderingInfo(colorInfos, da, sa));

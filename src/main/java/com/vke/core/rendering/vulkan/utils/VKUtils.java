@@ -1,11 +1,11 @@
 package com.vke.core.rendering.vulkan.utils;
 
+import com.vke.core.Identifier;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
 import com.vke.utils.console.ColorStringBuilder;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;

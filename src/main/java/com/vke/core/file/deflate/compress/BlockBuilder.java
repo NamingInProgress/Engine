@@ -105,7 +105,6 @@ public class BlockBuilder {
         int uncompressedSize = cursor + 1; //the +1 is for byte alignment
 
         BlockResult fixedResult = buildFixedBlock(lz77Output);
-        //then dynamic over here
         BlockResult dynamicResult = buildDynamicBlock(lz77Output, litlenFreq, distFreq);
 
         boolean dynamicIsTheWinner = false;

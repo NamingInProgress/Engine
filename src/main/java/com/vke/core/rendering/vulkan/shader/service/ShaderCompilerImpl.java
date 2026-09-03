@@ -6,12 +6,13 @@ import com.vke.api.services2.ServiceImpl;
 import com.vke.api.vkz.ArchiveType;
 import com.vke.api.vkz.VkzArchive;
 import com.vke.api.vkz.VkzEditor;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.services2.Services;
 import com.vke.core.vkz.service.Vkz;
 import com.vke.utils.io.FileUtils;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,22 +52,22 @@ public class ShaderCompilerImpl extends ServiceImpl implements ShaderCompiler {
     }
 
     @Override
-    public ByteBuffer compileGlslToSpirV(byte[] shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
+    public ByteBuffer compileGlslToSpirV(byte[] shader, ShaderType kind, @NotNull FileIdentifier fileName) throws Exception {
         return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind.getShadercHandle(), fileName);
     }
 
     @Override
-    public ByteBuffer compileGlslToSpirV(ByteBuffer shader, ShaderType kind, @NotNull Identifier fileName) throws Exception {
+    public ByteBuffer compileGlslToSpirV(ByteBuffer shader, ShaderType kind, @NotNull FileIdentifier fileName) throws Exception {
         return this.compileGlslToSpirV(shader, kind.getShadercHandle(), fileName);
     }
 
     @Override
-    public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @NotNull Identifier fileName) throws Exception {
+    public ByteBuffer compileGlslToSpirV(byte[] shader, int kind, @NotNull FileIdentifier fileName) throws Exception {
         return this.compileGlslToSpirV(alloc.bytes(shader).getHeapObject(), kind, fileName);
     }
 
     @Override
-    public ByteBuffer compileGlslToSpirV(ByteBuffer source, int kind, @NotNull Identifier fileName) throws Exception {
+    public ByteBuffer compileGlslToSpirV(ByteBuffer source, int kind, @NotNull FileIdentifier fileName) throws Exception {
         if (CACHE.containsKey(fileName.toSpecialVkzFormatCuzItsBad())) return CACHE.get(fileName.toSpecialVkzFormatCuzItsBad());
 
         long options = Shaderc.shaderc_compile_options_initialize();

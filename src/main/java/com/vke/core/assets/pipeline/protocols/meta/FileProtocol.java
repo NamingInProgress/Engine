@@ -74,7 +74,7 @@ public class FileProtocol implements AssetProtocol<Infallible> {
     }
 
     private AssetData getBundleRelativeLocation(StageElement element) {
-        return AssetData.plain(FileUtils.getSubpath(element.getPath().normalize(), 3));
+        return AssetData.plain(FileUtils.getSubpath(element.getPath().normalize(), 4));
     }
 
     private AssetData getProtocol(StageElement element) {

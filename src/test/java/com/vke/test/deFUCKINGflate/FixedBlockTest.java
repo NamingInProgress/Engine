@@ -1,18 +1,15 @@
 package com.vke.test.deFUCKINGflate;
 
 import com.carrotsearch.hppc.ByteArrayList;
+import com.vke.core.FileIdentifier;
 import com.vke.core.file.deflate.compress.DeflatingDevice;
 import com.vke.core.file.deflate.decompress.InflatingDevice;
 import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.profiler.service.ProfilerImpl;
 import com.vke.core.profiler.ProfilerPrinter;
 import com.vke.utils.Colors;
-import com.vke.utils.io.Identifier;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,7 +18,7 @@ public class FixedBlockTest {
     public static void main(String[] args) throws IOException, InflatingException, InterruptedException {
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
 
-        InputStream testStream = new Identifier("test.bmp").asInputStream();
+        InputStream testStream = FileIdentifier.of("test.bmp").openInputStream();
         byte[] testData = testStream.readAllBytes();
         //byte[] testData = "abc abc abc".getBytes(StandardCharsets.UTF_8);
         DeflatingDevice device = new DeflatingDevice(bao, 64);

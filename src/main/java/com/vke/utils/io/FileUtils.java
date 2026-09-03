@@ -1,25 +1,29 @@
 package com.vke.utils.io;
 
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.utils.Utils;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.iter.helpers.Option;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 public class FileUtils {
+
+    public static final String HASH_ALGORITHM = "SHA-256";
 
     public static Path getConfigFolder(String appName) throws IOException {
         return getConfigFolder(appName, true);
@@ -73,25 +77,42 @@ public class FileUtils {
         };
     }
 
-    public static Iter<WalkedFile> getRelativePaths(String folder, int maxDepth) {
-        try {
-            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(folder);
+    public static Iter<WalkedFile> getRelativePaths(boolean isJavaEmbedded, String folder, int maxDepth) {
+        if (isJavaEmbedded) {
+            try {
+                Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(folder);
 
-            if (!urls.hasMoreElements()) {
-                return Iter.of();
+                if (!urls.hasMoreElements()) {
+                    return Iter.of();
+                }
+
+                List<Iter<WalkedFile>> iters = new ArrayList<>();
+
+                while (urls.hasMoreElements()) {
+                    URL url = urls.nextElement();
+                    iters.add(walkUrlResources(url, maxDepth));
+                }
+
+                return Iter.of(iters).flatMap(it -> it);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-
-            List<Iter<WalkedFile>> iters = new ArrayList<>();
-
-            while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
-                iters.add(walkUrlResources(url, maxDepth));
+        } else {
+            try {
+                var top = Paths.get(folder);
+                var stream = Files.walk(top, maxDepth);
+                return Iter.of(stream)
+                        .filter(f -> !f.equals(top))
+                        .map(f -> {
+                            boolean isDir = Files.isDirectory(f);
+                            Path between = top.relativize(f);
+                            String name = between.normalize().toString();
+                            return new WalkedFile(name, !isDir);
+                        }).finisher(stream::close);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-
-            return Iter.of(iters).flatMap(it -> it);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -157,6 +178,37 @@ public class FileUtils {
         return path.replace('\\', '/');
     }
 
+    public static String getFilename(FileIdentifier ident) {
+        Identifier filename = ident.dropPrefix().strip();
+        return filename.getPath();
+    }
+
+    public static String getFilenameLower(FileIdentifier ident) {
+        return getFilename(ident).toLowerCase(Locale.ROOT);
+    }
+
+    public static String getExtension(FileIdentifier ident) {
+        String filename = getFilename(ident);
+        int dotIdx = filename.lastIndexOf('.');
+        if (dotIdx < 0) return filename;
+        return filename.substring(dotIdx + 1);
+    }
+
+    public static String getExtensionLower(FileIdentifier ident) {
+        return getExtension(ident).toLowerCase(Locale.ROOT);
+    }
+
+    public static String getFileNickname(FileIdentifier ident) {
+        String filename = getFilename(ident);
+        int dotIdx = filename.lastIndexOf('.');
+        if (dotIdx < 0) return filename;
+        return filename.substring(0, dotIdx);
+    }
+
+    public static String getFileNicknameLower(FileIdentifier ident) {
+        return getFileNickname(ident).toLowerCase(Locale.ROOT);
+    }
+
     public record WalkedFile(String name, boolean isFile) {}
 
     public static String getFileName(Path path) {
@@ -175,5 +227,25 @@ public class FileUtils {
         int dot = filename.lastIndexOf('.');
         if (dot == -1) return null;
         return filename.substring(0, dot);
+    }
+
+    public static byte[] hash(FileIdentifier file) throws IOException {
+        return hash(file, HASH_ALGORITHM);
+    }
+
+    public static byte[] hash(FileIdentifier file, String hashAlgo) throws IOException {
+        return Utils.chainExceptions(() -> {
+            MessageDigest digestionTrack = MessageDigest.getInstance(hashAlgo);
+            try (InputStream is = Files.newInputStream(file.toPath())) {
+                DigestInputStream dis = new DigestInputStream(is, digestionTrack);
+                //we can actually avoid a lot of memory usage by reading in chunks lol
+                final int CHUNKS = 1024;
+                int read = 1;
+                while (read > 0) {
+                    read = dis.readNBytes(CHUNKS).length;
+                }
+            }
+            return digestionTrack.digest();
+        });
     }
 }

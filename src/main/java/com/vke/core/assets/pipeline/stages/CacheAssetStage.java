@@ -1,14 +1,13 @@
 package com.vke.core.assets.pipeline.stages;
 
 import com.vke.api.logger.Logger;
-import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.Identifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.utils.io.Identifier;
 
 public class CacheAssetStage extends CompoundPipelineStage {
     public static final String STAGE = "cache-asset";

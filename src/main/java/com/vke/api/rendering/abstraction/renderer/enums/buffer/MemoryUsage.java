@@ -14,13 +14,13 @@ public class MemoryUsage implements IntBitEnum<MemoryUsage, MemoryUsage.Bits> {
     @Override
     public MemoryUsage or(Bits... flags) {
         for (Bits bit : flags) {
-            mask |= bit.getVkHandle();
+            mask |= bit.getIntVal();
         }
         return this;
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return mask;
     }
 
@@ -43,7 +43,7 @@ public class MemoryUsage implements IntBitEnum<MemoryUsage, MemoryUsage.Bits> {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 

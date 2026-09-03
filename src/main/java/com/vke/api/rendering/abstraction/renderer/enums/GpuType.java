@@ -18,7 +18,7 @@ public enum GpuType implements IntEnum {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return vkHandle;
     }
 

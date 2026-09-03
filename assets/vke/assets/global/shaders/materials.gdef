@@ -1,0 +1,96 @@
+const int NO_MATERIAL = -1;
+
+struct Material {
+    uint flags;
+    int baseColorId;
+    int normalId;
+    int metallicRoughnessId;
+    int occlusionId;
+    int emissiveId;
+    int specularId;
+    float normalScale;
+
+    vec4 baseAlbedo;
+
+    float metallicScale;
+    float roughnessScale;
+    float occlusionScale;
+    float emissiveScale;
+    vec4 emissiveColor;
+    float specularScale;
+};
+
+struct MaterialInputs {
+    vec4 baseColor;
+
+    vec3 normal;
+
+    float metallic;
+    float roughness;
+    float occlusion;
+
+    vec3 emissive;
+
+    float specular;
+};
+
+#Static
+layout (set = 2, binding = 0) readonly buffer Materials {
+    #DefaultSize(1024)
+    Material materials[];
+} u_MaterialBuffer;
+
+MaterialInputs evaluateMaterial(Material material, vec2 uv, vec3 normal, vec4 tangent) {
+    MaterialInputs m;
+
+    vec4 baseTex = sampleTexture(material.baseColorId, uv);
+    m.baseColor = baseTex * material.baseAlbedo;
+
+    vec3 N = normalize(normal);
+    vec3 T = normalize(tangent.xyz - N * dot(N, tangent.xyz));
+    vec3 B = cross(N, T) * tangent.w;
+    mat3 TBN = mat3(T, B, N);
+
+    vec3 tangentNormal = sampleTexture(material.normalId, fUV).xyz * 2.0 - 1.0;
+    m.normal = normalize(TBN * tangentNormal);
+
+    m.normal.xy *= material.normalScale;
+    m.normal = normalize(m.normal);
+
+    vec4 mr = sampleTexture(material.metallicRoughnessId, uv);
+
+    m.roughness = clamp(mr.g * material.roughnessScale, 0.04, 1.0);
+
+    m.metallic = clamp(mr.b * material.metallicScale, 0.0, 1.0);
+
+    m.occlusion = sampleTexture(material.occlusionId, uv).r *
+        material.occlusionScale;
+
+    vec3 emissiveTex = sampleTexture(material.emissiveId, uv).rgb;
+
+    m.emissive = emissiveTex * material.emissiveColor.rgb *
+        material.emissiveScale;
+
+    m.specular = sampleTexture(material.specularId, uv).r * material.specularScale;
+
+    return m;
+}
+
+MaterialInputs evaluateMaterial(int idx, vec2 uv, vec3 normal, vec4 tangent) {
+    if (idx == NO_MATERIAL) {
+        MaterialInputs m;
+        m.baseColor = vec4(1.0);
+        m.normal = vec3(0, 0, 1);
+        m.roughness = 0.5;
+        m.metallic = 0.0;
+        m.occlusion = 1.0;
+        m.emissive = vec3(0.0);
+        m.specular = 0.5;
+        return m;
+    }
+    return evaluateMaterial(u_MaterialBuffer.materials[idx], uv, normal, tangent);
+}
+
+Material getMaterial(int idx) {
+    return u_MaterialBuffer.materials[idx];
+}

@@ -9,11 +9,11 @@ import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaElementLocation;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
+import com.vke.core.FileIdentifier;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaField;
 import com.vke.core.parsing.config.schema.elements.types.SchemaObjectType;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ public class VkeSchema implements ConfigSchema {
     private static final ConfigSchema masterSchema;
     static {
         try {
-            Identifier ident = Identifier.of("schema/master/master.schema.json");
-            char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
+            FileIdentifier ident = FileIdentifier.of("schema/master/master.schema.json");
+            char[] source = Utils.readCharsFromInputStream(ident.openInputStream());
             ConfigParser parser = new JsonParser();
             parser.setSource(source);
             ConfigDocument d = parser.parse();

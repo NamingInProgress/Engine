@@ -1,6 +1,6 @@
 package com.vke.api.file;
 
-import com.vke.utils.io.Identifier;
+import com.vke.core.FileIdentifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -13,9 +13,9 @@ public interface LazyDecoder<T> extends AnyDecoder {
         return decodeLazy(LazyDecoder.class.getResourceAsStream(path));
     }
 
-    default LazyArray<T> decodeLazy(Identifier identifier) throws DecodeException {
+    default LazyArray<T> decodeLazy(FileIdentifier identifier) throws DecodeException {
         try {
-            return decodeLazy(identifier.asInputStream());
+            return decodeLazy(identifier.openInputStream());
         } catch (IOException e) {
             throw new DecodeException(e);
         }

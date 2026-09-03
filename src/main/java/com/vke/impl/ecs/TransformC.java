@@ -73,6 +73,9 @@ public class TransformC implements Component {
     }
 
     public void setRotation(int i, float x, float y, float z) {
+        x = (float) Math.toRadians(x);
+        y = (float) Math.toRadians(y);
+        z = (float) Math.toRadians(z);
         float sx = org.joml.Math.sin(x * 0.5f);
         float cx = org.joml.Math.cosFromSin(sx, x * 0.5f);
         float sy = org.joml.Math.sin(y * 0.5f);

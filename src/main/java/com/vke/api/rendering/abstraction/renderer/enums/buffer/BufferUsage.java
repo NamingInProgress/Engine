@@ -15,13 +15,13 @@ public class BufferUsage implements IntBitEnum<BufferUsage, BufferUsage.Bits> {
     @Override
     public BufferUsage or(Bits... flags) {
         for (Bits bit : flags) {
-            mask |= bit.getVkHandle();
+            mask |= bit.getIntVal();
         }
         return this;
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return this.mask;
     }
 
@@ -45,7 +45,7 @@ public class BufferUsage implements IntBitEnum<BufferUsage, BufferUsage.Bits> {
         }
 
         @Override
-        public int getVkHandle() {
+        public int getIntVal() {
             return vkHandle;
         }
 

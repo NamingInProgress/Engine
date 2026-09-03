@@ -28,7 +28,7 @@ public class DescriptorPool implements Disposable {
             int index = 0;
             for (ObjectIntCursor<DescriptorType> countCursor : counts) {
                 countsBuffer.get(index++)
-                        .type(countCursor.key.getVkHandle())
+                        .type(countCursor.key.getIntVal())
                         .descriptorCount(countCursor.value * framesInFlight);
             }
 

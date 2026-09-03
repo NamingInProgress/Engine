@@ -3,12 +3,12 @@ package com.vke.core.assets.pipeline.stages;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.service.AssetManagerScopedImpl;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 
 public class IncludeStage extends ParameterizedStage {
     public static final String STAGE = "include";
@@ -17,14 +17,14 @@ public class IncludeStage extends ParameterizedStage {
     public IncludeStage(ConfigNode node, PipelineContext context) throws AssetException {
         super(node);
         String thingy = node.getString("file");
-        Identifier ident = context.id(thingy);
+        FileIdentifier ident = context.fid(thingy);
         if (ident.existsFile()) {
-            ConfigDocument document = Utils.chainExceptions(() -> AssetManagerScopedImpl.parseXml(ident));
+            ConfigDocument document = Utils.chainExceptions(() -> ConfigDocument.parseIdentifier(ident));
             ConfigArrayNode rootNode = document.getRoot().asArray().values()[0].asArray();
             inner = new CompoundPipelineStage.Proxy(rootNode, context);
         } else {
-            context.getEngine().explode();
             inner = null;
+            throw new AssetException("Failed to find " + ident + " in assets!");
         }
     }
 

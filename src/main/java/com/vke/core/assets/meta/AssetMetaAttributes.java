@@ -8,10 +8,11 @@ import com.vke.api.parsing.config.node.ConfigObjectNode;
 import com.vke.api.parsing.config.node.ConfigValueNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.iter.helpers.Option;
 
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class AssetMetaAttributes {
         this.assetConfig = null;
     }
 
-    public AssetMetaAttributes(Context context, Identifier file) throws AssetException {
-        Identifier vkaFile = vkaFileIdent(file);
+    public AssetMetaAttributes(Context context, FileIdentifier file) throws AssetException {
+        FileIdentifier vkaFile = vkaFileIdent(file);
         if (vkaFile.existsFile()) {
             //important that this only happens here because in the first phase, schemas dont exist yet
             if (schema == null) {
@@ -43,7 +44,7 @@ public class AssetMetaAttributes {
 
             ConfigDocument vkaDoc = Utils.chainExceptions(() -> {
                 ConfigDocument d = ConfigDocument.parseIdentifier(vkaFile);
-                d.validate(schema, vkaFile.getPath());
+                d.validate(schema, vkaFile.dropPrefix().getPath());
                 return d;
             });
             ConfigNode assetNode = vkaDoc.getRoot().getObject("asset-meta");
@@ -77,7 +78,7 @@ public class AssetMetaAttributes {
         return Option.none();
     }
 
-    private static Identifier vkaFileIdent(Identifier file) {
+    private static FileIdentifier vkaFileIdent(FileIdentifier file) {
         return file.extendRaw(".vka");
     }
 

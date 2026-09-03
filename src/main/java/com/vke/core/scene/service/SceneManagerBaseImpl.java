@@ -1,18 +1,20 @@
 package com.vke.core.scene.service;
 
-import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.scene.LoadingScene;
 import com.vke.api.scene.Scene;
 import com.vke.api.scene.SceneException;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.scene.SceneVCL;
 import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
-import com.vke.utils.io.Identifier;
+import com.vke.utils.io.FileUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,7 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
     private final VKEngine engine;
     private HashMap<Identifier, SceneEntry> sceneRegistry;
     private Scene currentlyLoadedScene;
-    private Map<Identifier, AwaitingDependency> awaitingDependencies;
+    private Map<Identifier, List<AwaitingDependency>> awaitingDependencies;
 
     public SceneManagerBaseImpl(VKEngine engine) {
         super(Services.SCENE_MANAGER, engine);
@@ -34,13 +36,13 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         this.awaitingDependencies = new HashMap<>();
     }
 
-    void registerScenes(Identifier sceneDirectory, Context context) {
+    void registerScenes(FileIdentifier sceneDirectory, Context context) {
         sceneDirectory.walkFiles()
                 .filter(this::isSceneFile)
                 .forEach(sceneFile -> registerScene(sceneFile, context));
     }
 
-    private void registerScene(Identifier sceneFile, Context context) {
+    private void registerScene(FileIdentifier sceneFile, Context context) {
         try {
             SceneVCL sceneVCL = new SceneVCL(sceneFile, context);
             Identifier thisName = sceneVCL.name;
@@ -65,13 +67,16 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
 
             SceneEntry tried = sceneRegistry.get(loadingSceneName);
             if (tried == null) {
-                awaitingDependencies.put(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
+                awaitDependency(loadingSceneName, new AwaitingDependency(instance, loadingSceneName));
             } else {
                 instance.setLoadingScene((LoadingScene) tried.scene);
             }
 
-            AwaitingDependency awaitingDependency = awaitingDependencies.get(thisName);
-            if (awaitingDependency != null && awaitingDependency.tryParent(instance)) {
+            List<AwaitingDependency> awaitingDependency = awaitingDependencies.get(thisName);
+            if (awaitingDependency != null) {
+                for (AwaitingDependency waiting : awaitingDependency) {
+                    waiting.tryParent(instance);
+                }
                 awaitingDependencies.remove(thisName);
             }
 
@@ -79,6 +84,11 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         } catch (SceneException e) {
             engine.throwException(e, "Loading scene " + sceneFile);
         }
+    }
+
+    private void awaitDependency(Identifier depName, AwaitingDependency waiting) {
+        List<AwaitingDependency> list = awaitingDependencies.computeIfAbsent(depName, _ -> new ArrayList<>());
+        list.add(waiting);
     }
 
     private void verifyClassHierarchy(Class<?> sceneClass) throws SceneException {
@@ -159,8 +169,8 @@ public class SceneManagerBaseImpl extends ScopedServiceImpl<SceneManagerScopedIm
         }
     }
 
-    private boolean isSceneFile(Identifier identifier) {
-        return "vcl".equals(identifier.getExtensionLower());
+    private boolean isSceneFile(FileIdentifier identifier) {
+        return "vcl".equals(FileUtils.getExtensionLower(identifier));
     }
 
     private record SceneEntry(Scene scene, SceneVCL sceneVCL) {}

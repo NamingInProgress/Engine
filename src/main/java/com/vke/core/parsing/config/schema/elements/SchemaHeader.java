@@ -5,10 +5,10 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.Configs;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.parsing.config.schema.VkeSchemaLib;
 import com.vke.core.parsing.config.schema.elements.types.SchemaType;
 import com.vke.core.parsing.config.schema.elements.types.SchemaTypeReference;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
@@ -26,12 +26,12 @@ public class SchemaHeader {
         if (links != null) {
             List<String> linkPaths = Configs.getStringList(links);
             for (String path : linkPaths) {
-                Identifier ident = Identifier.of(path);
-                String filename = ident.getPath();
+                FileIdentifier ident = FileIdentifier.of(path);
+                String filename = ident.dropPrefix().getPath();
                 ConfigParser parser = ConfigParser.forFileType(filename);
                 if (parser == null) continue;
                 try {
-                    char[] source = Utils.readCharsFromInputStream(ident.asInputStream());
+                    char[] source = Utils.readCharsFromInputStream(ident.openInputStream());
                     parser.setSource(source);
                     ConfigDocument libDoc = parser.parse();
                     VkeSchemaLib lib = new VkeSchemaLib(libDoc);

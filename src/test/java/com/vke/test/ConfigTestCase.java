@@ -12,10 +12,10 @@ import java.io.IOException;
 public class ConfigTestCase {
     public static void main(String[] args) throws SchemaMismatchException, IOException, ConfigParser.ConfigParseException {
         ModuleContext ctx = new ModuleContext(Namespace.of("lol"), null);
-        ConfigDocument schemaDoc = ConfigDocument.parseIdentifier(ctx.id("person.vks"));
+        ConfigDocument schemaDoc = ConfigDocument.parseIdentifier(ctx.fid("person.vks"));
         ConfigSchema schema = ConfigSchema.readVke(schemaDoc, "person.vks"); //filename here for good errors
 
-        ConfigDocument doc = ConfigDocument.parseIdentifier(ctx.id("person.json"));
+        ConfigDocument doc = ConfigDocument.parseIdentifier(ctx.fid("person.json"));
         doc.validate(schema, "person.json"); //again here for good errors
     }
 }

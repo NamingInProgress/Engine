@@ -1,0 +1,178 @@
+const uint LIGHT_POINT = 0;
+const uint LIGHT_SPOT = 1;
+const uint LIGHT_DIRECTIONAL = 2;
+const uint LIGHT_SUN = 2;
+
+const float PI = 3.14159265359;
+
+struct Light {
+    vec3 pos;
+    float range;
+    vec3 color;
+    float intensity;
+
+    vec3 direction;
+    uint lightType;
+
+    vec3 rightVector;
+    float innerConeCos;
+
+    vec3 upVector;
+    float outerConeCos;
+
+    vec4 size;
+};
+
+#Static
+layout (set = 2, binding = 1) readonly buffer Lights {
+    uint lightCount;
+    #DefaultSize(1024)
+    Light lights[];
+} u_LightsBuffer;
+
+float distributionGGX(vec3 normal, vec3 halfway, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(normal, halfway), 0.0);
+    float NdotH2 = NdotH * NdotH;
+    float b = (NdotH2 * (a2 - 1)) + 1;
+    float b2 = b * b;
+    return a2 / (PI * b2);
+}
+
+float k_direct(float roughness) {
+    return ((roughness + 1) * (roughness + 1)) / 8;
+}
+
+float k_ibl(float roughness) {
+    return (roughness * roughness) / 2;
+}
+
+float geometrySchlickGGX(float NdotV, float k) {
+    float denom = NdotV * (1.0 - k) + k;
+    return NdotV / denom;
+}
+
+float geometrySmith(vec3 normal, vec3 view, vec3 light, float k) {
+    float NdotV = max(dot(normal, view), 0.0);
+    float NdotL = max(dot(normal, light), 0.0);
+    float ggx1 = geometrySchlickGGX(NdotV, k);
+    float ggx2 = geometrySchlickGGX(NdotL, k);
+
+    return ggx1 * ggx2;
+}
+
+vec3 defaultF0(vec4 baseColor, float metalness) {
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, baseColor.rgb, metalness);
+    return F0;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 pointLight(Light l) {
+    return l.color * l.intensity;
+}
+
+vec3 spotLight(Light l, vec3 lightDir) {
+    vec3 L = -lightDir;
+    vec3 D = l.direction;
+    float cosAngle = dot(D, L);
+
+    float spot = smoothstep(
+            l.outerConeCos,
+            l.innerConeCos,
+            cosAngle
+    );
+
+    return l.color * spot * l.intensity;
+}
+
+vec3 getRadiance(Light l, vec3 L) {
+    switch (l.lightType) {
+        case LIGHT_POINT:
+            return pointLight(l);
+        case LIGHT_SPOT:
+            return spotLight(l, L);
+        case LIGHT_DIRECTIONAL:
+            return l.intensity * l.color;
+    }
+    return vec3(1);
+}
+
+float getAttenuation(Light l, float distance) {
+    if (l.lightType == LIGHT_DIRECTIONAL) return 1;
+    float attenuation = 0.0;
+    // ====================================================
+    // OPTION A: STYLIZED / SMOOTH FALLOFF (Non-Physical)
+    // Use this if you want a simple, game-y light that
+    // fades very evenly and is easy to control.
+    // ====================================================
+
+    // Linear fade from 1.0 at center to 0.0 at range edge
+    float normalizedDist = distance / l.range;
+    attenuation = clamp(1.0 - normalizedDist, 0.0, 1.0);
+    // Optional: square it for a slightly nicer curve
+    attenuation *= attenuation;
+
+
+    // ====================================================
+    // OPTION B: UNREAL ENGINE 4 PBR (Physical)
+    // (Comment out Option A and uncomment this to use it)
+    // ====================================================
+    /*
+    // If your hotspot is still too bright, increase minRadius!
+    // Try setting it to 10% of your range (light.range * 0.1)
+    float minRadius = max(light.range * 0.05, 0.5);
+    float invSqrAtten = 1.0 / max(distSq, minRadius * minRadius);
+
+    float distOverRangeSq = distSq / rangeSq;
+    float window = clamp(1.0 - (distOverRangeSq * distOverRangeSq), 0.0, 1.0);
+    attenuation = invSqrAtten * (window * window);
+    */
+    // ====================================================
+    return attenuation;
+}
+
+vec3 calculateLighting(vec3 N, vec3 V, vec3 fragPos, MaterialInputs mat) {
+    vec3 Lo = vec3(0.0);
+    for (uint i = 0; i < u_LightsBuffer.lightCount; ++i) {
+        Light l = u_LightsBuffer.lights[i];
+        float distance = length(l.pos - fragPos);
+
+        if (distance > l.range && l.lightType != LIGHT_DIRECTIONAL) continue;
+
+        vec3 L;
+        if (l.lightType == LIGHT_DIRECTIONAL) {
+            L = normalize(-l.direction); // Directional lights use parallel rays
+        } else {
+            L = normalize(l.pos - fragPos); // Point/Spot lights originate from a position
+        }
+        vec3 H = normalize(V + L);
+
+//        float attenuation = 1.0f / (distance * distance);
+//        vec3 radiance = l.color * getAttenuation(l, distance) * l.intensity;
+        vec3 radiance = getRadiance(l, L) * getAttenuation(l, distance);
+
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), defaultF0(mat.baseColor, mat.metallic));
+        float NDF = distributionGGX(N, H, mat.roughness);
+        float G = geometrySmith(N, V, L, k_direct(mat.roughness));
+
+        float NdotL = max(dot(N, L), 0.0);
+        vec3 num = NDF * G * F;
+        float denom = 4 * max(dot(N, V), 0.0) * NdotL + 0.0001;
+        vec3 specular = num / denom;
+
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+        kD *= 1.0 - mat.metallic;
+
+        Lo += (kD * mat.baseColor.xyz / PI + specular) * radiance * NdotL;
+    }
+
+    vec3 ambient = vec3(1) * mat.baseColor.xyz * mat.occlusion;
+
+    return ambient + Lo + mat.emissive;
+}

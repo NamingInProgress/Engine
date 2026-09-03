@@ -4,10 +4,10 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 
 public abstract class Scene implements Disposable {
     private final Identifier name;

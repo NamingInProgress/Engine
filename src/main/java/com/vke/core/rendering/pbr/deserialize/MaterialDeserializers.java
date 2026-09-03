@@ -7,8 +7,8 @@ import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.api.rendering.pbr.MaterialLayer;
 import com.vke.core.Context;
+import com.vke.core.Identifier;
 import com.vke.core.services2.Services;
-import com.vke.utils.io.Identifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ public class MaterialDeserializers {
                     .unwrapOrPanic(new IllegalArgumentException("Material layer must have a parent!"));
 
             MaterialLayerDeserializer<?> deserializer = DESERIALIZERS.get(parent);
-            layers.add(deserializer.accept(value));
+            layers.add(deserializer.accept(ctx, value));
         }
 
         return new Material(ctx.<Renderer>service(Services.RENDERER).renderSystem(), layers);

@@ -13,8 +13,8 @@ import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
+import com.vke.core.FileIdentifier;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
 
@@ -27,7 +27,7 @@ public interface RenderDevice extends Disposable {
     GpuBuffer createBuffer(GpuBuffer.Description info);
     Texture createTexture(Texture.TextureDesc info);
     Sampler createSampler(Sampler.Description info);
-    Shader createShader(Identifier identifier, ShaderType type) throws IOException;
+    Shader createShader(FileIdentifier identifier, ShaderType type) throws IOException;
 
     /** PIPELINE **/
     RenderPipeline createRenderPipeline(RenderPipelineData data);
@@ -36,7 +36,7 @@ public interface RenderDevice extends Disposable {
     /** COMMAND BUFFERS **/
     CommandBuffer createCommandBuffer();
 
-    <T extends CommandBuffer> void submit(T cmd, CommandBuffer.SubmitInfo info);
+    void submit(CommandBuffer cmd, CommandBuffer.SubmitInfo info);
     void waitIdle();
 
     /** SWAPCHAIN **/

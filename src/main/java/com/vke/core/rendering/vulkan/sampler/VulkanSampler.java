@@ -34,12 +34,15 @@ public class VulkanSampler implements Sampler {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSamplerCreateInfo info = VkSamplerCreateInfo.calloc(stack)
                     .sType$Default()
-                    .magFilter(magFilter.getVkHandle())
-                    .minFilter(minFilter.getVkHandle());
+                    .magFilter(magFilter.getIntVal())
+                    .minFilter(minFilter.getIntVal())
+                    .addressModeU(VK14.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
+                    .addressModeV(VK14.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
+                    .borderColor(VK14.VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK);
 
             if (compareOp != null) {
                 info.compareEnable(true);
-                info.compareOp(compareOp.getVkHandle());
+                info.compareOp(compareOp.getIntVal());
             }
 
             LongBuffer pSampler = stack.mallocLong(1);

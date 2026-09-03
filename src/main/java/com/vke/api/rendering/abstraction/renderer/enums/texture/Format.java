@@ -99,7 +99,7 @@ public enum Format implements IntEnum {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return this.handle;
     }
 

@@ -1,13 +1,11 @@
 package com.vke.core.rendering.post;
 
-import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.core.Identifier;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.rendering.graph.RenderPassInstance;
-import com.vke.impl.vertex.FullscreenQuadVertex;
-import com.vke.utils.io.Identifier;
 
 public abstract class PostProcessEffect {
     protected final Identifier identifier;
@@ -22,5 +20,7 @@ public abstract class PostProcessEffect {
 
     public void onInitialize() {}
 
-    public abstract void draw(CommandBuffer cmd, GraphContext ctx, VertexConsumer<FullscreenQuadVertex> vc, Texture colorInput);
+    public boolean autoStartRendering() { return true; }
+
+    public abstract void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput, Texture colorOutput);
 }

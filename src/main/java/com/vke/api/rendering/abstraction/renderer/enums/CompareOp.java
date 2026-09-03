@@ -22,7 +22,7 @@ public enum CompareOp implements IntEnum {
     }
 
     @Override
-    public int getVkHandle() {
+    public int getIntVal() {
         return vkHandle;
     }
 

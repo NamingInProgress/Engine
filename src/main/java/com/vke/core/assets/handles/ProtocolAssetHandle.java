@@ -1,27 +1,22 @@
 package com.vke.core.assets.handles;
 
-import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.AssetMeta;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
-import com.vke.core.assets.service.AssetManager;
-import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
-import com.vke.utils.io.Identifier;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 
 public class ProtocolAssetHandle<T> extends CacheOnceAssetHandle<T> {
-    private final Identifier identifier;
+    private final FileIdentifier identifier;
     private final AssetProtocol.Loader protocolLoader;
     private final AssetMeta meta;
 
-    public ProtocolAssetHandle(Identifier identifier, AssetProtocol.Loader protocolLoader, AssetMeta meta) {
+    public ProtocolAssetHandle(FileIdentifier identifier, AssetProtocol.Loader protocolLoader, AssetMeta meta) {
         this.identifier = identifier;
         this.protocolLoader = protocolLoader;
         this.meta = meta;

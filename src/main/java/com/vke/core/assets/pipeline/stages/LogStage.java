@@ -22,16 +22,16 @@ public class LogStage implements PipelineStage {
     private final ArrayList<LogPart> parts;
 
     public LogStage(ConfigNode node, PipelineContext context) throws AssetException {
-        this.level = LogLevel.valueOf(node.getStringOption("level").unwrapOr("INFO").toUpperCase());
+        this.level = LogLevel.valueOf(node.getStringOption("level").unwrapOr("TRACE").toUpperCase());
 
         ConfigArrayNode partNodesNode = node.asArray();
         ConfigNode[] partNodes = partNodesNode.values();
         parts = new ArrayList<>(partNodes.length);
         for (ConfigNode partNode : partNodes) {
             //dont count attributes lol
-            if (partNode instanceof ConfigValueNode) continue;
             String partName = partNode.getNodeName();
-            String nodeContent = partNode.asArray().values()[0].asString();
+            if (partName == null || partName.equals("level")) continue;
+            String nodeContent = partNode.asString();
             switch (partName) {
                 case "static-part" -> parts.add(new StaticPart(nodeContent));
                 case "uri-part" -> {
@@ -55,7 +55,10 @@ public class LogStage implements PipelineStage {
             String p = part.applyForElement(stageElement);
             nameBuilder.append(p);
         }
-        LoggerFactory.get("AssetPipeline").log(level, nameBuilder.toString());
+        String name = nameBuilder.toString();
+        if (!name.isEmpty()) {
+            PipelineContext.ASSET_PIPELINE_LOGGER.log(level, name);
+        }
     }
 
     @Override

@@ -43,6 +43,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
     private final VulkanRenderSystem ctx;
     private final VulkanSwapchain swapchain;
 
+    private int vx, vy, vw, vh, vmin, vmax;
+    private int sx, sy, sw, sh;
+
     private boolean recording, rendering;
 
     public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
@@ -120,10 +123,14 @@ public class VulkanCmdBuffers implements CommandBuffer {
                             .sType$Default()
                             .imageView(((VulkanImageView) colorAttachment.view()).getHandle())
                             .imageLayout(VK14.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-                            .loadOp(colorAttachment.loadOp().getVkHandle())
-                            .storeOp(colorAttachment.storeOp().getVkHandle())
+                            .loadOp(colorAttachment.loadOp().getIntVal())
+                            .storeOp(colorAttachment.storeOp().getIntVal())
                             .clearValue(clearColor);
                 }
+
+                Texture main = info.colorAttachments().getFirst().tex();
+                setViewport(0, 0, main.width(), main.height(), 0, 1);
+                setScissor(0, 0, main.width(), main.height());
             }
 
             VkRenderingAttachmentInfo depth = null;
@@ -133,9 +140,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 depth = VkRenderingAttachmentInfo.calloc(stack)
                         .sType$Default()
                         .imageView(((VulkanImageView) info.depthAttachment().view()).getHandle())
-                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                        .loadOp(info.depthAttachment().loadOp().getVkHandle())
-                        .storeOp(info.depthAttachment().storeOp().getVkHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
+                        .loadOp(info.depthAttachment().loadOp().getIntVal())
+                        .storeOp(info.depthAttachment().storeOp().getIntVal())
                         .clearValue((v) -> v.depthStencil().depth(info.depthAttachment().clearColor()[0]));
             }
 
@@ -144,18 +151,17 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 stencil = VkRenderingAttachmentInfo.calloc(stack)
                         .sType$Default()
                         .imageView(((VulkanImageView) info.stencilAttachment().view()).getHandle())
-                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getVkHandle())
-                        .loadOp(info.stencilAttachment().loadOp().getVkHandle())
-                        .storeOp(info.stencilAttachment().storeOp().getVkHandle())
+                        .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
+                        .loadOp(info.stencilAttachment().loadOp().getIntVal())
+                        .storeOp(info.stencilAttachment().storeOp().getIntVal())
                         .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
             }
 
-
             VkRect2D area = VkRect2D.calloc(stack);
-            Rect renderArea = info.renderArea();
-            if (renderArea != null) {
-                area.offset(offset -> offset.set(renderArea.x, renderArea.y));
-                area.extent(extent -> extent.set(renderArea.width, renderArea.height));
+            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
+                Texture tex = info.colorAttachments().getFirst().tex();
+                area.offset(offset -> offset.set(0, 0));
+                area.extent(extent -> extent.set(tex.width(), tex.height()));
             } else {
                 area.offset(offset -> offset.set(0, 0));
                 area.extent(swapchain.getExtent());
@@ -198,6 +204,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
         currentImage.transition(this, ImageState.PRESENT);
 
         VK14.vkEndCommandBuffer(vk);
+
+        vx = -1;
+        sx = -1;
     }
 
     @Override
@@ -284,28 +293,55 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     @Override
     public void setViewport(Viewport viewport) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkViewport.Buffer viewportBuffer = VkViewport.calloc(1, stack);
-            viewportBuffer.get(0)
-                    .set(viewport.x, viewport.h,
-                            viewport.w, -viewport.h,
-                            viewport.minDepth, viewport.maxDepth);
-
-            VK14.vkCmdSetViewport(this.getBuffer(), 0, viewportBuffer);
-        }
+        setViewport(viewport.x, viewport.y, viewport.w, viewport.h, viewport.minDepth, viewport.maxDepth);
     }
 
     @Override
     public void setScissor(Scissor scissor) {
+        setScissor(scissor.x, scissor.y, scissor.w, scissor.h);
+    }
+
+    @Override
+    public void setViewport(int x, int y, int width, int height, int minDepth, int maxDepth) {
+        if (vx == x && vy == y && vw == width && vh == height && vmin == minDepth && vmax == maxDepth) return;
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkViewport.Buffer viewportBuffer = VkViewport.calloc(1, stack);
+            viewportBuffer.get(0)
+                    .set(x, height, width, -height, minDepth, maxDepth);
+
+            VK14.vkCmdSetViewport(this.getBuffer(), 0, viewportBuffer);
+            vx = x;
+            vy = y;
+            vw = width;
+            vh = height;
+            vmin = minDepth;
+            vmax = maxDepth;
+        }
+    }
+
+    @Override
+    public void setViewport(int x, int y, int width, int height) {
+        this.setViewport(x, y, width, height, 0, 1);
+    }
+
+    @Override
+    public void setScissor(int x, int y, int width, int height) {
+        if (sx == x && sy == y && sw == width && sh == height) return;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkRect2D.Buffer scissorBuffer = VkRect2D.calloc(1, stack);
             scissorBuffer.get(0)
                     .set(VkRect2D.calloc(stack)
-                            .offset(VkOffset2D.calloc(stack).set(scissor.x, scissor.y))
-                            .extent(VkExtent2D.calloc(stack).set(scissor.w, scissor.h))
+                            .offset(VkOffset2D.calloc(stack).set(x, y))
+                            .extent(VkExtent2D.calloc(stack).set(width, height))
                     );
 
             VK14.vkCmdSetScissor(this.getBuffer(), 0, scissorBuffer);
+            sx = x;
+            sy = y;
+            sw = width;
+            sh = height;
         }
     }
 
@@ -333,7 +369,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
                     .bufferRowLength(0)
                     .bufferImageHeight(0)
                     .imageSubresource()
-                    .aspectMask(((VulkanTexture) image).getAspect().getVkHandle())
+                    .aspectMask(((VulkanTexture) image).getAspect().getIntVal())
                     .mipLevel(mip)
                     .baseArrayLayer(layer)
                     .layerCount(1);
@@ -367,12 +403,12 @@ public class VulkanCmdBuffers implements CommandBuffer {
             region.get(0)
                     .sType$Default()
                     .srcSubresource(s -> s
-                            .aspectMask(vkSrc.getAspect().getVkHandle())
+                            .aspectMask(vkSrc.getAspect().getIntVal())
                             .mipLevel(srcMip)
                             .baseArrayLayer(srcLayer)
                             .layerCount(1))
                     .dstSubresource(s -> s
-                            .aspectMask(vkDst.getAspect().getVkHandle())
+                            .aspectMask(vkDst.getAspect().getIntVal())
                             .mipLevel(dstMip)
                             .baseArrayLayer(dstLayer)
                             .layerCount(1));

@@ -3,6 +3,7 @@ package com.vke.core.vkz.service;
 import com.vke.api.serializer.Serializer;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.api.vkz.*;
+import com.vke.core.FileIdentifier;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
 import com.vke.core.vkz.VkzObjLoader;
@@ -11,7 +12,6 @@ import com.vke.core.vkz.types.VkzName;
 import com.vke.core.vkz.types.imm.VkzImmediateDirLayer;
 import com.vke.core.vkz.types.imm.VkzImmediateArchive;
 import com.vke.core.vkz.types.lo.VkzListOnlyArchive;
-import com.vke.utils.io.Identifier;
 import com.vke.utils.collection.IterAble;
 
 import java.io.IOException;
@@ -117,9 +117,9 @@ public class VkzImpl extends ServiceImpl implements Vkz {
     }
 
     @Override
-    public VkzArchive open(Identifier identifier, ArchiveType type) {
+    public VkzArchive open(FileIdentifier identifier, ArchiveType type) {
         try {
-            return open(identifier.asInputStream(), type);
+            return open(identifier.openInputStream(), type);
         } catch (IOException e) {
             throw new VkzOpenException(e);
         }

@@ -2,7 +2,7 @@ package com.vke.test.scene;
 
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
-import com.vke.utils.io.Identifier;
+import com.vke.core.Identifier;
 
 public class MainScene extends Scene {
     public MainScene(Identifier name, Context context) {

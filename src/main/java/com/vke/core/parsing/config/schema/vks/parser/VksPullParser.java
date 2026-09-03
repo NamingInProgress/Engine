@@ -1,5 +1,6 @@
 package com.vke.core.parsing.config.schema.vks.parser;
 
+import com.vke.core.FileIdentifier;
 import com.vke.core.parsing.SourceCursor;
 import com.vke.core.parsing.config.schema.vks.parser.tkn.VksT;
 import com.vke.core.parsing.config.schema.vks.parser.tkn.VksTT;
@@ -8,7 +9,6 @@ import com.vke.core.parsing.config.schema.vks.parser.type.*;
 import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 import com.vke.utils.functionalinterface.FaultyFunction;
-import com.vke.utils.io.Identifier;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -18,8 +18,8 @@ import java.util.List;
 public class VksPullParser {
     private final VksTokens tokens;
 
-    public VksPullParser(Identifier identifier) throws IOException {
-        char[] source = Utils.readCharsFromInputStream(identifier.asInputStream());
+    public VksPullParser(FileIdentifier identifier) throws IOException {
+        char[] source = Utils.readCharsFromInputStream(identifier.openInputStream());
         SourceCursor cursor = new SourceCursor(source, 0, identifier.toString());
         VksTokenizer tokenizer = new VksTokenizer(cursor);
         this.tokens = new VksTokens(tokenizer);

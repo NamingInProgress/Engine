@@ -43,6 +43,5 @@ public class DescriptorResource {
         this.struct = SpirvUtils.createStructType(node);
         this.arrayStride = item.arrayStride;
         this.multiWrite = meta.multipleWrites().getOrDefault(item.name, 1);
-        System.out.println();
     }
 }

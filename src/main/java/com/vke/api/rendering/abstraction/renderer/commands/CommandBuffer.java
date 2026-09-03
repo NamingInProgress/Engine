@@ -9,8 +9,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.sync.Fence;
 import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
-import com.vke.api.rendering.vulkan.ImageLayout;
-import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
 import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
@@ -66,28 +65,22 @@ public interface CommandBuffer extends Disposable {
 
     record RenderingInfo(List<AttachmentInfo> colorAttachments,
                          @Nullable AttachmentInfo depthAttachment,
-                         @Nullable AttachmentInfo stencilAttachment,
-                         Rect renderArea) {
+                         @Nullable AttachmentInfo stencilAttachment) {
         public RenderingInfo(@Nullable AttachmentInfo... colorAttachments) {
-            this(Arrays.stream(colorAttachments).toList(), null, null, null);
+            this(Arrays.stream(colorAttachments).toList(), null, null);
         }
 
         public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachments, depthAttachment, null, null);
-        }
-
-        public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment,
-                             @Nullable AttachmentInfo stencilAttachment) {
-            this(colorAttachments, depthAttachment, stencilAttachment, null);
+            this(colorAttachments, depthAttachment, null);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null, null);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment,
                              @Nullable AttachmentInfo stencilAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment, null);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment);
         }
     }
 
@@ -108,12 +101,12 @@ public interface CommandBuffer extends Disposable {
             this(tex, tex.defaultView(), loadOp, storeOp, clearColor);
         }
 
-        public static AttachmentInfo color(Texture tex, Color clearColor) {
-            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, clearColor.toFloat());
+        public static AttachmentInfo color(Texture tex, RgbColor clearColor) {
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, clearColor.getComponents());
         }
 
         public static AttachmentInfo color(Texture tex) {
-            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, Color.VKE.toFloat());
+            return new AttachmentInfo(tex, LoadOp.CLEAR, StoreOp.STORE, RgbColor.VKE.getComponents());
         }
 
         public static AttachmentInfo depth(Texture tex, float clear) {
@@ -147,8 +140,11 @@ public interface CommandBuffer extends Disposable {
     void setPushConstants(AssetHandle<? extends Pipeline> pipeline);
     void bindDescriptorSets(AssetHandle<? extends Pipeline> pipeline);
 
-    void setViewport(Viewport viewport);
     void setScissor(Scissor scissor);
+    void setScissor(int x, int y, int width, int height);
+    void setViewport(Viewport viewport);
+    void setViewport(int x, int y, int width, int height);
+    void setViewport(int x, int y, int width, int height, int minDepth, int maxDepth);
 
     void draw(int vertexCount, int instanceCount, int firstVertex, int firstInstance);
     void drawIndexed(int indexCount, int instanceCount, int firstIndex, int vertexOffset, int firstInstance);

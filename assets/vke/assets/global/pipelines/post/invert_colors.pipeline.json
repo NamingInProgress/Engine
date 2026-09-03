@@ -1,0 +1,22 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "BACK",
+  "polygonMode": "FILL",
+  "lineWidth": 4,
+  "attachments": [
+    {
+      "type": "COLOR",
+      "blendEnable": true
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/util/full_screen.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/post/invert_colors.fsh"
+    }
+  ]
+}

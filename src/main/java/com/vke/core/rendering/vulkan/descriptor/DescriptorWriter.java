@@ -135,7 +135,7 @@ public class DescriptorWriter implements Disposable {
                         .dstBinding(datum.binding)
                         .descriptorCount(datum.descriptorCount)
                         .dstArrayElement(datum.dstArrayElement)
-                        .descriptorType(datum.bindingType.getVkHandle());
+                        .descriptorType(datum.bindingType.getIntVal());
 
                 if (datum.writeData instanceof VkDescriptorBufferInfo.Buffer) {
                     buf.get(i).pBufferInfo((VkDescriptorBufferInfo.Buffer) datum.writeData);

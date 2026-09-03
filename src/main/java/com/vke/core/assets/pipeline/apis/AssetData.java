@@ -2,9 +2,9 @@ package com.vke.core.assets.pipeline.apis;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
-import com.vke.core.assets.language.Language;
+import com.vke.core.FileIdentifier;
+import com.vke.core.language.Language;
 import com.vke.core.assets.pipeline.StageElement;
-import com.vke.utils.io.Identifier;
 
 import java.nio.file.Path;
 
@@ -13,9 +13,9 @@ import static com.vke.api.assets.Protocols.*;
 public class AssetData {
     private final String protocol;
     private final Object resolvedData;
-    private final Identifier unresolved;
+    private final FileIdentifier unresolved;
 
-    private AssetData(String protocol, Object resolvedData, Identifier unresolved) {
+    private AssetData(String protocol, Object resolvedData, FileIdentifier unresolved) {
         this.protocol = protocol;
         this.resolvedData = resolvedData;
         this.unresolved = unresolved;
@@ -27,7 +27,7 @@ public class AssetData {
         this.unresolved = null;
     }
 
-    public AssetData(String protocol, Identifier unresolved) {
+    public AssetData(String protocol, FileIdentifier unresolved) {
         this.protocol = protocol;
         this.unresolved = unresolved;
         this.resolvedData = null;
@@ -50,7 +50,7 @@ public class AssetData {
         return (T) resolvedData;
     }
 
-    public Identifier getUnresolved() {
+    public FileIdentifier getUnresolved() {
         return unresolved;
     }
 
@@ -63,7 +63,7 @@ public class AssetData {
         return new AssetData(PLAIN, data);
     }
 
-    public static AssetData plain(Identifier identifier) {
+    public static AssetData plain(FileIdentifier identifier) {
         return new AssetData(PLAIN, identifier);
     }
 
@@ -79,7 +79,7 @@ public class AssetData {
         return new AssetData(CONFIG, document);
     }
 
-    public static AssetData config(Identifier identifier) {
+    public static AssetData config(FileIdentifier identifier) {
         return new AssetData(CONFIG, identifier);
     }
 
@@ -96,6 +96,6 @@ public class AssetData {
     }
     
     public static AssetData renderPipeline(RenderPipeline pl) {
-        return new AssetData(RENDERPIPELINE, pl);
+        return new AssetData(RENDER_PIPELINE, pl);
     }
 }

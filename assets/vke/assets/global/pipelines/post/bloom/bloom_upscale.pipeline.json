@@ -1,0 +1,24 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "lineWidth": 4,
+  "attachments": [
+    {
+      "type": "COLOR",
+      "blendEnable": true,
+      "srcBlendFactor": "ONE",
+      "dstBlendFactor": "ONE"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/util/full_screen.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/post/bloom/upscale.fsh"
+    }
+  ]
+}
