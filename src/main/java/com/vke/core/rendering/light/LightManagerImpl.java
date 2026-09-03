@@ -11,12 +11,15 @@ import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import com.vke.core.services2.Services;
+import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.light.DirectionalLightC;
 import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.ecs.light.SpotLightC;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class LightManagerImpl implements LightManager {
 
@@ -45,6 +48,10 @@ public class LightManagerImpl implements LightManager {
     }
 
     private class DirectionalLightsQuery implements Query {
+
+        private static final Vector4f forward = new Vector4f();
+        private static final Vector3f pos = new Vector3f();
+
         @Override
         public ComponentMask getMask() {
             return new ComponentMask(DirectionalLightC.ID, TransformC.ID);
@@ -53,21 +60,23 @@ public class LightManagerImpl implements LightManager {
         @Override
         public void execute(Archetype at, int i0, int i1) {
             DirectionalLightC sl = at.getComponentById(DirectionalLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
+            WorldTransformC wtc = at.getComponentById(WorldTransformC.ID);
+
             for (int i = i0; i < i1; i++) {
-                float x = tf.x[i], y = tf.y[i], z = tf.z[i];
-                Vector3f rot = tf.forward(i);
+                wtc.getWorldPosition(i, pos);
+                wtc.getForward(i, forward);
+
                 float r = sl.r[i], g = sl.g[i], b = sl.b[i];
                 float inte = sl.intensity[i];
 
-                DebugContext.arrow(new Vector3f(x, y, z), new Vector3f(rot), RgbColor.RED);
-                DebugContext.boundingBox(new Vector3f(x - 1, y - 1, z - 1), new Vector3f(x + 1, y + 1, z + 1),
-                        RgbColor.RED);
+                DebugContext.arrow(new Vector3f(pos.x, pos.y, pos.z), new Vector3f(forward.x, forward.y, forward.z), RgbColor.RED);
+                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1),
+                        new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1), RgbColor.RED);
 
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(0, 0, 0, 0); // POS + RANGE
-                    writer.putFloat4(r, g, b, inte); // COLOR + INTENSITY
-                    writer.putFloat4(rot.x, rot.y, rot.z, DirectionalLightC.TYPE); // DIRECTION + LIGHT TYPE
+                    writer.float4(0, 0, 0, 0); // POS + RANGE
+                    writer.float4(r, g, b, inte); // COLOR + INTENSITY
+                    writer.float4(forward.x, forward.y, forward.z, DirectionalLightC.TYPE); // DIRECTION + LIGHT TYPE
                     putLightFlag(writer, DirectionalLightC.TYPE);
                 });
             }
@@ -75,6 +84,9 @@ public class LightManagerImpl implements LightManager {
     }
 
     private class SpotLightsQuery implements Query {
+
+        final static private Vector4f forward = new Vector4f();
+        final static private Vector3f pos = new Vector3f();
 
         @Override
         public ComponentMask getMask() {
@@ -84,24 +96,27 @@ public class LightManagerImpl implements LightManager {
         @Override
         public void execute(Archetype at, int i0, int i1) {
             SpotLightC sl = at.getComponentById(SpotLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
+            WorldTransformC wtc = at.getComponentById(WorldTransformC.ID);
+
             for (int i = i0; i < i1; i++) {
-                float x = tf.x[i], y = tf.y[i], z = tf.z[i];
-                Vector3f rot = tf.forward(i);
+                wtc.getWorldPosition(i, pos);
+                wtc.getForward(i, forward);
+
                 float r = sl.r[i], g = sl.g[i], b = sl.b[i];
                 float range = sl.range[i];
                 float inte = sl.intensity[i];
                 float ica = sl.innerConeCos[i], oca = sl.outerConeCos[i];
 
-//                DebugContext.boundingBox(new Vector3f(x - 1, y - 1, z - 1), new Vector3f(x + 1, y + 1, z + 1),
-//                        RgbColor.RED);
+                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1), new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1),
+                        RgbColor.RED);
+//                DebugContext.arrow(new Vector3f(pos.x, pos.y, pos.z), new Vector3f(forward.x, forward.y, forward.z), RgbColor.GREEN);
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, y, z, range);
-                    writer.putFloat4(r, g, b, inte);
-                    writer.putFloat4(rot.x, rot.y, rot.z, SpotLightC.TYPE);
+                    writer.float4(pos.x, pos.y, pos.z, range);
+                    writer.float4(r, g, b, inte);
+                    writer.float4(forward.x, forward.y, forward.z, SpotLightC.TYPE);
 
-                    writer.putFloat4(0, 0, 0, ica);
-                    writer.putFloat4(0 ,0, 0, oca);
+                    writer.float4(0, 0, 0, ica);
+                    writer.float4(0 ,0, 0, oca);
                     putLightFlag(writer, SpotLightC.TYPE);
                 });
             }
@@ -109,6 +124,8 @@ public class LightManagerImpl implements LightManager {
     }
 
     private class PointLightsQuery implements Query {
+
+        private static final Vector3f pos = new Vector3f();
 
         @Override
         public ComponentMask getMask() {
@@ -118,16 +135,16 @@ public class LightManagerImpl implements LightManager {
         @Override
         public void execute(Archetype at, int i0, int i1) {
             PointLightC pl = at.getComponentById(PointLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
+            WorldTransformC wtc = at.getComponentById(WorldTransformC.ID);
             for (int i = i0; i < i1; i++) {
-                float x = tf.x[i], y = tf.y[i], z = tf.z[i];
+                wtc.getWorldPosition(i, pos);
                 float r = pl.r[i], g = pl.g[i], b = pl.b[i];
                 float range = pl.range[i];
                 float inte = pl.intensity[i];
 
                 buf.write(counter++, writer -> {
-                    writer.putFloat4(x, y, z, range);
-                    writer.putFloat4(r, g, b, inte);
+                    writer.float4(pos.x, pos.y, pos.z, range);
+                    writer.float4(r, g, b, inte);
                     putLightFlag(writer, PointLightC.TYPE);
                 });
             }

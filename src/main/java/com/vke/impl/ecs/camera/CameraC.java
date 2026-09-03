@@ -1,6 +1,6 @@
 package com.vke.impl.ecs.camera;
 
-import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.component.Component;
 import pl.epsi.EcsComponent;
 
@@ -45,10 +45,10 @@ public class CameraC implements Component {
 
     @Override
     public void initialize(int i) {
-        initialize(i, 90, 0.1f, 1000f, Color.VKE);
+        initialize(i, 90, 0.1f, 1000f, RgbColor.VKE);
     }
 
-    public void initialize(int i, float fov, float nearPlane, float farPlane, Color color) {
+    public void initialize(int i, float fov, float nearPlane, float farPlane, RgbColor color) {
         this.fov[i] = fov;
         this.nearPlane[i] = nearPlane;
         this.farPlane[i] = farPlane;
@@ -58,15 +58,11 @@ public class CameraC implements Component {
         this.zoom[i] = 1.0f;
     }
 
-    public void setClearColor(int i, Color color) {
-        this.clearR[i] = color.x;
-        this.clearG[i] = color.y;
-        this.clearB[i] = color.z;
-        this.clearA[i] = color.w;
-    }
-
-    public Color getClearColor(int i) {
-        return new Color(this.clearR[i], this.clearG[i], this.clearB[i], this.clearA[i]);
+    public void setClearColor(int i, RgbColor color) {
+        this.clearR[i] = color.r();
+        this.clearG[i] = color.g();
+        this.clearB[i] = color.b();
+        this.clearA[i] = color.a();
     }
 
 }

@@ -18,16 +18,18 @@ public interface GameObject {
     void spawn();
     void destroy();
 
+    void onSpawned();
+
     GameObjectTransform getTransform();
 
-    GameObject duplicate();
+    <G extends GameObject> G duplicate();
 
     /**
      * Spawns an amount of new GameObjects using this one as the preset. This means that all components will
      * be also on the new entities with the same values.
      * @param num the amount of entities to spawn
      */
-    GameObject[] spawnBatch(int num);
+    <G extends GameObject> G[] spawnBatch(int num, G... ignore);
 
     /**
      * Adds the specified NEW components onto this GameObject. Components that are already present will be ignored.
@@ -37,7 +39,7 @@ public interface GameObject {
     void addComponents(int... componentId);
 
     /**
-     * Removes the specified components from this GameObject. Components that dont exist will be ignored.
+     * Removes the specified components from this GameObject. Components that don't exist will be ignored.
      * Keep in mind, that this will transition the underlying ecs entity into a new Archetype, so if you need to hold an external
      * reference to any component attached to this entity, look into {@link ComponentReference} or {@link com.vke.core.ecs.ComponentProxy ComponentProxy}.
      * <br><br>

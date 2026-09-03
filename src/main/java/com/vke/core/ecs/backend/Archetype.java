@@ -103,9 +103,10 @@ public class Archetype {
     }
 
     public void destroyEntity(int index, EntityAllocator allocator, QueryManager qm) {
+        int entity = owners[index];
         qm.onEntityDestroyed(this);
-        int movedEntity = removeAt(index, allocator);
-        allocator.freeEntityId(movedEntity);
+        removeAt(index, allocator);
+        allocator.freeEntityId(entity);
     }
 
     public void dangleEntity(int index, EntityAllocator allocator) {

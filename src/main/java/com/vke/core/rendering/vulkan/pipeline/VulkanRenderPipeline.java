@@ -25,13 +25,11 @@ public class VulkanRenderPipeline implements RenderPipeline, IVulkanPipeline {
     private final VulkanRenderSystem ctx;
 
     private final VulkanPipelineLayout layout;
-    private final RenderPipelineData data;
 
     private final long handle;
 
     public VulkanRenderPipeline(VulkanRenderSystem ctx, RenderPipelineData data) {
         this.ctx = ctx;
-        this.data = data;
 
         data.compiledShaders = VKShaderProgram.asVkShaderProgram(ctx, data.shaders);
 

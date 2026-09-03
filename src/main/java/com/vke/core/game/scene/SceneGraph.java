@@ -4,6 +4,10 @@ import com.carrotsearch.hppc.IntArrayList;
 
 import java.util.Arrays;
 
+import java.util.Arrays;
+
+import java.util.Arrays;
+
 public class SceneGraph {
     private int[] parent;
     private int[] firstChild;
@@ -32,8 +36,8 @@ public class SceneGraph {
     }
 
     private void ensureCapacity(int minCapacity) {
-        if (minCapacity >= capacity) {
-            int newCap = Math.max(capacity * 2, minCapacity + 1);
+        if (minCapacity > capacity) {
+            int newCap = Math.max(capacity * 2, minCapacity);
             int arraySize = newCap + 1;
 
             int oldSize = parent.length;
@@ -42,6 +46,7 @@ public class SceneGraph {
             nextSibling = Arrays.copyOf(nextSibling, arraySize);
             prevSibling = Arrays.copyOf(prevSibling, arraySize);
 
+            Arrays.fill(parent, oldSize, arraySize, 0);
             Arrays.fill(firstChild, oldSize, arraySize, -1);
             Arrays.fill(nextSibling, oldSize, arraySize, -1);
             Arrays.fill(prevSibling, oldSize, arraySize, -1);
@@ -53,15 +58,16 @@ public class SceneGraph {
     public void attachToParent(int entity, int parentEntity) {
         ensureCapacity(Math.max(entity, parentEntity) + 1);
 
+        detachFromParentInternal(entity);
+
+        int internalIdx = entity + 1;
         int internalParent = parentEntity + 1;
-        if (this.parent[entity + 1] != 0 || parentEntity == -1) {
-            detachFromParentInternal(entity);
-        }
-        this.parent[entity + 1] = internalParent;
+
+        this.parent[internalIdx] = internalParent;
 
         int currentFirst = firstChild[internalParent];
-        nextSibling[entity + 1] = currentFirst;
-        prevSibling[entity + 1] = -1;
+        nextSibling[internalIdx] = currentFirst;
+        prevSibling[internalIdx] = -1;
 
         if (currentFirst != -1) {
             prevSibling[currentFirst + 1] = entity;
@@ -100,15 +106,15 @@ public class SceneGraph {
     }
 
     public int nextChild(int last) {
-        return nextSibling[last];
+        return last == -1 ? -1 : nextSibling[last + 1];
     }
 
     public int prevChild(int last) {
-        return prevSibling[last];
+        return last == -1 ? -1 : prevSibling[last + 1];
     }
 
     public int parentOf(int entity) {
-        return parent[entity] - 1;
+        return parent[entity + 1] - 1;
     }
 
     public void deleteNode(int entityId, IntArrayList deletedEntities) {

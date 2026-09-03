@@ -39,12 +39,18 @@ public class ArchetypeManager {
         qm.onEntityTransitionIn(newMask, newArch, newIdx);
 
         Component[] oldComps = oldArch.getComponents();
+        ComponentMask newlyAdded = newMask.removeComponents(oldArch.getMask().getComponents());
 
         for (Component oldComp : oldComps) {
             Component newComp  = newArch.getComponentById(oldComp.getId());
             if (newComp != null) {
                 newComp.copyFrom(oldComp, oldIdx, newIdx);
             }
+        }
+
+        for (int newCompId : newlyAdded.getComponents()) {
+            Component newComp = newArch.getComponentById(newCompId);
+            newComp.initialize(newIdx);
         }
 
         if (initializer != null) {

@@ -1,4 +1,4 @@
-package com.vke.core.game.object;
+package com.vke.impl.gameobject;
 
 import com.vke.api.event.EventBus;
 import com.vke.api.event.EventListener;
@@ -10,6 +10,10 @@ import com.vke.api.window.WindowResizeEvent;
 import com.vke.core.Context;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
+import com.vke.core.game.object.AbstractGameObject;
+import com.vke.core.game.object.GameObject;
+import com.vke.core.game.object.GameObjectTransform;
+import com.vke.core.game.object.RestrictedGameObject;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
@@ -37,7 +41,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     }
 
     @Override
-    protected void onSpawned() {
+    public void onSpawned() {
         this.cameraComponentRef = ecs.obtainComponentReference(entityId, CameraC.ID);
         Window window = ctx.getEngine().getWindow();
         Window.Size size = window.getSize();
@@ -73,24 +77,6 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     @Override
     public int[] getFixedComponents() {
         return CONST_IDS;
-    }
-
-    @Override
-    public GameObject duplicate() {
-        return null;
-    }
-
-    public void lookAt(Vector3f lookAt) {
-        GameObjectTransform t = getTransform();
-        float x = t.getRQX();
-        float y = t.getRQY();
-        float z = t.getRQZ();
-        float w = t.getRQW();
-
-        //im trusting gemini on ts
-        lookAt.x = -2.0f * (x * z + w * y);
-        lookAt.y = -2.0f * (y * z - w * x);
-        lookAt.z = 2.0f * (x * x + y * y) - 1.0f;
     }
 
     public Matrix4f getProjectionMatrix() {

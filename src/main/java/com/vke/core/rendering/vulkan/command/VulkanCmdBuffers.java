@@ -12,6 +12,7 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
+import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;

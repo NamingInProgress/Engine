@@ -341,4 +341,13 @@ public class Utils {
         }
         return -1;
     }
+
+    public static int intsNotContainAnyIntThenReturnInt(int[] pool, int[] test) {
+        for (int t : test) {
+            if (!Utils.intsContain(pool, t)) {
+                return t;
+            }
+        }
+        return -1;
+    }
 }

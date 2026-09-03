@@ -12,7 +12,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class BufferSlice implements ByteEncoder {
+public class BufferSlice implements RenderingEncoder {
     protected final long bufferAddress;
     protected final long offset;
     protected final int length;
@@ -153,4 +153,13 @@ public class BufferSlice implements ByteEncoder {
         cursor += 8;
     }
 
+    @Override
+    public void sampler2D(@Nullable Texture texture) {
+        throw new UnsupportedOperationException("Texture writing is supported on buffer slice only via the RenderSystem, Texture method.");
+    }
+
+    @Override
+    public void material(@Nullable Material material) {
+        throw new UnsupportedOperationException("Material writing is supported on buffer slice only via the RenderSystem, Material method.");
+    }
 }

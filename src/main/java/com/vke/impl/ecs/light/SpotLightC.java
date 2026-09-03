@@ -15,7 +15,7 @@ public class SpotLightC implements Component {
     public float[] innerConeCos, outerConeCos;
 
     public void initialize(int i, RgbColor col, float intensity, float innerConeAngle, float outerConeAngle) {
-        initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity, 0.001f), innerConeAngle, outerConeAngle);
+        initialize(i, col, intensity, autoRange(intensity), innerConeAngle, outerConeAngle);
     }
 
     public void initialize(int i, RgbColor col, float intensity, float range, float ica, float oca) {
@@ -30,6 +30,10 @@ public class SpotLightC implements Component {
 
     @Override
     public void initialize(int i) {
-        initialize(i, Color.WHITE, 10, 15, 30);
+        initialize(i, RgbColor.WHITE, 10, 15, 30);
+    }
+
+    public float autoRange(float intensity) {
+        return Utils.rangeFromIntensityLight(intensity, 0.001f);
     }
 }

@@ -19,4 +19,8 @@ public class DirectionalLightC implements Component {
         this.intensity[i] = intensity;
     }
 
+    @Override
+    public void initialize(int i) {
+        initialize(i, RgbColor.WHITE, 10);
+    }
 }

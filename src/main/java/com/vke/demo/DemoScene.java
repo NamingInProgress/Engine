@@ -2,7 +2,6 @@ package com.vke.demo;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.game.camera.Camera;
-import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
@@ -13,9 +12,9 @@ import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
-import com.vke.core.game.camera.PerspectiveCamera;
 import com.vke.core.game.camera.controllers.FreecamController;
-import com.vke.core.game.object.CameraGameObject;
+import com.vke.core.game.object.GameObjectTransform;
+import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
@@ -23,17 +22,20 @@ import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderPassInstance;
 import com.vke.core.services2.Services;
+import com.vke.impl.ecs.WorldTransformC;
+import com.vke.impl.gameobject.DirectionalLightGameObject;
+import com.vke.impl.gameobject.PointLightGameObject;
+import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.ecs.TransformC;
-import com.vke.impl.ecs.camera.CameraC;
 import com.vke.impl.ecs.light.DirectionalLightC;
 import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.rendering.vertex.VertexFormatDeferred;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -59,13 +61,14 @@ public class DemoScene extends Scene {
     private final List<Instance> instances = new ArrayList<>(TOTAL_INSTANCES);
     private ByteBuffer matrixBuffer;
 
-    private Camera camera;
     private PressableState keyEsc;
     private PressableState keyToggleCursor;
     private PressableState keyLogCamera;
     private boolean lockedCursor = true;
 
     private HierarchyManager hierarchyManager;
+
+    private CameraGameObject cam;
 
     public static float[][] positions = {
             {45, -45, 45},
@@ -79,9 +82,7 @@ public class DemoScene extends Scene {
             {0, 20, 0}
     };
 
-    private int id;
-
-    private ComponentReference<TransformC> spotlightRef;
+    private SpotLightGameObject spotLight;
 
     public DemoScene(Identifier name, Context context) {
         super(name, context);
@@ -90,7 +91,6 @@ public class DemoScene extends Scene {
     @Override
     public void onLoad() {
         loadMeshResources();
-        setupInputAndCamera();
         buildGridInstances();
 
         hierarchyManager = context.service(Services.HIERARCHY);
@@ -98,40 +98,33 @@ public class DemoScene extends Scene {
         // Allocate 64 bytes per 4x4 float matrix
         matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
 
-        EcsManager ecs = context.service(Services.ECS);
-        int[] ids = ecs.spawnEntities(positions.length, new ComponentMask(PointLightC.ID, TransformC.ID), (at, left, right, entityIndex, entityId) -> {
-            int i = left + entityIndex;
-            PointLightC pl = at.getComponentById(PointLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
-            pl.initialize(i, new RgbColor(0, 1, 1, 1), 10);
-            tf.initialize(i);
-            tf.x[i] = positions[entityIndex][0];
-            tf.y[i] = positions[entityIndex][1];
-            tf.z[i] = positions[entityIndex][2];
-        });
+        PointLightGameObject pointLightBase = new PointLightGameObject(getRenderSystem());
+        pointLightBase.spawn();
+        PointLightGameObject[] lights = pointLightBase.spawnBatch(positions.length);
 
-        int spotlightId = ecs.spawnEntities(1, new ComponentMask(SpotLightC.ID, TransformC.ID), (at, left, right, entityIndex, entityId) -> {
-            int i = left + entityIndex;
-            SpotLightC sl = at.getComponentById(SpotLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
-            sl.initialize(i, new RgbColor(0, 1, 1, 1), 10, 5, 30);
-            tf.initialize(i);
-            tf.y[i] = 20;
-            //tf.ry[i] = 90;
-        })[0];
+        for (int i = 0; i < lights.length; i++) {
+            PointLightGameObject light = lights[i];
+            light.setColor(new RgbColor(0, 1, 1, 1));
+            light.setIntensity(10);
+            light.getTransform().setXYZ(positions[i][0], positions[i][1], positions[i][2]);
+        }
 
-        ecs.spawnEntities(1, new ComponentMask(DirectionalLightC.ID, TransformC.ID), (at, left, right, eid, entityIndex) -> {
-            int i = left + eid;
-            DirectionalLightC dl = at.getComponentById(DirectionalLightC.ID);
-            TransformC tf = at.getComponentById(TransformC.ID);
-            dl.initialize(i, new RgbColor(0, 0, 1, 1), 10);
-            tf.initialize(i);
-            tf.x[i] = 20;
-        });
+        pointLightBase.destroy();
 
-        id = ids[ids.length - 1];
+        spotLight = new SpotLightGameObject(getRenderSystem());
+        spotLight.spawn();
+        spotLight.setColor(new RgbColor(0, 1, 1, 1));
+        spotLight.setIntensity(100);
+        spotLight.setInnerConeAngle(5);
+        spotLight.setOuterConeAngle(30);
 
-        spotlightRef = ecs.obtainComponentReference(spotlightId, TransformC.ID);
+        DirectionalLightGameObject dirLight = new DirectionalLightGameObject(getRenderSystem());
+        dirLight.spawn();
+        dirLight.setColor(RgbColor.BLUE);
+        dirLight.setIntensity(10);
+        dirLight.getTransform().setX(20);
+
+        setupInputAndCamera();
     }
 
     private void loadMeshResources() {
@@ -155,10 +148,12 @@ public class DemoScene extends Scene {
     }
 
     private void setupInputAndCamera() {
-        CameraGameObject cam = new CameraGameObject(context);
+        cam = new CameraGameObject(context);
         cam.spawn();
         cam.setIsOrtho(false);
         cam.control(new FreecamController(context));
+
+        cam.getTransform().addChild(spotLight);
 
         getRenderSystem().frameDataManager().setCamera(cam);
 
@@ -250,7 +245,7 @@ public class DemoScene extends Scene {
         }
 
         if (keyLogCamera.wasJustPressed()) {
-            System.out.println("Camera position: " + camera.position());
+            System.out.println("Camera position: " + cam.getTransform().getPosition());
         }
     }
 

@@ -12,7 +12,9 @@ import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
 import com.vke.utils.Utils;
+import com.vke.utils.exception.Unreachable;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class AbstractGameObject implements GameObject {
@@ -49,6 +51,12 @@ public abstract class AbstractGameObject implements GameObject {
         return entityId;
     }
 
+    protected void requireSpawned() {
+        if (!isSpawned()) {
+            throw new IllegalStateException("This GameObject hsa not been spawned in yet!");
+        }
+    }
+
     @Override
     public void spawn() {
         if (this.entityId != -1) throw new IllegalStateException("Cannot spawn 2 entities from the same game object.");
@@ -69,8 +77,6 @@ public abstract class AbstractGameObject implements GameObject {
         onSpawned();
     }
 
-    protected abstract void onSpawned();
-
     @Override
     public GameObjectTransform getTransform() {
         return transform;
@@ -78,9 +84,11 @@ public abstract class AbstractGameObject implements GameObject {
 
     protected abstract GameObject createFromSpawnedEntity(int entity);
 
+    @SafeVarargs
     @Override
-    public GameObject[] spawnBatch(int num) {
-        GameObject[] array = new GameObject[num];
+    @SuppressWarnings("unchecked")
+    public final <G extends GameObject> G[] spawnBatch(int num, G... ignore) {
+        G[] array = Arrays.copyOf(ignore, num);
         int[] comps = mask.getComponents();
         int numC = comps.length;
         
@@ -108,21 +116,25 @@ public abstract class AbstractGameObject implements GameObject {
                 c.copyFrom(references[i], left + entityIndex, indices[i]);
             }
             GameObject obj = createFromSpawnedEntity(entityId);
-            if (obj instanceof GameObjectTransform t) {
-                //init transform as well
-                t.transformComponent();
-            }
+            //init transform as well
+            obj.getTransform().transformComponent();
+
+            obj.onSpawned();
             hierarchy.addChild(-1, entityId);
             hierarchy.spawned(entityId, obj);
-            array[entityIndex] = obj;
+            array[entityIndex] = (G) obj;
         });
         return array;
     }
 
     @Override
+    public <G extends GameObject> G duplicate() {
+        throw new Unreachable();
+    }
+
+    @Override
     public void destroy() {
         if (entityId == -1) throw new IllegalStateException("Cannot spawn 2 entities from the same game object.");
-        ecs.destroyEntity(entityId);
         for (var r : activeRefs) {
             r.drop();
         }
@@ -133,28 +145,27 @@ public abstract class AbstractGameObject implements GameObject {
 
     @Override
     public void addComponents(int... componentIds) {
-        this.mask = this.mask.addComponents(componentIds);
-        ecs.transitionEntity(this.entityId, this.mask, (at, idx) -> {
-            for (int componentId : componentIds) {
-                Component cmp = at.getComponentById(componentId);
-                cmp.initialize(idx);
-            }
-        });
+        setComponentMask(mask.addComponents(componentIds));
     }
 
     @Override
     public void removeComponents(int... componentIds) {
-        this.mask = this.mask.removeComponents(componentIds);
+        setComponentMask(mask.removeComponents(componentIds));
+    }
+
+    public void setComponentMask(ComponentMask newMask) {
+        this.mask = newMask;
+
         if (this instanceof RestrictedGameObject rgo) {
             int culprit;
-            if ((culprit = Utils.intsContainAnyIntThenReturnInt(componentIds, rgo.getFixedComponents())) != -1) {
+            if ((culprit = Utils.intsNotContainAnyIntThenReturnInt(mask.getComponents(), rgo.getFixedComponents())) != -1) {
                 String compName = ecs.getComponentName(culprit);
                 throw new UnsupportedOperationException(String.format("Cannot remove component %s from %s!", compName, getClass().getSimpleName()));
             }
         }
 
         int culprit;
-        if ((culprit = Utils.intsContainAnyIntThenReturnInt(componentIds, FIXED_COMPONENTS)) != -1) {
+        if ((culprit = Utils.intsNotContainAnyIntThenReturnInt(mask.getComponents(), FIXED_COMPONENTS)) != -1) {
             String compName = ecs.getComponentName(culprit);
             throw new UnsupportedOperationException(String.format("Cannot remove component %s from %s!", compName, getClass().getSimpleName()));
         }

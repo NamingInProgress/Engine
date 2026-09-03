@@ -14,7 +14,7 @@ public class PointLightC implements Component {
     public float[] intensity, range;
 
     public void initialize(int i, RgbColor col, float intensity) {
-        this.initialize(i, col, intensity, Utils.rangeFromIntensityLight(intensity, 0.01f));
+        this.initialize(i, col, intensity, autoRange(intensity));
     }
 
     public void initialize(int i, RgbColor col, float intensity, float range) {
@@ -27,6 +27,10 @@ public class PointLightC implements Component {
 
     @Override
     public void initialize(int i) {
-        initialize(i, Color.WHITE, 10f);
+        initialize(i, RgbColor.WHITE, 10f);
+    }
+
+    public float autoRange(float intensity) {
+        return Utils.rangeFromIntensityLight(intensity, 0.01f);
     }
 }

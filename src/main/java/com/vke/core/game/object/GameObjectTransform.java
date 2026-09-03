@@ -8,6 +8,7 @@ import com.vke.impl.ecs.WorldTransformC;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,13 +50,17 @@ public class GameObjectTransform extends ComponentProxy<TransformC> {
     @Override
     public void setComponentInternal(TransformC component) {
         this.tc = component;
-        tc.dirty[i] = true;
+        if (component != null) {
+            tc.dirty[i] = true;
+        }
     }
 
     @Override
     public void setIndexInternal(int index) {
         this.i = index;
-        tc.dirty[i] = true;
+        if (tc != null) {
+            tc.dirty[i] = true;
+        }
     }
 
     public float getX() { return tc.x[i]; }
@@ -154,15 +159,11 @@ public class GameObjectTransform extends ComponentProxy<TransformC> {
     }
 
     public void getWorldMatrix(float[] arr) {
-        worldComponent();
-        float[] allMats = world.getComponent().worldMatrix;
-        int index = world.getIndex() * 16;
-        System.arraycopy(allMats, index, arr, 0, 16);
+        worldComponent().getComponent().getWorldMatrix(world.getIndex(), arr);
     }
 
     public void getWorldMatrix(Matrix4f dest) {
-        worldComponent();
-        dest.set(world.getComponent().worldMatrix, world.getIndex() * 16);
+        worldComponent().getComponent().getWorldMatrix(world.getIndex(), dest);
     }
 
     public Vector3f getWorldPosition() {
@@ -172,11 +173,14 @@ public class GameObjectTransform extends ComponentProxy<TransformC> {
     }
 
     public void getWorldPosition(Vector3f dest) {
-        worldComponent();
-        float[] allMats = world.getComponent().worldMatrix;
-        int index = world.getIndex() * 16;
-        dest.x = allMats[index + 12];
-        dest.y = allMats[index + 13];
-        dest.z = allMats[index + 14];
+        worldComponent().getComponent().getWorldPosition(world.getIndex(), dest);
+    }
+
+    public Vector4f getWorldForward() {
+        return worldComponent().getComponent().getForward(world.getIndex());
+    }
+
+    public void getWorldForward(Vector4f dest) {
+        worldComponent().getComponent().getForward(world.getIndex(), dest);
     }
 }

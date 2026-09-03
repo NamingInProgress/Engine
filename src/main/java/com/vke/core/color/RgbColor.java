@@ -6,7 +6,7 @@ import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 
 import java.util.Arrays;
 
-public class RgbColor extends Color /*implements SelfPuttable*/ {
+public class RgbColor extends Color implements SelfPuttable {
 
     public static final RgbColor INVALID = new RgbColor(-1, -1, -1, -1);
     public static final RgbColor BLACK = new RgbColor(0, 0, 0);
@@ -68,12 +68,8 @@ public class RgbColor extends Color /*implements SelfPuttable*/ {
         return "RGB:" + Arrays.toString(components);
     }
 
-//    @Override
-//    public void putSelf(RenderingEncoder buf) {
-//        buf.float4(r(), g(), b(), a());
-//    }
-
-    public void putSelf(BufferSlice slice) {
-        slice.putFloat4(r(), g(), b(), a());
+    @Override
+    public void putSelf(RenderingEncoder buf) {
+        buf.float4(r(), g(), b(), a());
     }
 }

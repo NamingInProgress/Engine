@@ -16,7 +16,7 @@ public class TransformC implements Component {
     @Override
     public void initialize(int i) {
         sx[i] = sy[i] = sz[i] = 1f;
-        setRotation(i, 0f, 90f, 0f);
+        setRotation(i, 0f, 0f, 0f);
     }
 
     public void setPosition(int i, float x, float y, float z) {
