@@ -43,6 +43,8 @@ public class DebugRenderPass extends RenderPass {
         DebugContext.line_commands.forEach(c -> c.draw(vc));
         vc.draw();
 
+        DebugContext.clear();
+
         cmd.endRendering();
     }
 
