@@ -206,13 +206,6 @@ public class DemoScene extends Scene {
         context.put("mats", matrixBuffer);
         context.put("inst", TOTAL_INSTANCES);
 
-//        spotlightRef.update((c, idx) -> {
-//            c.x[idx] = camera.position().x;
-//            c.y[idx] = camera.position().y;
-//            c.z[idx] = camera.position().z;
-//            c.setQuaternion(idx, camera.rotation());
-//        });
-
         // Debug visualizers
         //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
         //DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);

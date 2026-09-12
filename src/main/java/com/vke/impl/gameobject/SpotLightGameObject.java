@@ -58,12 +58,12 @@ public class SpotLightGameObject extends AbstractGameObject implements Restricte
 
     public void setInnerConeAngle(@InDegrees float angle) {
         requireSpawned();
-        spotC.getComponent().innerConeCos[spotC.getIndex()] = (float) Math.cos(Math.toRadians(angle));
+        spotC.getComponent().innerConeCos[spotC.getIndex()] = (float) Math.cos(Math.toRadians(angle / 2));
     }
 
     public void setOuterConeAngle(@InDegrees float angle) {
         requireSpawned();
-        spotC.getComponent().outerConeCos[spotC.getIndex()] = (float) Math.cos(Math.toRadians(angle));
+        spotC.getComponent().outerConeCos[spotC.getIndex()] = (float) Math.cos(Math.toRadians(angle / 2));
     }
 
     @Override

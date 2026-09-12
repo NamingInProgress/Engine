@@ -350,4 +350,11 @@ public class Utils {
         }
         return -1;
     }
+
+    public static int[] mergeInts(int[] arr1, int[] arr2) {
+        int[] a = new int[arr1.length + arr2.length];
+        System.arraycopy(arr1, 0, a, 0, arr1.length);
+        System.arraycopy(arr2, 0, a, arr1.length, arr2.length);
+        return a;
+    }
 }

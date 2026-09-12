@@ -53,6 +53,7 @@ public interface GameObject {
      */
     <T extends Component> ComponentReference<T> getComponent(int id);
     ComponentMask components();
+    void setComponents(ComponentMask mask);
 
     void control(GameObjectController controller);
 }

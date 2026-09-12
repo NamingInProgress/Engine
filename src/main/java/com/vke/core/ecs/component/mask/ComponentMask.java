@@ -1,5 +1,9 @@
 package com.vke.core.ecs.component.mask;
 
+import com.vke.core.game.object.AbstractGameObject;
+import com.vke.impl.ecs.TransformC;
+import com.vke.impl.ecs.WorldTransformC;
+import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 
 import java.util.Arrays;
@@ -32,6 +36,10 @@ public class ComponentMask {
         }
 
         this.hash = h;
+    }
+
+    public static ComponentMask of(int... ids) {
+        return new ComponentMask(false, Utils.mergeInts(AbstractGameObject.TRANSFORM_IDS, ids));
     }
 
     public boolean contains(ComponentMask other) {
@@ -189,5 +197,9 @@ public class ComponentMask {
 
     public int[] getComponents() {
         return ids;
+    }
+
+    public ComponentMask copy() {
+        return new ComponentMask(true, getComponents());
     }
 }

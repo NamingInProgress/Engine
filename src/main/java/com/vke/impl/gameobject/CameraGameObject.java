@@ -37,7 +37,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
 
     @Override
     protected ComponentMask createMask() {
-        return new ComponentMask(TransformC.ID, WorldTransformC.ID, CameraC.ID);
+        return ComponentMask.of(CameraC.ID);
     }
 
     @Override

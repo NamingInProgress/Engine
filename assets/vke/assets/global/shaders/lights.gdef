@@ -122,16 +122,17 @@ float getAttenuation(Light l, float distance) {
     // OPTION B: UNREAL ENGINE 4 PBR (Physical)
     // (Comment out Option A and uncomment this to use it)
     // ====================================================
-    /*
+
     // If your hotspot is still too bright, increase minRadius!
     // Try setting it to 10% of your range (light.range * 0.1)
-    float minRadius = max(light.range * 0.05, 0.5);
-    float invSqrAtten = 1.0 / max(distSq, minRadius * minRadius);
+//    float distSq = distance * distance;
+//    float minRadius = max(l.range * 0.05, 0.5);
+//    float invSqrAtten = 1.0 / max(distSq, minRadius * minRadius);
+//
+//    float distOverRangeSq = distSq / (l.range * l.range);
+//    float window = clamp(1.0 - (distOverRangeSq * distOverRangeSq), 0.0, 1.0);
+//    attenuation = invSqrAtten * (window * window);
 
-    float distOverRangeSq = distSq / rangeSq;
-    float window = clamp(1.0 - (distOverRangeSq * distOverRangeSq), 0.0, 1.0);
-    attenuation = invSqrAtten * (window * window);
-    */
     // ====================================================
     return attenuation;
 }

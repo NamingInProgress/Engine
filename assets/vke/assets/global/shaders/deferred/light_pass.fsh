@@ -36,5 +36,4 @@ void main() {
     mat.normal = normal;
 
     FragColor = vec4(calculateLighting(normal, normalize(frameData.camera.position.xyz - fragPos), fragPos, mat), 1);
-//    FragColor = vec4(1);
 }

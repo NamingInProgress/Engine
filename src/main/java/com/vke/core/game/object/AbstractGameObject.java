@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public abstract class AbstractGameObject implements GameObject {
-    private static final int[] FIXED_COMPONENTS = {TransformC.ID, WorldTransformC.ID};
+    public static final int[] TRANSFORM_IDS = {TransformC.ID, WorldTransformC.ID};
 
     protected final Context ctx;
     protected final EcsManager ecs;
@@ -82,6 +82,17 @@ public abstract class AbstractGameObject implements GameObject {
         return transform;
     }
 
+    @Override
+    public void setComponents(ComponentMask mask) {
+        this.mask = mask;
+    }
+
+    private GameObject _createFromSpawnedEntity(int entity) {
+        GameObject go = createFromSpawnedEntity(entity);
+        go.setComponents(this.components().copy());
+        return go;
+    }
+
     protected abstract GameObject createFromSpawnedEntity(int entity);
 
     @SafeVarargs
@@ -115,7 +126,7 @@ public abstract class AbstractGameObject implements GameObject {
                 Component c = components[i];
                 c.copyFrom(references[i], left + entityIndex, indices[i]);
             }
-            GameObject obj = createFromSpawnedEntity(entityId);
+            GameObject obj = _createFromSpawnedEntity(entityId);
             //init transform as well
             obj.getTransform().transformComponent();
 
@@ -129,7 +140,7 @@ public abstract class AbstractGameObject implements GameObject {
 
     @Override
     public <G extends GameObject> G duplicate() {
-        throw new Unreachable();
+        return this.<G>spawnBatch(1)[0];
     }
 
     @Override
@@ -165,7 +176,7 @@ public abstract class AbstractGameObject implements GameObject {
         }
 
         int culprit;
-        if ((culprit = Utils.intsNotContainAnyIntThenReturnInt(mask.getComponents(), FIXED_COMPONENTS)) != -1) {
+        if ((culprit = Utils.intsNotContainAnyIntThenReturnInt(mask.getComponents(), TRANSFORM_IDS)) != -1) {
             String compName = ecs.getComponentName(culprit);
             throw new UnsupportedOperationException(String.format("Cannot remove component %s from %s!", compName, getClass().getSimpleName()));
         }
