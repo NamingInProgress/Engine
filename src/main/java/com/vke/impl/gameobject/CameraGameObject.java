@@ -1,6 +1,6 @@
 package com.vke.impl.gameobject;
 
-import com.vke.api.event.EventBus;
+import com.vke.api.event.IEventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
@@ -16,7 +16,6 @@ import com.vke.core.game.object.GameObjectTransform;
 import com.vke.core.game.object.RestrictedGameObject;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
-import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.ecs.camera.CameraC;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -31,7 +30,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     public CameraGameObject(Context ctx) {
         super(ctx);
 
-        EventBus eventBus = ctx.service(Services.EVENT_BUS);
+        IEventBus eventBus = ctx.service(Services.EVENT_BUS);
         eventBus.register(this);
     }
 

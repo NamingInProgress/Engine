@@ -1,10 +1,12 @@
 package com.vke.core.rendering.vulkan.device;
 
+import com.vke.api.event.IEventBus;
 import com.vke.api.logger.Logger;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.charPP;
 import com.vke.core.rendering.vulkan.Consts;
+import com.vke.core.rendering.vulkan.VKEvents;
 import com.vke.core.rendering.vulkan.utils.VKUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -103,7 +105,7 @@ public class DeviceUtils {
         return null;
     }
 
-    public static PhysicalDevice pickGpu(VkInstance instance, Logger logger, EngineCreateInfo createInfo, List<String> extensions) {
+    public static PhysicalDevice pickGpu(VkInstance instance, IEventBus eventBus, Logger logger, EngineCreateInfo createInfo, List<String> extensions) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
             VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
@@ -126,7 +128,11 @@ public class DeviceUtils {
                     bestScore = score;
                     bestDevice = d;
                 }
+
+                eventBus.fire(new VKEvents.EvaluatePhysicalDevice(d, score));
             }
+
+            eventBus.fire(new VKEvents.ChosePhysicalDevice(bestDevice, bestScore));
 
             return bestDevice;
         }

@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.utils;
 
+import com.vke.api.app.Version;
 import com.vke.core.Identifier;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
@@ -211,4 +212,27 @@ public class VKUtils {
     public static int set(long encoded) {
         return (int) (encoded >>> 32);
     }
+
+    public static Version version(int packed) {
+        return new Version(VK14.VK_VERSION_MAJOR(packed), VK14.VK_VERSION_MINOR(packed), VK14.VK_VERSION_PATCH(packed));
+    }
+
+    public static String driverName(int id) {
+        return switch (id) {
+            case KHRDriverProperties.VK_DRIVER_ID_AMD_PROPRIETARY_KHR -> "AMD Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_AMD_OPEN_SOURCE_KHR -> "AMD Open Source";
+            case KHRDriverProperties.VK_DRIVER_ID_MESA_RADV_KHR -> "Mesa RADV";
+            case KHRDriverProperties.VK_DRIVER_ID_NVIDIA_PROPRIETARY_KHR -> "NVIDIA Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS_KHR -> "Intel Proprietary (Windows)";
+            case KHRDriverProperties.VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA_KHR -> "Intel Open Source (Mesa)";
+            case KHRDriverProperties.VK_DRIVER_ID_IMAGINATION_PROPRIETARY_KHR -> "Imagination Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_QUALCOMM_PROPRIETARY_KHR -> "Qualcomm Proprietary";
+            default -> "Unknown (" + id + ")";
+        };
+    }
+
+    public static String vkConformanceVersionToString(VkConformanceVersion v) {
+        return v.major() + "." + v.minor() + "." + v.subminor() + "." + v.patch();
+    }
+
 }

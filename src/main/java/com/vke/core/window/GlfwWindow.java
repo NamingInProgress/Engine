@@ -1,6 +1,6 @@
 package com.vke.core.window;
 
-import com.vke.api.event.EventBus;
+import com.vke.api.event.IEventBus;
 import com.vke.api.utils.OSType;
 import com.vke.api.window.Window;
 import com.vke.api.window.WindowCreateInfo;
@@ -10,7 +10,6 @@ import com.vke.core.framable.service.FramableManager;
 import com.vke.core.services2.Services;
 import com.vke.core.window.callbacks.FramebufferCallbacks;
 import com.vke.utils.Utils;
-import com.vke.utils.console.AnsiColors;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;
@@ -24,7 +23,7 @@ public class GlfwWindow implements Window {
     private boolean minimized;
     private Size size;
     private final FramableManager framableManager;
-    private final EventBus bus;
+    private final IEventBus bus;
 
     public GlfwWindow(VKEngine engine, WindowCreateInfo windowCreateInfo, FramableManager framableManager) throws IllegalStateException {
         this.framableManager = framableManager;

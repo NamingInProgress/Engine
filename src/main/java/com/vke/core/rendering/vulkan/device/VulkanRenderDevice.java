@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.device;
 
+import com.vke.api.event.IEventBus;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
@@ -21,6 +22,7 @@ import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
+import com.vke.core.rendering.vulkan.VKEvents;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
@@ -46,6 +48,7 @@ import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
@@ -79,7 +82,7 @@ public class VulkanRenderDevice implements RenderDevice {
     private long debugMessenger, surface;
     private long vmaAllocator;
 
-    private DeviceCapabilities cachedCapabilities;
+    private final DeviceCapabilities cachedCapabilities;
 
     // Engine infos
     private final EngineCreateInfo engineCreateInfo;
@@ -92,7 +95,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private final Logger logger;
 
-    private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
+    private final IEventBus eventBus;
 
     public VulkanRenderDevice(VulkanRenderSystem context) {
         this.engine = context.getEngine();
@@ -102,6 +105,7 @@ public class VulkanRenderDevice implements RenderDevice {
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
         this.logger = LoggerFactory.get("Vulkan Setup");
+        this.eventBus = context.service(Services.EVENT_BUS);
 
         initInstance();
         setupDebugMessenger(this.instance, engine);
@@ -145,14 +149,50 @@ public class VulkanRenderDevice implements RenderDevice {
                 createInfo.ppEnabledLayerNames(validationLayers);
             }
 
+            eventBus.fire(new VKEvents.PreInstanceCreated(createInfo));
+
             /**  Instance Creation  **/
             PointerBuffer pInstance = stack.mallocPointer(1);
 
-            if (VK14.vkCreateInstance(createInfo, null, pInstance) != VK14.VK_SUCCESS) {
+
+            var pAlloc = alloc.allocStruct(VkAllocationCallbacks.SIZEOF, VkAllocationCallbacks::new);
+            pAlloc.pfnAllocation(new VkAllocationFunction() {
+                @Override
+                public long invoke(long pUserData, long size, long alignment, int allocationScope) {
+                    System.out.println("Allocing something");
+                    return MemoryUtil.nmemAlignedAlloc(alignment, size);
+                }
+            });
+
+            pAlloc.pfnFree(new VkFreeFunction() {
+                @Override
+                public void invoke(long pUserData, long pMemory) {
+                    System.out.println("freeing something");
+                    MemoryUtil.nmemFree(pMemory);
+                }
+            });
+
+            pAlloc.pfnReallocation(new VkReallocationFunction() {
+                @Override
+                public long invoke(long pUserData, long pOriginal, long size, long alignment, int allocationScope) {
+                    final var realloc = MemoryUtil.nmemRealloc(pOriginal, size);
+                    if ((realloc & (alignment - 1)) == 0) {
+                        return realloc;
+                    }
+                    final var newAlignedAlloc = MemoryUtil.nmemAlignedAlloc(alignment, size);
+                    MemoryUtil.memCopy(realloc, newAlignedAlloc, size);
+                    MemoryUtil.nmemFree(realloc);
+                    return newAlignedAlloc;
+                }
+            });
+
+            if (VK14.vkCreateInstance(createInfo, pAlloc, pInstance) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("VkInstance couldn't be created"), HERE);
             }
 
             this.instance = new VkInstance(pInstance.get(0), createInfo);
+
+            eventBus.fire(new VKEvents.InstanceCreated());
         }
     }
 
@@ -190,7 +230,8 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private void setupPhysicalDevice() {
         physicalDevice = DeviceUtils.pickGpu(this.instance,
-                logger,
+                this.eventBus,
+                this.logger,
                 this.engineCreateInfo,
                 this.vulkanCreateInfo.gpuExtensions);
         logger.info("Using GPU: " + physicalDevice.getName());
@@ -357,8 +398,8 @@ public class VulkanRenderDevice implements RenderDevice {
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         logicalDevice.free();
         VK14.vkDestroyInstance(instance, null);
+        eventBus.fire(new VKEvents.InstanceDestroyed());
         alloc.close();
-        FREE_QUEUE.forEach(Disposable::free);
     }
 
     /** GETTERS **/

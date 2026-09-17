@@ -1,9 +1,6 @@
 package com.vke.core.event.service;
 
-import com.vke.api.event.CancellableEvent;
-import com.vke.api.event.Event;
-import com.vke.api.event.EventListener;
-import com.vke.api.event.SubscribeEvent;
+import com.vke.api.event.*;
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
 import com.vke.core.services2.Services;
@@ -14,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class EventBusImpl extends ServiceImpl implements com.vke.api.event.EventBus {
+public class EventBusImpl extends ServiceImpl implements IEventBus {
 
     private final HashMap<Class<? extends Event>, List<CallableHandler>> handlers = new HashMap<>();
 
@@ -49,6 +46,25 @@ public class EventBusImpl extends ServiceImpl implements com.vke.api.event.Event
                 }
             } catch (IllegalAccessException iae) {
                 engine.throwException(iae, "EventBus");
+            }
+        }
+    }
+
+    @Override
+    public void remove(EventListener instance) {
+        List<Method> subscribers = ReflectUtils.getAnnotatedMethods(instance.getClass(), SubscribeEvent.class);
+
+        for (Method subscriber : subscribers) {
+            Class<?>[] params = subscriber.getParameterTypes();
+
+            if (params.length > 1) engine.throwException(
+                    new RuntimeException("Found method (%s) annotated with @SubscribeEvent but with more than 1 parameter!".formatted(subscriber.getName())), "EventBus");
+
+            if (Event.class.isAssignableFrom(params[0])) {
+                @SuppressWarnings("unchecked")
+                Class<? extends Event> eventClass = (Class<? extends Event>) params[0];
+                handlers.getOrDefault(eventClass, new ArrayList<>())
+                                .remove(new CallableHandler(instance, null));
             }
         }
     }
