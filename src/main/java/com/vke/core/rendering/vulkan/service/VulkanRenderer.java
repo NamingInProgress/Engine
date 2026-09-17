@@ -12,6 +12,7 @@ import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
+import com.vke.core.rendering.DefaultRenderAssets;
 import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
@@ -143,6 +144,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                 .map(Map.Entry::getValue)
                 .toList());
         engineSetsManager.makeFrameDataManager();
+
+        DefaultRenderAssets.initialize(ctx);
 
         this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();

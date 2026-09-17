@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vertexconsumer;
 
+import com.vke.api.rendering.abstraction.DelayedDestroyer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.rendering.abstraction.draw.Vertex;
@@ -43,7 +44,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     private int lastVertexCount;
 
-    private final HashMap<MappedGpuRingBuffer, Integer> _gpuBuffersOld = new HashMap<>();
+    private final DelayedDestroyer<MappedGpuRingBuffer> _gpuBuffersOld;
 
     public AbstractVertexConsumer(VulkanRenderSystem sys, T template) {
         this(sys, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
@@ -60,6 +61,8 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
         this._gpuVertices = genVertexBuffer(estVertexCount);
         this._gpuIndices = genIndexBuffer(estIndexCount);
+
+        this._gpuBuffersOld = new DelayedDestroyer<>(sys);
     }
 
     @Override
@@ -119,8 +122,6 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
         this.currentVertexCount = 0;
         this.currentIndexCount = 0;
-
-        handleOldBuffers();
     }
 
     @Override
@@ -163,24 +164,11 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
                 new long[]{ getRingVerticesOffset() + (long) lastVertexCount * _template.getByteStride()});
     }
 
-    private void handleOldBuffers() {
-        ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
-        for (Map.Entry<MappedGpuRingBuffer, Integer> entry : _gpuBuffersOld.entrySet()) {
-            if (entry.getValue() > sys.getFrameCounter().framesInFlight()) {
-                entry.getKey().free();
-                toRemove.add(entry.getKey());
-            }
-            entry.setValue(entry.getValue() + 1);
-        }
-
-        toRemove.forEach(_gpuBuffersOld::remove);
-    }
-
     protected void ensureVertexSpace(int additionalSpace) {
         int newCount = this.lastVertexCount + this.currentVertexCount + additionalSpace;
         if (newCount >= this.maxVertexCount) {
             while (newCount > this.maxVertexCount) {
-                this.maxVertexCount = (int) (((double) this.maxVertexCount) * CpuBuffer.GROWTH_FAC);
+                this.maxVertexCount = (int) (((double) this.maxVertexCount) * 2);
             }
             reallocVertexBuffer(this.maxVertexCount);
         }
@@ -190,19 +178,19 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         int newCount = this.currentMaxIndex + this.currentIndexCount + additional;
         if (newCount >= this.maxIndexCount) {
             while (newCount > this.maxIndexCount) {
-                this.maxIndexCount = (int) (((double) this.maxIndexCount) * CpuBuffer.GROWTH_FAC);
+                this.maxIndexCount = (int) (((double) this.maxIndexCount) * 2);
             }
             reallocIndexBuffer(this.maxIndexCount);
         }
     }
 
     protected void reallocVertexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuVertices, 0);
+        this._gpuBuffersOld.scheduleDestroy(this._gpuVertices);
         this._gpuVertices = genVertexBuffer(newSize);
     }
 
     protected void reallocIndexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuIndices, 0);
+        this._gpuBuffersOld.scheduleDestroy(this._gpuIndices);
         this._gpuIndices= genIndexBuffer(newSize);
     }
 

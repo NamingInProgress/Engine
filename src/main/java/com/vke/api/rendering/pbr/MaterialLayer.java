@@ -9,6 +9,8 @@ public abstract class MaterialLayer {
 
     public abstract void putSelf(RenderSystem sys, BufferSlice encoder) throws IOException;
 
+    public abstract MaterialLayer copy();
+
     public abstract int hashCode();
     public abstract boolean equals(Object obj);
 }

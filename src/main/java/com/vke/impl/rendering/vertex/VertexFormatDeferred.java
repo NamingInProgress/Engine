@@ -1,5 +1,6 @@
 package com.vke.impl.rendering.vertex;
 
+import com.vke.api.rendering.abstraction.draw.MeshVertexFactory;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.pbr.Material;
 import pl.epsi.MakeVertex;
@@ -7,6 +8,14 @@ import pl.epsi.Type;
 
 @MakeVertex
 public class VertexFormatDeferred implements Vertex {
+
+    public static final MeshVertexFactory MESH_VERTEX_FACTORY = (prefabVertex -> new VertexFormatDeferred(
+            prefabVertex.position()[0], prefabVertex.position()[1], prefabVertex.position()[2],
+            prefabVertex.normal()[0], prefabVertex.normal()[1], prefabVertex.normal()[2],
+            prefabVertex.uv()[0], prefabVertex.uv()[1],
+            null,
+            prefabVertex.tangent()[0], prefabVertex.tangent()[1], prefabVertex.tangent()[2], prefabVertex.tangent()[3]
+    ));
 
     @Type.Float3
     private final float x, y, z;

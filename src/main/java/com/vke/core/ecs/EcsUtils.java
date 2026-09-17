@@ -331,4 +331,45 @@ public class EcsUtils {
     public static void copyRange(char[] arr, int from, int to, int length, int span) {
         System.arraycopy(arr, from, arr, to, length * span);
     }
+
+    // =========================================================================
+    // T
+    // =========================================================================
+
+    public static <T> T[] resize(T[] arr, int newSize) {
+        return Arrays.copyOf(arr, newSize);
+    }
+
+    public static <T> T[] resize(T[] arr, int newSize, int span) {
+        return Arrays.copyOf(arr, newSize * span);
+    }
+
+    public static <T> void swap(T[] arr, int a, int b) {
+        T tmp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = tmp;
+    }
+
+    public static <T> void swap(T[] arr, int a, int b, int span) {
+        T[] tmp = Arrays.copyOf(arr, span);
+        System.arraycopy(arr, a, tmp, 0, span);
+        System.arraycopy(arr, b, arr, a, span);
+        System.arraycopy(tmp, 0, arr, b, span);
+    }
+
+    public static <T> void copyFrom(T[] from, T[] to, int fromIndex, int toIndex) {
+        to[toIndex] = from[fromIndex];
+    }
+
+    public static <T> void copyFrom(T[] from, T[] to, int fromIndex, int toIndex, int span) {
+        System.arraycopy(from, fromIndex, to, toIndex, span);
+    }
+
+    public static <T> void copyRange(T[] arr, int from, int to, int length) {
+        System.arraycopy(arr, from, arr, to, length);
+    }
+
+    public static <T> void copyRange(T[] arr, int from, int to, int length, int span) {
+        System.arraycopy(arr, from, arr, to, length * span);
+    }
 }

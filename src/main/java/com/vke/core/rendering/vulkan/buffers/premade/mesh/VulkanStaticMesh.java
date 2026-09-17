@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.buffers.premade.mesh;
 
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.pbr.Material;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.core.services2.Services;
@@ -18,6 +19,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class VulkanStaticMesh implements Disposable, StaticMesh {
     private StagedBuffer vertices;
@@ -115,5 +117,17 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
     public void free() {
         this.vertices.free();
         this.indices.free();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanStaticMesh that = (VulkanStaticMesh) o;
+        return Objects.equals(vertices, that.vertices) && Objects.equals(indices, that.indices);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertices, indices);
     }
 }

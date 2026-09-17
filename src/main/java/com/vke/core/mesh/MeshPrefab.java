@@ -7,6 +7,7 @@ import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
 import com.vke.core.serializer.LoadException;
 import com.vke.core.serializer.SaveException;
+import com.vke.impl.rendering.vertex.VertexFormatDeferred;
 
 public class MeshPrefab {
     private final PrefabVertex[] vertices;
@@ -23,6 +24,20 @@ public class MeshPrefab {
             vertices[i] = factory.formatVertex(this.vertices[i]);
         }
         return new Mesh(vertices, indices);
+    }
+
+    public Mesh<VertexFormatDeferred> defaultMesh() {
+        VertexFormatDeferred[] vertices = new VertexFormatDeferred[this.vertices.length];
+        for (int i = 0; i < vertices.length; i++) {
+            vertices[i] = new VertexFormatDeferred(
+                    this.vertices[i].position[0], this.vertices[i].position[1], this.vertices[i].position[2],
+                    this.vertices[i].normal[0], this.vertices[i].normal[1], this.vertices[i].normal[2],
+                    this.vertices[i].uv[0], this.vertices[i].uv[1],
+                    null,
+                    this.vertices[i].tangent[0], this.vertices[i].tangent[1], this.vertices[i].tangent[2], this.vertices[i].tangent[3]
+            );
+        }
+        return new Mesh<>(vertices, indices);
     }
 
     public static void registerSerializers() {

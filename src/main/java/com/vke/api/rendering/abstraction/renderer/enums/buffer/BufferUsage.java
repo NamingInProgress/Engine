@@ -4,6 +4,8 @@ import com.vke.api.rendering.abstraction.renderer.IntBitEnum;
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
 import org.lwjgl.vulkan.VK14;
 
+import java.util.Objects;
+
 public class BufferUsage implements IntBitEnum<BufferUsage, BufferUsage.Bits> {
 
     private int mask;
@@ -23,6 +25,18 @@ public class BufferUsage implements IntBitEnum<BufferUsage, BufferUsage.Bits> {
     @Override
     public int getIntVal() {
         return this.mask;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        BufferUsage that = (BufferUsage) o;
+        return mask == that.mask;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mask);
     }
 
     public enum Bits implements IntEnum {

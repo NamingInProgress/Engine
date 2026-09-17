@@ -16,6 +16,7 @@ import org.lwjgl.vulkan.VkDevice;
 
 import java.nio.LongBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class VulkanGpuBuffer implements GpuBuffer {
     private static final String HERE = "Buffer@VulkanImpl/GPUBuffer";
@@ -25,7 +26,6 @@ public class VulkanGpuBuffer implements GpuBuffer {
     private final long allocator;
     private final long buffer, allocation;
     private final VmaAllocationInfo info;
-    private final VkDevice device;
 
     private boolean free = false;
 
@@ -59,7 +59,6 @@ public class VulkanGpuBuffer implements GpuBuffer {
             PointerBuffer pAllocation = stack.mallocPointer(1);
             VmaAllocationInfo allocationInfo = VmaAllocationInfo.calloc();
 
-            device = vkCtx.device().vkLogicalDevice();
             if (Vma.vmaCreateBuffer(vkCtx.device().getVmaAllocator(), bufferCreateInfo, allocationCreateInfo, pBuffer, pAllocation, allocationInfo) != VK14.VK_SUCCESS) {
                 vkCtx.throwException(new IllegalStateException("Unable to allocate mapped gpu memory"), HERE);
             }
@@ -113,4 +112,15 @@ public class VulkanGpuBuffer implements GpuBuffer {
         return memUsage;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanGpuBuffer that = (VulkanGpuBuffer) o;
+        return buffer == that.buffer && allocation == that.allocation && size == that.size && idx == that.idx && Objects.equals(usage, that.usage) && Objects.equals(memUsage, that.memUsage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(buffer, allocation, size, usage, memUsage, idx);
+    }
 }
