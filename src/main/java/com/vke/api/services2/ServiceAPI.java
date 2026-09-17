@@ -66,9 +66,10 @@ public abstract class ServiceAPI implements Service, Lifecycle {
         }
     }
 
-    public ServiceImpl getImplementation() {
+    @SuppressWarnings("unchecked")
+    public <T extends ServiceImpl> T getImplementation() {
         synchronized (lock) {
-            return implementation;
+            return (T) implementation;
         }
     }
 
