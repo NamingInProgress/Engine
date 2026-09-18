@@ -3,6 +3,7 @@ package com.vke.impl.rendering.vertex;
 import com.vke.api.rendering.abstraction.draw.MeshVertexFactory;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.pbr.Material;
+import org.jetbrains.annotations.Nullable;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
 

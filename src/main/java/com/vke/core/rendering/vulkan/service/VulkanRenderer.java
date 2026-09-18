@@ -145,12 +145,12 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                 .toList());
         engineSetsManager.makeFrameDataManager();
 
-        DefaultRenderAssets.initialize(ctx);
-
         this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();
         RenderPipelines.init(ctx);
         framableManager.registerFramable(this.getEngineSetsManager().frameDataManager);
+
+        DefaultRenderAssets.initialize(ctx);
 
         graphManager.onRendererAvailable();
     }

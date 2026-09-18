@@ -1,6 +1,7 @@
 package com.vke.core.rendering;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.draw.MeshVertexFactory;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;

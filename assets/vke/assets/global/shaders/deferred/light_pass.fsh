@@ -5,7 +5,7 @@ layout (location = 0) in vec2 fUV;
 layout (location = 0) out vec4 FragColor;
 
 layout (set = 3, binding = 0) uniform sampler2D u_NormalTex;
-layout (set = 3, binding = 1) uniform sampler2D u_MaterialIdxTex;
+layout (set = 3, binding = 1) uniform isampler2D u_MaterialIdxTex;
 layout (set = 3, binding = 2) uniform sampler2D u_MeshUvsTex;
 layout (set = 3, binding = 3) uniform sampler2D u_DepthTex;
 

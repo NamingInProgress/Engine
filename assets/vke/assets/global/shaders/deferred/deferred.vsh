@@ -12,10 +12,7 @@ layout (location = 2) out flat int fMaterialId;
 layout (location = 3) out vec4 fTangent;
 
 #include("vke:assets/global/shaders/vke_sets.gdef")
-
-layout(push_constant) uniform constants {
-    mat4 local;
-} PushConstants;
+#include("vke:assets/global/shaders/instance.gdef")
 
 layout (std430, set = 3, binding = 0) readonly buffer Transforms {
     #DefaultSize(1048576)

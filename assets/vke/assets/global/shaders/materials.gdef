@@ -18,6 +18,9 @@ struct Material {
     float emissiveScale;
     vec4 emissiveColor;
     float specularScale;
+    float pad0;
+    float pad1;
+    float pad2;
 };
 
 struct MaterialInputs {
