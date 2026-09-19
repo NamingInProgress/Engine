@@ -10,4 +10,6 @@ public interface GraphManager extends PinnedService {
 
     RenderGraph getGraph(String name);
     RenderGraph getGraph(Identifier name);
+
+    void rebuildGraphs();
 }

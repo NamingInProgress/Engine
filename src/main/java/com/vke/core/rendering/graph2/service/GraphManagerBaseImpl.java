@@ -46,10 +46,10 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
 
     @SubscribeEvent
     public void onWindowResize(WindowResizeEvent event) {
-        onWindowResize(event.window.getSize());
+        //queueRebuild(event.window.getSize());
     }
 
-    public void onWindowResize(Window.Size newSize) {
+    public void queueRebuild(Window.Size newSize) {
         for (RenderGraph g : graphs.values()) {
             g.rebuild(newSize.width(), newSize.height());
         }
@@ -72,6 +72,11 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
             engine.throwException(new IllegalStateException("Requested RenderGraph '%s' is null!".formatted(name)), "GetGraph");
         }
         return g;
+    }
+
+    @Override
+    public void rebuildGraphs() {
+        queueRebuild(engine.getWindow().getSize());
     }
 
     @Override

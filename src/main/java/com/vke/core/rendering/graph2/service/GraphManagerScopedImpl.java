@@ -45,6 +45,11 @@ public class GraphManagerScopedImpl implements GraphManager {
     }
 
     @Override
+    public void rebuildGraphs() {
+        base.rebuildGraphs();
+    }
+
+    @Override
     public String getId() {
         return base.getId();
     }

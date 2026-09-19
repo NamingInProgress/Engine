@@ -29,4 +29,9 @@ public class GraphManagerAPI extends ServiceAPI implements GraphManager {
     public RenderGraph getGraph(Identifier name) {
         return getImpl().getGraph(name);
     }
+
+    @Override
+    public void rebuildGraphs() {
+        getImpl().rebuildGraphs();
+    }
 }
