@@ -19,7 +19,7 @@ import java.util.List;
 public class DebugRenderPass extends RenderPass {
 
     private VertexConsumer<DebugVertex> vc;
-    private BasicPipelineDriver driver;
+    private BasicPipelineDriver triangleDriver, linesDriver;
 
     private GraphTexture colorOut;
     private GraphTexture depthOut;
@@ -31,7 +31,8 @@ public class DebugRenderPass extends RenderPass {
     @Override
     public void onLoad() {
         this.vc = sys.vcp().get(DebugVertex.TEMPLATE);
-        this.driver = new BasicPipelineDriver(sys, R.pipelines.get("debug_3d.pipeline.json"));
+        this.triangleDriver = new BasicPipelineDriver(sys, R.pipelines.get("debug_3d_tri.pipeline.json"));
+        this.linesDriver = new BasicPipelineDriver(sys, R.pipelines.get("debug_3d_lines.pipeline.json"));
 
         colorOut = searchOutputTexture("colorOut");
         depthOut = searchOutputTexture("depthOut");
@@ -41,12 +42,11 @@ public class DebugRenderPass extends RenderPass {
     public void execute(CommandBuffer cmd, GraphContext context) {
         this.beginRendering(cmd, List.of(colorOut), depthOut, RgbColor.VKE, RgbColor.WHITE);
 
-        driver.use();
-        VK14.vkCmdSetPrimitiveTopology(((VulkanCmdBuffers) cmd).getBuffer(), VK14.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        triangleDriver.use();
         DebugContext.tri_commands.forEach(c -> c.draw(vc));
         vc.draw();
 
-        VK14.vkCmdSetPrimitiveTopology(((VulkanCmdBuffers) cmd).getBuffer(), VK14.VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
+        linesDriver.use();
         DebugContext.line_commands.forEach(c -> c.draw(vc));
         vc.draw();
 

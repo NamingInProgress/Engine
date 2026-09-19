@@ -8,8 +8,11 @@ import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.RenderGraph;
 import com.vke.core.rendering.pipeline.RenderPipelines;
+import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.demo.DemoScene;
 import com.vke.utils.DrawUtils;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints;
 
 import java.util.List;
 
@@ -55,12 +58,12 @@ public class DeferredRenderPass extends RenderPass {
 
         cmd.endRendering();
 
-        this.beginRendering(cmd, List.of(colorOut), RgbColor.BLACK);
-
         gbuf_normal.useInShader();
         gbuf_material_idx.useInShader();
         gbuf_mesh_uvs.useInShader();
         depthOut.useInShader();
+
+        this.beginRendering(cmd, List.of(colorOut), RgbColor.BLACK);
 
         RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_material_idx, gbuf_mesh_uvs, depthOut);
         RenderPipelines.DEFERRED_LIGHT_PASS.use();

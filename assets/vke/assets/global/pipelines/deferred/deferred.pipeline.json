@@ -10,7 +10,11 @@
     },
     {
       "type": "COLOR",
-      "format": "RGBA8_SRGB"
+      "format": "R32I"
+    },
+    {
+      "type": "COLOR",
+      "format": "RG16F"
     },
     {
       "type": "DEPTH",

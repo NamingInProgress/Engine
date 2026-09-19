@@ -12,7 +12,9 @@ import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.TextureCategory;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.DrawUtils;
+import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
+import com.vke.utils.io.SegmentedPath;
 
 public class ImageToScreenRenderPass extends DataRenderPass {
     public final String sourceName;
@@ -31,12 +33,13 @@ public class ImageToScreenRenderPass extends DataRenderPass {
             throw new IllegalArgumentException("<image-to-screen> needs a source attribute! I sadly cant tell you where this is located add, because i cba to add another param to ts :)");
         }
 
+        def.addInputTexture(new InputTextureDef("input", new SegmentedPath(sourceName)));
         def.addOutputTexture(new OutputTextureDef("screen", null, TextureType.SCREEN, Format.BGRA8_SRGB, 0, 0, 1));
     }
 
     @Override
     public void onLoad() {
-        source = graph.searchTexture(sourceName, TextureCategory.Output);
+        source = searchInputTexture("input");
         screen = searchOutputTexture("screen");
     }
 

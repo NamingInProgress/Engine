@@ -14,6 +14,7 @@ import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
+import com.vke.core.event.events.rendering.SwapchainEvents;
 import com.vke.core.rendering.graph2.RenderGraph;
 import com.vke.core.rendering.graph2.TexturePool;
 import com.vke.core.rendering.graph2.parse.Graph2Parser;
@@ -45,8 +46,8 @@ public class GraphManagerBaseImpl extends ScopedServiceImpl<GraphManagerScopedIm
     }
 
     @SubscribeEvent
-    public void onWindowResize(WindowResizeEvent event) {
-        //queueRebuild(event.window.getSize());
+    public void onSwapchainCreated(SwapchainEvents.Created event) {
+        rebuildGraphs();
     }
 
     public void queueRebuild(Window.Size newSize) {

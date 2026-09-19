@@ -171,6 +171,14 @@ public abstract class RenderPass {
 
     public abstract void onLoad();
 
+    public void beforeExecute() {
+        for (Texture input : inputs) {
+            if (input != null) {
+                input.useInShader();
+            }
+        }
+    }
+
     public abstract void execute(CommandBuffer cmd, GraphContext context);
 
     public record OutputTexture(Texture[] texture, boolean hasSource) {}

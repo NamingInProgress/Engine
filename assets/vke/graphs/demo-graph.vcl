@@ -10,7 +10,9 @@
         <render-pass name="debug" parent="debug">
             <outputs>
                 <texture name="colorOut" source="main.colorOut"/>
+<!--                <texture name="colorOut"/>-->
                 <texture name="depthOut" type="depth" format="DEPTH32F" source="main.depthOut"/>
+<!--                <texture name="depthOut" type="depth" format="DEPTH32F"/>-->
             </outputs>
         </render-pass>
 

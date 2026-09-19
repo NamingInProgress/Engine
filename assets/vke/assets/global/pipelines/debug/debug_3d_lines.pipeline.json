@@ -1,12 +1,12 @@
 {
-  "dynamicStates": ["TOPOLOGY", "VIEWPORT", "SCISSOR"],
   "topology": "LINES",
   "lineWidth": 4,
   "cullMode": "NONE",
   "polygonMode": "FILL",
   "attachments": [
     {
-      "type": "COLOR"
+      "type": "COLOR",
+      "format": "RGBA16F"
     },
     {
       "type": "DEPTH",

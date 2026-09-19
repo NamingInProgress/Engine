@@ -11,6 +11,7 @@ import com.vke.core.Identifier;
 import com.vke.core.rendering.graph2.parse.RenderPassReconstructor;
 import com.vke.core.rendering.graph2.renderpass.DataRenderPass;
 import com.vke.core.rendering.graph2.renderpass.RenderPass;
+import com.vke.core.scene.loading.RectLoadingScene;
 import com.vke.utils.io.SegmentedPath;
 
 import java.lang.reflect.Constructor;
@@ -158,6 +159,7 @@ public class RenderGraph {
     public void onDraw(Scene runner) {
         CommandBuffer cmd = sys.getCurrentCommandBuffer();
         for (RenderPass pass : renderPasses) {
+            pass.beforeExecute();
             pass.execute(cmd, context);
             runner.onRenderPassFinished(pass, context);
         }

@@ -54,6 +54,7 @@ import org.lwjgl.vulkan.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -140,6 +141,16 @@ public class VulkanRenderDevice implements RenderDevice {
                     .sType(VK14.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
                     .ppEnabledExtensionNames(extensions);
+//
+//            // TODO: remove this later
+//            IntBuffer pValidationFeatures = stack.mallocInt(1);
+//            pValidationFeatures.put(0, 4);
+//
+//            VkValidationFeaturesEXT validationFeatures = VkValidationFeaturesEXT.calloc(stack)
+//                    .sType$Default()
+//                    .pEnabledValidationFeatures(pValidationFeatures);
+//
+//            createInfo.pNext(validationFeatures);
 
             if (validationLayers != null) {
                 createInfo.ppEnabledLayerNames(validationLayers);
@@ -309,8 +320,9 @@ public class VulkanRenderDevice implements RenderDevice {
                     .pSignalSemaphoreInfos(signalInfo);
 
             VkQueue queue = this.logicalDevice.getQueue(info.getType()).vk();
-            if (VK14.vkQueueSubmit2(queue, submitInfo, pFence) != VK14.VK_SUCCESS) {
-                logger.warn("Failed to submit queue!");
+            int log = VK14.vkQueueSubmit2(queue, submitInfo, pFence);
+            if (log != VK14.VK_SUCCESS) {
+                logger.warn("Failed to submit queue! Reason: %d", log);
             }
         }
     }

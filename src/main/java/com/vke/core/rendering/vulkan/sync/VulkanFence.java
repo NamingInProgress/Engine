@@ -40,8 +40,8 @@ public class VulkanFence implements Fence {
     }
 
     @Override
-    public void waitForFence() {
-        waitForFence(Integer.MAX_VALUE);
+    public int waitForFence() {
+        return waitForFence(-1L);
     }
 
     @Override
@@ -52,9 +52,9 @@ public class VulkanFence implements Fence {
     }
 
     @Override
-    public boolean waitForFence(long timeout) {
+    public int waitForFence(long timeout) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            return VK14.vkWaitForFences(device.getDevice(), stack.longs(handle), true, timeout) == VK14.VK_SUCCESS;
+            return VK14.vkWaitForFences(device.getDevice(), stack.longs(handle), true, timeout);
         }
     }
 
