@@ -7,7 +7,6 @@ import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
 import com.vke.core.serializer.LoadException;
 import com.vke.core.serializer.SaveException;
-import com.vke.impl.rendering.vertex.VertexFormatDeferred;
 
 public class MeshPrefab {
     private final PrefabVertex[] vertices;

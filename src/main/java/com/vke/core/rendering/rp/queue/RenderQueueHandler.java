@@ -6,16 +6,20 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
+import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
+import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.assets.handles.LazyAssetHandle;
+import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.rp.MeshInstance;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public class RenderQueueCollector {
+public class RenderQueueHandler {
 
     private static final LazyAssetHandle<ConfigSchema> SCHEMA = R.schemas.get("render-queues.vks");
     private static final int VKE_RENDER_QUEUE_COUNT = 2;
@@ -24,6 +28,26 @@ public class RenderQueueCollector {
     public RenderQueueExecutor[] executors = new RenderQueueExecutor[VKE_RENDER_QUEUE_COUNT];
     public RenderQueue[] queues = new RenderQueue[VKE_RENDER_QUEUE_COUNT];
     private int count = 0;
+
+    public void enqueue(int queue, MeshInstance mi) {
+        queues[queue].add(mi);
+    }
+
+    public void clear() {
+        for (RenderQueue queue : queues) {
+            queue.clear();
+        }
+    }
+
+    public void render(CommandBuffer cmd, RenderPass pass, RenderPassInstance instance) {
+        for (int i = 0; i < executors.length; i++) {
+            RenderQueueExecutor executor = executors[i];
+            RenderQueue queue = queues[i];
+            if (executor == null || queue == null) continue;
+
+            executor.acceptQueue(queue, cmd, pass, instance);
+        }
+    }
 
     public void collect(Context ctx) {
         FileIdentifier file = ctx.fid("render-queues.vcl");

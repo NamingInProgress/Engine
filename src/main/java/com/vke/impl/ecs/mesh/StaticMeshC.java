@@ -10,13 +10,25 @@ import pl.epsi.EcsComponent;
 public class StaticMeshC implements Component {
 
     public StaticMesh[] mesh;
-    public Material[] material;
+    public int[] material;
     public int[] renderQueueKey;
 
     @Override
     public void initialize(int i) {
         mesh[i] = DefaultRenderAssets.defaultMesh();
-        material[i] = DefaultRenderAssets.defaultMaterial().copy();
+        material[i] = DefaultRenderAssets.copyDefaultMaterialIndex();
         renderQueueKey[i] = 0;
+    }
+
+    public void setMesh(int i, StaticMesh mesh) {
+        this.mesh[i] = mesh;
+    }
+
+    public void setMaterial(int i, Material material) {
+        this.material[i] = DefaultRenderAssets.getRenderSystem().materialManager().material(material);
+    }
+
+    public void changeRenderQueue(int i, int renderQueue) {
+        this.renderQueueKey[i] = renderQueue;
     }
 }

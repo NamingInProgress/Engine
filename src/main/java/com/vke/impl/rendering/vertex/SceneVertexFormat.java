@@ -2,15 +2,13 @@ package com.vke.impl.rendering.vertex;
 
 import com.vke.api.rendering.abstraction.draw.MeshVertexFactory;
 import com.vke.api.rendering.abstraction.draw.Vertex;
-import com.vke.api.rendering.pbr.Material;
-import org.jetbrains.annotations.Nullable;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
 
 @MakeVertex
-public class VertexFormatDeferred implements Vertex {
+public class SceneVertexFormat implements Vertex {
 
-    public static final MeshVertexFactory MESH_VERTEX_FACTORY = (prefabVertex -> new VertexFormatDeferred(
+    public static final MeshVertexFactory MESH_VERTEX_FACTORY = (prefabVertex -> new SceneVertexFormat(
             prefabVertex.position()[0], prefabVertex.position()[1], prefabVertex.position()[2],
             prefabVertex.normal()[0], prefabVertex.normal()[1], prefabVertex.normal()[2],
             prefabVertex.uv()[0], prefabVertex.uv()[1],
@@ -26,7 +24,7 @@ public class VertexFormatDeferred implements Vertex {
     @Type.Float4
     private final float tx, ty, tz, tw;
 
-    public VertexFormatDeferred(float x, float y, float z, float nx, float ny, float nz, float u, float v, float tx, float ty, float tz, float tw) {
+    public SceneVertexFormat(float x, float y, float z, float nx, float ny, float nz, float u, float v, float tx, float ty, float tz, float tw) {
         this.x = x;
         this.y = y;
         this.z = z;

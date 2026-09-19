@@ -2,7 +2,7 @@ package com.vke.impl.gameobject;
 
 import com.vke.core.Context;
 import com.vke.core.color.RgbColor;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.game.object.AbstractGameObject;
 import com.vke.core.game.object.GameObject;
@@ -12,7 +12,7 @@ import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.ecs.light.PointLightC;
 
 public class PointLightGameObject extends AbstractGameObject implements RestrictedGameObject {
-    private ComponentReference<PointLightC> point;
+    private CRef<PointLightC> point;
 
     public PointLightGameObject(Context ctx) {
         super(ctx);

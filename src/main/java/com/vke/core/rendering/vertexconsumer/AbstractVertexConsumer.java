@@ -109,13 +109,13 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         putIndices(mesh.getIndices());
     }
 
-    protected void submitDraw(int instanceCount) {
+    protected void submitDraw(int instanceCount, int firstInstance) {
         VulkanCmdBuffers buf = sys.getCurrentCommandBuffer();
         this.upload();
         this.bindIBO();
         this.bindVBO();
 
-        VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), instanceCount, 0, 0, 0);
+        VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), instanceCount, 0, 0, firstInstance);
 
         this.lastVertexCount += this.currentVertexCount;
         this.currentMaxIndex += this.currentIndexCount;
@@ -126,12 +126,17 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     @Override
     public void draw() {
-        submitDraw(1);
+        submitDraw(1, 0);
     }
 
     @Override
     public void drawInstanced(int instanceCount) {
-        submitDraw(instanceCount);
+        submitDraw(instanceCount, 0);
+    }
+
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
+        submitDraw(instanceCount, firstInstance);
     }
 
     @Override

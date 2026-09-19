@@ -217,6 +217,11 @@ public class TextRenderer implements Drawable {
         throw new RuntimeException("Text Renderer does not support regular draw! Uses multiple pipelines! Use the render method instead.");
     }
 
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
+        throw new RuntimeException("Text Renderer does not support regular draw! Uses multiple pipelines! Use the render method instead.");
+    }
+
     @MakeVertex
     public static class BezierVertex implements Vertex {
         public static final BezierVertex TEMPLATE = null;

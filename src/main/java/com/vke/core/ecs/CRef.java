@@ -4,17 +4,17 @@ import com.vke.core.ecs.backend.ArchetypeManager;
 import com.vke.core.ecs.component.Component;
 import org.jetbrains.annotations.Nullable;
 
-public class ComponentReference<T extends Component> {
+public class CRef<T extends Component> {
     private final ArchetypeManager am;
     private final int entity;
 
     private T component;
     private int i;
 
-    private @Nullable ComponentReference<T> next;
+    private @Nullable CRef<T> next;
     private @Nullable ComponentProxy<T> proxy;
 
-    public ComponentReference(ArchetypeManager am, int entity) {
+    public CRef(ArchetypeManager am, int entity) {
         this.entity = entity;
         this.am = am;
     }
@@ -55,9 +55,9 @@ public class ComponentReference<T extends Component> {
         return i;
     }
 
-    public ComponentReference<T> createLinked() {
-        ComponentReference<T> n = new ComponentReference<>(am, entity);
-        ComponentReference<T> parent = this;
+    public CRef<T> createLinked() {
+        CRef<T> n = new CRef<>(am, entity);
+        CRef<T> parent = this;
         while (parent.next != null) {
             parent = parent.next;
         }
@@ -71,6 +71,15 @@ public class ComponentReference<T extends Component> {
             proxy.setComponentInternal(component);
             proxy.setIndexInternal(i);
         }
+    }
+
+    public void with(With<T> with) {
+        with.with(getComponent(), getIndex());
+    }
+
+    @FunctionalInterface
+    public interface With<T> {
+        void with(T comp, int i);
     }
 
     public void drop() {

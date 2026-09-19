@@ -10,7 +10,7 @@ import java.util.List;
 public class DeferredRenderPassDeserializer extends RenderPassDeserializer {
     @Override
     public RenderPassDefinition accept(ConfigNode node, String name) throws ClassNotFoundException {
-        return new RenderPassDefinition(name, DeferredRenderPass.class,
+        return new RenderPassDefinition(name, SceneRenderPass.class,
                 buildInputTextures(node.getArray("inputs")),
                 buildGBufferAndOutput(node.getArray("outputs")));
     }

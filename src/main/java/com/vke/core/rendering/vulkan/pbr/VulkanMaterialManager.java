@@ -44,8 +44,8 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
     }
 
     @Override
-    public void registerMaterial(Material mat) {
-        if (materials.containsKey(mat)) return;
+    public int registerMaterial(Material mat) {
+        if (materials.containsKey(mat)) return materials.get(mat);
 
         int firstFree = -1;
         for (int i = 0; i < mats.length; i++) {
@@ -59,6 +59,7 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
         mats[firstFree] = mat;
         materials.put(mat, firstFree);
         this.dirty = true;
+        return firstFree;
     }
 
     @Override

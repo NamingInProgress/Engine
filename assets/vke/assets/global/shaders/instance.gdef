@@ -6,7 +6,6 @@ struct MeshInstance {
     float _pad2;
 };
 
-#MultiWriteHint(100)
 layout (std430, set = 2, binding = 2) readonly buffer InstanceData {
     #DefaultSize(1024)
     MeshInstance meshInstances[];

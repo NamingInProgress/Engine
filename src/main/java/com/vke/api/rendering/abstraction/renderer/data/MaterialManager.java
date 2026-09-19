@@ -4,7 +4,7 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArr
 import com.vke.api.rendering.pbr.Material;
 
 public interface MaterialManager {
-    void registerMaterial(Material mat);
+    int registerMaterial(Material mat);
     int material(Material mat);
     void removeMaterial(Material mat);
 

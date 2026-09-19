@@ -1,7 +1,6 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
@@ -9,13 +8,11 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.color.RgbColor;
-import com.vke.core.ecs.ComponentReference;
-import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.ecs.services.EcsManager;
+import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
-import com.vke.core.game.object.GameObjectTransform;
 import com.vke.core.rendering.rp.MeshInstance;
-import com.vke.impl.gameobject.CameraGameObject;
+import com.vke.impl.ecs.mesh.StaticMeshC;
+import com.vke.impl.gameobject.*;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
@@ -24,23 +21,12 @@ import com.vke.core.input.service.InputManager;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.graph.GraphContext;
 import com.vke.core.services2.Services;
-import com.vke.impl.ecs.WorldTransformC;
-import com.vke.impl.gameobject.DirectionalLightGameObject;
-import com.vke.impl.gameobject.PointLightGameObject;
-import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.rendering.debug.DebugContext;
-import com.vke.impl.ecs.TransformC;
-import com.vke.impl.ecs.light.DirectionalLightC;
-import com.vke.impl.ecs.light.PointLightC;
-import com.vke.impl.ecs.light.SpotLightC;
-import com.vke.impl.rendering.vertex.VertexFormatDeferred;
+import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
-import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +56,7 @@ public class DemoScene extends Scene {
     private HierarchyManager hierarchyManager;
 
     private CameraGameObject cam;
+    private EmptyGameObject bear1, cube;
 
     public static float[][] positions = {
             {45, -45, 45},
@@ -121,6 +108,7 @@ public class DemoScene extends Scene {
         dirLight.setColor(RgbColor.BLUE);
         dirLight.setIntensity(10);
         dirLight.getTransform().setX(20);
+        dirLight.getTransform().setRotationXYZ(-90, 0, 0);
 
         setupInputAndCamera();
     }
@@ -129,16 +117,39 @@ public class DemoScene extends Scene {
         try {
             MeshPrefab prefab = R.meshprefabs.get("bear_smooth.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
+            Material cubeMat = R.materials.get("vke:materials/emissive-cube.vcl").acquire(context);
 
             RenderResourceManager resManager = getRenderSystem().resourceManager();
             MESH = resManager.uploadStaticMesh(
-                    prefab.toMesh(prefabVertex -> new VertexFormatDeferred(
-                            prefabVertex.position()[0], prefabVertex.position()[1], prefabVertex.position()[2],
-                            prefabVertex.normal()[0], prefabVertex.normal()[1], prefabVertex.normal()[2],
-                            prefabVertex.uv()[0], prefabVertex.uv()[1],
-                            prefabVertex.tangent()[0], prefabVertex.tangent()[1], prefabVertex.tangent()[2], prefabVertex.tangent()[3]
-                    ))
+                    prefab.toMesh(SceneVertexFormat.MESH_VERTEX_FACTORY)
             );
+
+            bear1 = new EmptyGameObject(context);
+            bear1.spawn();
+            bear1.addComponents(StaticMeshC.ID);
+            CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
+            ref.with((c, i) -> c.setMesh(i, MESH));
+
+            EmptyGameObject bear2 = bear1.duplicate();
+            CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
+            ref2.with((c, idx) -> c.setMaterial(idx, mat));
+            bear2.getTransform().setXYZ(30, 0, 0);
+
+            cube = new EmptyGameObject(context);
+            cube.spawn();
+            cube.addComponents(StaticMeshC.ID);
+            cube.getTransform().setXYZ(-30, 0, 0);
+            cube.getTransform().changeScaleXYZ(5, 5, 5);
+            CRef<StaticMeshC> ref3 = cube.getComponent(StaticMeshC.ID);
+            ref3.with((c, idx) -> c.setMaterial(idx, cubeMat));
+
+            EmptyGameObject floor = new EmptyGameObject(context);
+            floor.spawn();
+            floor.addComponents(StaticMeshC.ID);
+            floor.getTransform().setXYZ(0, -25, 0);
+            floor.getTransform().changeScaleXYZ(50, 1, 50);
+            CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
+            ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }
@@ -181,7 +192,7 @@ public class DemoScene extends Scene {
 
                     instance.matrix.identity().translate(instance.position);//.scale(3, 3, 3);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
                     instances.add(instance);
-                    inst.add(new MeshInstance(instance.matrix, x));
+                    //inst.add(new MeshInstance(instance.matrix, x));
                 }
             }
         }
@@ -209,6 +220,9 @@ public class DemoScene extends Scene {
                     new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), RgbColor.RED);
             poss[1] = y;
         }
+//        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
+//        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+//        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);
     }

@@ -95,6 +95,13 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
         sys.getCurrentCommandBuffer().drawIndexed(this.getIndexCount(), instanceCount, 0, 0, 0);
     }
 
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
+        bindIBO();
+        bindVBO();
+        sys.getCurrentCommandBuffer().drawIndexed(this.getIndexCount(), instanceCount, 0, 0, firstInstance);
+    }
+
     public void bindIBO() {
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
