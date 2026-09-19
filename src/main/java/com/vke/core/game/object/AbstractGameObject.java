@@ -90,6 +90,9 @@ public abstract class AbstractGameObject implements GameObject {
     private GameObject _createFromSpawnedEntity(int entity) {
         GameObject go = createFromSpawnedEntity(entity);
         go.setComponents(this.components().copy());
+        if (go instanceof AbstractGameObject ago) {
+            ago.entityId = entity;
+        }
         return go;
     }
 

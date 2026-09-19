@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Mixer3D implements Mixer {
     public static final int MAX_SOUNDS = 256;
     public static final float MAX_DISTANCE = 200;
+    public static final int GAIN_RAMP_FRAMES = PlaybackState.SAMPLE_RATE / 50;
 
     private final ArrayList<PlaybackState3D> active;
     private final ConcurrentLinkedQueue<PlaybackState3D> queued;
@@ -92,7 +93,6 @@ public class Mixer3D implements Mixer {
     @Override
     public void mixNextFrame(float[] out) {
         ListIterator<PlaybackState3D> it = active.listIterator();
-        int blockSize = PlaybackState.BLOCK_SIZE;
 
         while (it.hasNext()) {
             PlaybackState3D state3d = it.next();
@@ -111,29 +111,20 @@ public class Mixer3D implements Mixer {
             float currentL = state3d.getCurrentLeftGain();
             float currentR = state3d.getCurrentRightGain();
 
-            float leftStep  = (targetL - currentL) / blockSize;
-            float rightStep = (targetR - currentR) / blockSize;
+            float leftStep = (targetL - currentL) / GAIN_RAMP_FRAMES;
+            float rightStep = (targetR - currentR) / GAIN_RAMP_FRAMES;
 
-            int framesToMix = out.length / 2;
+            currentL += leftStep;
+            currentR += rightStep;
 
-            for (int f = 0; f < framesToMix; f++) {
-                if (!state.hasMoreFrames()) {
-                    break;
-                }
+            float[] s = state.nextFrame();
 
-                float[] s = state.nextFrame();
-
-                currentL += leftStep;
-                currentR += rightStep;
-
-                int baseIdx = f * 2;
-                if (s.length == 1) {
-                    out[baseIdx]     += s[0] * currentL;
-                    out[baseIdx + 1] += s[0] * currentR;
-                } else {
-                    out[baseIdx]     += s[0] * currentL;
-                    out[baseIdx + 1] += s[1] * currentR;
-                }
+            if (s.length == 1) {
+                out[0] += s[0] * currentL;
+                out[1] += s[0] * currentR;
+            } else {
+                out[0] += s[0] * currentL;
+                out[1] += s[1] * currentR;
             }
 
             state3d.setCurrentGains(currentL, currentR);

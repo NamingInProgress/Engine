@@ -44,7 +44,7 @@ public class ArchetypeManager {
         for (Component oldComp : oldComps) {
             Component newComp  = newArch.getComponentById(oldComp.getId());
             if (newComp != null) {
-                newComp.copyFrom(oldComp, oldIdx, newIdx);
+                newComp.copyFrom(oldComp, newIdx, oldIdx);
             }
         }
 

@@ -4,6 +4,9 @@ import com.vke.core.ecs.backend.ArchetypeManager;
 import com.vke.core.ecs.component.Component;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class ComponentReference<T extends Component> {
     private final ArchetypeManager am;
     private final int entity;
@@ -71,6 +74,14 @@ public class ComponentReference<T extends Component> {
             proxy.setComponentInternal(component);
             proxy.setIndexInternal(i);
         }
+    }
+
+    public void with(With<T> with) {
+        with.with(getComponent(), getIndex());
+    }
+
+    public interface With<T> {
+        void with(T comp, int i);
     }
 
     public void drop() {

@@ -1,6 +1,7 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.audio.playback.PlayingAudio;
 import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
@@ -8,6 +9,12 @@ import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
+import com.vke.core.audio.playback.service.AudioManagerMaster;
+import com.vke.core.audio.playback2d.service.AudioManager2D;
+import com.vke.core.audio.playback3d.Ear;
+import com.vke.core.audio.playback3d.Speaker;
+import com.vke.core.audio.playback3d.service.AudioManager3D;
+import com.vke.core.audio.source.ToneGenerator;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.ComponentReference;
 import com.vke.core.ecs.component.mask.ComponentMask;
@@ -34,6 +41,7 @@ import com.vke.impl.ecs.light.PointLightC;
 import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.rendering.vertex.VertexFormatDeferred;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
@@ -70,6 +78,9 @@ public class DemoScene extends Scene {
 
     private CameraGameObject cam;
 
+    private Ear ear;
+    private Speaker speaker;
+
     public static float[][] positions = {
             {45, -45, 45},
             {-45, -45, 45},
@@ -92,6 +103,19 @@ public class DemoScene extends Scene {
     public void onLoad() {
         loadMeshResources();
         buildGridInstances();
+
+        AudioManager3D audio = context.service(Services.AUDIO_MANAGER_3D);
+        ear = audio.createEar();
+        speaker = audio.createSpeaker(context);
+        audio.setListeningEar(ear);
+
+        PlayingAudio playing = speaker.play("preloaded.wav");
+        playing.setLooping(true);
+        playing.setVolume(0.05f);
+
+
+
+        speaker.setPosition(new Vector3f(0, 0, 0));
 
         hierarchyManager = context.service(Services.HIERARCHY);
 
@@ -192,6 +216,10 @@ public class DemoScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
+        Vector3f camWorldPos = cam.getTransform().getWorldPosition();
+        Quaternionf camRot = cam.getTransform().getRotation();
+        ear.setPosition(camWorldPos);
+        ear.setRotation(camRot);
 
         hierarchyManager.updateTransforms();
 
