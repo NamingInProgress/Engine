@@ -28,7 +28,7 @@ public class VkeSchema implements ConfigSchema {
             ConfigParser parser = new JsonParser();
             parser.setSource(source);
             ConfigDocument d = parser.parse();
-            masterSchema = new VkeSchema(d, "master", false);
+            masterSchema = new VkeSchema(d, FileIdentifier.of("master"), false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -36,11 +36,11 @@ public class VkeSchema implements ConfigSchema {
 
     private final SchemaObjectType root;
 
-    public VkeSchema(ConfigDocument schemaDoc, String filename) throws ConfigParser.ConfigParseException {
+    public VkeSchema(ConfigDocument schemaDoc, FileIdentifier filename) throws ConfigParser.ConfigParseException {
         this(schemaDoc, filename, true);
     }
 
-    private VkeSchema(ConfigDocument schemaDoc, String filename, boolean validate) throws ConfigParser.ConfigParseException {
+    private VkeSchema(ConfigDocument schemaDoc, FileIdentifier filename, boolean validate) throws ConfigParser.ConfigParseException {
         if (validate) {
             try {
                 schemaDoc.validate(masterSchema, filename);
@@ -63,9 +63,9 @@ public class VkeSchema implements ConfigSchema {
     }
 
     @Override
-    public SchemaValidationResult validate(ConfigNode root, String filename) {
+    public SchemaValidationResult validate(ConfigNode root, FileIdentifier filename) {
         SchemaValidationResult result = new SchemaValidationResult();
-        SchemaElementLocation location = new SchemaElementLocation(filename);
+        SchemaElementLocation location = new SchemaElementLocation(filename.toString());
         this.root.validate(root, result, location);
         return result;
     }

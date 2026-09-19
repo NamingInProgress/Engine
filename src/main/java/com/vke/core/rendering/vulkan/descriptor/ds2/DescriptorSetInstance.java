@@ -127,7 +127,8 @@ public class DescriptorSetInstance implements Disposable {
             case SAMPLED_IMAGE -> new SampledImageBinding(layout);
             case STORAGE_IMAGE -> new StorageImageBinding(layout);
             case SAMPLER -> new SamplerBinding(layout);
-            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TODO: implement this
+            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TO DO: implement this
+            //                                                                                                                      no -v22
         };
     }
 

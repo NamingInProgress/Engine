@@ -1,7 +1,6 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
-import com.vke.api.game.camera.Camera;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
@@ -9,33 +8,23 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.color.RgbColor;
-import com.vke.core.ecs.ComponentReference;
-import com.vke.core.ecs.component.mask.ComponentMask;
-import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.controllers.FreecamController;
-import com.vke.core.game.object.GameObjectTransform;
-import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
-import com.vke.impl.ecs.WorldTransformC;
+import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
 import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.rendering.debug.DebugContext;
-import com.vke.impl.ecs.TransformC;
-import com.vke.impl.ecs.light.DirectionalLightC;
-import com.vke.impl.ecs.light.PointLightC;
-import com.vke.impl.ecs.light.SpotLightC;
 import com.vke.impl.rendering.vertex.VertexFormatDeferred;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -43,9 +32,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
-import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
 

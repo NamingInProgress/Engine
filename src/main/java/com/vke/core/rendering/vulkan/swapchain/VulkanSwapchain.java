@@ -38,7 +38,7 @@ public class VulkanSwapchain implements Swapchain {
     private boolean vsync;
     private long surface;
 
-    private final ArrayList<VulkanTexture> colorImages = new ArrayList<>();
+    private VulkanTexture[] colorImages;
 
     private final VulkanRenderSystem ctx;
 
@@ -150,10 +150,13 @@ public class VulkanSwapchain implements Swapchain {
         IntBuffer count = stack.mallocInt(1);
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, null);
 
-        LongBuffer images = alloc.allocLong(count.get(0)).getHeapObject();
+        int imageCount = count.get(0);
+        LongBuffer images = alloc.allocLong(imageCount).getHeapObject();
         KHRSwapchain.vkGetSwapchainImagesKHR(device.getDevice(), swapchain, count, images);
 
-        for (int i = 0; i < count.get(0); i++) {
+        colorImages = new VulkanTexture[imageCount];
+
+        for (int i = 0; i < imageCount; i++) {
             VulkanTexture image = new VulkanTexture(this.ctx, images.get(i),
                     Texture.TextureDesc.builder()
                             .size(VulkanExtentUtils.ofVk(extent))
@@ -170,7 +173,7 @@ public class VulkanSwapchain implements Swapchain {
                 VKUtils.setDebugName(ctx.device().getLogicalDevice(), "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
             }
 
-            this.colorImages.add(image);
+            this.colorImages[i] = image;
         }
     }
 
@@ -211,9 +214,9 @@ public class VulkanSwapchain implements Swapchain {
         }
     }
 
-    public VulkanTexture getColorImage(int index) { return this.colorImages.get(index); }
+    public VulkanTexture getColorImage(int index) { return this.colorImages[index]; }
 
-    public VulkanTexture getColorImage() { return this.colorImages.get(currentImageIndex()); }
+    public VulkanTexture getColorImage() { return this.colorImages[currentImageIndex()]; }
 
     @Override
     public void present(Semaphore renderFinished) {
@@ -255,9 +258,11 @@ public class VulkanSwapchain implements Swapchain {
         this.ctx.device().waitIdle();
         KHRSwapchain.vkDestroySwapchainKHR(this.ctx.device().vkLogicalDevice(), this.swapchain, null);
 
-        this.colorImages.forEach(VulkanTexture::free);
+        for (VulkanTexture colorImage : this.colorImages) {
+            colorImage.free();
+        }
 
-        this.colorImages.clear();
+        this.colorImages = null;
     }
 
     @Override
@@ -265,7 +270,17 @@ public class VulkanSwapchain implements Swapchain {
         return getColorImage();
     }
 
-    public int getImageCount() { return this.colorImages.size(); }
+    @Override
+    public Texture renderTarget(int frameOfFlight) {
+        return getColorImage(frameOfFlight);
+    }
+
+    @Override
+    public Texture[] renderTargets() {
+        return colorImages;
+    }
+
+    public int getImageCount() { return this.colorImages.length; }
 
     @Override
     public void free() {

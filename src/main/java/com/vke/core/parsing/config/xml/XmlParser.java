@@ -3,6 +3,7 @@ package com.vke.core.parsing.config.xml;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.parsing.ParseUtils;
 import com.vke.core.parsing.SourceCursor;
@@ -15,6 +16,7 @@ import java.util.Objects;
 
 public class XmlParser implements ConfigParser {
     private XmlTokenizer tokenizer;
+    private FileIdentifier identifier;
 
     @Override
     public void setSource(char[] source) {
@@ -22,11 +24,16 @@ public class XmlParser implements ConfigParser {
     }
 
     @Override
+    public void setFile(FileIdentifier identifier) {
+        this.identifier = identifier;
+    }
+
+    @Override
     public ConfigDocument parse(int flags) throws ConfigParseException {
         XmlTagNode root = new XmlTagNode("");
         parseNode(root, flags);
         root.finish();
-        return new XmlDocument(root);
+        return new XmlDocument(root, identifier);
     }
 
     private void parseNode(XmlTagNode parent, int flags) throws ConfigParseException {
@@ -88,17 +95,18 @@ public class XmlParser implements ConfigParser {
                                     tokenizer.nextToken();
                                     tokenizer.nextToken();
 
+                                    XmlToken dash2 = null, rtri = null;
                                     do {
+                                        if (dash2 != null) {
+                                            tokenizer.putback(dash2);
+                                            tokenizer.putback(rtri);
+                                        }
                                         next = tokenizer.nextToken();
-                                    } while (next.getType() != XmlToken.Type.Dash);
+                                        dash2 = tokenizer.nextToken();
+                                        rtri = tokenizer.nextToken();
+                                    } while (!(next.getType() == XmlToken.Type.Dash && dash2.getType() == XmlToken.Type.Dash && rtri.getType() == XmlToken.Type.RTri));
 
-                                    while (true) {
-                                        peek = tokenizer.nextToken();
-                                        XmlToken peek2 = tokenizer.nextToken();
-                                        if (peek.getType() == XmlToken.Type.Dash && peek2.getType() == XmlToken.Type.RTri) break;
-                                        tokenizer.putback(peek);
-                                        tokenizer.putback(peek2);
-                                    }
+                                    continue;
                                 }
 
                                 if (peek.getType() == XmlToken.Type.Slash) {

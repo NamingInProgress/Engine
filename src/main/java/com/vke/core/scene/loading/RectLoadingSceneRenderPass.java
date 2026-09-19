@@ -7,9 +7,10 @@ import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.core.rendering.graph.GraphContext;
-import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.graph2.GraphTexture;
+import com.vke.core.rendering.graph2.RenderGraph;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
@@ -22,18 +23,22 @@ public class RectLoadingSceneRenderPass extends RenderPass {
 
     private VertexConsumer<V> vc;
 
-    public RectLoadingSceneRenderPass(RenderSystem renderSystem, RenderPassInstance instance) {
-        super(renderSystem, instance);
+    private GraphTexture output;
+
+    public RectLoadingSceneRenderPass(RenderSystem renderSystem, RenderGraph graph, Def def) {
+        super(renderSystem, graph, def);
     }
 
     @Override
     public void onLoad() {
-        this.vc = renderSystem.renderer().getVertexConsumerProvider().get(V.TEMPLATE);
+        this.vc = sys.renderer().getVertexConsumerProvider().get(V.TEMPLATE);
+
+        output = searchOutputTexture("output");
     }
 
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
-        Texture color = instance.getOutputTexture("output");
+        Texture color = output.extract();
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
                 new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })
         ), null));

@@ -3,6 +3,7 @@ package com.vke.core.parsing.config.json;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigNode;
+import com.vke.core.FileIdentifier;
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.parsing.ParseUtils;
 import com.vke.core.parsing.SourceCursor;
@@ -16,6 +17,7 @@ import java.util.List;
 
 public class JsonParser implements ConfigParser {
     private JsonTokenizer tokenizer;
+    private FileIdentifier identifier;
 
     @Override
     public void setSource(char[] source) {
@@ -23,8 +25,13 @@ public class JsonParser implements ConfigParser {
     }
 
     @Override
+    public void setFile(FileIdentifier identifier) {
+        this.identifier = identifier;
+    }
+
+    @Override
     public ConfigDocument parse(int flags) throws ConfigParseException {
-        return new JsonDocument(parseNode(flags));
+        return new JsonDocument(parseNode(flags), identifier);
     }
 
     private ConfigNode parseNode(int flags) throws ConfigParseException {

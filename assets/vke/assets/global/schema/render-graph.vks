@@ -1,0 +1,12 @@
+{
+    link: string["vke:schema/render-pass.schemalib.vks"];
+    typedefs: {};
+    schema: {
+        render-graph: {
+            !name: string;
+            !passes: [render-pass | {
+                !source: string;
+            }];
+        };
+    };
+}

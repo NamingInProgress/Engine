@@ -5,8 +5,8 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
-import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.utils.io.Disposable;
 
 public abstract class Scene implements Disposable {
@@ -44,7 +44,7 @@ public abstract class Scene implements Disposable {
     public void onLoad() throws Exception {};
 
     public void onPrepareRendering(GraphContext context) {};
-    public void onRenderPassFinished(RenderPassInstance prevPass, GraphContext context) {};
+    public void onRenderPassFinished(RenderPass prevPass, GraphContext context) {};
 
     public void onUnload() throws Exception {};
 

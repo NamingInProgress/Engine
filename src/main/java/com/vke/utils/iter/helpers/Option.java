@@ -78,7 +78,7 @@ public class Option<T> {
         return value;
     }
 
-    public T unwrapOrThrow(Throwable t) throws Throwable {
+    public <E extends Throwable> T unwrapOrThrow(E t) throws E {
         if (isNone()) throw t;
         return value;
     }

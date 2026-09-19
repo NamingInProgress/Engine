@@ -1,6 +1,8 @@
 package com.vke.api.parsing.config;
 
 import com.vke.api.parsing.config.node.*;
+import com.vke.core.parsing.config.utils.GeneralConfigArrayNode;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +78,22 @@ public class Configs {
             return objectNode.getNode(key) != null;
         }
         return false;
+    }
+
+    public static ConfigArrayNode mergeArrays(@Nullable ConfigArrayNode a, @Nullable ConfigArrayNode b) {
+        if (a == null && b == null) return null;
+        if (a == null) {
+            return b;
+        }
+        if (b == null) {
+            return a;
+        }
+        ConfigNode[] av = a.values();
+        ConfigNode[] bv = b.values();
+        int len = av.length + bv.length;
+        ConfigNode[] arr = new ConfigNode[len];
+        System.arraycopy(av, 0, arr, 0, av.length);
+        System.arraycopy(bv, 0, arr, av.length, bv.length);
+        return new GeneralConfigArrayNode(arr);
     }
 }
