@@ -80,6 +80,7 @@ public class ComponentReference<T extends Component> {
         with.with(getComponent(), getIndex());
     }
 
+    @FunctionalInterface
     public interface With<T> {
         void with(T comp, int i);
     }
