@@ -1,7 +1,9 @@
 package com.vke.core.rendering.vulkan.service;
 
 import com.vke.api.rendering.FrameCounter;
+import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
 import com.vke.api.rendering.abstraction.light.LightManager;
+import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
 import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
@@ -43,12 +45,12 @@ public class VulkanRenderSystem extends RenderSystem {
 
     @Override
     public VulkanTextureManager textureManager() {
-        return this.renderer.getEngineSetsManager().textureManager;
+        return this.renderer.textureManager();
     }
 
     @Override
     public VulkanFrameDataManager frameDataManager() {
-        return this.renderer.getEngineSetsManager().frameDataManager;
+        return this.renderer.frameDataManager();
     }
 
     @Override
@@ -60,6 +62,17 @@ public class VulkanRenderSystem extends RenderSystem {
     public LightManager lightManager() {
         return this.renderer.getLightManager();
     }
+
+    @Override
+    public RenderResourceManager resourceManager() {
+        return this.renderer.resourceManager();
+    }
+
+    @Override
+    public VertexConsumerProvider vcp() {
+        return this.renderer.getVertexConsumerProvider();
+    }
+
 
     @Override
     public VulkanCmdBuffers getCurrentCommandBuffer() {
@@ -75,6 +88,7 @@ public class VulkanRenderSystem extends RenderSystem {
     public RenderingEncoder createRenderingEncoder(ByteBuffer buf) {
         return new VulkanRenderingEncoder(this, buf);
     }
+
 
     @Override
     public long windowHandle() {

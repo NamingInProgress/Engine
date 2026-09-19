@@ -1,7 +1,7 @@
 package com.vke.core.rendering.vulkan.descriptor;
 
+import com.vke.api.framable.Framable;
 import com.vke.api.rendering.FrameCounter;
-import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.info.BindingLayout;
 import com.vke.api.rendering.vulkan.descriptors.info.DescriptorSetLayout;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
@@ -13,30 +13,25 @@ import com.vke.api.rendering.vulkan.descriptors2.handles.other.SamplerHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.CISArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.ImageArrayHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.other.array.SamplerArrayHandle;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.reflection2.api.DescriptorResource;
 import com.vke.core.rendering.reflection2.api.ReflectedShader2;
-import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
-import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.RecyclerArrayList;
-import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
 import com.vke.utils.iter.Iter;
 import com.vke.utils.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class EngineDescriptorSetsManager implements Disposable {
+public class EngineDescriptorSetsManager implements Disposable, Framable {
 
     public final HashMap<Integer, DescriptorSetLayout> ENGINE_LAYOUTS = new HashMap<>();
 
     public final ArrayList<DescriptorSetInstance> INSTANCES = new ArrayList<>();
-
-    public final VulkanTextureManager textureManager;
-    public VulkanFrameDataManager frameDataManager;
 
     public VulkanPipelineLayout ENGINE_PIPELINE_LAYOUT;
 
@@ -46,10 +41,9 @@ public class EngineDescriptorSetsManager implements Disposable {
     private final HashMap<Pair<VulkanPipelineLayout, UniformHandle>, IntWrapper> scheduledBindingUpdates = new HashMap<>();
     private final RecyclerArrayList<Pair<VulkanPipelineLayout, UniformHandle>> toRemoveBindingUpdates = new RecyclerArrayList<>(20);
 
-    public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader2 truth) {
-        this.textureManager = new VulkanTextureManager(ctx, this, ctx.renderer().getBindlessTexturesCount());
-        ctx.getEngine().EVENT_BUS.register(textureManager);
+    private final FramableManager fm;
 
+    public EngineDescriptorSetsManager(VulkanRenderSystem ctx, ReflectedShader2 truth) {
         for (var entry : truth.descriptors().entrySet()) {
             for (DescriptorResource descriptorResource : entry.getValue()) {
                 if (descriptorResource.set > highestSet) highestSet = descriptorResource.set;
@@ -62,24 +56,21 @@ public class EngineDescriptorSetsManager implements Disposable {
             }
         }
         usedSets = Iter.of(ENGINE_LAYOUTS.keySet()).toArray();
+
+        fm = ctx.service(Services.FRAMABLE_MANAGER);
+        fm.registerFramable(this);
     }
 
-    public void makeFrameDataManager() {
-        this.frameDataManager = new VulkanFrameDataManager(this);
+    public void initialize(VulkanRenderSystem ctx) {
+        ENGINE_PIPELINE_LAYOUT = VulkanPipelineLayout.getLayout(ctx, null,
+                this.ENGINE_LAYOUTS.entrySet().stream()
+                        .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                        .map(Map.Entry::getValue)
+                        .toList());
     }
 
-    public List<Integer> getDynamicOffsets() {
-        return ENGINE_PIPELINE_LAYOUT.getSets().stream()
-                .flatMap(instance -> instance.bindings.values().stream()
-                        .filter(binding -> binding instanceof BufferBinding)
-                        .map(binding -> ((BufferBinding) binding).buffer)
-                        .filter(buf -> buf instanceof MappedGpuRingBuffer)
-                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset())
-                        .sorted(Comparator.comparingInt(c -> c))
-                ).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public void onFrame() {
+    @Override
+    public void preFrame() {
         toRemoveBindingUpdates.clear();
         for (var entry : scheduledBindingUpdates.entrySet()) {
             if (entry.getValue().anInt > 0) {
@@ -98,11 +89,6 @@ public class EngineDescriptorSetsManager implements Disposable {
 
     public HashMap<Integer, DescriptorSetLayout> getDefaults() {
         return ENGINE_LAYOUTS;
-    }
-
-    @Override
-    public void free() {
-        ENGINE_PIPELINE_LAYOUT.free();
     }
 
     public void writeHandle(VulkanPipelineLayout layout, UniformHandle uh) {
@@ -128,6 +114,12 @@ public class EngineDescriptorSetsManager implements Disposable {
             default -> {}
         }
         writer.flush();
+    }
+
+    @Override
+    public void free() {
+        fm.removeFramable(this);
+        ENGINE_PIPELINE_LAYOUT.free();
     }
 
     public static class IntWrapper {

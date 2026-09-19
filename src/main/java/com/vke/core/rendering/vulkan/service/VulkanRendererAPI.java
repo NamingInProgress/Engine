@@ -35,16 +35,6 @@ public class VulkanRendererAPI extends ServiceAPI implements Renderer {
     }
 
     @Override
-    public RenderResourceManager resourceManager() {
-        return getImpl().resourceManager();
-    }
-
-    @Override
-    public VertexConsumerProvider getVertexConsumerProvider() {
-        return getImpl().getVertexConsumerProvider();
-    }
-
-    @Override
     public void beforeTerminate() {
         getImpl().beforeTerminate();
     }

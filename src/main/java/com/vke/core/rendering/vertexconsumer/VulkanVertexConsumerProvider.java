@@ -3,7 +3,9 @@ package com.vke.core.rendering.vertexconsumer;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
 
 import java.util.ArrayList;
@@ -14,8 +16,13 @@ public class VulkanVertexConsumerProvider implements VertexConsumerProvider {
 
     private final ArrayList<VertexConsumer<?>> CACHE = new ArrayList<>();
 
+    private final FramableManager fm;
+
     public VulkanVertexConsumerProvider(VulkanRenderSystem sys) {
         this.sys = sys;
+
+        this.fm = sys.service(Services.FRAMABLE_MANAGER);
+        this.fm.registerFramable(this);
     }
 
     @Override
@@ -33,12 +40,13 @@ public class VulkanVertexConsumerProvider implements VertexConsumerProvider {
     }
 
     @Override
-    public void beginFrame() {
+    public void preFrame() {
         CACHE.forEach(VertexConsumer::beginFrame);
     }
 
     @Override
     public void free() {
+        this.fm.removeFramable(this);
         CACHE.forEach(Disposable::free);
     }
 }

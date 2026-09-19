@@ -1,5 +1,6 @@
 package com.vke.core.rendering.texture;
 
+import com.vke.api.event.EventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
@@ -12,6 +13,7 @@ import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
+import com.vke.core.services2.Services;
 
 import java.util.HashMap;
 
@@ -36,6 +38,9 @@ public class VulkanTextureManager implements TextureManager, EventListener {
         this.ctx = ctx;
         this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName).assumeImplementation();
         this.sampler = Samplers.LINEAR;
+
+        EventBus eventBus = ctx.service(Services.EVENT_BUS);
+        eventBus.register(this);
     }
 
     @SubscribeEvent

@@ -21,10 +21,6 @@ public abstract class RenderSystem extends ContextWrapper {
         super(baseContext);
     }
 
-    public VertexConsumerProvider vcp() {
-        return renderer().getVertexConsumerProvider();
-    }
-
     public abstract Renderer renderer();
     public abstract RenderDevice device();
     public abstract Swapchain swapchain();
@@ -33,6 +29,9 @@ public abstract class RenderSystem extends ContextWrapper {
     public abstract FrameDataManager frameDataManager();
     public abstract MaterialManager materialManager();
     public abstract LightManager lightManager();
+    public abstract RenderResourceManager resourceManager();
+
+    public abstract VertexConsumerProvider vcp();
 
     public abstract CommandBuffer getCurrentCommandBuffer();
 

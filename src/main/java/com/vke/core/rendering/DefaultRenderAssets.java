@@ -38,7 +38,7 @@ public class DefaultRenderAssets {
     }
 
     private static void initMeshes(RenderSystem sys) throws IOException {
-        RenderResourceManager resManager = sys.renderer().resourceManager();
+        RenderResourceManager resManager = sys.resourceManager();
         MeshPrefab cubePrefab = R.meshprefabs.get("models/cube.obj").acquire(sys);
 
         CUBE_MESH = resManager.uploadStaticMesh(cubePrefab.toMesh(VertexFormatDeferred.MESH_VERTEX_FACTORY));

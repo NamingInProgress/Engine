@@ -1,10 +1,13 @@
 struct MeshInstance {
     mat4 local;
-    int matIdx;
+    int matId;
+    float _pad0;
+    float _pad1;
+    float _pad2;
 };
 
 #MultiWriteHint(100)
-layout (std430, set = 2, binding = 2) uniform buffer InstanceData {
+layout (std430, set = 2, binding = 2) readonly buffer InstanceData {
     #DefaultSize(1024)
-    MeshInstance[] meshInstances;
+    MeshInstance meshInstances[];
 } u_InstanceBuffer;

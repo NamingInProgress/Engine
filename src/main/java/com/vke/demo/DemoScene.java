@@ -14,6 +14,7 @@ import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.game.object.GameObjectTransform;
+import com.vke.core.rendering.rp.MeshInstance;
 import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
@@ -52,14 +53,14 @@ public class DemoScene extends Scene {
     public static StaticMesh MESH;
 
     // Grid configuration
-    private static final int GRID_SIZE_X = 1;
+    private static final int GRID_SIZE_X = 2;
     private static final int GRID_SIZE_Y = 1;
     private static final int GRID_SIZE_Z = 1;
     private static final int TOTAL_INSTANCES = GRID_SIZE_X * GRID_SIZE_Y * GRID_SIZE_Z;
-    private static final float SPACING = 10.0f;
+    private static final float SPACING = 30.0f;
 
     private final List<Instance> instances = new ArrayList<>(TOTAL_INSTANCES);
-    private ByteBuffer matrixBuffer;
+    private final List<MeshInstance> inst = new ArrayList<>(TOTAL_INSTANCES);
 
     private PressableState keyEsc;
     private PressableState keyToggleCursor;
@@ -95,9 +96,6 @@ public class DemoScene extends Scene {
 
         hierarchyManager = context.service(Services.HIERARCHY);
 
-        // Allocate 64 bytes per 4x4 float matrix
-        matrixBuffer = MemoryUtil.memAlloc(TOTAL_INSTANCES * 64);
-
         PointLightGameObject pointLightBase = new PointLightGameObject(getRenderSystem());
         pointLightBase.spawn();
         PointLightGameObject[] lights = pointLightBase.spawnBatch(positions.length);
@@ -132,13 +130,12 @@ public class DemoScene extends Scene {
             MeshPrefab prefab = R.meshprefabs.get("bear_smooth.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
 
-            RenderResourceManager resManager = getRenderer().resourceManager();
+            RenderResourceManager resManager = getRenderSystem().resourceManager();
             MESH = resManager.uploadStaticMesh(
                     prefab.toMesh(prefabVertex -> new VertexFormatDeferred(
                             prefabVertex.position()[0], prefabVertex.position()[1], prefabVertex.position()[2],
                             prefabVertex.normal()[0], prefabVertex.normal()[1], prefabVertex.normal()[2],
                             prefabVertex.uv()[0], prefabVertex.uv()[1],
-                            mat,
                             prefabVertex.tangent()[0], prefabVertex.tangent()[1], prefabVertex.tangent()[2], prefabVertex.tangent()[3]
                     ))
             );
@@ -184,6 +181,7 @@ public class DemoScene extends Scene {
 
                     instance.matrix.identity().translate(instance.position);//.scale(3, 3, 3);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
                     instances.add(instance);
+                    inst.add(new MeshInstance(instance.matrix, x));
                 }
             }
         }
@@ -195,15 +193,7 @@ public class DemoScene extends Scene {
 
         hierarchyManager.updateTransforms();
 
-        // Populate matrix buffer
-        matrixBuffer.clear();
-        for (int i = 0; i < instances.size(); i++) {
-            instances.get(i).matrix.get(i * 64, matrixBuffer);
-        }
-        matrixBuffer.position(0);
-        matrixBuffer.limit(TOTAL_INSTANCES * 64);
-
-        context.put("mats", matrixBuffer);
+        context.put("instData", inst);
         context.put("inst", TOTAL_INSTANCES);
 
         // Debug visualizers
@@ -243,12 +233,7 @@ public class DemoScene extends Scene {
     }
 
     @Override
-    public void free() {
-        if (matrixBuffer != null) {
-            MemoryUtil.memFree(matrixBuffer);
-            matrixBuffer = null;
-        }
-    }
+    public void free() {}
 
     public static class Instance {
         public final Vector3f position = new Vector3f();

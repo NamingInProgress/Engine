@@ -43,7 +43,7 @@ public class TextRenderer implements Drawable {
     public TextRenderer(RenderSystem sys, Font font) {
         this.font = font;
 
-        var provider = sys.renderer().getVertexConsumerProvider();
+        var provider = sys.vcp();
         this.bezier = provider.get(BezierVertex.TEMPLATE);
         this.regular = provider.get(RegularVertex.TEMPLATE);
         this.quad = provider.get(QuadVertex.TEMPLATE);

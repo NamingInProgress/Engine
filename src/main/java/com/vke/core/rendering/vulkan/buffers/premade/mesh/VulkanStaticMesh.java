@@ -20,15 +20,21 @@ import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VulkanStaticMesh implements Disposable, StaticMesh {
+
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+
     private StagedBuffer vertices;
     private StagedBuffer indices;
 
     private final VulkanRenderSystem sys;
+    private final int id;
 
     private VulkanStaticMesh(VulkanRenderSystem sys) {
         this.sys = sys;
+        this.id = ID_COUNTER.getAndIncrement();
     }
 
     public static <T extends Vertex> VulkanStaticMesh uploadOnce(VulkanRenderSystem sys, Mesh<T> mesh) {
@@ -124,6 +130,11 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
         if (o == null || getClass() != o.getClass()) return false;
         VulkanStaticMesh that = (VulkanStaticMesh) o;
         return Objects.equals(vertices, that.vertices) && Objects.equals(indices, that.indices);
+    }
+
+    @Override
+    public int key() {
+        return this.id;
     }
 
     @Override

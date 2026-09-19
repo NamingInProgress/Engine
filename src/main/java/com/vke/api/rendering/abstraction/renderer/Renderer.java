@@ -8,9 +8,6 @@ public interface Renderer extends PinnedService {
     RenderDevice getDevice();
     FrameCounter getFrameCounter();
     RenderSystem renderSystem(); // Bridge to lower level
-    RenderResourceManager resourceManager();
-
-    VertexConsumerProvider getVertexConsumerProvider();
 
     void beforeTerminate();
 }

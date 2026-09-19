@@ -28,7 +28,7 @@ public class RectLoadingSceneRenderPass extends RenderPass {
 
     @Override
     public void onLoad() {
-        this.vc = renderSystem.renderer().getVertexConsumerProvider().get(V.TEMPLATE);
+        this.vc = renderSystem.vcp().get(V.TEMPLATE);
     }
 
     @Override

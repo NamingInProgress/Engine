@@ -4,19 +4,20 @@ import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.MaterialPipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
-import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
+import com.vke.core.rendering.rp.MeshInstance;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 public class DeferredPipelineDriver extends MaterialPipelineDriver {
 
     private final RenderPipeline p;
-    private final FieldArrayResource local;
+    private final FieldArrayResource meshInstancesHandle;
 
-    private ByteBuffer mats;
+    public ArrayList<MeshInstance> meshInstances = new ArrayList<>();
 
     public DeferredPipelineDriver(RenderSystem context, AssetHandle<? extends Pipeline> pipeline) {
         super(context, pipeline);
@@ -25,19 +26,17 @@ public class DeferredPipelineDriver extends MaterialPipelineDriver {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        this.local = p.resource("transforms.local");
-    }
-
-    public void setLocal(ByteBuffer mat) {
-        this.mats = mat;
+        this.meshInstancesHandle = p.resource("u_InstanceBuffer.meshInstances");
     }
 
     @Override
     public void use() {
-        local.write((slice) -> slice.data(mats));
+        for (int i = 0; i < meshInstances.size(); i++) {
+            MeshInstance meshInstance = meshInstances.get(i);
+            meshInstancesHandle.write(i, meshInstance::putSelf);
+        }
         bind();
         bindDescriptorSets();
-        //bindPushConstants();
     }
 
 }

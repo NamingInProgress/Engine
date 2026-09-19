@@ -1,0 +1,11 @@
+{
+    typedefs: {
+        render-queue: {
+            !name: string;
+            !class: string;
+        };
+    };
+    schema: {
+        render-queues: [render-queue];
+    };
+}

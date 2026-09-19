@@ -10,11 +10,13 @@ import pl.epsi.EcsComponent;
 public class StaticMeshC implements Component {
 
     public StaticMesh[] mesh;
-    public Material[] materials;
+    public Material[] material;
+    public int[] renderQueueKey;
 
     @Override
     public void initialize(int i) {
         mesh[i] = DefaultRenderAssets.defaultMesh();
-        materials[i] = DefaultRenderAssets.defaultMaterial().copy();
+        material[i] = DefaultRenderAssets.defaultMaterial().copy();
+        renderQueueKey[i] = 0;
     }
 }

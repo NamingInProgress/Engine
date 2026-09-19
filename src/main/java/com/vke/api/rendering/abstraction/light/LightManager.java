@@ -4,7 +4,5 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArr
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldResource;
 
 public interface LightManager {
-
     void write(FieldArrayResource buf, FieldResource count);
-
 }

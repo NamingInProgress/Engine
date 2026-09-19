@@ -31,7 +31,7 @@ public class DeferredRenderPass extends RenderPass {
                 List.of(RgbColor.BLACK, RgbColor.INVALID, RgbColor.BLACK), RgbColor.WHITE);
 
         int inst = context.get("inst");
-        RenderPipelines.DEFERRED.setLocal(context.get("mats"));
+        RenderPipelines.DEFERRED.meshInstances = context.get("instData");
         RenderPipelines.DEFERRED.use();
         DemoScene.MESH.drawInstanced(inst);
 

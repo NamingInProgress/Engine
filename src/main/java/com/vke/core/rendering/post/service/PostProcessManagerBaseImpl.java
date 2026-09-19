@@ -48,6 +48,8 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
 
     @SuppressWarnings("unchecked")
     void registerStages(Context caller, FileIdentifier vclFile) {
+        if (!vclFile.existsFile()) return;
+
         try {
             ConfigDocument doc = ConfigDocument.parseIdentifier(vclFile);
             doc.validate(SCHEMA.assume(engine), vclFile.toString());

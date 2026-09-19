@@ -7,6 +7,8 @@ import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
+import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
+import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
@@ -25,9 +27,12 @@ import com.vke.core.framable.service.FramableManager;
 import com.vke.core.rendering.graph.service.GraphManager;
 import com.vke.core.rendering.light.LightManagerImpl;
 import com.vke.core.rendering.pipeline.RenderPipelines;
+import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
+import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
 import com.vke.core.scene.service.SceneManager;
 import com.vke.core.services2.Services;
@@ -44,6 +49,7 @@ import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.utils.console.AnsiColors;
+import com.vke.utils.exception.Unreachable;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -69,6 +75,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private EngineDescriptorSetsManager engineSetsManager;
     private VulkanResourceManager resourceManager;
     private VulkanMaterialManager materialManager;
+    private VulkanTextureManager textureManager;
+    private VulkanFrameDataManager frameDataManager;
+    private LightManager lightManager;
 
     // Engine infos
     final FrameCounter frameCounter;
@@ -80,7 +89,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private FramableManager framableManager;
     private SceneManager sceneManager;
     private GraphManager graphManager;
-    private LightManager lightManager;
 
     private VulkanVertexConsumerProvider vertexConsumerProvider;
 
@@ -101,54 +109,52 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     protected void onInitialize() {
         this.ctx = new VulkanRenderSystem(baseContext, this);
-        this.materialManager = new VulkanMaterialManager(ctx);
         this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
-        this.lightManager = new LightManagerImpl(ctx);
-        graphManager.initialize();
-        ctx.getEngine().EVENT_BUS.register(materialManager);
 
         framableManager.registerFramable(this);
 
+        graphManager.initialize();
+
         this.device = new VulkanRenderDevice(ctx);
-        int devImgs = device.capabilities().maxBindlessSampledImages;
-        int imgs = Math.min(devImgs, 8192);
-        this.bindlessTexturesCount = imgs < 0 ? 8192 : imgs;
+        this.bindlessTexturesCount = calculateBindlessTexturesCount();
         this.swapchain = device.createSwapchain(new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
+
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
-
-        this.resourceManager = new VulkanResourceManager(ctx);
-        this.vertexConsumerProvider = new VulkanVertexConsumerProvider(ctx);
 
         for (int i = 0; i < this.swapchain.getImageCount(); i++) {
             imagePresentInFlight[i] = VulkanSemaphore.createSemaphore(ctx);
         }
 
-        // VKE shader to set default descriptors via reflection instead of hard coding
-        var temp = R.shaders.get("vke_sets");
-        Shader s = null;
-        try {
-            s = temp.acquire(baseContext);
-        } catch (IOException e) {
-            baseContext.throwException(new IllegalStateException("Couldnt load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
-        }
-        engineSetsManager = new EngineDescriptorSetsManager(ctx,
-                baseContext.<ShaderReflector2>service(Services.SHADER_REFLECTION2).get(0)
-                        .unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for shader ID: 0")));
-        s.free();
-        engineSetsManager.ENGINE_PIPELINE_LAYOUT = VulkanPipelineLayout.getLayout(ctx, null,
-                engineSetsManager.ENGINE_LAYOUTS.entrySet().stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .map(Map.Entry::getValue)
-                .toList());
-        engineSetsManager.makeFrameDataManager();
-
         this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();
+
+        // VKE shader to set default descriptors via reflection instead of hard coding
+        Shader s;
+        try {
+            s = R.shaders.get("vke_sets").acquire(baseContext);
+        } catch (IOException e) {
+            baseContext.throwException(new IllegalStateException("Couldn't load shader vke_sets.vsh which is an engine internal shader and has to exist. -> Give up and die"), "VulkanRenderer#onInitialize");
+            throw new Unreachable();
+        }
+
+        ShaderReflector2 shaderReflector2 = ctx.service(Services.SHADER_REFLECTION2);
+        ReflectedShader2 vkeSetsReflected = shaderReflector2.get(0).unwrapOrPanic(new IllegalStateException("Failed to find reflected shader for mandatory shader ID: 0!"));
+        engineSetsManager = new EngineDescriptorSetsManager(ctx, vkeSetsReflected);
+        engineSetsManager.initialize(ctx);
+
+        s.free();
+
+        this.resourceManager = new VulkanResourceManager(ctx);
+        this.frameDataManager = new VulkanFrameDataManager(ctx, engineSetsManager);
+        this.textureManager = new VulkanTextureManager(ctx, engineSetsManager, getBindlessTexturesCount());
+        this.materialManager = new VulkanMaterialManager(ctx);
+        this.lightManager = new LightManagerImpl(ctx);
+        this.vertexConsumerProvider = new VulkanVertexConsumerProvider(ctx);
+
         RenderPipelines.init(ctx);
-        framableManager.registerFramable(this.getEngineSetsManager().frameDataManager);
 
         DefaultRenderAssets.initialize(ctx);
 
@@ -200,7 +206,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         cmd.begin();
         Framable framables = framableManager.getAllFramables();
         framables.preRendering();
-        //cmd.beginRendering();
+
         PROFILER.end();
         PROFILER.end();
 
@@ -213,9 +219,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         cmd.setViewport(wp);
         cmd.setScissor(sc);
-
-        getEngineSetsManager().onFrame();
-        getVertexConsumerProvider().beginFrame();
 
         this.frameData = new FrameData(frame, cmd, stack, imageIndex);
         Scene currentScene = sceneManager.getCurrentScene();
@@ -239,17 +242,12 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         try {
             VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {
-//                layout.getSets().forEach(set -> set.bindings.values()
-//                        .stream().filter(binding -> binding instanceof BufferBinding)
-//                        .forEach(b -> ((BufferBinding) b).nextFrame()));
                 layout.getSets().forEach(DescriptorSetInstance::onNewFrame);
                 layout.getGroup().getHandleCache().values().stream()
                         .filter(uh -> uh instanceof BufferHandle)
                         .forEach(uh -> ((BufferHandle) uh).nextFrame());
             });
         } catch (ConcurrentModificationException _) {} // I think this happens when asset loader loads a pipeline off thread but whatever
-
-        //cmd.endRendering();
 
         Framable framables = framableManager.getAllFramables();
         framables.postRendering();
@@ -299,9 +297,20 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         }
     }
 
+    private int calculateBindlessTexturesCount() {
+        int devImgs = device.capabilities().maxBindlessSampledImages;
+        int imgs = Math.min(devImgs, 8192);
+        return imgs < 0 ? 8192 : imgs;
+    }
+
     @Override
     public List<String> dependencies() {
         return List.of(Services.SHADER_COMPILER, Services.ASSET_MANAGER, Services.SCENE_MANAGER, Services.GRAPH_MANAGER);
+    }
+
+    @Override
+    public VulkanRenderSystem renderSystem() {
+        return this.ctx;
     }
 
     @Override
@@ -314,12 +323,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         return this.frameCounter;
     }
 
-    @Override
-    public VulkanRenderSystem renderSystem() {
-        return this.ctx;
-    }
+    public VulkanTextureManager textureManager() { return textureManager; }
 
-    @Override
+    public VulkanFrameDataManager frameDataManager() { return this.frameDataManager; }
+
     public VulkanResourceManager resourceManager() {
         return resourceManager;
     }
@@ -332,7 +339,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         return this.lightManager;
     }
 
-    @Override
     public VertexConsumerProvider getVertexConsumerProvider() {
         return this.vertexConsumerProvider;
     }

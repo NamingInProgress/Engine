@@ -26,20 +26,6 @@ public class MeshPrefab {
         return new Mesh(vertices, indices);
     }
 
-    public Mesh<VertexFormatDeferred> defaultMesh() {
-        VertexFormatDeferred[] vertices = new VertexFormatDeferred[this.vertices.length];
-        for (int i = 0; i < vertices.length; i++) {
-            vertices[i] = new VertexFormatDeferred(
-                    this.vertices[i].position[0], this.vertices[i].position[1], this.vertices[i].position[2],
-                    this.vertices[i].normal[0], this.vertices[i].normal[1], this.vertices[i].normal[2],
-                    this.vertices[i].uv[0], this.vertices[i].uv[1],
-                    null,
-                    this.vertices[i].tangent[0], this.vertices[i].tangent[1], this.vertices[i].tangent[2], this.vertices[i].tangent[3]
-            );
-        }
-        return new Mesh<>(vertices, indices);
-    }
-
     public static void registerSerializers() {
         Serializer.registerSerializerFor(PrefabVertex.class, new PrefabVertex.S());
         Serializer.registerSerializerFor(MeshPrefab.class, new MeshPrefab.S());
