@@ -173,7 +173,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             stack.close();
             PROFILER.closeStack();
             framableManager.skipThisFrame();
-
             graphManager.rebuildGraphs();
             return;
         }
