@@ -91,7 +91,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private final AutoHeapAllocator alloc;
 
-    private final Logger logger;
+    public final Logger logger;
 
     private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
 

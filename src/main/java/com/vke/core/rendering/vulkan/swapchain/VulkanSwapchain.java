@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
 import com.vke.api.event.EventBus;
+import com.vke.api.logger.Logger;
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
@@ -8,6 +9,7 @@ import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.core.event.events.rendering.SwapchainEvents;
+import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -15,6 +17,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.rendering.vulkan.utils.VKUtils;
@@ -88,14 +91,20 @@ public class VulkanSwapchain implements Swapchain {
     }
 
     private VkSwapchainCreateInfoKHR getCreateInfo(MemoryStack stack) {
+        var vkInfo = ctx.renderer().getCreateInfo().vulkanCreateInfo;
         VkSwapchainCreateInfoKHR info = VkSwapchainCreateInfoKHR.calloc(stack);
 
         VkSurfaceFormatKHR pickedFormat = SwapchainUtils.chooseFormat(formats);
         int presentMode = SwapchainUtils.choosePresentMode(modes, vsync);
         VkExtent2D extent2D = SwapchainUtils.chooseExtent(capabilities, alloc, ctx.windowHandle());
-        int minImageCount = Math.max(ctx.getFrameCounter().framesInFlight(), capabilities.minImageCount());
+        int minImageCount = Math.max(vkInfo.framesInFlight, capabilities.minImageCount());
         minImageCount = (capabilities.maxImageCount() > 0 && minImageCount > capabilities.maxImageCount() ) ? capabilities.maxImageCount() : minImageCount;
-        //System.out.println(capabilities.minImageCount());
+
+
+        if (vkInfo.framesInFlight != minImageCount) {
+            ctx.device().logger.warn("Frames in flight count %d can not be used with this swapchain, switching to %d frames in flight", vkInfo.framesInFlight, minImageCount);
+            ctx.renderer().getCreateInfo().vulkanCreateInfo.framesInFlight = minImageCount;
+        }
 
         info.sType$Default()
                 .surface(surface)

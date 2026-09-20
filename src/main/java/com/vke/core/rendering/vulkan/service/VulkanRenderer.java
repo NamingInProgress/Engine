@@ -63,7 +63,7 @@ import static com.vke.core.VKEngine.PROFILER;
 
 public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
-    private static final Logger LOGGER = LoggerFactory.get("VulkanRenderer");
+    public static final Logger LOGGER = LoggerFactory.get("VulkanRenderer");
 
     // Vulkan Stuff
     VulkanSwapchain swapchain;
@@ -79,7 +79,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private VulkanMaterialManager materialManager;
 
     // Engine infos
-    final FrameCounter frameCounter;
+    FrameCounter frameCounter;
     private final VKEngine engine;
     private final Context baseContext;
     private final EngineCreateInfo createInfo;
@@ -100,7 +100,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.RENDERER, context.getEngine());
         Configuration.STACK_SIZE.set(256);
-        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.baseContext = context;
         this.createInfo = createInfo;
@@ -124,6 +123,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         int imgs = Math.min(devImgs, 8192);
         this.bindlessTexturesCount = imgs < 0 ? 8192 : imgs;
         this.swapchain = device.createSwapchain(new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
+        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
 
