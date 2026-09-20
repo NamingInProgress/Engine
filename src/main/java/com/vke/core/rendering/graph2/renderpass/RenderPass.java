@@ -156,9 +156,9 @@ public abstract class RenderPass {
         return inputs[texture];
     }
 
-    public Texture getOutputTexture(int texture, int frameOfFlight) {
+    public Texture getOutputTexture(int texture, int imageIndex) {
         var texs = outputs[texture].texture;
-        return texs[Math.min(frameOfFlight, texs.length - 1)];
+        return texs[Math.min(imageIndex, texs.length - 1)];
     }
 
     public boolean hasOutputSource(int texture) {

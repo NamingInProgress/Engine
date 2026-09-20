@@ -138,9 +138,9 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         this._cpuIndices.reset();
         this._cpuVertices.reset();
 
-        this._gpuIndices.write(this._cpuIndices.getAddress(), this.currentMaxIndex * 4L, (long) this.getWrittenIndices() * 4);
+        this._gpuIndices.write(this._cpuIndices.getAddress(), 0, (long) this.getWrittenIndices() * 4);
         this._gpuVertices.write(this._cpuVertices.getAddress(),
-                (long) this.lastVertexCount * _template.getByteStride(), (long) this.getWrittenVertices() * _template.getByteStride());
+                0, (long) this.getWrittenVertices() * _template.getByteStride());
     }
 
     public long getRingIndicesOffset() { return this._gpuIndices.getLastOffset(); }
@@ -153,14 +153,14 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(),
-                this.getRingIndicesOffset() + currentMaxIndex * 4L, VK14.VK_INDEX_TYPE_UINT32);
+                this._gpuIndices.getOffset(), VK14.VK_INDEX_TYPE_UINT32);
     }
 
     public void bindVBO() {
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() },
-                new long[]{ getRingVerticesOffset() + (long) lastVertexCount * _template.getByteStride()});
+                new long[]{ this._gpuVertices.getOffset() });
     }
 
     private void handleOldBuffers() {
@@ -197,12 +197,12 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
     }
 
     protected void reallocVertexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuVertices, 0);
+        this._gpuBuffersOld.put(this._gpuVertices, -1);
         this._gpuVertices = genVertexBuffer(newSize);
     }
 
     protected void reallocIndexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuIndices, 0);
+        this._gpuBuffersOld.put(this._gpuIndices, -1);
         this._gpuIndices= genIndexBuffer(newSize);
     }
 

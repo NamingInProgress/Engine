@@ -21,7 +21,7 @@ public class GraphTexture {
         if (cat == TextureCategory.Input) {
             return renderPass.getInputTexture(index);
         } else {
-            return renderPass.getOutputTexture(index, system.getFrameCounter().currentIndex());
+            return renderPass.getOutputTexture(index, system.swapchain().currentRenderTargetIndex());
         }
     }
 

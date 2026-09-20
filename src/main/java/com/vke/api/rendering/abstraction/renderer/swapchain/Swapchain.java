@@ -21,6 +21,8 @@ public interface Swapchain extends Disposable {
     void recreate();
     void destroy();
 
+    int currentRenderTargetIndex();
+
     Texture renderTarget();
     Texture renderTarget(int frameOfFlight);
     Texture[] renderTargets();

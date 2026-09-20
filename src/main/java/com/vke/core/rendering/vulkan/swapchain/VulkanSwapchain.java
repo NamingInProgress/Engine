@@ -95,6 +95,7 @@ public class VulkanSwapchain implements Swapchain {
         VkExtent2D extent2D = SwapchainUtils.chooseExtent(capabilities, alloc, ctx.windowHandle());
         int minImageCount = Math.max(ctx.getFrameCounter().framesInFlight(), capabilities.minImageCount());
         minImageCount = (capabilities.maxImageCount() > 0 && minImageCount > capabilities.maxImageCount() ) ? capabilities.maxImageCount() : minImageCount;
+        //System.out.println(capabilities.minImageCount());
 
         info.sType$Default()
                 .surface(surface)
@@ -282,6 +283,11 @@ public class VulkanSwapchain implements Swapchain {
 
         this.colorImages = null;
         this.eventBus.fire(new SwapchainEvents.Destroyed());
+    }
+
+    @Override
+    public int currentRenderTargetIndex() {
+        return currentImageIndex;
     }
 
     @Override
