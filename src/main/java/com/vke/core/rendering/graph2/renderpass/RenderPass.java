@@ -91,6 +91,7 @@ public abstract class RenderPass {
             }
 
             inputs[i] = tex;
+            System.out.println("this: " + this + ", input tex: " + tex + " for i: " + i);
         }
     }
 
@@ -113,6 +114,7 @@ public abstract class RenderPass {
                 outputs[i] = new OutputTexture(graph.getAllScreenTextures(), false);
             } else {
                 if (source != null) {
+                    System.out.println("using source");
                     tex = findSourceTexture(source, graph);
                 } else {
                     float scale = texDef.scale();
@@ -126,6 +128,7 @@ public abstract class RenderPass {
                 }
 
                 outputs[i] = new OutputTexture(new Texture[]{ tex }, source != null);
+                System.out.println("this: " + this + ", output tex: " + tex + " for i: " + i);
             }
         }
     }

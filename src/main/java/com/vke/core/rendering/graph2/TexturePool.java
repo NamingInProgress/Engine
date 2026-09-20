@@ -12,14 +12,13 @@ import com.vke.core.rendering.vulkan.utils.VKUtils;
 import com.vke.utils.io.Disposable;
 import org.lwjgl.vulkan.VK14;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class TexturePool implements Disposable {
 
     private final RenderSystem system;
 
-    private final List<PooledTexture> freeList = new LinkedList<>();
+    private final Set<PooledTexture> freeList = new HashSet<>();
     private final List<Texture> allAllocated = new LinkedList<>();
 
     public TexturePool(RenderSystem system) {
@@ -100,6 +99,19 @@ public class TexturePool implements Disposable {
 
         public void resetUsedTime() {
             this.lastUsedTime = System.currentTimeMillis();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(texture);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof PooledTexture pt) {
+                return Objects.equals(pt.texture, texture);
+            }
+            return false;
         }
     }
 
