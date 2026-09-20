@@ -18,9 +18,6 @@ import pl.epsi.Type;
 import java.util.List;
 
 public class RectLoadingSceneRenderPass extends RenderPass {
-    //@DataBinding("progress")
-    private float progress;
-
     private VertexConsumer<V> vc;
 
     private GraphTexture output;
@@ -43,8 +40,8 @@ public class RectLoadingSceneRenderPass extends RenderPass {
                 new CommandBuffer.AttachmentInfo(color, LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })
         ), null));
 
-        //float right = -1.0f + 2.0f * state.get();
-        float right = 0f;
+        float right = -1.0f + 2.0f * ((float) context.get("state"));
+//        float right = 0f;
 
         RenderPipelines.LOAD.use();
         vc.beginFrame();

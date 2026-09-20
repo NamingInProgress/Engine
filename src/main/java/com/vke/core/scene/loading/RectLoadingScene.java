@@ -4,8 +4,11 @@ import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
+import com.vke.core.rendering.graph2.GraphContext;
 
 public class RectLoadingScene extends LoadingScene {
+
+    private float loadingProgress = 0;
 
     public RectLoadingScene(Identifier name, Context context) {
         super(name, context);
@@ -28,12 +31,17 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void onAssetEndLoad(AssetDesc desc) {
-        //(float) desc.position()) / ((float) desc.totalAmount();
+        loadingProgress = ((float) desc.position()) / ((float) desc.totalAmount());
     }
 
     @Override
     public void onAssetException(AssetDesc desc, Throwable exception) {
 
+    }
+
+    @Override
+    public void onPrepareRendering(GraphContext context) {
+        context.put("state", loadingProgress);
     }
 
     @Override
