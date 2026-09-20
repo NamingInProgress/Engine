@@ -140,8 +140,8 @@ public abstract class RenderPass {
             OutputTexture output = outputs[i];
             OutputTextureDef texDef = def.outputs[i];
             if (texDef.type != TextureType.SCREEN) {
-                if (texDef.source == null) {
-                    if (output != null && output.texture != null) {
+                if (output != null && output.texture != null) {
+                    if (!output.hasSource) {
                         for (Texture outputTexture : output.texture) {
                             graph.releaseTexture(outputTexture);
                         }
