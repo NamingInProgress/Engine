@@ -18,7 +18,7 @@
 
 
 
-        <!--<render-pass name="post" parent="vke:post">
+        <render-pass name="post" parent="vke:post">
             <inputs>
                 <input name="colorIn" source="debug.colorOut"/>
             </inputs>
@@ -27,8 +27,8 @@
                     <stage name="bloom"/>
                 </stages>
             </data>
-        </render-pass>-->
+        </render-pass>
 
-        <image-to-screen source="debug.colorOut"/>
+        <image-to-screen source="post.colorOut"/>
     </passes>
 </render-graph>

@@ -160,7 +160,7 @@ public class DeviceUtils {
         VkPhysicalDeviceProperties properties = device.getProperties();
 
         if (properties.deviceType() == VK14.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-            score += 1000;
+            score += 100000;
         }
 
         VkPhysicalDeviceLimits limits = properties.limits();

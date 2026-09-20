@@ -131,12 +131,6 @@ public abstract class RenderPass {
     }
 
     public void releaseTextures(RenderGraph graph) {
-        if (inputs == null) return;
-
-        for (Texture input : inputs) {
-            graph.releaseTexture(input);
-        }
-
         if (outputs == null) return;
 
         for (int i = 0; i < outputs.length; i++) {

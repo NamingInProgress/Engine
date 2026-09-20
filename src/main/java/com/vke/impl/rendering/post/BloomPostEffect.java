@@ -116,6 +116,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(downscaleHandle);
+        //downscaleInTexture.nextWrite();
         downscaleInTexture.set(highlighted, Samplers.LINEAR);
         cmd.bindDescriptorSets(downscaleHandle);
         DrawUtils.fullscreenTri(cmd);
@@ -130,7 +131,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(downscaleHandle);
-        downscaleInTexture.nextWrite();
+        //downscaleInTexture.nextWrite();
         downscaleInTexture.set(downsample1, Samplers.LINEAR);
         cmd.bindDescriptorSets(downscaleHandle);
         DrawUtils.fullscreenTri(cmd);
@@ -204,7 +205,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(upscaleHandle);
-        upscaleInTexture.nextWrite();
+        //upscaleInTexture.nextWrite();
         upscaleInTexture.set(downsample2, Samplers.LINEAR);
         cmd.bindDescriptorSets(upscaleHandle);
         DrawUtils.fullscreenTri(cmd);

@@ -49,6 +49,7 @@ public class DescriptorSetInstance implements Disposable {
 
         this.compiledLayout = new CompiledDescriptorSetLayout(ctx, setLayout, null);
 
+        //TODO: Sort this here and put into linked map or sth so its a LOT faster
         setLayout.bindings.forEach(bindingLayout -> {
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
             bindings.put(bindingLayout.name, binding);
