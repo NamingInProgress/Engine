@@ -50,7 +50,7 @@ public class TexturePool implements Disposable {
                 .type(TextureType.TEX_2D).build());
 
         if (system.getEngine().isDebugMode()) {
-            VKUtils.setDebugName(((VulkanRenderDevice) system.device()).getLogicalDevice(), "pool texture", ((VulkanTexture) t).getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+//            VKUtils.setDebugName(((VulkanRenderDevice) system.device()).getLogicalDevice(), "pool texture", ((VulkanTexture) t).getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
         }
 
         allAllocated.add(t);

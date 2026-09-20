@@ -47,7 +47,7 @@ public class SimplePostProcessEffect extends PostProcessEffect {
     }
 
     protected void setupUniforms(Texture colorInput) {
-        u_ColorTex.nextWrite();
+        //u_ColorTex.nextWrite();
         u_ColorTex.set(colorInput, Samplers.LINEAR);
     }
 }

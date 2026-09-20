@@ -13,6 +13,9 @@ import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.descriptors.bindings.BufferBinding;
 import com.vke.api.rendering.vulkan.descriptors.bindings.DescriptorBinding;
+import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
+import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
 import com.vke.api.rendering.vulkan.pipeline.IVulkanPipeline;
 import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;
@@ -290,6 +293,11 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 dynamicOffsets.stream()
                         .mapToInt(Integer::intValue)
                         .toArray());
+
+        for (UniformHandle dirtyHandle : l.getGroup().getDirtyHandles()) {
+            if (dirtyHandle instanceof BufferHandle || dirtyHandle instanceof FieldHandle) continue;
+            dirtyHandle.nextWrite();
+        }
     }
 
     @Override
