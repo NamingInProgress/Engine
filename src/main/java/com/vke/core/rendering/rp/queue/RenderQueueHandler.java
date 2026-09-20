@@ -7,12 +7,11 @@ import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
-import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.assets.handles.LazyAssetHandle;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.rp.MeshInstance;
 
 import java.io.IOException;
@@ -39,13 +38,22 @@ public class RenderQueueHandler {
         }
     }
 
-    public void render(CommandBuffer cmd, RenderPass pass, RenderPassInstance instance) {
+    public void render(CommandBuffer cmd, RenderPass pass) {
         for (int i = 0; i < executors.length; i++) {
             RenderQueueExecutor executor = executors[i];
             RenderQueue queue = queues[i];
             if (executor == null || queue == null) continue;
 
-            executor.acceptQueue(queue, cmd, pass, instance);
+            executor.acceptQueue(queue, cmd, pass);
+        }
+    }
+
+    public void onLoad(RenderPass pass) {
+        for (int i = 0; i < executors.length; i++) {
+            RenderQueueExecutor executor = executors[i];
+
+            if (executor == null) continue;
+            executor.onLoad(pass);
         }
     }
 
@@ -56,7 +64,7 @@ public class RenderQueueHandler {
 
         try {
             ConfigDocument doc = ConfigDocument.parseIdentifier(file);
-            doc.validate(SCHEMA.assume(ctx), file.toString());
+            doc.validate(SCHEMA.assume(ctx), file);
 
             ConfigNode root = doc.getRoot().getObject("render-queues");
             for (ConfigNode renderQueue : root.asArray().values()) {

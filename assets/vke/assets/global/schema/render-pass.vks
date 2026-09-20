@@ -1,0 +1,7 @@
+{
+    link: string["vke:schema/render-pass.schemalib.vks"];
+    typedefs: {};
+    schema: {
+        render-pass: render-pass;
+    };
+}

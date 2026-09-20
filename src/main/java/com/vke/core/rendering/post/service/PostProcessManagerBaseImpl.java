@@ -14,7 +14,7 @@ import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.handles.LazyAssetHandle;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.post.PostEffectProvider;
 import com.vke.core.rendering.post.PostProcessEffect;
 import com.vke.core.rendering.post.SimplePostProcessEffect;
@@ -52,7 +52,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
 
         try {
             ConfigDocument doc = ConfigDocument.parseIdentifier(vclFile);
-            doc.validate(SCHEMA.assume(engine), vclFile.toString());
+            doc.validate(SCHEMA.assume(engine), vclFile);
 
             ConfigNode stagesNode = doc.getRoot().getObject("stages");
             for (ConfigNode stageNode : stagesNode.asArray().values()) {
@@ -67,7 +67,7 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
 
                     class SimpleProvider implements PostEffectProvider {
                         @Override
-                        public PostProcessEffect buildEffect(RenderSystem sys, RenderPassInstance renderPass) {
+                        public PostProcessEffect buildEffect(RenderSystem sys, RenderPass renderPass) {
                             return new SimplePostProcessEffect(identifier, sys, renderPass, pipelineHandle);
                         }
                     }
@@ -77,11 +77,11 @@ public class PostProcessManagerBaseImpl extends ScopedServiceImpl<PostProcessMan
                 } else if ("custom-stage".equals(stageNode.getNodeName())) {
                     String clasName = stageNode.getString("class");
                     Class<? extends PostProcessEffect> effectClass = (Class<? extends PostProcessEffect>) Class.forName(clasName);
-                    Constructor<? extends PostProcessEffect> constructor = effectClass.getDeclaredConstructor(Identifier.class, RenderSystem.class, RenderPassInstance.class);
+                    Constructor<? extends PostProcessEffect> constructor = effectClass.getDeclaredConstructor(Identifier.class, RenderSystem.class, RenderPass.class);
 
                     class CustomProvider implements PostEffectProvider {
                         @Override
-                        public PostProcessEffect buildEffect(RenderSystem sys, RenderPassInstance renderPass) {
+                        public PostProcessEffect buildEffect(RenderSystem sys, RenderPass renderPass) {
                             try {
                                 return constructor.newInstance(identifier, sys, renderPass);
                             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {

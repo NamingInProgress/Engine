@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.service;
 
 import com.vke.api.framable.Framable;
 import com.vke.api.assets.r.R;
+import com.vke.api.logger.Logger;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
@@ -15,7 +16,6 @@ import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
 import com.vke.core.rendering.DefaultRenderAssets;
-import com.vke.core.rendering.graph.RenderGraph;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.services2.ServiceImpl;
@@ -24,7 +24,9 @@ import com.vke.core.Context;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.framable.service.FramableManager;
-import com.vke.core.rendering.graph.service.GraphManager;
+import com.vke.core.logger.LoggerFactory;
+import com.vke.core.rendering.graph2.RenderGraph;
+import com.vke.core.rendering.graph2.service.GraphManager;
 import com.vke.core.rendering.light.LightManagerImpl;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.reflection2.api.ReflectedShader2;
@@ -52,9 +54,14 @@ import com.vke.utils.console.AnsiColors;
 import com.vke.utils.exception.Unreachable;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;
+import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints;
+import org.lwjgl.vulkan.VK14;
+import org.lwjgl.vulkan.VkCheckpointDataNV;
 
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -62,6 +69,8 @@ import java.util.function.BiFunction;
 import static com.vke.core.VKEngine.PROFILER;
 
 public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
+
+    public static final Logger LOGGER = LoggerFactory.get("VulkanRenderer");
 
     // Vulkan Stuff
     VulkanSwapchain swapchain;
@@ -80,7 +89,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private LightManager lightManager;
 
     // Engine infos
-    final FrameCounter frameCounter;
+    FrameCounter frameCounter;
     private final VKEngine engine;
     private final Context baseContext;
     private final EngineCreateInfo createInfo;
@@ -100,7 +109,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     public VulkanRenderer(Context context, EngineCreateInfo createInfo) {
         super(Services.RENDERER, context.getEngine());
         Configuration.STACK_SIZE.set(256);
-        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.engine = context.getEngine();
         this.baseContext = context;
         this.createInfo = createInfo;
@@ -121,6 +129,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.bindlessTexturesCount = calculateBindlessTexturesCount();
         this.swapchain = device.createSwapchain(new Swapchain.Description(createInfo.vsync, engine.getWindow().getHandle()));
 
+        this.frameCounter = new FrameCounter(createInfo.vulkanCreateInfo.framesInFlight);
         this.imagesInFlight = new VulkanFence[this.swapchain.getImageCount()];
         this.imagePresentInFlight = new VulkanSemaphore[this.swapchain.getImageCount()];
 
@@ -169,7 +178,10 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         VulkanFence fence = frame.getRenderFence();
 
         PROFILER.begin("Frame Fence");
-        fence.waitForFence();
+        int err = fence.waitForFence();
+        if (err != VK14.VK_SUCCESS) {
+            LOGGER.error("Wait for fence returned error: %d", err);
+        }
         PROFILER.end();
 
         PROFILER.begin("Image Acquire");
@@ -187,9 +199,9 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         PROFILER.end();
 
         PROFILER.begin("Flight Fence");
-        //if (imagesInFlight[imageIndex] != null) {
-        //    imagesInFlight[imageIndex].waitForFence();
-        //}
+        if (imagesInFlight[imageIndex] != null) {
+            imagesInFlight[imageIndex].waitForFence();
+        }
 
         fence.reset();
 
@@ -238,7 +250,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     public void postFrame() {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
-        DebugContext.clear();
 
         try {
             VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {

@@ -27,13 +27,15 @@ void main() {
     int materialIdx = int(texelFetch(u_MaterialIdxTex, ivec2(gl_FragCoord.xy), 0).r);
     vec2 meshUV = vktexture(u_MeshUvsTex, fUV).xy;
     vec3 fragPos = reconstructWorldPosition();
-
-    if (materialIdx == NO_MATERIAL) {
+//
+    if (materialIdx == NO_MATERIAL || materialIdx < 0) {
         discard;
     }
-
+//
     MaterialInputs mat = evaluateMaterial(materialIdx, meshUV, vec3(0, 0, 1), vec4(0, 0, 1, 1));
     mat.normal = normal;
 
     FragColor = vec4(calculateLighting(normal, normalize(frameData.camera.position.xyz - fragPos), fragPos, mat), 1);
+//    FragColor = vec4(1);
+
 }

@@ -8,7 +8,8 @@
       "type": "COLOR",
       "blendEnable": true,
       "srcBlendFactor": "ONE",
-      "dstBlendFactor": "ONE"
+      "dstBlendFactor": "ONE",
+      "format": "RGBA16F"
     }
   ],
   "shaders": [

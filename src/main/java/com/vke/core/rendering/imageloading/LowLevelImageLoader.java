@@ -20,8 +20,6 @@ public class LowLevelImageLoader {
     }
 
     public ImageData decode(AutoHeapAllocator alloc) {
-        //todo: replace with my png decoder once its done
-
         try {
             PngFile png = new PngFile(is);
 

@@ -222,7 +222,9 @@ public class VulkanTexture implements Texture {
 
     @Override
     public void free() {
-        views.values().forEach(Disposable::free);
+        for (ImageView imageView : views.values()) {
+            imageView.free();
+        }
         if (allocation != 0) {
             Vma.vmaDestroyImage(device.getVmaAllocator(), handle, allocation);
         }

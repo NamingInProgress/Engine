@@ -23,7 +23,7 @@ public interface Str {
     }
 
     static Str MULTILINGUAL(String key) {
-        return MULTILINGUAL(new SegmentedPath(key, "."));
+        return MULTILINGUAL(new SegmentedPath(key));
     }
 
     static Str ASSET(Identifier identifier) {

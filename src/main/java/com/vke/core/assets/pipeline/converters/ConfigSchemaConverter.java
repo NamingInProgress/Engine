@@ -7,6 +7,7 @@ import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.core.Context;
+import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
@@ -28,7 +29,7 @@ public class ConfigSchemaConverter implements AssetConverter {
     public AssetData performConversion(Context context, StageElement input, ConfigArrayNode arguments) throws AssetException {
         ConfigDocument doc = input.getAssetData().getDataAs();
         try {
-            ConfigSchema schema = ConfigSchema.readVke(doc, input.getAssetName().getPath());
+            ConfigSchema schema = ConfigSchema.readVke(doc, input.getAssetName().upgrade());
             return new AssetData(Protocols.SCHEMA, schema);
         } catch (ConfigParser.ConfigParseException e) {
             throw new RuntimeException(e);

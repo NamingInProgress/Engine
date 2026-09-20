@@ -49,6 +49,7 @@ public class DescriptorSetInstance implements Disposable {
 
         this.compiledLayout = new CompiledDescriptorSetLayout(ctx, setLayout, null);
 
+        //TODO: Sort this here and put into linked map or sth so its a LOT faster
         setLayout.bindings.forEach(bindingLayout -> {
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
             bindings.put(bindingLayout.name, binding);
@@ -127,7 +128,8 @@ public class DescriptorSetInstance implements Disposable {
             case SAMPLED_IMAGE -> new SampledImageBinding(layout);
             case STORAGE_IMAGE -> new StorageImageBinding(layout);
             case SAMPLER -> new SamplerBinding(layout);
-            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TODO: implement this
+            case ACCELERATION_STRUCTURE -> throw new UnsupportedOperationException("Acceleration structures not implemented!"); // TO DO: implement this
+            //                                                                                                                      no -v22
         };
     }
 

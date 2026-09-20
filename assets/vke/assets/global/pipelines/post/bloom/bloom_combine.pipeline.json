@@ -6,7 +6,8 @@
   "attachments": [
     {
       "type": "COLOR",
-      "blendEnable": true
+      "blendEnable": true,
+      "format": "RGBA16F"
     }
   ],
   "shaders": [

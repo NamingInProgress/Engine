@@ -37,7 +37,7 @@ public class SchemaMultiType extends SchemaType {
         }
         //no type is valid so were going to populate result accordingly
         String allowedStr = allowed.stream().map(a -> a.type.toString()).collect(Collectors.joining(","));
-        String message = String.format("Illegal type found\"%s\"! Allowed field types are: [%s]", node.getType(), allowedStr);
+        String message = String.format("Illegal type found \"%s\"! Allowed field types are: [%s]", node.getType(), allowedStr);
         result.addError(new SchemaValidationResult.ValidationError(message, path));
     }
 }

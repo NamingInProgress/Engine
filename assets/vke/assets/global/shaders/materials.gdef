@@ -80,7 +80,7 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv, vec3 normal, vec4 ta
 }
 
 MaterialInputs evaluateMaterial(int idx, vec2 uv, vec3 normal, vec4 tangent) {
-    if (idx == NO_MATERIAL) {
+    if (idx == NO_MATERIAL || idx < 0) {
         MaterialInputs m;
         m.baseColor = vec4(1.0);
         m.normal = vec3(0, 0, 1);

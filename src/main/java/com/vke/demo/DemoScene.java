@@ -19,20 +19,23 @@ import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
+import com.vke.impl.gameobject.CameraGameObject;
+import com.vke.impl.gameobject.DirectionalLightGameObject;
+import com.vke.impl.gameobject.PointLightGameObject;
+import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
-import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
+import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
 
@@ -46,7 +49,6 @@ public class DemoScene extends Scene {
     private static final float SPACING = 30.0f;
 
     private final List<Instance> instances = new ArrayList<>(TOTAL_INSTANCES);
-    private final List<MeshInstance> inst = new ArrayList<>(TOTAL_INSTANCES);
 
     private PressableState keyEsc;
     private PressableState keyToggleCursor;
@@ -203,8 +205,6 @@ public class DemoScene extends Scene {
         handleInput();
 
         hierarchyManager.updateTransforms();
-
-        context.put("instData", inst);
         context.put("inst", TOTAL_INSTANCES);
 
         // Debug visualizers

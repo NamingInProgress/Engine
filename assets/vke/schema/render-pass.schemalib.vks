@@ -1,0 +1,31 @@
+{
+    typedefs: {
+        tex-type: string["screen", "color", "depth", "stencil", "storage", "depth_stencil"];
+        tex-format: string;
+
+        in-texture: {
+            !name: string;
+            !source: string;
+        };
+
+        out-texture: {
+            !name: string;
+            source: string;
+            type: tex-type;
+            format: tex-format;
+            width: number;
+            height: number;
+            scale: number;
+        };
+
+        render-pass: {
+            !name: string;
+            class: string;
+            parent: string;
+            outputs: [out-texture];
+            inputs: [in-texture];
+            data: {};
+        };
+    };
+    schema: {};
+}
