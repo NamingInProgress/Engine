@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
         createInfo.releaseMode = false;
-        createInfo.vulkanCreateInfo.framesInFlight = 1;
+        createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("BEAR test!");
 

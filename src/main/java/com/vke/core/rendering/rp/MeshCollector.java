@@ -94,6 +94,7 @@ public class MeshCollector {
             if (updated) return;
             updated = true;
             WorldTransformC wtc = at.getComponentById(WorldTransformC.ID);
+            StaticMeshC smc = at.getComponentById(StaticMeshC.ID);
 
             for (RenderQueue queue : queueHandler.queues) {
                 for (int i = 0; i < queue.activeKeyCount; i++) {
@@ -105,9 +106,15 @@ public class MeshCollector {
                         MeshInstance mi = bucket[j];
                         if (mi == null) continue;
 
+                        int eId = mi.entityId();
                         float[] mat = new float[16];
-                        wtc.getWorldMatrix(mi.entityId(), mat);
+                        wtc.getWorldMatrix(eId, mat);
                         mi.setMat(mat);
+
+                        if (mi.materialIndex() != smc.material[eId])
+                            mi.setMaterial(smc.material[eId]);
+                        if (mi.mesh().key() != smc.mesh[eId].key())
+                            mi.setMesh(smc.mesh[eId]);
                     }
                 }
             }

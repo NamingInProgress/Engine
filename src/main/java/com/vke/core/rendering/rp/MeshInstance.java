@@ -4,13 +4,14 @@ import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.core.rendering.vulkan.buffers.premade.slice.BufferSlice;
 import org.joml.Matrix4f;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class MeshInstance {
     private final int entityId;
-    private final StaticMesh mesh;
+    private StaticMesh mesh;
     private float[] mat;
-    private final int materialIndex;
+    private int materialIndex;
 
     public MeshInstance(int entityId, StaticMesh mesh, float[] mat, int materialIndex) {
         this.entityId = entityId;
@@ -22,6 +23,10 @@ public final class MeshInstance {
     public void setMat(float[] mat) {
         this.mat = mat;
     }
+
+    public void setMaterial(int index) { this.materialIndex = index; }
+
+    public void setMesh(StaticMesh mesh) { this.mesh = mesh; }
 
     public void putSelf(BufferSlice writer) {
         writer.mat4(mat);
@@ -51,13 +56,13 @@ public final class MeshInstance {
         var that = (MeshInstance) obj;
         return this.entityId == that.entityId &&
                 Objects.equals(this.mesh, that.mesh) &&
-                Objects.equals(this.mat, that.mat) &&
+                Arrays.equals(this.mat, that.mat) &&
                 this.materialIndex == that.materialIndex;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, mesh, mat, materialIndex);
+        return Objects.hash(entityId, mesh, Arrays.hashCode(mat), materialIndex);
     }
 
     @Override
@@ -65,7 +70,7 @@ public final class MeshInstance {
         return "MeshInstance[" +
                 "entityId=" + entityId + ", " +
                 "mesh=" + mesh + ", " +
-                "mat=" + mat + ", " +
+                "mat=" + Arrays.toString(mat) + ", " +
                 "materialIndex=" + materialIndex + ']';
     }
 
