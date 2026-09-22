@@ -184,7 +184,7 @@ public class VulkanSwapchain implements Swapchain {
             image.defaultView();
 
             if (ctx.getEngine().isDebugMode()) {
-                VKUtils.setDebugName(ctx.device().getLogicalDevice(), "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+                VKUtils.setDebugName(ctx, "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
             }
 
             this.colorImages[i] = image;

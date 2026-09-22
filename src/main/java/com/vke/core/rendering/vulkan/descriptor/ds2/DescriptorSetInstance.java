@@ -18,15 +18,13 @@ import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DescriptorSetInstance implements Disposable {
-
-    public final HashMap<String, DescriptorBinding> bindings = new HashMap<>();
+    public final SortedSet<DescriptorBinding> bindings = new TreeSet<>(Comparator.comparingInt(d -> d.layout.binding));
     private final DescriptorSet[] setObjects;
     private final int set;
     private final CompiledDescriptorSetLayout compiledLayout;
@@ -52,7 +50,7 @@ public class DescriptorSetInstance implements Disposable {
         //TODO: Sort this here and put into linked map or sth so its a LOT faster
         setLayout.bindings.forEach(bindingLayout -> {
             DescriptorBinding binding = createDescriptorBinding(bindingLayout);
-            bindings.put(bindingLayout.name, binding);
+            bindings.add(binding);
         });
 
         for (int i = 0; i < fc.framesInFlight(); i++) {
@@ -112,7 +110,9 @@ public class DescriptorSetInstance implements Disposable {
     @Override
     public void free() {
         this.compiledLayout.free();
-        bindings.values().forEach(Disposable::free);
+        for (DescriptorBinding binding : bindings) {
+            binding.free();
+        }
     }
 
     public DescriptorBinding createDescriptorBinding(BindingLayout layout) {
@@ -164,6 +164,15 @@ public class DescriptorSetInstance implements Disposable {
                 : device.capabilities().minSSBOAlign;
     }
 
+    public @Nullable DescriptorBinding searchBinding(String name) {
+        for (DescriptorBinding binding : bindings) {
+            if (Objects.equals(name, binding.layout.name)) {
+                return binding;
+            }
+        }
+        return null;
+    }
+
     public static class UsedSet {
         public final DescriptorSet set;
         public int framesLeft;
@@ -173,5 +182,4 @@ public class DescriptorSetInstance implements Disposable {
             this.framesLeft = framesLeft;
         }
     }
-
 }

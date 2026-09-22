@@ -1,6 +1,5 @@
 package com.vke.core.rendering.vulkan.shader;
 
-import com.vke.api.rendering.abstraction.renderer.IntBitEnum;
 import com.vke.api.rendering.abstraction.renderer.enums.ShaderType;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
@@ -37,7 +36,7 @@ public class VulkanShader implements Shader {
             this.handle = pShaderModule.get(0);
 
             if (ctx.getEngine().isDebugMode()) {
-                VKUtils.setDebugName(ctx.device().getLogicalDevice(), "Shader Module#" + id, handle, VK14.VK_OBJECT_TYPE_SHADER_MODULE);
+                VKUtils.setDebugName(ctx, "Shader Module#" + id, handle, VK14.VK_OBJECT_TYPE_SHADER_MODULE);
             }
 
         }
@@ -53,37 +52,6 @@ public class VulkanShader implements Shader {
     @Override
     public ShaderType type() {
         return type;
-    }
-
-    public static class Stages implements IntBitEnum<Stages, ShaderType> {
-
-        private int mask;
-
-        public Stages(ShaderType... types) { or(types); }
-
-        @Override
-        public Stages or(ShaderType... flags) {
-            for (ShaderType type : flags) {
-                mask |= type.getIntVal();
-            }
-            return this;
-        }
-
-        @Override
-        public int getIntVal() {
-            return this.mask;
-        }
-
-        public static Stages fromString(String[] strings) {
-            Stages self = new Stages();
-
-            for (String stage : strings) {
-                self.or(ShaderType.fromString(stage));
-            }
-
-            return self;
-        }
-
     }
 
     @Override

@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class VulkanFrame implements Disposable {
 
-    private CommandPool pool;
-    private VulkanCmdBuffers buffers;
+    private final CommandPool pool;
+    private final VulkanCmdBuffers buffers;
     private VulkanSemaphore imageSemaphore, presentSemaphore;
     private VulkanFence renderFence;
     private final VulkanRenderSystem sys;

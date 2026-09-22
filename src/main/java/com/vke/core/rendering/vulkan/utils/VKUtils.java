@@ -6,6 +6,8 @@ import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.console.ColorStringBuilder;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
@@ -152,7 +154,13 @@ public class VKUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static boolean setDebugName(LogicalDevice device, String name, long handle, int type) {
+    public static boolean setDebugName(VulkanRenderSystem sys, String name, long handle, int type) {
+        return VKUtils.setDebugName(sys.device(), name, handle, type);
+    }
+
+    public static boolean setDebugName(VulkanRenderDevice device, String name, long handle, int type) {
+        if (!device.getEngine().isDebugMode()) return false;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDebugUtilsObjectNameInfoEXT info = VkDebugUtilsObjectNameInfoEXT.calloc(stack);
             info.sType$Default();
@@ -160,12 +168,8 @@ public class VKUtils {
             info.objectHandle(handle);
             info.pObjectName(stack.UTF8(name));
 
-            return EXTDebugUtils.vkSetDebugUtilsObjectNameEXT(device.getDevice(), info) == VK14.VK_SUCCESS;
+            return EXTDebugUtils.vkSetDebugUtilsObjectNameEXT(device.getLogicalDevice().getDevice(), info) == VK14.VK_SUCCESS;
         }
-    }
-
-    public static boolean setDebugName(LogicalDevice device, Identifier name, long handle, int type) {
-        return setDebugName(device, name.toString(), handle, type);
     }
 
     public static int findMemoryType(PhysicalDevice physicalDevice, int typeFilter, int properties) {
