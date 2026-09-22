@@ -27,7 +27,7 @@ public class DebugManagerImpl extends ServiceImpl implements CompoundFramable, D
     private final FramableManager fm;
     private final EventBus eventBus;
 
-    private List<DebugFeature> enabledFeatures = new LinkedList<>();
+    private final List<DebugFeature> enabledFeatures = new LinkedList<>();
 
     public DebugManagerImpl(VKEngine engine) {
         super(Services.DEBUG, engine);

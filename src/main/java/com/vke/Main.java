@@ -31,8 +31,8 @@ public class Main {
 
         VKEngine engine = new VKEngine(createInfo);
         EventBus ev = engine.service(Services.EVENT_BUS);
-        ev.register(new DebugLogFeature());
-        ev.register(new DebugMemoryTrackingFeature());
+//        ev.register(new DebugLogFeature());
+//        ev.register(new DebugMemoryTrackingFeature());
         //engine.PROFILER = engine.service(Services.PROFILER);
 
         if (renderdoc.get()) Thread.sleep(5000);
