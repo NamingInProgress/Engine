@@ -4,18 +4,18 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.core.Identifier;
-import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 
 public abstract class PostProcessEffect {
     protected final Identifier identifier;
     protected final RenderSystem renderSystem;
-    protected final RenderPassInstance instance;
+    protected final RenderPass renderPass;
 
-    public PostProcessEffect(Identifier identifier, RenderSystem renderSystem, RenderPassInstance instance) {
+    public PostProcessEffect(Identifier identifier, RenderSystem renderSystem, RenderPass renderPass) {
         this.identifier = identifier;
         this.renderSystem = renderSystem;
-        this.instance = instance;
+        this.renderPass = renderPass;
     }
 
     public void onInitialize() {}

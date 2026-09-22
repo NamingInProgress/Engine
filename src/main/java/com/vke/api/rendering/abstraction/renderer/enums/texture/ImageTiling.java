@@ -1,6 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer.enums.texture;
 
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.vulkan.VK14;
 
 public enum ImageTiling implements IntEnum {
@@ -16,6 +17,10 @@ public enum ImageTiling implements IntEnum {
 
     @Override
     public int getIntVal() {
-        return 0;
+        return vkHandle;
+    }
+
+    public static Option<ImageTiling> valueOfOption(String name) {
+        return Option.useIfNotFaulty(() -> ImageTiling.valueOf(name));
     }
 }

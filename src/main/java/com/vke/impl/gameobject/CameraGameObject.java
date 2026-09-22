@@ -8,7 +8,7 @@ import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.window.Window;
 import com.vke.api.window.WindowResizeEvent;
 import com.vke.core.Context;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.game.object.AbstractGameObject;
 import com.vke.core.game.object.GameObject;
@@ -24,7 +24,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     private static final Vector3f NEG_Z = new Vector3f(0, 0, -1);
     private static final int[] CONST_IDS = new int[] { TransformC.ID, CameraC.ID };
 
-    private ComponentReference<CameraC> cameraComponentRef;
+    private CRef<CameraC> cameraComponentRef;
     private Matrix4f projMatrix;
 
     public CameraGameObject(Context ctx) {

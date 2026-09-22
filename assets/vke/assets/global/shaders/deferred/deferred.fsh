@@ -27,7 +27,6 @@ void main() {
         gNormal = vec4(normalize(TBN * tangentNormal), 1.0);
     }
 
-    //gNormal = vec4(fNormal, 1.0);
     gMaterialIdx = fMaterialId;
     gMeshUvs = fUV;
 }

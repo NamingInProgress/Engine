@@ -52,6 +52,10 @@ public class Material {
         }
     }
 
+    public Material copy() {
+        return new Material(sys, List.of(base.copy()));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

@@ -185,7 +185,7 @@ public class VulkanPipelineLayout implements PipelineLayout {
                 }
             }
 
-            getGroup().clearDirty();
+            //getGroup().clearDirty();
             engineSets.ENGINE_PIPELINE_LAYOUT.getGroup().clearDirty();
             writer.flush();
         }

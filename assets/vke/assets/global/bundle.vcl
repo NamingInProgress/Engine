@@ -12,5 +12,6 @@
         <color name="yellow">1 1 0</color>
         <color name="cyan">0 1 1</color>
         <color name="magenta">1 0 1</color>
+        <color name="radioactive-green">rgb(44, 250, 31)</color>
     </assets>
 </bundle>

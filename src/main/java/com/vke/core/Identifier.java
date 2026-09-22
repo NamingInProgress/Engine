@@ -97,6 +97,10 @@ public class Identifier {
         Serializer.registerSerializerFor(Identifier.class, new S());
     }
 
+    public FileIdentifier upgrade() {
+        return new FileIdentifier(false, this, "");
+    }
+
     private static class S implements Serializer<Identifier> {
 
         @Override

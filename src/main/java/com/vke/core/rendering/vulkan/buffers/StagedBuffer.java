@@ -12,6 +12,8 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK14;
 import org.lwjgl.vulkan.VkBufferCopy;
 
+import java.util.Objects;
+
 public class StagedBuffer implements Disposable {
     private final VulkanGpuBuffer gpuBuffer;
     private final CpuBuffer cpuBuffer;
@@ -74,4 +76,15 @@ public class StagedBuffer implements Disposable {
         gpuBuffer.free();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        StagedBuffer that = (StagedBuffer) o;
+        return Objects.equals(gpuBuffer, that.gpuBuffer) && Objects.equals(cpuBuffer, that.cpuBuffer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(gpuBuffer, cpuBuffer);
+    }
 }

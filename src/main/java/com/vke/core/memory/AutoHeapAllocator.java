@@ -93,12 +93,12 @@ public class AutoHeapAllocator implements AutoCloseable {
 
     @Override
     public void close() {
-        objects.forEach((c) -> {
+        for (HeapAllocated<?> c : objects) {
             try {
                 c.free();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        });
+        }
     }
 }

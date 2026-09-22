@@ -1,10 +1,10 @@
 package com.vke.core.rendering.vertexconsumer;
 
+import com.vke.api.rendering.abstraction.DelayedDestroyer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
-import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.buffers.MappedGpuRingBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.ibo.DynamicIndexBuffer;
@@ -12,10 +12,6 @@ import com.vke.core.rendering.vulkan.buffers.premade.vbo.DynamicVertexBuffer;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.vulkan.VK14;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractVertexConsumer<T extends Vertex> implements VertexConsumer<T> {
 
@@ -43,7 +39,7 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
     private int lastVertexCount;
 
-    private final HashMap<MappedGpuRingBuffer, Integer> _gpuBuffersOld = new HashMap<>();
+    private final DelayedDestroyer<MappedGpuRingBuffer> _gpuBuffersOld;
 
     public AbstractVertexConsumer(VulkanRenderSystem sys, T template) {
         this(sys, template, BASE_VERTEX_COUNT, BASE_INDEX_COUNT);
@@ -60,6 +56,8 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
         this._gpuVertices = genVertexBuffer(estVertexCount);
         this._gpuIndices = genIndexBuffer(estIndexCount);
+
+        this._gpuBuffersOld = new DelayedDestroyer<>(sys);
     }
 
     @Override
@@ -106,31 +104,34 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         putIndices(mesh.getIndices());
     }
 
-    protected void submitDraw(int instanceCount) {
+    protected void submitDraw(int instanceCount, int firstInstance) {
         VulkanCmdBuffers buf = sys.getCurrentCommandBuffer();
         this.upload();
         this.bindIBO();
         this.bindVBO();
 
-        VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), instanceCount, 0, 0, 0);
+        VK14.vkCmdDrawIndexed(buf.getBuffer(), this.getWrittenIndices(), instanceCount, 0, 0, firstInstance);
 
         this.lastVertexCount += this.currentVertexCount;
         this.currentMaxIndex += this.currentIndexCount;
 
         this.currentVertexCount = 0;
         this.currentIndexCount = 0;
-
-        handleOldBuffers();
     }
 
     @Override
     public void draw() {
-        submitDraw(1);
+        submitDraw(1, 0);
     }
 
     @Override
     public void drawInstanced(int instanceCount) {
-        submitDraw(instanceCount);
+        submitDraw(instanceCount, 0);
+    }
+
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
+        submitDraw(instanceCount, firstInstance);
     }
 
     @Override
@@ -138,9 +139,9 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         this._cpuIndices.reset();
         this._cpuVertices.reset();
 
-        this._gpuIndices.write(this._cpuIndices.getAddress(), this.currentMaxIndex * 4L, (long) this.getWrittenIndices() * 4);
+        this._gpuIndices.write(this._cpuIndices.getAddress(), 0, (long) this.getWrittenIndices() * 4);
         this._gpuVertices.write(this._cpuVertices.getAddress(),
-                (long) this.lastVertexCount * _template.getByteStride(), (long) this.getWrittenVertices() * _template.getByteStride());
+                0, (long) this.getWrittenVertices() * _template.getByteStride());
     }
 
     public long getRingIndicesOffset() { return this._gpuIndices.getLastOffset(); }
@@ -153,34 +154,21 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), this._gpuIndices.getGpuBuffer().getBuffer(),
-                this.getRingIndicesOffset() + currentMaxIndex * 4L, VK14.VK_INDEX_TYPE_UINT32);
+                this._gpuIndices.getOffset(), VK14.VK_INDEX_TYPE_UINT32);
     }
 
     public void bindVBO() {
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
 
         VK14.vkCmdBindVertexBuffers(cmd.getBuffer(), 0, new long[]{ this._gpuVertices.getGpuBuffer().getBuffer() },
-                new long[]{ getRingVerticesOffset() + (long) lastVertexCount * _template.getByteStride()});
-    }
-
-    private void handleOldBuffers() {
-        ArrayList<MappedGpuRingBuffer> toRemove = new ArrayList<>();
-        for (Map.Entry<MappedGpuRingBuffer, Integer> entry : _gpuBuffersOld.entrySet()) {
-            if (entry.getValue() > sys.getFrameCounter().framesInFlight()) {
-                entry.getKey().free();
-                toRemove.add(entry.getKey());
-            }
-            entry.setValue(entry.getValue() + 1);
-        }
-
-        toRemove.forEach(_gpuBuffersOld::remove);
+                new long[]{ this._gpuVertices.getOffset() });
     }
 
     protected void ensureVertexSpace(int additionalSpace) {
         int newCount = this.lastVertexCount + this.currentVertexCount + additionalSpace;
         if (newCount >= this.maxVertexCount) {
             while (newCount > this.maxVertexCount) {
-                this.maxVertexCount = (int) (((double) this.maxVertexCount) * CpuBuffer.GROWTH_FAC);
+                this.maxVertexCount = (int) (((double) this.maxVertexCount) * 2);
             }
             reallocVertexBuffer(this.maxVertexCount);
         }
@@ -190,19 +178,19 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
         int newCount = this.currentMaxIndex + this.currentIndexCount + additional;
         if (newCount >= this.maxIndexCount) {
             while (newCount > this.maxIndexCount) {
-                this.maxIndexCount = (int) (((double) this.maxIndexCount) * CpuBuffer.GROWTH_FAC);
+                this.maxIndexCount = (int) (((double) this.maxIndexCount) * 2);
             }
             reallocIndexBuffer(this.maxIndexCount);
         }
     }
 
     protected void reallocVertexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuVertices, 0);
+        this._gpuBuffersOld.scheduleDestroy(this._gpuVertices);
         this._gpuVertices = genVertexBuffer(newSize);
     }
 
     protected void reallocIndexBuffer(int newSize) {
-        this._gpuBuffersOld.put(this._gpuIndices, 0);
+        this._gpuBuffersOld.scheduleDestroy(this._gpuIndices);
         this._gpuIndices= genIndexBuffer(newSize);
     }
 

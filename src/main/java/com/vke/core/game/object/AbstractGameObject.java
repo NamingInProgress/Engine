@@ -1,7 +1,7 @@
 package com.vke.core.game.object;
 
 import com.vke.core.Context;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.ecs.services.EcsManager;
@@ -12,7 +12,6 @@ import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
 import com.vke.utils.Utils;
-import com.vke.utils.exception.Unreachable;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,7 +22,7 @@ public abstract class AbstractGameObject implements GameObject {
     protected final Context ctx;
     protected final EcsManager ecs;
 
-    private final HashSet<ComponentReference<?>> activeRefs;
+    private final HashSet<CRef<?>> activeRefs;
 
     protected int entityId;
     private ComponentMask mask;
@@ -90,6 +89,9 @@ public abstract class AbstractGameObject implements GameObject {
     private GameObject _createFromSpawnedEntity(int entity) {
         GameObject go = createFromSpawnedEntity(entity);
         go.setComponents(this.components().copy());
+        if (go instanceof AbstractGameObject ago) {
+            ago.entityId = entity;
+        }
         return go;
     }
 
@@ -165,6 +167,7 @@ public abstract class AbstractGameObject implements GameObject {
     }
 
     public void setComponentMask(ComponentMask newMask) {
+        requireSpawned();
         this.mask = newMask;
 
         if (this instanceof RestrictedGameObject rgo) {
@@ -185,8 +188,8 @@ public abstract class AbstractGameObject implements GameObject {
     }
 
     @Override
-    public <T extends Component> ComponentReference<T> getComponent(int id) {
-        ComponentReference<T> r = ecs.obtainComponentReference(entityId, id);
+    public <T extends Component> CRef<T> getComponent(int id) {
+        CRef<T> r = ecs.obtainComponentReference(entityId, id);
         this.activeRefs.add(r);
         return r;
     }

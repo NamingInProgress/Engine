@@ -43,6 +43,7 @@ public class BindingLayout {
 
     public static BindingLayout fromDescriptorResource(DescriptorResource resource, DescriptorCategory rt, boolean staticBuffer) {
         int count = Arrays.stream(resource.arrayDim).reduce(1, (a, b) -> a * b);
+//        count = Math.abs(count);
 
         DescriptorType type = DescriptorType.fromBaseType(rt, !staticBuffer);
         return new BindingLayout(resource.name, resource.set, resource.binding,

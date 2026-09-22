@@ -7,17 +7,18 @@ import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.parsing.config.schema.SchemaValidationResult;
 import com.vke.core.FileIdentifier;
+import com.vke.core.Identifier;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
 
 public interface ConfigDocument {
-    String getName();
+    FileIdentifier getIdentifier();
 
     ConfigNode getRoot();
 
-    default void validate(ConfigSchema schema, String filename) throws SchemaMismatchException {
-        SchemaValidationResult result = schema.validate(getRoot(), filename);
+    default void validate(ConfigSchema schema, FileIdentifier identifier) throws SchemaMismatchException {
+        SchemaValidationResult result = schema.validate(getRoot(), identifier);
         if (!result.isValid()) {
             StringBuilder error = new StringBuilder();
             error.append("There were validation errors when validating input with schema:");
@@ -50,6 +51,7 @@ public interface ConfigDocument {
         }
         char[] source = Utils.readCharsFromInputStream(identifier.openInputStream());
         parser.setSource(source);
+        parser.setFile(identifier);
         try {
             return parser.parse(ConfigParser.PARSE_LITERALS | ConfigParser.ATTRIBS_TO_FIELDS);
         } catch (ConfigParser.ConfigParseException e) {

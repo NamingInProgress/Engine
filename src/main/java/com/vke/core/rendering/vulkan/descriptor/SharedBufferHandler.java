@@ -11,6 +11,8 @@ public class SharedBufferHandler {
     static {
         requestSharedBuffer("u_MaterialBuffer");
         requestSharedBuffer("u_LightsBuffer");
+        requestSharedBuffer("u_InstanceBuffer");
+        requestSharedBuffer("u_PerInstanceBuffer");
     }
 
     public static void requestSharedBuffer(String name) {

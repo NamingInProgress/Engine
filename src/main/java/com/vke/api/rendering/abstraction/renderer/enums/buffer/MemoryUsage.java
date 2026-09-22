@@ -4,6 +4,8 @@ import com.vke.api.rendering.abstraction.renderer.IntBitEnum;
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
 import org.lwjgl.util.vma.Vma;
 
+import java.util.Objects;
+
 public class MemoryUsage implements IntBitEnum<MemoryUsage, MemoryUsage.Bits> {
     private int mask;
 
@@ -22,6 +24,18 @@ public class MemoryUsage implements IntBitEnum<MemoryUsage, MemoryUsage.Bits> {
     @Override
     public int getIntVal() {
         return mask;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MemoryUsage that = (MemoryUsage) o;
+        return mask == that.mask;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mask);
     }
 
     public enum Bits implements IntEnum {

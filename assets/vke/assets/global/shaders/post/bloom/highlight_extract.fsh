@@ -13,7 +13,7 @@ void main() {
 
     float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
 
-    float threshold = 1.0;
+    float threshold = 1;
     float knee = 0.5;
 
     float soft = brightness - threshold + knee;

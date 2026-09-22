@@ -103,6 +103,26 @@ public class BaseLayer extends MaterialLayer {
     }
 
     @Override
+    public MaterialLayer copy() {
+        return new BaseLayer(
+                baseAlbedo,
+                albedo,
+                normal,
+                metallicRoughness,
+                occlusionTexture,
+                emissive,
+                specular,
+                normalScale,
+                metallic,
+                roughness,
+                occlusionStrength,
+                emissiveColor,
+                emissiveStrength,
+                specularScale
+        );
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         BaseLayer baseLayer = (BaseLayer) o;

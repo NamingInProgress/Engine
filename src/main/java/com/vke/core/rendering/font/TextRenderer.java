@@ -43,7 +43,7 @@ public class TextRenderer implements Drawable {
     public TextRenderer(RenderSystem sys, Font font) {
         this.font = font;
 
-        var provider = sys.renderer().getVertexConsumerProvider();
+        var provider = sys.vcp();
         this.bezier = provider.get(BezierVertex.TEMPLATE);
         this.regular = provider.get(RegularVertex.TEMPLATE);
         this.quad = provider.get(QuadVertex.TEMPLATE);
@@ -214,6 +214,11 @@ public class TextRenderer implements Drawable {
 
     @Override
     public void drawInstanced(int instanceCount) {
+        throw new RuntimeException("Text Renderer does not support regular draw! Uses multiple pipelines! Use the render method instead.");
+    }
+
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
         throw new RuntimeException("Text Renderer does not support regular draw! Uses multiple pipelines! Use the render method instead.");
     }
 

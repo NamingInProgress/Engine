@@ -3,7 +3,7 @@ package com.vke.core.ecs.backend;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.backend.query.QueryManager;
 import com.vke.core.ecs.component.Component;
@@ -13,7 +13,7 @@ public class ArchetypeManager {
     private final MaskMap map;
     private final EntityAllocator alloc;
     private final QueryManager qm;
-    private final IntObjectHashMap<IntObjectHashMap<ComponentReference<?>>> references;
+    private final IntObjectHashMap<IntObjectHashMap<CRef<?>>> references;
 
     public ArchetypeManager(EntityAllocator alloc, int usedComponents, QueryManager qm) {
         this.map = new MaskMap(usedComponents);
@@ -44,7 +44,7 @@ public class ArchetypeManager {
         for (Component oldComp : oldComps) {
             Component newComp  = newArch.getComponentById(oldComp.getId());
             if (newComp != null) {
-                newComp.copyFrom(oldComp, oldIdx, newIdx);
+                newComp.copyFrom(oldComp, newIdx, oldIdx);
             }
         }
 
@@ -61,7 +61,7 @@ public class ArchetypeManager {
         alloc.setArchetypeIndex(entity, newIdx);
         alloc.setArchetype(entity, newArch);
 
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        IntObjectHashMap<CRef<?>> refs = references.get(entity);
         if (refs != null) {
             Archetype at = alloc.getArchetype(entity);
             int i = alloc.getArchetypeIndex(entity);
@@ -79,7 +79,7 @@ public class ArchetypeManager {
     }
 
     private void cleanupRefsForEntity(int entity) {
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        IntObjectHashMap<CRef<?>> refs = references.get(entity);
         if (refs != null) {
             for (var o : refs) {
                 o.value.__0(null);
@@ -153,12 +153,12 @@ public class ArchetypeManager {
         }
     }
 
-    public ComponentReference<? extends Component> obtainCompRef(int entity, int componentId) {
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
-        ComponentReference<?> ref;
+    public CRef<? extends Component> obtainCompRef(int entity, int componentId) {
+        IntObjectHashMap<CRef<?>> refs = references.get(entity);
+        CRef<?> ref;
         if (refs != null && (ref = refs.get(componentId)) != null) return ref;
 
-        ref = new ComponentReference<>(this, entity);
+        ref = new CRef<>(this, entity);
         Archetype at = alloc.getArchetype(entity);
         int i = alloc.getArchetypeIndex(entity);
         ref.__0(at.getComponentById(componentId));
@@ -174,7 +174,7 @@ public class ArchetypeManager {
     }
 
     public void updateLocationIndex(int entity, int newIndex) {
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(entity);
+        IntObjectHashMap<CRef<?>> refs = references.get(entity);
         if (refs != null) {
             for (var o : refs) {
                 o.value.__1(newIndex);
@@ -182,8 +182,8 @@ public class ArchetypeManager {
         }
     }
 
-    public void destroyComponentReference(ComponentReference<?> compRef) {
-        IntObjectHashMap<ComponentReference<?>> refs = references.get(compRef.getEntity());
+    public void destroyComponentReference(CRef<?> compRef) {
+        IntObjectHashMap<CRef<?>> refs = references.get(compRef.getEntity());
         if (refs != null) {
             int key = -1;
             for (var o : refs) {

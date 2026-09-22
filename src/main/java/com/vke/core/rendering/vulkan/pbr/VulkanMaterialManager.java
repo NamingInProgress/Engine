@@ -2,6 +2,7 @@ package com.vke.core.rendering.vulkan.pbr;
 
 import com.carrotsearch.hppc.ObjectIntHashMap;
 import com.carrotsearch.hppc.cursors.ObjectIntCursor;
+import com.vke.api.event.IEventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
@@ -14,6 +15,7 @@ import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
 import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
+import com.vke.core.services2.Services;
 
 public class VulkanMaterialManager implements MaterialManager, EventListener {
 
@@ -28,6 +30,9 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
 
     public VulkanMaterialManager(RenderSystem ctx) {
         this.ctx = ctx;
+
+        IEventBus eventBus = ctx.service(Services.EVENT_BUS);
+        eventBus.register(this);
     }
 
     @SubscribeEvent
@@ -39,8 +44,8 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
     }
 
     @Override
-    public void registerMaterial(Material mat) {
-        if (materials.containsKey(mat)) return;
+    public int registerMaterial(Material mat) {
+        if (materials.containsKey(mat)) return materials.get(mat);
 
         int firstFree = -1;
         for (int i = 0; i < mats.length; i++) {
@@ -54,6 +59,7 @@ public class VulkanMaterialManager implements MaterialManager, EventListener {
         mats[firstFree] = mat;
         materials.put(mat, firstFree);
         this.dirty = true;
+        return firstFree;
     }
 
     @Override

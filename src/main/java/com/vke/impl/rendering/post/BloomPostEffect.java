@@ -12,10 +12,9 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.CISResource;
 import com.vke.core.Identifier;
 import com.vke.core.rendering.Samplers;
-import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderPassInstance;
-import com.vke.core.rendering.graph.def.PostRenderPassDefinition;
-import com.vke.core.rendering.graph.def.RenderPassDefinition;
+import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.graph2.GraphTexture;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.post.PostProcessEffect;
 import com.vke.utils.DrawUtils;
 
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class BloomPostEffect extends PostProcessEffect {
-
     private final AssetHandle<RenderPipeline> highlightExtractHandle = R.pipelines.get("vke:bloom_highlight_extract.pipeline.json");
     private RenderPipeline highlightExtract;
     private CISResource highlightInTexture;
@@ -41,28 +39,22 @@ public class BloomPostEffect extends PostProcessEffect {
     private CISResource combineInOriginal;
     private CISResource combineInBloom;
 
-    public BloomPostEffect(Identifier identifier, RenderSystem renderSystem, RenderPassInstance instance) {
-        super(identifier, renderSystem, instance);
+    private GraphTexture highlighted;
+    private GraphTexture downsample1;
+    private GraphTexture downsample2;
+    private GraphTexture downsample3;
+    private GraphTexture downsample4;
 
-        if (instance.getDefinition() instanceof PostRenderPassDefinition prpd) {
-            prpd.outputs().add(new RenderPassDefinition.OutputTextureDefinition(
-                    "bloomHighlightExtracted", null, RenderPassDefinition.TextureType.COLOR, Format.RGBA16F, 0, 0, 1
-            ));
-            prpd.outputs().add(new RenderPassDefinition.OutputTextureDefinition(
-                    "bloomDownsample1", null, RenderPassDefinition.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.5f
-            ));
-            prpd.outputs().add(new RenderPassDefinition.OutputTextureDefinition(
-                    "bloomDownsample2", null, RenderPassDefinition.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.25f
-            ));
-            prpd.outputs().add(new RenderPassDefinition.OutputTextureDefinition(
-                    "bloomDownsample3", null, RenderPassDefinition.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.125f
-            ));
-            prpd.outputs().add(new RenderPassDefinition.OutputTextureDefinition(
-                    "bloomDownsample4", null, RenderPassDefinition.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.0625f
-            ));
-        } else {
-            renderSystem.throwException(new IllegalArgumentException("Bloom post effect included in render pass instance who's definition is not a PostRenderPassDefinition"), "Bloom Post Effect");
-        }
+    public BloomPostEffect(Identifier identifier, RenderSystem renderSystem, RenderPass renderPass) {
+        super(identifier, renderSystem, renderPass);
+
+        RenderPass.Def def = renderPass.getDefinition();
+        def.allocateOutputTextures(5);
+        def.addOutputTexture(new RenderPass.OutputTextureDef("bloomHighlightExtracted", null, RenderPass.TextureType.COLOR, Format.RGBA16F, 0, 0, 1));
+        def.addOutputTexture(new RenderPass.OutputTextureDef("bloomDownsample1", null, RenderPass.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.5f));
+        def.addOutputTexture(new RenderPass.OutputTextureDef("bloomDownsample2", null, RenderPass.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.25f));
+        def.addOutputTexture(new RenderPass.OutputTextureDef("bloomDownsample3", null, RenderPass.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.125f));
+        def.addOutputTexture(new RenderPass.OutputTextureDef("bloomDownsample4", null, RenderPass.TextureType.COLOR, Format.RGBA16F, 0, 0, 0.0625f));
     }
 
     @Override
@@ -88,15 +80,21 @@ public class BloomPostEffect extends PostProcessEffect {
         } catch (IOException e) {
             renderSystem.throwException(e, "Bloom Post Effect");
         }
+
+        highlighted = renderPass.searchOutputTexture("bloomHighlightExtracted");
+        downsample1 = renderPass.searchOutputTexture("bloomDownsample1");
+        downsample2 = renderPass.searchOutputTexture("bloomDownsample2");
+        downsample3 = renderPass.searchOutputTexture("bloomDownsample3");
+        downsample4 = renderPass.searchOutputTexture("bloomDownsample4");
     }
 
     @Override
     public void draw(CommandBuffer cmd, GraphContext ctx, Texture colorInput, Texture colorOutput) {
-        Texture highlighted = instance.getOutputTexture("bloomHighlightExtracted");
-        Texture downsample1 = instance.getOutputTexture("bloomDownsample1");
-        Texture downsample2 = instance.getOutputTexture("bloomDownsample2");
-        Texture downsample3 = instance.getOutputTexture("bloomDownsample3");
-        Texture downsample4 = instance.getOutputTexture("bloomDownsample4");
+        Texture highlighted = this.highlighted.extract();
+        Texture downsample1 = this.downsample1.extract();
+        Texture downsample2 = this.downsample2.extract();
+        Texture downsample3 = this.downsample3.extract();
+        Texture downsample4 = this.downsample4.extract();
 
         // HIGHLIGHT
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
@@ -118,6 +116,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(downscaleHandle);
+        //downscaleInTexture.nextWrite();
         downscaleInTexture.set(highlighted, Samplers.LINEAR);
         cmd.bindDescriptorSets(downscaleHandle);
         DrawUtils.fullscreenTri(cmd);
@@ -132,7 +131,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(downscaleHandle);
-        downscaleInTexture.nextWrite();
+        //downscaleInTexture.nextWrite();
         downscaleInTexture.set(downsample1, Samplers.LINEAR);
         cmd.bindDescriptorSets(downscaleHandle);
         DrawUtils.fullscreenTri(cmd);
@@ -206,7 +205,7 @@ public class BloomPostEffect extends PostProcessEffect {
         ), null));
 
         cmd.bindPipeline(upscaleHandle);
-        upscaleInTexture.nextWrite();
+        //upscaleInTexture.nextWrite();
         upscaleInTexture.set(downsample2, Samplers.LINEAR);
         cmd.bindDescriptorSets(upscaleHandle);
         DrawUtils.fullscreenTri(cmd);

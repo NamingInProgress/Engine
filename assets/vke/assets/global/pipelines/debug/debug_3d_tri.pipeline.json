@@ -1,0 +1,26 @@
+{
+  "topology": "TRIANGLES",
+  "lineWidth": 4,
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR",
+      "format": "RGBA16F"
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/debug/debug3d.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/debug/debug3d.fsh"
+    }
+  ]
+}

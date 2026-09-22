@@ -57,6 +57,7 @@ import org.lwjgl.vulkan.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -93,7 +94,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private final AutoHeapAllocator alloc;
 
-    private final Logger logger;
+    public final Logger logger;
 
     private final IEventBus eventBus;
 
@@ -144,6 +145,16 @@ public class VulkanRenderDevice implements RenderDevice {
                     .sType(VK14.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
                     .ppEnabledExtensionNames(extensions);
+//
+//            // TODO: remove this later
+//            IntBuffer pValidationFeatures = stack.mallocInt(1);
+//            pValidationFeatures.put(0, 4);
+//
+//            VkValidationFeaturesEXT validationFeatures = VkValidationFeaturesEXT.calloc(stack)
+//                    .sType$Default()
+//                    .pEnabledValidationFeatures(pValidationFeatures);
+//
+//            createInfo.pNext(validationFeatures);
 
             if (validationLayers != null) {
                 createInfo.ppEnabledLayerNames(validationLayers);
@@ -159,7 +170,7 @@ public class VulkanRenderDevice implements RenderDevice {
             pAlloc.pfnAllocation(new VkAllocationFunction() {
                 @Override
                 public long invoke(long pUserData, long size, long alignment, int allocationScope) {
-                    System.out.println("Allocing something");
+//                    System.out.println("Allocing something");
                     return MemoryUtil.nmemAlignedAlloc(alignment, size);
                 }
             });
@@ -167,7 +178,7 @@ public class VulkanRenderDevice implements RenderDevice {
             pAlloc.pfnFree(new VkFreeFunction() {
                 @Override
                 public void invoke(long pUserData, long pMemory) {
-                    System.out.println("freeing something");
+//                    System.out.println("freeing something");
                     MemoryUtil.nmemFree(pMemory);
                 }
             });
@@ -350,8 +361,9 @@ public class VulkanRenderDevice implements RenderDevice {
                     .pSignalSemaphoreInfos(signalInfo);
 
             VkQueue queue = this.logicalDevice.getQueue(info.getType()).vk();
-            if (VK14.vkQueueSubmit2(queue, submitInfo, pFence) != VK14.VK_SUCCESS) {
-                logger.warn("Failed to submit queue!");
+            int log = VK14.vkQueueSubmit2(queue, submitInfo, pFence);
+            if (log != VK14.VK_SUCCESS) {
+                logger.warn("Failed to submit queue! Reason: %d", log);
             }
         }
     }

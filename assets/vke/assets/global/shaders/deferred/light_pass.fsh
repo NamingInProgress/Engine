@@ -5,7 +5,7 @@ layout (location = 0) in vec2 fUV;
 layout (location = 0) out vec4 FragColor;
 
 layout (set = 3, binding = 0) uniform sampler2D u_NormalTex;
-layout (set = 3, binding = 1) uniform sampler2D u_MaterialIdxTex;
+layout (set = 3, binding = 1) uniform isampler2D u_MaterialIdxTex;
 layout (set = 3, binding = 2) uniform sampler2D u_MeshUvsTex;
 layout (set = 3, binding = 3) uniform sampler2D u_DepthTex;
 
@@ -27,13 +27,15 @@ void main() {
     int materialIdx = int(texelFetch(u_MaterialIdxTex, ivec2(gl_FragCoord.xy), 0).r);
     vec2 meshUV = vktexture(u_MeshUvsTex, fUV).xy;
     vec3 fragPos = reconstructWorldPosition();
-
-    if (materialIdx == NO_MATERIAL) {
+//
+    if (materialIdx == NO_MATERIAL || materialIdx < 0) {
         discard;
     }
-
+//
     MaterialInputs mat = evaluateMaterial(materialIdx, meshUV, vec3(0, 0, 1), vec4(0, 0, 1, 1));
     mat.normal = normal;
 
     FragColor = vec4(calculateLighting(normal, normalize(frameData.camera.position.xyz - fragPos), fragPos, mat), 1);
+//    FragColor = vec4(1);
+
 }

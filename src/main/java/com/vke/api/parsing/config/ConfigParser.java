@@ -1,5 +1,6 @@
 package com.vke.api.parsing.config;
 
+import com.vke.core.FileIdentifier;
 import com.vke.core.parsing.config.json.JsonParser;
 import com.vke.core.parsing.config.schema.vks.doc.VksParser;
 import com.vke.core.parsing.config.xml.XmlParser;
@@ -44,6 +45,7 @@ public interface ConfigParser {
     int ATTRIBS_TO_FIELDS = 1 << 2;
 
     void setSource(char[] source);
+    void setFile(FileIdentifier identifier);
 
     default ConfigDocument parse() throws ConfigParseException {
         return parse(0);

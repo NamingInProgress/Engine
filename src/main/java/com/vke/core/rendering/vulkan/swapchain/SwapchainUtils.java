@@ -23,11 +23,17 @@ public class SwapchainUtils {
 
     public static int choosePresentMode(IntBuffer pModes, boolean vsync) {
         int[] modes = Utils.acquireIntArrayFromBuffer(pModes);
+
         if (!vsync) {
             if (Utils.intsContain(modes, VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR)) {
                 return VkPresentMode.VK_PRESENT_MODE_MAILBOX_KHR;
             }
+
+            if (Utils.intsContain(modes, VkPresentMode.VK_PRESENT_MODE_IMMEDIATE_KHR)) {
+                return VkPresentMode.VK_PRESENT_MODE_IMMEDIATE_KHR;
+            }
         }
+
         return VkPresentMode.VK_PRESENT_MODE_FIFO_KHR;
     }
 

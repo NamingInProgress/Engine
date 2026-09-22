@@ -29,11 +29,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(float[] from, float[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(float[] to, float[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(float[] from, float[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(float[] to, float[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -70,11 +70,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(int[] from, int[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(int[] to, int[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(int[] from, int[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(int[] to, int[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -111,11 +111,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(long[] from, long[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(long[] to, long[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(long[] from, long[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(long[] to, long[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -152,11 +152,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(double[] from, double[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(double[] to, double[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(double[] from, double[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(double[] to, double[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -193,11 +193,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(byte[] from, byte[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(byte[] to, byte[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(byte[] from, byte[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(byte[] to, byte[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -234,11 +234,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(short[] from, short[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(short[] to, short[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(short[] from, short[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(short[] to, short[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -275,11 +275,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(boolean[] from, boolean[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(boolean[] to, boolean[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(boolean[] from, boolean[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(boolean[] to, boolean[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -316,11 +316,11 @@ public class EcsUtils {
         System.arraycopy(tmp, 0, arr, b, span);
     }
 
-    public static void copyFrom(char[] from, char[] to, int fromIndex, int toIndex) {
+    public static void copyFrom(char[] to, char[] from, int toIndex, int fromIndex) {
         to[toIndex] = from[fromIndex];
     }
 
-    public static void copyFrom(char[] from, char[] to, int fromIndex, int toIndex, int span) {
+    public static void copyFrom(char[] to, char[] from, int toIndex, int fromIndex, int span) {
         System.arraycopy(from, fromIndex, to, toIndex, span);
     }
 
@@ -329,6 +329,47 @@ public class EcsUtils {
     }
 
     public static void copyRange(char[] arr, int from, int to, int length, int span) {
+        System.arraycopy(arr, from, arr, to, length * span);
+    }
+
+    // =========================================================================
+    // T
+    // =========================================================================
+
+    public static <T> T[] resize(T[] arr, int newSize) {
+        return Arrays.copyOf(arr, newSize);
+    }
+
+    public static <T> T[] resize(T[] arr, int newSize, int span) {
+        return Arrays.copyOf(arr, newSize * span);
+    }
+
+    public static <T> void swap(T[] arr, int a, int b) {
+        T tmp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = tmp;
+    }
+
+    public static <T> void swap(T[] arr, int a, int b, int span) {
+        T[] tmp = Arrays.copyOf(arr, span);
+        System.arraycopy(arr, a, tmp, 0, span);
+        System.arraycopy(arr, b, arr, a, span);
+        System.arraycopy(tmp, 0, arr, b, span);
+    }
+
+    public static <T> void copyFrom(T[] to, T[] from, int toIndex, int fromIndex) {
+        to[toIndex] = from[fromIndex];
+    }
+
+    public static <T> void copyFrom(T[] to, T[] from, int toIndex, int fromIndex, int span) {
+        System.arraycopy(from, fromIndex, to, toIndex, span);
+    }
+
+    public static <T> void copyRange(T[] arr, int from, int to, int length) {
+        System.arraycopy(arr, from, arr, to, length);
+    }
+
+    public static <T> void copyRange(T[] arr, int from, int to, int length, int span) {
         System.arraycopy(arr, from, arr, to, length * span);
     }
 }

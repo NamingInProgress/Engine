@@ -1,7 +1,7 @@
 package com.vke.core.game.object;
 
 import com.vke.core.ecs.ComponentProxy;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.game.scene.NodeHierarchy;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
@@ -20,15 +20,15 @@ public class GameObjectTransform extends ComponentProxy<TransformC> {
     private final GameObject owner;
     private final NodeHierarchy hierarchy;
 
-    private ComponentReference<TransformC> comp;
-    private ComponentReference<WorldTransformC> world;
+    private CRef<TransformC> comp;
+    private CRef<WorldTransformC> world;
 
     public GameObjectTransform(GameObject owner, NodeHierarchy hierarchy) {
         this.owner = owner;
         this.hierarchy = hierarchy;
     }
 
-    public ComponentReference<TransformC> transformComponent() {
+    public CRef<TransformC> transformComponent() {
         if (comp == null) {
             comp = owner.getComponent(TransformC.ID);
             comp.linkProxy(this);
@@ -36,7 +36,7 @@ public class GameObjectTransform extends ComponentProxy<TransformC> {
         return comp;
     }
 
-    public ComponentReference<WorldTransformC> worldComponent() {
+    public CRef<WorldTransformC> worldComponent() {
         if (world == null) {
             world = owner.getComponent(WorldTransformC.ID);
         }

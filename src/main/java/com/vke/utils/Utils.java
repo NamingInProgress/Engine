@@ -5,6 +5,7 @@ import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.utils.OSType;
 import com.vke.core.file.jpeg.jfif.JfifMarker;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
@@ -353,6 +354,13 @@ public class Utils {
 
     public static int[] mergeInts(int[] arr1, int[] arr2) {
         int[] a = new int[arr1.length + arr2.length];
+        System.arraycopy(arr1, 0, a, 0, arr1.length);
+        System.arraycopy(arr2, 0, a, arr1.length, arr2.length);
+        return a;
+    }
+
+    public static <T> T[] mergeTs(T[] arr1, T[] arr2) {
+        T[] a = Arrays.copyOf(arr1, arr1.length + arr2.length);
         System.arraycopy(arr1, 0, a, 0, arr1.length);
         System.arraycopy(arr2, 0, a, arr1.length, arr2.length);
         return a;

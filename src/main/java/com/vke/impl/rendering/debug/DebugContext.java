@@ -116,7 +116,6 @@ public class DebugContext {
         }
 
         void v(Vector3f a) {
-            // Fixed: changed second 'a.x' to 'a.z'
             vc.vertices(new DebugVertex(a.x, a.y, a.z, color.r(), color.g(), color.b(), color.a()));
         }
 

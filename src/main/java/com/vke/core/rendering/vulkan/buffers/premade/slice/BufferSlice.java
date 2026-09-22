@@ -54,6 +54,12 @@ public class BufferSlice implements RenderingEncoder {
         MemoryUtil.memPutInt(writeAddress + byteOffset, val);
     }
 
+    public void mat4(float[] m) {
+        for (int i = 0; i < 16; i++) {
+            float1(m[i]);
+        }
+    }
+
     public void mat4(Matrix4f m) {
         float1(m.m00());
         float1(m.m01());

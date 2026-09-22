@@ -1,8 +1,6 @@
 package com.vke.core.ecs.backend;
 
 import com.carrotsearch.hppc.IntArrayDeque;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.vke.core.ecs.ComponentReference;
 
 import java.util.Arrays;
 

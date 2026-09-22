@@ -1,6 +1,6 @@
 <scene>
     <class name="com.vke.demo.DemoScene"/>
-    <render-graph name="vke:demo-graph.vcl"/>
+    <render-graph name="vke:demo"/>
     <bundles>
         <bundle name="main"/>
     </bundles>

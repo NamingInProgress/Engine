@@ -1,6 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer.enums.texture;
 
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
+import com.vke.utils.iter.helpers.Option;
 import org.lwjgl.vulkan.VK14;
 
 public enum SampleCount implements IntEnum {
@@ -22,4 +23,9 @@ public enum SampleCount implements IntEnum {
     public int getIntVal() {
         return vkHandle;
     }
+
+    public static Option<SampleCount> valueOfOption(String name) {
+        return Option.useIfNotFaulty(() -> SampleCount.valueOf(name));
+    }
+
 }

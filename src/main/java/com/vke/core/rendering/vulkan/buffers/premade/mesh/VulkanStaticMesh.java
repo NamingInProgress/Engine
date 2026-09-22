@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.buffers.premade.mesh;
 
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
+import com.vke.api.rendering.pbr.Material;
 import com.vke.core.mesh.Mesh;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.core.services2.Services;
@@ -18,15 +19,22 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK14;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VulkanStaticMesh implements Disposable, StaticMesh {
+
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+
     private StagedBuffer vertices;
     private StagedBuffer indices;
 
     private final VulkanRenderSystem sys;
+    private final int id;
 
     private VulkanStaticMesh(VulkanRenderSystem sys) {
         this.sys = sys;
+        this.id = ID_COUNTER.getAndIncrement();
     }
 
     public static <T extends Vertex> VulkanStaticMesh uploadOnce(VulkanRenderSystem sys, Mesh<T> mesh) {
@@ -87,6 +95,13 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
         sys.getCurrentCommandBuffer().drawIndexed(this.getIndexCount(), instanceCount, 0, 0, 0);
     }
 
+    @Override
+    public void drawInstanced(int instanceCount, int firstInstance) {
+        bindIBO();
+        bindVBO();
+        sys.getCurrentCommandBuffer().drawIndexed(this.getIndexCount(), instanceCount, 0, 0, firstInstance);
+    }
+
     public void bindIBO() {
         VulkanCmdBuffers cmd = sys.getCurrentCommandBuffer();
         VK14.vkCmdBindIndexBuffer(cmd.getBuffer(), getIndicesBuf().getGpuBuffer().getBuffer(), 0, VK14.VK_INDEX_TYPE_UINT32);
@@ -115,5 +130,22 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
     public void free() {
         this.vertices.free();
         this.indices.free();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VulkanStaticMesh that = (VulkanStaticMesh) o;
+        return Objects.equals(vertices, that.vertices) && Objects.equals(indices, that.indices);
+    }
+
+    @Override
+    public int key() {
+        return this.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertices, indices);
     }
 }

@@ -20,7 +20,8 @@ public enum LogLevel {
             case DEBUG -> AnsiColors.CYAN;
             case INFO -> AnsiColors.GREEN;
             case WARN -> AnsiColors.YELLOW;
-            case ERROR, FATAL -> AnsiColors.RED;
+            case ERROR -> AnsiColors.RED;
+            case FATAL -> AnsiColors.BACKGROUND_RED + AnsiColors.BLACK;
         };
     }
 

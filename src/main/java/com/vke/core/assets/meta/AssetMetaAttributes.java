@@ -44,7 +44,7 @@ public class AssetMetaAttributes {
 
             ConfigDocument vkaDoc = Utils.chainExceptions(() -> {
                 ConfigDocument d = ConfigDocument.parseIdentifier(vkaFile);
-                d.validate(schema, vkaFile.dropPrefix().getPath());
+                d.validate(schema, vkaFile);
                 return d;
             });
             ConfigNode assetNode = vkaDoc.getRoot().getObject("asset-meta");

@@ -5,6 +5,9 @@ import com.vke.api.rendering.vulkan.descriptors2.DescriptorSetGroup;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.FieldHandle;
 import com.vke.core.color.RgbColor;
+import com.vke.core.framable.service.FramableManager;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
+import com.vke.core.services2.Services;
 import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.core.game.object.GameObjectTransform;
 import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
@@ -17,7 +20,6 @@ public class VulkanFrameDataManager implements FrameDataManager {
 
     private final EngineDescriptorSetsManager mgr;
 
-    private final BufferHandle handle;
     private final FieldHandle cameraHandle;
     private final FieldHandle time;
 
@@ -25,14 +27,18 @@ public class VulkanFrameDataManager implements FrameDataManager {
 
     private final long startTime = System.nanoTime();
 
-    public VulkanFrameDataManager(EngineDescriptorSetsManager mgr) {
+    private final FramableManager fm;
+
+    public VulkanFrameDataManager(VulkanRenderSystem ctx, EngineDescriptorSetsManager mgr) {
         this.mgr = mgr;
 
         DescriptorSetGroup group = mgr.ENGINE_PIPELINE_LAYOUT.getGroup();
 
-        this.handle = group.resolve("frameData");
         this.cameraHandle = group.resolve("frameData.camera");
         this.time = group.resolve("frameData.time");
+
+        this.fm = ctx.service(Services.FRAMABLE_MANAGER);
+        this.fm.registerFramable(this);
     }
 
     @Override
@@ -70,5 +76,10 @@ public class VulkanFrameDataManager implements FrameDataManager {
             });
         }
         time.write((slice) -> slice.float1((System.nanoTime() - startTime) / 1_000_000_000f));
+    }
+
+    @Override
+    public void free() {
+        this.fm.removeFramable(this);
     }
 }

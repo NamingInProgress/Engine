@@ -2,6 +2,8 @@ package com.vke.api.rendering.vulkan.buffer;
 
 import com.vke.utils.io.Disposable;
 
+import java.util.Objects;
+
 public abstract class CpuBuffer implements Disposable {
     public static final double GROWTH_FAC = 1.61803398874989490252573887119069695472717285156250;
 
@@ -51,4 +53,16 @@ public abstract class CpuBuffer implements Disposable {
     }
 
     public abstract long getAddress();
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        CpuBuffer cpuBuffer = (CpuBuffer) o;
+        return elementCount == cpuBuffer.elementCount && capacity == cpuBuffer.capacity;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(elementCount, capacity);
+    }
 }

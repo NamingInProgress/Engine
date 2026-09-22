@@ -1,0 +1,12 @@
+struct MeshInstance {
+    mat4 local;
+    int matId;
+    float _pad0;
+    float _pad1;
+    float _pad2;
+};
+
+layout (std430, set = 2, binding = 2) readonly buffer InstanceData {
+    #DefaultSize(1024)
+    MeshInstance meshInstances[];
+} u_InstanceBuffer;

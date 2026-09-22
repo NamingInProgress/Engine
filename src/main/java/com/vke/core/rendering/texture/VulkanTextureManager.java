@@ -1,5 +1,6 @@
 package com.vke.core.rendering.texture;
 
+import com.vke.api.event.IEventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
@@ -12,6 +13,7 @@ import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
+import com.vke.core.services2.Services;
 
 import java.util.HashMap;
 
@@ -20,9 +22,8 @@ public class VulkanTextureManager implements TextureManager, EventListener {
     public static int BINDLESS_TEXTURES_COUNT;
 
     private final HashMap<Texture, Integer> textures = new HashMap<>();
-    private final Texture[] bindlessTextures; // TODO: Make this include samplers
+    private final Texture[] bindlessTextures;
     private CISArrayHandle BINDLESS_HANDLE;
-
     private final EngineDescriptorSetsManager mgr;
     private final Context ctx;
     private final VulkanRenderer renderer;
@@ -36,6 +37,9 @@ public class VulkanTextureManager implements TextureManager, EventListener {
         this.ctx = ctx;
         this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName).assumeImplementation();
         this.sampler = Samplers.LINEAR;
+
+        IEventBus eventBus = ctx.service(Services.EVENT_BUS);
+        eventBus.register(this);
     }
 
     @SubscribeEvent

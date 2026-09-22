@@ -1,7 +1,7 @@
 package com.vke.core.ecs.services;
 
 import com.vke.api.services2.PinnedService;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
 import com.vke.core.ecs.api.Query;
@@ -22,7 +22,7 @@ public interface EcsManager extends PinnedService {
     int createCategory();
     void registerQuery(int category, Query query);
     long runQueries(int category);
-    <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId);
+    <T extends Component> CRef<T> obtainComponentReference(int entity, int componentId);
     String getComponentName(int id);
     EntityLocation locateEntity(int entity);
 

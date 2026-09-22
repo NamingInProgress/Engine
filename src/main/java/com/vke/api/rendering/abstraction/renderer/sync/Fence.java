@@ -6,7 +6,7 @@ public interface Fence extends Disposable {
 
     boolean isSignaled();
 
-    void waitForFence();
+    int waitForFence();
     void reset();
 
     /**
@@ -14,6 +14,6 @@ public interface Fence extends Disposable {
      * @param timeout - The timeout in nanoseconds
      * @return true - SUCCESS, false - TIMEOUT
      */
-    boolean waitForFence(long timeout);
+    int waitForFence(long timeout);
 
 }

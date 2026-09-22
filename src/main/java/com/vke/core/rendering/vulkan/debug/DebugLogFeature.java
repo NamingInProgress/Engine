@@ -10,10 +10,8 @@ import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 
 public class DebugLogFeature extends DebugFeature {
 
-    public static final String NAME = "Logging Feature";
-
     public DebugLogFeature() {
-        super(DebugLogFeature.NAME);
+        super(DebugFeatures.LOG_FEATURE_NAME);
     }
 
     @SubscribeEvent

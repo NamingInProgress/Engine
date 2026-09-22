@@ -2,7 +2,7 @@ package com.vke.core.ecs.services;
 
 import com.vke.api.services2.ServiceImpl;
 import com.vke.core.VKEngine;
-import com.vke.core.ecs.ComponentReference;
+import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.EcsCreateInfo;
 import com.vke.core.ecs.api.EntityInitializer;
 import com.vke.core.ecs.api.EntityTransitionInitializer;
@@ -95,8 +95,8 @@ public class EcsManagerImpl extends ServiceImpl implements EcsManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Component> ComponentReference<T> obtainComponentReference(int entity, int componentId) {
-        return (ComponentReference<T>) archetypeManager.obtainCompRef(entity, componentId);
+    public <T extends Component> CRef<T> obtainComponentReference(int entity, int componentId) {
+        return (CRef<T>) archetypeManager.obtainCompRef(entity, componentId);
     }
 
     @Override
