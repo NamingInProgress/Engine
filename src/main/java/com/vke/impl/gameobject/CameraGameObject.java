@@ -1,6 +1,6 @@
 package com.vke.impl.gameobject;
 
-import com.vke.api.event.IEventBus;
+import com.vke.api.event.EventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
@@ -30,7 +30,7 @@ public class CameraGameObject extends AbstractGameObject implements RestrictedGa
     public CameraGameObject(Context ctx) {
         super(ctx);
 
-        IEventBus eventBus = ctx.service(Services.EVENT_BUS);
+        EventBus eventBus = ctx.service(Services.EVENT_BUS);
         eventBus.register(this);
     }
 

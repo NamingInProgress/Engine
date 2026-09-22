@@ -1,6 +1,6 @@
 package com.vke;
 
-import com.vke.api.event.IEventBus;
+import com.vke.api.event.EventBus;
 import com.vke.api.parsing.config.ConfigParser;
 import com.vke.api.parsing.config.schema.SchemaMismatchException;
 import com.vke.api.window.WindowCreateInfo;
@@ -9,11 +9,10 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
 import com.vke.core.logger.CoreLogger;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.rendering.reflection2.CoreReflector;
 import com.vke.core.rendering.vulkan.debug.DebugLogFeature;
+import com.vke.core.rendering.vulkan.debug.DebugMemoryTrackingFeature;
 import com.vke.core.scene.SceneApp;
 import com.vke.core.services2.Services;
-import com.vke.utils.Utils;
 
 import java.io.IOException;
 
@@ -31,8 +30,9 @@ public class Main {
         ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
         VKEngine engine = new VKEngine(createInfo);
-        IEventBus ev = engine.service(Services.EVENT_BUS);
+        EventBus ev = engine.service(Services.EVENT_BUS);
         ev.register(new DebugLogFeature());
+        ev.register(new DebugMemoryTrackingFeature());
         //engine.PROFILER = engine.service(Services.PROFILER);
 
         if (renderdoc.get()) Thread.sleep(5000);

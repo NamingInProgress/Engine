@@ -1,6 +1,6 @@
 package com.vke.core.rendering.debug.service;
 
-import com.vke.api.event.IEventBus;
+import com.vke.api.event.EventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.framable.CompoundFramable;
 import com.vke.api.framable.Framable;
@@ -25,7 +25,7 @@ public class DebugManagerImpl extends ServiceImpl implements CompoundFramable, D
 
     private final RenderSystem sys;
     private final FramableManager fm;
-    private final IEventBus eventBus;
+    private final EventBus eventBus;
 
     private List<DebugFeature> enabledFeatures = new LinkedList<>();
 

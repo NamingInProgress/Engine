@@ -5,7 +5,7 @@ import com.vke.api.services2.Service;
 import java.lang.invoke.MethodHandle;
 import java.util.Objects;
 
-public interface IEventBus extends Service {
+public interface EventBus extends Service {
 
     void register(EventListener instance);
     void remove(EventListener instance);

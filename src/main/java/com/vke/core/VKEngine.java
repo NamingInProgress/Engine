@@ -7,7 +7,7 @@ import com.vke.api.window.Window;
 import com.vke.core.assets.CacheHandler;
 import com.vke.core.framable.service.FramableManager;
 import com.vke.core.mesh.MeshPrefab;
-import com.vke.api.event.IEventBus;
+import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
 import com.vke.api.registry.VKERegistrate;
 import com.vke.api.registry.VKERegistries;
@@ -36,7 +36,7 @@ public class VKEngine extends Context {
     private final ServiceManager serviceManager;
 
     private App app;
-    public IEventBus EVENT_BUS;
+    public EventBus EVENT_BUS;
 
     private final FramableManager framableManager;
     private final WindowManager windowManager;

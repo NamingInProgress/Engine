@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class EventBusImpl extends ServiceImpl implements IEventBus {
+public class EventBusImpl extends ServiceImpl implements EventBus {
 
     private final HashMap<Class<? extends Event>, List<CallableHandler>> handlers = new HashMap<>();
 

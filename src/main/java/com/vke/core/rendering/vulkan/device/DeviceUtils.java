@@ -1,7 +1,9 @@
 package com.vke.core.rendering.vulkan.device;
 
-import com.vke.api.event.IEventBus;
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.vke.api.event.EventBus;
 import com.vke.api.logger.Logger;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.charPP;
@@ -18,6 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceUtils {
+
+    private static final int REQUIRED_QUEUE_FAMILIES =
+                    VK14.VK_QUEUE_GRAPHICS_BIT |
+                    VK14.VK_QUEUE_COMPUTE_BIT;
 
     public static PointerBuffer collectRequiredExtensions(AutoHeapAllocator alloc, List<String> additionalExtensions, List<String> usedExtensionsOut) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -105,7 +111,7 @@ public class DeviceUtils {
         return null;
     }
 
-    public static PhysicalDevice pickGpu(VkInstance instance, IEventBus eventBus, Logger logger, EngineCreateInfo createInfo, List<String> extensions) {
+    public static PhysicalDevice pickGpu(VkInstance instance, long surface, EventBus eventBus, Logger logger, EngineCreateInfo createInfo, List<String> extensions) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pPhysicalDeviceCount = stack.mallocInt(1);
             VK14.vkEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, null);
@@ -121,7 +127,7 @@ public class DeviceUtils {
                 VkPhysicalDevice device = new VkPhysicalDevice(pPhysicalDevices.get(i), instance);
                 PhysicalDevice d = new PhysicalDevice(device);
 
-                if (!meetsRequirements(d, logger, createInfo.vulkanCreateInfo.requiredQueueFamilyBits, createInfo, extensions)) continue;
+                if (!meetsRequirements(d, logger, createInfo, extensions)) continue;
 
                 int score = scoreDevice(d);
                 if (score > bestScore) {
@@ -129,7 +135,7 @@ public class DeviceUtils {
                     bestDevice = d;
                 }
 
-                eventBus.fire(new VKEvents.EvaluatePhysicalDevice(d, score));
+                eventBus.fire(new VKEvents.EvaluatePhysicalDevice(d, surface, score));
             }
 
             eventBus.fire(new VKEvents.ChosePhysicalDevice(bestDevice, bestScore));
@@ -138,7 +144,7 @@ public class DeviceUtils {
         }
     }
 
-    public static boolean meetsRequirements(PhysicalDevice device, Logger logger, int requiredQueueFamilyBits, EngineCreateInfo createInfo, List<String> extensions) {
+    public static boolean meetsRequirements(PhysicalDevice device, Logger logger, EngineCreateInfo createInfo, List<String> extensions) {
         VKCapabilitiesInstance c = device.getCapabilities();
 
         if (!createInfo.releaseMode && !c.VK_EXT_debug_utils) {
@@ -148,7 +154,7 @@ public class DeviceUtils {
             return false;
         }
 
-        if (!validateRequiredQueueFamilies(device, requiredQueueFamilyBits)) {
+        if (!validateRequiredQueueFamilies(device)) {
             return false;
         }
 
@@ -178,7 +184,7 @@ public class DeviceUtils {
         return score;
     }
 
-    public static boolean validateRequiredQueueFamilies(PhysicalDevice device, int requireQueueFlagBits) {
+    public static boolean validateRequiredQueueFamilies(PhysicalDevice device) {
         VkQueueFamilyProperties.Buffer queueFamilies = device.getQueueFamilyBuffer();
 
         int a = 0;
@@ -187,7 +193,26 @@ public class DeviceUtils {
             a |= props.queueFlags();
         }
 
-        return (a & requireQueueFlagBits) == requireQueueFlagBits;
+        return (a & REQUIRED_QUEUE_FAMILIES) == REQUIRED_QUEUE_FAMILIES;
+    }
+
+    public static QueueType[] getQueueTypes(PhysicalDevice physicalDevice, long surfaceHandle, int i, int flags) {
+        ObjectArrayList<QueueType> arr = new ObjectArrayList<>();
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            QueueType[] validTypes = QueueType.validTypes();
+            for (QueueType queueType : validTypes) {
+                if ((flags & queueType.getIntVal()) == queueType.getIntVal()) {
+                    arr.add(queueType);
+                }
+            }
+
+            if (VKUtils.isPresentQueue(stack, physicalDevice, i, surfaceHandle)) {
+                arr.add(QueueType.PRESENT);
+            }
+        }
+
+        return arr.toArray(QueueType.class);
     }
 
 }
