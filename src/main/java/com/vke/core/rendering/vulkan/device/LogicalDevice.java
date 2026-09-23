@@ -70,7 +70,7 @@ public class LogicalDevice implements Disposable {
 
                 Integer bestScore = bestScores.get(type);
 
-                    if (bestScore == null || score > bestScore || type == QueueType.PRESENT) {
+                    if (bestScore == null || score > bestScore) {
                     bestScores.put(type, score);
                     bestQueues.put(type, new QueueInfo(i, types, queueCount));
                 }
