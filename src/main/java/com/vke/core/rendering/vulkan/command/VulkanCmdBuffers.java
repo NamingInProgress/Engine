@@ -206,9 +206,6 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
         if (rendering) throw new IllegalStateException("Tried to end while rendering!");
 
-        VulkanTexture currentImage = swapchain.getColorImage(swapchain.currentImageIndex());
-        currentImage.transition(this, ImageState.PRESENT);
-
         VK14.vkEndCommandBuffer(vk);
 
         vx = -1;

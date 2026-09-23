@@ -30,6 +30,8 @@ public class LogicalDevice implements Disposable {
 
     private final Map<QueueType, QueueInfo> bestQueues = new EnumMap<>(QueueType.class);
 
+    public boolean separateGraphicsPresentFamilies;
+
     private VkDevice device;
 
     public LogicalDevice(VKEngine engine, LogicalDeviceCreateInfo logicalDeviceCreateInfo) {
@@ -68,7 +70,7 @@ public class LogicalDevice implements Disposable {
 
                 Integer bestScore = bestScores.get(type);
 
-                if (bestScore == null || score > bestScore) {
+                    if (bestScore == null || score > bestScore || type == QueueType.PRESENT) {
                     bestScores.put(type, score);
                     bestQueues.put(type, new QueueInfo(i, types, queueCount));
                 }
@@ -223,6 +225,10 @@ public class LogicalDevice implements Disposable {
             QueueType type = e.getKey();
 
             queues.add(new VulkanQueue(queue, e.getValue().queueFamilyIndex(), type));
+        }
+
+        if (!getQueue(QueueType.PRESENT).equals(getQueue(QueueType.GRAPHICS))) {
+            this.separateGraphicsPresentFamilies = true;
         }
     }
 
