@@ -11,7 +11,6 @@ public class Version {
     private final int minor;
     private final int patch;
 
-
     public Version(int major, int minor, int patch) {
         this.major = major;
         this.minor = minor;
@@ -34,7 +33,7 @@ public class Version {
 
     @Override
     public String toString() {
-        return getMajor() + ":" + getMinor() + ":" + getPatch();
+        return getMajor() + "." + getMinor() + "." + getPatch();
     }
 
     public static Version fromString(String s) {

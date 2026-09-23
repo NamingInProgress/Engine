@@ -6,15 +6,10 @@ import com.vke.api.event.EventBus;
 import com.vke.api.event.EventListener;
 import com.vke.api.event.SubscribeEvent;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
-import com.vke.api.rendering.abstraction.renderer.data.ByteEncoder;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
-import com.vke.api.rendering.abstraction.renderer.data.RenderingEncoder;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 import com.vke.api.rendering.pbr.Material;
-import com.vke.core.Context;
 import com.vke.core.event.events.assets.AssetLoadEvent;
-import com.vke.core.rendering.vulkan.buffers.MappedBuffer;
-import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.services2.Services;
 
 public class VulkanMaterialManager implements MaterialManager, EventListener {

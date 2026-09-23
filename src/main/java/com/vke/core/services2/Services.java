@@ -64,6 +64,7 @@ public class Services {
     public static final String ECS = "ecs";
     public static final String HIERARCHY = "hir";
     public static final String COLOR = "col";
+    public static final String DEBUG = "dbg";
 
     public static void init(ServiceManager manager, VKEngine engine) {
         EngineCreateInfo createInfo = engine.getCreateInfo();

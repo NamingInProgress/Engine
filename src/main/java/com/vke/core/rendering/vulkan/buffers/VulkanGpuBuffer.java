@@ -70,7 +70,7 @@ public class VulkanGpuBuffer implements GpuBuffer {
 
             if (vkCtx.getEngine().isDebugMode()) {
                 this.idx = counter;
-                VKUtils.setDebugName(vkCtx.device().getLogicalDevice(), "Gpu Buffer #" + counter, this.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
+                VKUtils.setDebugName(vkCtx, "Gpu Buffer #" + counter, this.getBuffer(), VK14.VK_OBJECT_TYPE_BUFFER);
                 counter++;
             }
         }

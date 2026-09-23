@@ -84,14 +84,14 @@ public class DescriptorSetGroup {
 
         for (int i = 0; i < parent.descriptorCount(); i++) {
             DescriptorSetInstance descriptorSet = parent.getSets().get(i);
-            if (descriptorSet.bindings.containsKey(root.name)) {
-                binding = descriptorSet.bindings.get(root.name);
+            binding = descriptorSet.searchBinding(root.name);
+            if (binding != null) {
                 set = descriptorSet;
                 break;
             }
         }
 
-        if (set == null || binding == null) throw new IllegalStateException("Failed to resolve binding of name " + root.name);
+        if (binding == null) throw new IllegalStateException("Failed to resolve binding of name " + root.name);
 
         boolean isDeep = (root.child != null && root.child.child instanceof ArrayIndexNode) || root.child instanceof EntryNode;
         boolean hasIndex = root.child instanceof ArrayIndexNode;

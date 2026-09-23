@@ -22,6 +22,11 @@ public class EventBusAPI extends ServiceAPI implements EventBus {
     }
 
     @Override
+    public void remove(EventListener instance) {
+        getImpl().remove(instance);
+    }
+
+    @Override
     public boolean fire(Event event) {
         return getImpl().fire(event);
     }

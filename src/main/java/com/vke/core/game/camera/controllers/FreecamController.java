@@ -100,7 +100,7 @@ public class FreecamController extends AbstractGameObjectController {
     public void setAttachedObject(GameObject object) {
         super.setAttachedObject(object);
         if (object != null) {
-            window.disableCursor();
+            window.hideCursor();
         }
     }
 

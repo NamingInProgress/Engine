@@ -16,12 +16,17 @@ import java.util.stream.Collectors;
 
 public class PhysicalDevice implements Disposable {
 
-    private VkPhysicalDevice vk;
-    private VkPhysicalDeviceProperties props;
-    private VkExtensionProperties.Buffer extensionBuffer;
-    private VkQueueFamilyProperties.Buffer queueFamilyBuffer;
+    public final VkPhysicalDevice vk;
+    public final VkPhysicalDeviceProperties props;
+    public final VkPhysicalDeviceProperties2 props2;
+    public final VkPhysicalDeviceDriverProperties driverProps;
+    public final VkExtensionProperties.Buffer extensionBuffer;
+    public final VkQueueFamilyProperties.Buffer queueFamilyBuffer;
+    public final Vendor vendor;
 
-    private AutoHeapAllocator alloc;
+    private DeviceCapabilities caps;
+
+    private final AutoHeapAllocator alloc;
 
     public PhysicalDevice(VkPhysicalDevice vk) {
         this.vk = vk;
@@ -29,6 +34,14 @@ public class PhysicalDevice implements Disposable {
 
         props = alloc.allocStruct(VkPhysicalDeviceProperties.SIZEOF, VkPhysicalDeviceProperties::new);
         VK14.vkGetPhysicalDeviceProperties(vk, props);
+
+        driverProps = alloc.allocStruct(VkPhysicalDeviceDriverProperties.SIZEOF, VkPhysicalDeviceDriverProperties::new);
+        driverProps.sType$Default();
+
+        props2 = alloc.allocStruct(VkPhysicalDeviceProperties2.SIZEOF, VkPhysicalDeviceProperties2::new);
+        props2.sType$Default();
+        props2.pNext(driverProps.address());
+        VK14.vkGetPhysicalDeviceProperties2(vk, props2);
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pExtCount = stack.mallocInt(1);
@@ -44,6 +57,8 @@ public class PhysicalDevice implements Disposable {
             queueFamilyBuffer = alloc.allocBuffer(VkQueueFamilyProperties.SIZEOF, count.get(0), VkQueueFamilyProperties.Buffer::new);
             VK14.vkGetPhysicalDeviceQueueFamilyProperties(vk, count, queueFamilyBuffer);
         }
+
+        this.vendor = Vendor.fromBits(props.vendorID());
     }
 
     public VkPhysicalDevice getDevice() {
@@ -66,6 +81,8 @@ public class PhysicalDevice implements Disposable {
         return this.queueFamilyBuffer;
     }
 
+    public Vendor getVendor() { return this.vendor; }
+
     public List<VkQueueFamilyProperties> getRequiredProperties(VulkanCreateInfo vkCreateInfo) {
         int bits = vkCreateInfo.requiredQueueFamilyBits;
         return this.getQueueFamilyBuffer().stream().filter((props) ->
@@ -77,7 +94,9 @@ public class PhysicalDevice implements Disposable {
     }
 
     public DeviceCapabilities getDeviceCapabilities() {
-        DeviceCapabilities caps = new DeviceCapabilities();
+        if (this.caps != null) return caps;
+
+        this.caps = new DeviceCapabilities();
         VkPhysicalDeviceProperties props = getProperties();
         VkPhysicalDeviceLimits limits = props.limits();
 
@@ -135,4 +154,28 @@ public class PhysicalDevice implements Disposable {
     public void free() {
         alloc.close();
     }
+
+    public enum Vendor {
+        NVIDIA(0x10DE),
+        AMD(0x1002),
+        Intel(0x8086),
+        ARM(0x13B5),
+        Qualcomm(0x5143),
+        Apple(0x106B),
+        Unknown(0x0000);
+
+        public final int vendorID;
+
+        Vendor(int vendorID) {
+            this.vendorID = vendorID;
+        }
+
+        public static Vendor fromBits(int vendorID) {
+            for (Vendor vendor : Vendor.values()) {
+                if (vendor.vendorID == vendorID) return vendor;
+            }
+            return Vendor.Unknown;
+        }
+    }
+
 }

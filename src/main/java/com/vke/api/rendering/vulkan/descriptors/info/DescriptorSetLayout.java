@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class DescriptorSetLayout {
-
     public HashSet<BindingLayout> bindings = new HashSet<>();
 
     @Override

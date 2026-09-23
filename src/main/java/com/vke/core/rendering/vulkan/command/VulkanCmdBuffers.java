@@ -1,5 +1,7 @@
 package com.vke.core.rendering.vulkan.command;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.LongArrayList;
 import com.vke.api.rendering.FrameCounter;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.GpuBuffer;
@@ -263,15 +265,17 @@ public class VulkanCmdBuffers implements CommandBuffer {
         l.writeHandles();
 
         long[] sets = new long[l.getSets().size()];
-        List<Integer> dynamicOffsets = l.getSets().stream()
-                .flatMap(instance -> instance.bindings.entrySet().stream()
-                        .sorted(Map.Entry.comparingByKey())
-                        .map(Map.Entry::getValue)
-                        .filter(binding -> binding instanceof BufferBinding)
-                        .map(binding -> ((BufferBinding) binding).buffer)
-                        .filter(buf -> buf instanceof MappedGpuRingBuffer)
-                        .map(buf -> (int) ((MappedGpuRingBuffer) buf).getOffset()))
-                .collect(Collectors.toCollection(ArrayList::new));
+
+        IntArrayList dynamicOffsets = new IntArrayList();
+        for (DescriptorSetInstance set : l.getSets()) {
+            for (DescriptorBinding binding : set.bindings) {
+                if (binding instanceof BufferBinding bufferBinding) {
+                    if (bufferBinding.buffer instanceof MappedGpuRingBuffer ringBuffer) {
+                        dynamicOffsets.add((int) ringBuffer.getOffset());
+                    }
+                }
+            }
+        }
 
         List<DescriptorSetInstance> userSets = l.getSets();
         for (int i = 0; i < userSets.size(); i++) {
@@ -290,9 +294,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 getBindPoint(p),
                 l.getHandle(),
                 0, sets,
-                dynamicOffsets.stream()
-                        .mapToInt(Integer::intValue)
-                        .toArray());
+                dynamicOffsets.toArray());
 
         for (UniformHandle dirtyHandle : l.getGroup().getDirtyHandles()) {
             if (dirtyHandle instanceof BufferHandle || dirtyHandle instanceof FieldHandle) continue;

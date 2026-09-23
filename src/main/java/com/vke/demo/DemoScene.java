@@ -5,12 +5,12 @@ import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
+import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
-import com.vke.core.rendering.rp.MeshInstance;
 import com.vke.impl.ecs.mesh.StaticMeshC;
 import com.vke.impl.gameobject.*;
 import com.vke.core.game.scene.service.HierarchyManager;
@@ -29,7 +29,6 @@ import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -172,6 +171,19 @@ public class DemoScene extends Scene {
         keyToggleCursor = keyboard.key(Key.T);
         keyEsc = keyboard.key(Key.ESCAPE);
         keyLogCamera = keyboard.key(Key.J);
+
+        Window window = context.getEngine().getWindow();
+        keyboard.key(Key.F11).listen(newState -> {
+            if (newState == PressableState.State.JustPressed) {
+                Window.OpenWindowState winState = window.getOpenState();
+                if (winState != Window.OpenWindowState.Fullscreen) {
+                    winState = Window.OpenWindowState.Fullscreen;
+                } else {
+                    winState = Window.OpenWindowState.Normal;
+                }
+                window.setOpenState(winState);
+            }
+        });
     }
 
     private void buildGridInstances() {
@@ -237,7 +249,7 @@ public class DemoScene extends Scene {
             if (lockedCursor) {
                 glfwSetInputMode(getRenderSystem().windowHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             } else {
-                getRenderSystem().getEngine().getWindow().disableCursor();
+                getRenderSystem().getEngine().getWindow().hideCursor();
             }
         }
 

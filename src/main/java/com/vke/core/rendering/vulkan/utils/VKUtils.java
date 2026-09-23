@@ -1,10 +1,13 @@
 package com.vke.core.rendering.vulkan.utils;
 
+import com.vke.api.app.Version;
 import com.vke.core.Identifier;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
 import com.vke.core.rendering.vulkan.device.PhysicalDevice;
+import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
+import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.utils.console.ColorStringBuilder;
 import com.vke.utils.Utils;
 import org.lwjgl.PointerBuffer;
@@ -151,7 +154,13 @@ public class VKUtils {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public static boolean setDebugName(LogicalDevice device, String name, long handle, int type) {
+    public static boolean setDebugName(VulkanRenderSystem sys, String name, long handle, int type) {
+        return VKUtils.setDebugName(sys.device(), name, handle, type);
+    }
+
+    public static boolean setDebugName(VulkanRenderDevice device, String name, long handle, int type) {
+        if (!device.getEngine().isDebugMode()) return false;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDebugUtilsObjectNameInfoEXT info = VkDebugUtilsObjectNameInfoEXT.calloc(stack);
             info.sType$Default();
@@ -159,12 +168,8 @@ public class VKUtils {
             info.objectHandle(handle);
             info.pObjectName(stack.UTF8(name));
 
-            return EXTDebugUtils.vkSetDebugUtilsObjectNameEXT(device.getDevice(), info) == VK14.VK_SUCCESS;
+            return EXTDebugUtils.vkSetDebugUtilsObjectNameEXT(device.getLogicalDevice().getDevice(), info) == VK14.VK_SUCCESS;
         }
-    }
-
-    public static boolean setDebugName(LogicalDevice device, Identifier name, long handle, int type) {
-        return setDebugName(device, name.toString(), handle, type);
     }
 
     public static int findMemoryType(PhysicalDevice physicalDevice, int typeFilter, int properties) {
@@ -211,4 +216,27 @@ public class VKUtils {
     public static int set(long encoded) {
         return (int) (encoded >>> 32);
     }
+
+    public static Version version(int packed) {
+        return new Version(VK14.VK_VERSION_MAJOR(packed), VK14.VK_VERSION_MINOR(packed), VK14.VK_VERSION_PATCH(packed));
+    }
+
+    public static String driverName(int id) {
+        return switch (id) {
+            case KHRDriverProperties.VK_DRIVER_ID_AMD_PROPRIETARY_KHR -> "AMD Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_AMD_OPEN_SOURCE_KHR -> "AMD Open Source";
+            case KHRDriverProperties.VK_DRIVER_ID_MESA_RADV_KHR -> "Mesa RADV";
+            case KHRDriverProperties.VK_DRIVER_ID_NVIDIA_PROPRIETARY_KHR -> "NVIDIA Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS_KHR -> "Intel Proprietary (Windows)";
+            case KHRDriverProperties.VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA_KHR -> "Intel Open Source (Mesa)";
+            case KHRDriverProperties.VK_DRIVER_ID_IMAGINATION_PROPRIETARY_KHR -> "Imagination Proprietary";
+            case KHRDriverProperties.VK_DRIVER_ID_QUALCOMM_PROPRIETARY_KHR -> "Qualcomm Proprietary";
+            default -> "Unknown (" + id + ")";
+        };
+    }
+
+    public static String vkConformanceVersionToString(VkConformanceVersion v) {
+        return v.major() + "." + v.minor() + "." + v.subminor() + "." + v.patch();
+    }
+
 }

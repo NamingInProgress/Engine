@@ -1,15 +1,12 @@
 package com.vke.core.rendering.vulkan.swapchain;
 
 import com.vke.api.event.EventBus;
-import com.vke.api.logger.Logger;
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
-import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.core.event.events.rendering.SwapchainEvents;
-import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.memory.intP;
 import com.vke.core.rendering.vulkan.device.LogicalDevice;
@@ -17,7 +14,6 @@ import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.device.VulkanQueue;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
-import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.rendering.vulkan.utils.VKUtils;
@@ -125,7 +121,7 @@ public class VulkanSwapchain implements Swapchain {
         VulkanQueue presentQueue = ctx.device().getQueue(QueueType.PRESENT);
 
         if (!graphicsQueue.equals(presentQueue)) {
-            IntBuffer queueIndices = stack.ints(graphicsQueue.index(), presentQueue.index()); // replaced alloc!
+            IntBuffer queueIndices = stack.ints(graphicsQueue.index(), presentQueue.index());
 
             info.imageSharingMode(VK14.VK_SHARING_MODE_CONCURRENT); // TODO: Replace with exclusive with memory transfers
             info.queueFamilyIndexCount(2);
@@ -188,7 +184,7 @@ public class VulkanSwapchain implements Swapchain {
             image.defaultView();
 
             if (ctx.getEngine().isDebugMode()) {
-                VKUtils.setDebugName(ctx.device().getLogicalDevice(), "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
+                VKUtils.setDebugName(ctx, "swapchain" + i, image.getHandle(), VK14.VK_OBJECT_TYPE_IMAGE);
             }
 
             this.colorImages[i] = image;

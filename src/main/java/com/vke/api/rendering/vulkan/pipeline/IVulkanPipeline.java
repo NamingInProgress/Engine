@@ -36,7 +36,7 @@ public interface IVulkanPipeline extends Pipeline {
 
     // Info create methods that are shared between compute and render pipelines
     default List<DescriptorSetLayout> createDescriptorSets(Context ctx, ArrayList<ReflectedShader2> shaders) {
-        HashMap<Integer, DescriptorSetLayout> sets = new HashMap<>();
+        SortedMap<Integer, DescriptorSetLayout> sets = new TreeMap<>();
 
         for (ReflectedShader2 shader : shaders) {
             var reflectedDescriptors = shader.descriptors();
@@ -60,10 +60,7 @@ public interface IVulkanPipeline extends Pipeline {
 
         sets.putAll(engineSets);
 
-        return sets.entrySet().stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .map(Map.Entry::getValue)
-                .toList();
+        return new ArrayList<>(sets.values());
     }
 
     default PushConstants createPushConstants(ArrayList<ReflectedShader2> shaders) {

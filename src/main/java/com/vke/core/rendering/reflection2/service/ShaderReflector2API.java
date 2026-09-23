@@ -17,7 +17,7 @@ public class ShaderReflector2API extends ServiceAPI implements ShaderReflector2 
     }
 
     private ShaderReflector2 getImpl() {
-        return (ShaderReflector2) getImplementation();
+        return getImplementation();
     }
 
     @Override

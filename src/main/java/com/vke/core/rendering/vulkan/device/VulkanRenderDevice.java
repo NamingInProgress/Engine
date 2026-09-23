@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.device;
 
+import com.vke.api.event.EventBus;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
@@ -21,6 +22,7 @@ import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
+import com.vke.core.rendering.vulkan.VKEvents;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
@@ -41,7 +43,6 @@ import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.exception.Unreachable;
 import com.vke.utils.io.ByteBufferBackedInputStream;
-import com.vke.utils.io.Disposable;
 import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -54,12 +55,9 @@ import org.lwjgl.vulkan.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class VulkanRenderDevice implements RenderDevice {
@@ -80,7 +78,7 @@ public class VulkanRenderDevice implements RenderDevice {
     private long debugMessenger, surface;
     private long vmaAllocator;
 
-    private DeviceCapabilities cachedCapabilities;
+    private final DeviceCapabilities cachedCapabilities;
 
     // Engine infos
     private final EngineCreateInfo engineCreateInfo;
@@ -91,9 +89,11 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private final AutoHeapAllocator alloc;
 
+    private VkAllocationCallbacks pCallbacks;
+
     public final Logger logger;
 
-    private final Queue<Disposable> FREE_QUEUE = new ArrayDeque<>();
+    private final EventBus eventBus;
 
     public VulkanRenderDevice(VulkanRenderSystem context) {
         this.engine = context.getEngine();
@@ -103,6 +103,7 @@ public class VulkanRenderDevice implements RenderDevice {
         this.vulkanCreateInfo = engineCreateInfo.vulkanCreateInfo;
         this.alloc = new AutoHeapAllocator();
         this.logger = LoggerFactory.get("Vulkan Setup");
+        this.eventBus = context.service(Services.EVENT_BUS);
 
         initInstance();
         setupDebugMessenger(this.instance, engine);
@@ -156,14 +157,20 @@ public class VulkanRenderDevice implements RenderDevice {
                 createInfo.ppEnabledLayerNames(validationLayers);
             }
 
+            VKEvents.PreInstanceCreated preInstanceCreatedEvent = new VKEvents.PreInstanceCreated(createInfo);
+            eventBus.fire(preInstanceCreatedEvent);
+            pCallbacks = preInstanceCreatedEvent.callbacks;
+
             /**  Instance Creation  **/
             PointerBuffer pInstance = stack.mallocPointer(1);
 
-            if (VK14.vkCreateInstance(createInfo, null, pInstance) != VK14.VK_SUCCESS) {
+            if (VK14.vkCreateInstance(createInfo, pCallbacks, pInstance) != VK14.VK_SUCCESS) {
                 engine.throwException(new IllegalStateException("VkInstance couldn't be created"), HERE);
             }
 
             this.instance = new VkInstance(pInstance.get(0), createInfo);
+
+            eventBus.fire(new VKEvents.InstanceCreated());
         }
     }
 
@@ -201,7 +208,9 @@ public class VulkanRenderDevice implements RenderDevice {
 
     private void setupPhysicalDevice() {
         physicalDevice = DeviceUtils.pickGpu(this.instance,
-                logger,
+                this.surface,
+                this.eventBus,
+                this.logger,
                 this.engineCreateInfo,
                 this.vulkanCreateInfo.gpuExtensions);
         logger.info("Using GPU: " + physicalDevice.getName());
@@ -368,9 +377,9 @@ public class VulkanRenderDevice implements RenderDevice {
         if (debugMessenger != VK14.VK_NULL_HANDLE)
             EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         logicalDevice.free();
-        VK14.vkDestroyInstance(instance, null);
+        VK14.vkDestroyInstance(instance, pCallbacks);
+        eventBus.fire(new VKEvents.InstanceDestroyed());
         alloc.close();
-        FREE_QUEUE.forEach(Disposable::free);
     }
 
     /** GETTERS **/
