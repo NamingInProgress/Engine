@@ -78,6 +78,8 @@ public class VulkanRenderDevice implements RenderDevice {
     private long debugMessenger, surface;
     private long vmaAllocator;
 
+    private VulkanQueue graphicsQueue, presentQueue, computeQueue;
+
     private final DeviceCapabilities cachedCapabilities;
 
     // Engine infos
@@ -113,6 +115,9 @@ public class VulkanRenderDevice implements RenderDevice {
         setupVmaAllocator();
 
         cachedCapabilities = physicalDevice.getDeviceCapabilities();
+        this.graphicsQueue = logicalDevice.getQueue(QueueType.GRAPHICS);
+        this.presentQueue = logicalDevice.getQueue(QueueType.PRESENT);
+        this.computeQueue = logicalDevice.getQueue(QueueType.COMPUTE);
     }
 
     private void initInstance() {
@@ -299,8 +304,7 @@ public class VulkanRenderDevice implements RenderDevice {
 
     @Override
     public void submit(CommandBuffer buffers, CommandBuffer.SubmitInfo info) {
-        if (!(buffers instanceof VulkanCmdBuffers)) throw new IllegalStateException("Provided non vulkan command buffers object to vulkan render device!");
-        VulkanCmdBuffers cmd = (VulkanCmdBuffers) buffers;
+        if (!(buffers instanceof VulkanCmdBuffers cmd)) throw new IllegalStateException("Provided non vulkan command buffers object to vulkan render device!");
         long pFence = info.getFence() == null ? VK14.VK_NULL_HANDLE : ((VulkanFence) info.getFence()).getHandle();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -317,8 +321,13 @@ public class VulkanRenderDevice implements RenderDevice {
                 waitInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
                 signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
 
-                waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getImageSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
-                signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getPresentSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+                if (info.getType() == QueueType.GRAPHICS) {
+                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+                } else {
+                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT));
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT));
+                }
             }
 
             VkSubmitInfo2.Buffer submitInfo = VkSubmitInfo2.calloc(1, stack);
@@ -402,6 +411,10 @@ public class VulkanRenderDevice implements RenderDevice {
         return logicalDevice.getQueue(type);
     }
 
+    public boolean isSeparateGraphicsPresent() {
+        return logicalDevice.separateGraphicsPresentFamilies;
+    }
+
     public long getVmaAllocator() {
         return vmaAllocator;
     }
@@ -410,5 +423,17 @@ public class VulkanRenderDevice implements RenderDevice {
 
     public VulkanRenderer getRenderer() {
         return renderer;
+    }
+
+    public VulkanQueue getGraphicsQueue() {
+        return graphicsQueue;
+    }
+
+    public VulkanQueue getPresentQueue() {
+        return presentQueue;
+    }
+
+    public VulkanQueue getComputeQueue() {
+        return computeQueue;
     }
 }

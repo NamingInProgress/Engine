@@ -8,11 +8,13 @@ import com.vke.api.rendering.abstraction.light.LightManager;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.draw.VertexConsumerProvider;
-import com.vke.api.rendering.abstraction.renderer.data.FrameDataManager;
-import com.vke.api.rendering.abstraction.renderer.data.TextureManager;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
+import com.vke.api.rendering.vulkan.ImageLayout;
+import com.vke.api.rendering.vulkan.ImageState;
+import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
 import com.vke.core.rendering.DefaultRenderAssets;
@@ -36,6 +38,7 @@ import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.scene.service.SceneManager;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.Scissor;
@@ -49,19 +52,14 @@ import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
-import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.exception.Unreachable;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.KHRSwapchain;
-import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints;
 import org.lwjgl.vulkan.VK14;
-import org.lwjgl.vulkan.VkCheckpointDataNV;
 
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -250,6 +248,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     public void postFrame() {
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
+        VulkanTexture swapchainImage = swapchain.getColorImage();
 
         try {
             VulkanPipelineLayout.LAYOUT_CACHE.values().forEach(layout -> {
@@ -262,17 +261,79 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         Framable framables = framableManager.getAllFramables();
         framables.postRendering();
-        cmd.end();
 
-        device.submit(cmd, new CommandBuffer.SubmitInfo(
-                frameData.frame.getImageSemaphore(),
-                imagePresentInFlight[frameData.imageIndex],
-                frameData.frame.getRenderFence(),
-                QueueType.GRAPHICS,
-                false
-        ));
+        if (device.isSeparateGraphicsPresent()) {
+            swapchainImage.transition(cmd, new VulkanImageBarrier(
+                    VK14.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                    VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    0,
+                    ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
+                    ImageLayout.PRESENT_SRC_KHR,
+                    0, 1,
+                    0, 1,
+                    device.getGraphicsQueue().familyIndex(),
+                    device.getPresentQueue().familyIndex(),
+                    new ImageAspect(ImageAspect.Bits.COLOR)
+            ), ImageState.PRESENT);
 
-        swapchain.present(imagePresentInFlight[frameData.imageIndex]);
+            cmd.end();
+
+            device.submit(cmd, new CommandBuffer.SubmitInfo(
+                    frameData.frame.getImageSemaphore(),
+                    frameData.frame.getTransferSemaphore(),
+                    frameData.frame.getRenderFence(),
+                    QueueType.GRAPHICS,
+                    false
+            ));
+
+            frameData.frame.getPresentFence().waitForFence();
+            frameData.frame.getPresentFence().reset();
+
+            VulkanCmdBuffers presentBuffers = frameData.frame.getPresentBuffers();
+            presentBuffers.begin();
+
+            swapchainImage.transition(presentBuffers, new VulkanImageBarrier(
+                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                    0,
+                    0,
+                    ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
+                    ImageLayout.PRESENT_SRC_KHR,
+                    0, 1,
+                    0, 1,
+                    device.getGraphicsQueue().familyIndex(),
+                    device.getPresentQueue().familyIndex(),
+                    new ImageAspect(ImageAspect.Bits.COLOR)
+            ), ImageState.PRESENT);
+
+            presentBuffers.end();
+
+            device.submit(presentBuffers, new CommandBuffer.SubmitInfo(
+                    frameData.frame.getTransferSemaphore(),
+                    frameData.frame.getPresentSemaphore(),
+                    frameData.frame.getPresentFence(),
+                    QueueType.PRESENT,
+                    false
+            ));
+
+            swapchain.present(frameData.frame.getPresentSemaphore());
+        } else {
+            swapchainImage.transition(cmd, ImageState.PRESENT);
+            cmd.end();
+
+            device.submit(cmd, new CommandBuffer.SubmitInfo(
+                    frameData.frame.getImageSemaphore(),
+                    frameData.frame.getPresentSemaphore(),
+                    frameData.frame.getRenderFence(),
+                    QueueType.GRAPHICS,
+                    false
+            ));
+
+            swapchain.present(frameData.frame.getPresentSemaphore());
+        }
+
+
 
         frameData.stack().close();
         this.frameCounter.nextFrame();

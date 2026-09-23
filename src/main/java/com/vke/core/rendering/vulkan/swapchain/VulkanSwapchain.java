@@ -117,17 +117,17 @@ public class VulkanSwapchain implements Swapchain {
                 .oldSwapchain(this.swapchain == 0 ? VK14.VK_NULL_HANDLE : this.swapchain)
                 .clipped(true);
 
-        VulkanQueue graphicsQueue = ctx.device().getQueue(QueueType.GRAPHICS);
-        VulkanQueue presentQueue = ctx.device().getQueue(QueueType.PRESENT);
+        VulkanQueue graphicsQueue = ctx.device().getGraphicsQueue();
+        VulkanQueue presentQueue = ctx.device().getPresentQueue();
 
         if (!graphicsQueue.equals(presentQueue)) {
-            IntBuffer queueIndices = stack.ints(graphicsQueue.index(), presentQueue.index());
+            IntBuffer queueIndices = stack.ints(graphicsQueue.familyIndex(), presentQueue.familyIndex());
 
-            info.imageSharingMode(VK14.VK_SHARING_MODE_CONCURRENT); // TODO: Replace with exclusive with memory transfers
+            info.imageSharingMode(VK14.VK_SHARING_MODE_EXCLUSIVE);
             info.queueFamilyIndexCount(2);
             info.pQueueFamilyIndices(queueIndices);
         } else {
-            IntBuffer queueIndex = alloc.ints(graphicsQueue.index()).getHeapObject();
+            IntBuffer queueIndex = alloc.ints(graphicsQueue.familyIndex()).getHeapObject();
 
             info.imageSharingMode(VK14.VK_SHARING_MODE_EXCLUSIVE);
             info.queueFamilyIndexCount(1);

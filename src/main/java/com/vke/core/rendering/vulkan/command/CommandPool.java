@@ -23,7 +23,7 @@ public class CommandPool implements Disposable {
             VkCommandPoolCreateInfo poolCreateInfo = VkCommandPoolCreateInfo.calloc(stack)
                     .sType$Default()
                     .flags(VK14.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-                    .queueFamilyIndex(vkCtx.device().getQueue(type).index());
+                    .queueFamilyIndex(vkCtx.device().getQueue(type).familyIndex());
 
             LongBuffer pPool = stack.mallocLong(1);
             if (VK14.vkCreateCommandPool(vkCtx.device().vkLogicalDevice(), poolCreateInfo, null, pPool) != VK14.VK_SUCCESS) {

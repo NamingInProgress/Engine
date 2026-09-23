@@ -10,7 +10,6 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.sync.Fence;
 import com.vke.api.rendering.abstraction.renderer.sync.Semaphore;
 import com.vke.core.color.RgbColor;
-import com.vke.core.geometry.Rect;
 import com.vke.core.rendering.vulkan.Scissor;
 import com.vke.core.rendering.vulkan.Viewport;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
@@ -26,14 +25,14 @@ public interface CommandBuffer extends Disposable {
 
         private final QueueType type;
         private final boolean immediate;
-        private final Semaphore image, present;
+        private final Semaphore wait, signal;
         private final Fence fence;
 
-        public SubmitInfo(Semaphore imageSemaphore, Semaphore presentSemaphore, Fence fence, QueueType queueType, boolean immediate) {
+        public SubmitInfo(Semaphore waitSemaphore, Semaphore signalSemaphore, Fence fence, QueueType queueType, boolean immediate) {
             this.type = queueType;
             this.immediate = immediate;
-            this.image = imageSemaphore;
-            this.present = presentSemaphore;
+            this.wait = waitSemaphore;
+            this.signal = signalSemaphore;
             this.fence = fence;
         }
 
@@ -49,12 +48,12 @@ public interface CommandBuffer extends Disposable {
             return immediate;
         }
 
-        public Semaphore getImageSemaphore() {
-            return image;
+        public Semaphore getWaitSemaphore() {
+            return wait;
         }
 
-        public Semaphore getPresentSemaphore() {
-            return present;
+        public Semaphore getSignalSemaphore() {
+            return signal;
         }
 
         public Fence getFence() {

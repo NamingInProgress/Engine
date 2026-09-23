@@ -18,7 +18,7 @@ public class VulkanQueue {
     }
 
     public QueueType getType() { return this.queueType; }
-    public int index() { return this.familyIndex; }
+    public int familyIndex() { return this.familyIndex; }
     public VkQueue vk() { return queue; }
 
     @Override
