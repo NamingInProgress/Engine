@@ -12,6 +12,7 @@ public interface Window {
      */
     void show();
     void requestClose();
+    void cleanUp();
 
     void showCursor();
     void hideCursor();

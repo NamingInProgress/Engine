@@ -278,15 +278,24 @@ public class VulkanSwapchain implements Swapchain {
 
     @Override
     public void destroy() {
+        if (this.swapchain == VK10.VK_NULL_HANDLE)
+            return;
+
         this.eventBus.fire(new SwapchainEvents.PreDestroy());
+
         this.ctx.device().waitIdle();
-        KHRSwapchain.vkDestroySwapchainKHR(this.ctx.device().vkLogicalDevice(), this.swapchain, null);
 
         for (VulkanTexture colorImage : this.colorImages) {
             colorImage.free();
         }
 
         this.colorImages = null;
+
+        long swapchain = this.swapchain;
+        this.swapchain = VK10.VK_NULL_HANDLE;
+
+        KHRSwapchain.vkDestroySwapchainKHR(this.ctx.device().vkLogicalDevice(), swapchain, null);
+
         this.eventBus.fire(new SwapchainEvents.Destroyed());
     }
 

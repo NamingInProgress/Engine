@@ -99,6 +99,7 @@ public class VKEngine extends Context {
 
         serviceManager.free();
         window.requestClose();
+        window.cleanUp();
     }
 
     public Window getWindow() {
