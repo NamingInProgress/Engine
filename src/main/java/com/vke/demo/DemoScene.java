@@ -1,6 +1,7 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.audio.playback.PlayingAudio;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
@@ -144,6 +145,11 @@ public class DemoScene extends Scene {
             ref2.with((c, idx) -> c.setMaterial(idx, mat));
             bear2.getTransform().setXYZ(30, 0, 0);
 
+            bear1.getTransform().addChild(bear2);
+
+            PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
+            audio.setLooping(true);
+
             cube = new EmptyGameObject(context);
             cube.spawn();
             cube.addComponents(StaticMeshC.ID);
@@ -225,8 +231,6 @@ public class DemoScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
-        Vector3f camWorldPos = cam.getTransform().getWorldPosition();
-        Quaternionf camRot = cam.getTransform().getRotation();
 
         hierarchyManager.updateTransforms();
         context.put("inst", TOTAL_INSTANCES);
@@ -245,7 +249,7 @@ public class DemoScene extends Scene {
             poss[1] = y;
         }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-//        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);

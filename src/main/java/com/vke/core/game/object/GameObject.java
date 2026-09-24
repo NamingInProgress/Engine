@@ -1,5 +1,6 @@
 package com.vke.core.game.object;
 
+import com.vke.core.Context;
 import com.vke.core.ecs.CRef;
 import com.vke.core.ecs.component.Component;
 import com.vke.core.ecs.component.mask.ComponentMask;
