@@ -245,15 +245,14 @@ public class GlfwWindow implements Window {
 
             glfwPollEvents();
         }
-
-        this.cleanUp();
     }
 
     public void close() {
         glfwSetWindowShouldClose(this.window, true);
     }
 
-    private void cleanUp() {
+    @Override
+    public void cleanUp() {
         if (windowPosCallback != null) windowPosCallback.free();
         if (windowIconifyCallback != null) windowIconifyCallback.free();
         if (windowMaximizeCallback != null) windowMaximizeCallback.free();
