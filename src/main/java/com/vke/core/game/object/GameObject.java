@@ -6,6 +6,8 @@ import com.vke.core.ecs.component.mask.ComponentMask;
 import com.vke.core.game.object.controller.GameObjectController;
 
 public interface GameObject {
+    Context getContext();
+
     default boolean isSpawned() {
         return entityId() != -1;
     }

@@ -8,6 +8,12 @@ import com.vke.api.scene.Scene;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
+import com.vke.core.audio.playback.service.AudioManagerMaster;
+import com.vke.core.audio.playback2d.service.AudioManager2D;
+import com.vke.core.audio.playback3d.Ear;
+import com.vke.core.audio.playback3d.Speaker;
+import com.vke.core.audio.playback3d.service.AudioManager3D;
+import com.vke.core.audio.source.ToneGenerator;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
@@ -25,9 +31,11 @@ import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
 import com.vke.impl.gameobject.SpotLightGameObject;
+import com.vke.impl.gameobject.convenientapi.GameAudio;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -164,6 +172,8 @@ public class DemoScene extends Scene {
 
         cam.getTransform().addChild(spotLight);
 
+        GameAudio.setEar(cam);
+
         getRenderSystem().frameDataManager().setCamera(cam);
 
         InputManager input = context.service(Services.INPUT_MANAGER);
@@ -215,6 +225,8 @@ public class DemoScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
+        Vector3f camWorldPos = cam.getTransform().getWorldPosition();
+        Quaternionf camRot = cam.getTransform().getRotation();
 
         hierarchyManager.updateTransforms();
         context.put("inst", TOTAL_INSTANCES);
