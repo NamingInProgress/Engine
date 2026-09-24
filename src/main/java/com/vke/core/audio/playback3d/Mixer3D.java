@@ -2,8 +2,10 @@ package com.vke.core.audio.playback3d;
 
 import com.vke.core.audio.playback.Mixer;
 import com.vke.core.audio.playback.PlaybackState;
+import com.vke.core.game.object.GameObjectTransform;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -16,9 +18,6 @@ public class Mixer3D implements Mixer {
 
     private final ArrayList<PlaybackState3D> active;
     private final ConcurrentLinkedQueue<PlaybackState3D> queued;
-
-    private final Vector3f directionToSpeaker = new Vector3f();
-    private final Vector3f earRightDirection = new Vector3f();
 
     private Ear ear;
 
@@ -49,8 +48,17 @@ public class Mixer3D implements Mixer {
         return channels;
     }
 
+    private static final Vector3f earPos = new Vector3f();
+    private static final Vector3f speakerPos = new Vector3f();
+    private static final Vector4f earForward = new Vector4f();
+    private static final Vector4f speakerForward = new Vector4f();
+
+    private static final Vector3f earRightDirection = new Vector3f();
+    private static final Vector3f directionToSpeaker = new Vector3f();
+    private static final Vector3f WORLD_UP = new Vector3f(0f, 1f, 0f);
+
     @Override
-    public void newBlock() {
+    public synchronized void newBlock() {
         PlaybackState3D v;
         while ((v = queued.poll()) != null) {
             active.add(v);
@@ -58,16 +66,29 @@ public class Mixer3D implements Mixer {
 
         if (ear == null) return;
 
+        GameObjectTransform earTransform = ear.getTransform();
+        earTransform.getWorldPosition(earPos);
+        earTransform.getWorldForward(earForward);
+
+        earRightDirection.set(earForward.x, earForward.y, earForward.z)
+                .cross(WORLD_UP);
+
+        if (earRightDirection.lengthSquared() < 0.0001f) {
+            earRightDirection.set(1f, 0f, 0f);
+        } else {
+            earRightDirection.normalize();
+        }
+
         for (PlaybackState3D state3D : active) {
-            Vector3f earPos = ear.getPosition();
-            Vector3f speakerPos = state3D.getSpeaker().getPosition();
-            Quaternionf earRot = ear.getRotation();
-            earRot.transform(1f, 0f, 0f, earRightDirection);
+            GameObjectTransform speakerTransform = state3D.getSpeaker().getTransform();
+
+            speakerTransform.getWorldPosition(speakerPos);
+            speakerTransform.getWorldForward(speakerForward);
 
             float actualDistance = earPos.distance(speakerPos);
 
             if (actualDistance > MAX_DISTANCE) {
-                state3D.setTargetGains(0, 0);
+                state3D.setTargetGains(0f, 0f);
             } else {
                 float distanceVolume = 1f - (actualDistance / MAX_DISTANCE);
                 float pan = 0f;
@@ -75,15 +96,15 @@ public class Mixer3D implements Mixer {
                 if (actualDistance > 0.001f) {
                     speakerPos.sub(earPos, directionToSpeaker);
                     directionToSpeaker.normalize();
-
                     pan = directionToSpeaker.dot(earRightDirection);
                 }
 
-                float leftPanGain  = (pan <= 0) ? 1f : 1f - pan;
-                float rightPanGain = (pan >= 0) ? 1f : 1f + pan;
+                float leftPanGain  = (pan <= 0f) ? 1f : 1f - pan;
+                float rightPanGain = (pan >= 0f) ? 1f : 1f + pan;
 
-                float finalLeft  = distanceVolume * leftPanGain  * state3D.getSpeaker().getVolume();
-                float finalRight = distanceVolume * rightPanGain * state3D.getSpeaker().getVolume();
+                float speakerVolume = state3D.getSpeaker().getVolume();
+                float finalLeft  = distanceVolume * leftPanGain  * speakerVolume;
+                float finalRight = distanceVolume * rightPanGain * speakerVolume;
 
                 state3D.setTargetGains(finalLeft, finalRight);
             }

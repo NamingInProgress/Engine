@@ -34,6 +34,7 @@ import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
 import com.vke.impl.gameobject.SpotLightGameObject;
+import com.vke.impl.gameobject.convenientapi.GameAudio;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.light.DirectionalLightC;
@@ -78,9 +79,6 @@ public class DemoScene extends Scene {
 
     private CameraGameObject cam;
 
-    private Ear ear;
-    private Speaker speaker;
-
     public static float[][] positions = {
             {45, -45, 45},
             {-45, -45, 45},
@@ -103,19 +101,6 @@ public class DemoScene extends Scene {
     public void onLoad() {
         loadMeshResources();
         buildGridInstances();
-
-        AudioManager3D audio = context.service(Services.AUDIO_MANAGER_3D);
-        ear = audio.createEar();
-        speaker = audio.createSpeaker(context);
-        audio.setListeningEar(ear);
-
-        PlayingAudio playing = speaker.play("preloaded.wav");
-        playing.setLooping(true);
-        playing.setVolume(0.05f);
-
-
-
-        speaker.setPosition(new Vector3f(0, 0, 0));
 
         hierarchyManager = context.service(Services.HIERARCHY);
 
@@ -179,6 +164,8 @@ public class DemoScene extends Scene {
 
         cam.getTransform().addChild(spotLight);
 
+        GameAudio.setEar(cam);
+
         getRenderSystem().frameDataManager().setCamera(cam);
 
         InputManager input = context.service(Services.INPUT_MANAGER);
@@ -218,8 +205,6 @@ public class DemoScene extends Scene {
         handleInput();
         Vector3f camWorldPos = cam.getTransform().getWorldPosition();
         Quaternionf camRot = cam.getTransform().getRotation();
-        ear.setPosition(camWorldPos);
-        ear.setRotation(camRot);
 
         hierarchyManager.updateTransforms();
 
