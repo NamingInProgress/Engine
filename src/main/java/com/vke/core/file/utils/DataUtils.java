@@ -146,6 +146,17 @@ public class DataUtils {
         stream.write((value >> 24) & 0xFF);
     }
 
+    public static void writeU64LittleEndian(OutputStream stream, long value) throws IOException {
+        stream.write((int)(value) & 0xFF);
+        stream.write((int)(value >> 8) & 0xFF);
+        stream.write((int)(value >> 16) & 0xFF);
+        stream.write((int)(value >> 24) & 0xFF);
+        stream.write((int)(value >> 32) & 0xFF);
+        stream.write((int)(value >> 40) & 0xFF);
+        stream.write((int)(value >> 48) & 0xFF);
+        stream.write((int)(value >> 56) & 0xFF);
+    }
+
     public static void writeU16BigEndian(OutputStream stream, int value) throws IOException {
         stream.write((value >> 8) & 0xFF);
         stream.write(value & 0xFF);
@@ -156,6 +167,17 @@ public class DataUtils {
         stream.write((value >> 16) & 0xFF);
         stream.write((value >> 8) & 0xFF);
         stream.write(value & 0xFF);
+    }
+
+    public static void writeU64BigEndian(OutputStream stream, long value) throws IOException {
+        stream.write((int)(value >> 56) & 0xFF);
+        stream.write((int)(value >> 48) & 0xFF);
+        stream.write((int)(value >> 40) & 0xFF);
+        stream.write((int)(value >> 32) & 0xFF);
+        stream.write((int)(value >> 24) & 0xFF);
+        stream.write((int)(value >> 16) & 0xFF);
+        stream.write((int)(value >> 8) & 0xFF);
+        stream.write((int)(value) & 0xFF);
     }
 
     public static long unsign32(int size) {

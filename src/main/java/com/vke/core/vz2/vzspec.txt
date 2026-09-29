@@ -1,0 +1,56 @@
+VZ2 Archive Specification Version 0
+
+==GENERAL==
+- all integers are in lsb format
+- pointers are values that are absolute from the file start
+- the FTAB chunk holds information about the current directory layer. nEntries is the amount of entries used, but 64 are always allocated!
+- hashes use the FNV1a function -> https://de.wikipedia.org/wiki/FNV_(Informatik)
+- a "component" is either a directory or a file
+- the ftab-entry hashes can be used to quickly find a component. since there are 2 hashes available, the chances of a random collision are so
+  astronomically low, that the implementation can just not check pName (and save file seeks)
+- the ord field of FDATA is used to sort these chunks in the corrent order. since insertions can just be appended at the end, the FDATA chunks do NOT
+  have to be in the correct order. ord fields are not consecutive numbers.
+
+==FILE STRUCTURE==
+
+HEADER
+32 magic = 0x565A4949 "VZII"
+8  version (only 0 valid for now)
+64 pFTAB (pointer to the first FTAB)
+64 pMEMBLOCK (pointer to first MEMBLOCK)
+
+FTAB (file table)
+6 nEntries + 2 reserved
+64 pParent (pointer to parent FTAB or 0 when this is the root)
+FTAB-ENTRY[16] entries
+64 pNext (pointer to the next FTAB on the same layer!)
+
+FTAB-ENTRY
+8  flags:
+    fInvalid
+    fCompType (0=file,1=directory)
+    fShortName
+64 hash (hash of the component name)
+64 rev hash (hash of the reversed component name)
+64 pName (pointer to a 0-terminated string)
+8[16] sName (if fShortName is 1, the component name will be stored in this 16 character array. pName is a null pointer in this case!
+             if its shorter than 16 characters, a 0-terminator will be placed. for a length of 16, this terminator is not used.)
+64 uncompressedSize
+64 pPtr (for file components, this points to the first FDAT chunk. for directories, this points to the first FTAB chunk of the new layer)
+
+FDATA
+8  flags
+    fInvalid (if true, this chunk should be skipped and can be overwritten in the future)
+    fPartial
+    fNoCompress
+64 pNext
+64 ord
+32 adler32
+32 nData (total length of the entire data of this chunk, even across a partial boundary)
+32 nDataLength (length of the following array)
+8[nDataLength] data (if fPartial is 1, the last 64 bits of data will be a pointer to the continuation)
+
+MEMBLOCK
+u64 pBlock
+u64 size
+u64 pNext
