@@ -6,11 +6,12 @@ import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
-import com.vke.api.rendering.abstraction.rendergraph.RenderPass;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
-import com.vke.core.rendering.graph.GraphContext;
-import com.vke.core.rendering.graph.RenderPassInstance;
+import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.graph2.GraphTexture;
+import com.vke.core.rendering.graph2.RenderGraph;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 
 import java.util.List;
@@ -18,14 +19,18 @@ import java.util.List;
 public class JpegPass extends RenderPass {
     private ShapeRenderer<ShapeRendererVertex> sr;
 
-    public JpegPass(RenderSystem renderSystem, RenderPassInstance instance) {
-        super(renderSystem, instance);
+    private GraphTexture tex;
+
+    public JpegPass(RenderSystem sys, RenderGraph graph, Def def) {
+        super(sys, graph, def);
     }
+
 
     @Override
     public void onLoad() {
-        var consumer = renderSystem.renderer().getVertexConsumerProvider().get(ShapeRendererVertex.TEMPLATE);
+        var consumer = sys.vcp().get(ShapeRendererVertex.TEMPLATE);
         this.sr = new ShapeRenderer<>(consumer, ShapeRendererVertex.FACTORY);
+        this.tex = searchOutputTexture("colorOut");
     }
 
     @Override
@@ -33,7 +38,7 @@ public class JpegPass extends RenderPass {
         AssetHandle<Texture> texture = context.get("tex");
         int[] rect = context.get("rect");
 
-        Texture output = instance.getOutputTexture("colorOut");
+        Texture output = tex.extract();
         cmd.beginRendering(new CommandBuffer.RenderingInfo(
                 new CommandBuffer.AttachmentInfo(output, LoadOp.CLEAR, StoreOp.STORE),
                 null

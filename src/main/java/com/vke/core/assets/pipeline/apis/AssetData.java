@@ -2,6 +2,7 @@ package com.vke.core.assets.pipeline.apis;
 
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
+import com.vke.api.vkz.VkzArchive;
 import com.vke.core.FileIdentifier;
 import com.vke.core.language.Language;
 import com.vke.core.assets.pipeline.StageElement;
@@ -98,4 +99,6 @@ public class AssetData {
     public static AssetData renderPipeline(RenderPipeline pl) {
         return new AssetData(RENDER_PIPELINE, pl);
     }
+
+    public static AssetData vkz(VkzArchive arch) { return new AssetData(VKZ, arch); }
 }

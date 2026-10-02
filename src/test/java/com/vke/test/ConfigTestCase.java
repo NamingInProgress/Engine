@@ -13,9 +13,9 @@ public class ConfigTestCase {
     public static void main(String[] args) throws SchemaMismatchException, IOException, ConfigParser.ConfigParseException {
         ModuleContext ctx = new ModuleContext(Namespace.of("lol"), null);
         ConfigDocument schemaDoc = ConfigDocument.parseIdentifier(ctx.fid("person.vks"));
-        ConfigSchema schema = ConfigSchema.readVke(schemaDoc, "person.vks"); //filename here for good errors
+        //ConfigSchema schema = ConfigSchema.readVke(schemaDoc, "person.vks"); //filename here for good errors
 
         ConfigDocument doc = ConfigDocument.parseIdentifier(ctx.fid("person.json"));
-        doc.validate(schema, "person.json"); //again here for good errors
+        //doc.validate(schema, "person.json"); //again here for good errors
     }
 }

@@ -8,7 +8,7 @@ import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.assets.service.AssetManager;
 import com.vke.core.game.camera.OriginOrthoCamera;
-import com.vke.core.rendering.graph.GraphContext;
+import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
 
 public class JpegTestScene extends Scene {

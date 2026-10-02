@@ -11,7 +11,7 @@ import com.vke.core.services2.Services;
 import com.vke.impl.ecs.WorldTransformC;
 import com.vke.impl.ecs.mesh.StaticMeshC;
 
-public class MeshCollector {
+public class RenderingCollector {
 
     private final int RUN_CATEGORY, COUNT_CATEGORY, UPDATE_CATEGORY;
 
@@ -23,7 +23,7 @@ public class MeshCollector {
 
     private boolean updated = false;
 
-    public MeshCollector(RenderSystem sys) {
+    public RenderingCollector(RenderSystem sys) {
         this.sys = sys;
         this.ecs = sys.service(Services.ECS);
         this.queueHandler = new RenderQueueHandler();

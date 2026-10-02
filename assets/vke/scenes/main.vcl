@@ -1,6 +1,6 @@
 <scene>
-    <class name="com.vke.demo.DemoScene"/>
-    <render-graph name="vke:demo"/>
+    <class name="com.vke.test.ttf.TTFTestScene"/>
+    <render-graph name="vke:ttf-test"/>
     <bundles>
         <bundle name="main"/>
     </bundles>

@@ -23,6 +23,7 @@ public class TTFFont implements Font {
     public final TTFHmtxTable hmtx;
     public final TTFLocaTable loca;
     public final TTFGlyfTable glyf;
+    public final TTFOS2Table os2;
 
     private final Font.Metadata meta;
 
@@ -39,8 +40,9 @@ public class TTFFont implements Font {
         this.hmtx = new TTFHmtxTable(reader, table("hmtx"), maxp, hhea);
         this.loca = new TTFLocaTable(reader, table("loca"), maxp, head);
         this.glyf = new TTFGlyfTable(reader, table("glyf"), maxp, loca, hmtx);
+        this.os2 = new TTFOS2Table(reader, table("OS/2"));
 
-        this.meta = new Metadata(maxp.numGlyphs, head.unitsPerEm,
+        this.meta = new Metadata(maxp.numGlyphs, head.unitsPerEm, os2.fsSelectionMerged,
                 new SpacingInfo(hhea.ascent, hhea.descent, hhea.lineGap, (hhea.ascent - hhea.descent + hhea.lineGap)),
                 new CaretInfo(hhea.caretSlopeRise, hhea.caretSlopeRun, hhea.caretOffset)
         );

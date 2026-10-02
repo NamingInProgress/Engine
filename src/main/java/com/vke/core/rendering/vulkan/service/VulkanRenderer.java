@@ -231,10 +231,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         cmd.setScissor(sc);
 
         this.frameData = new FrameData(frame, cmd, stack, imageIndex);
-        Scene currentScene = sceneManager.getCurrentScene();
-        Identifier graphId = currentScene.getGraph();
-        RenderGraph graph = graphManager.getGraph(graphId);
-        currentScene.onPrepareRendering(graph.getContext());
     }
 
     @Override
@@ -242,6 +238,11 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         Scene currentScene = sceneManager.getCurrentScene();
         Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);
+        currentScene.onPrepareRendering(graph.getContext());
+
+//        Scene currentScene = sceneManager.getCurrentScene();
+//        Identifier graphId = currentScene.getGraph();
+//        RenderGraph graph = graphManager.getGraph(graphId);
         graph.onDraw(currentScene);
     }
 
