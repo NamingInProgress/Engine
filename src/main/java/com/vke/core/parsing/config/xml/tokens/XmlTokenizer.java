@@ -95,6 +95,6 @@ public class XmlTokenizer {
     }
 
     private boolean identPart(char c) {
-        return Character.isLetterOrDigit(c) || "_-".indexOf(c) > 0;
+        return Character.isLetterOrDigit(c) || "_-".indexOf(c) >= 0;
     }
 }
