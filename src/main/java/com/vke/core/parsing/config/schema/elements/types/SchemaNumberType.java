@@ -36,7 +36,7 @@ public class SchemaNumberType extends SchemaType {
                 range.validate(val, result, path);
             }
         } else {
-            result.addError(SchemaValidationResult.ValidationError.illegalType(node, ConfigNode.Type.Boolean, path));
+            result.addError(SchemaValidationResult.ValidationError.illegalType(node, ConfigNode.Type.Number, path));
         }
     }
 

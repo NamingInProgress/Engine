@@ -266,4 +266,11 @@ public class Utils {
     public static long alignUpFast(long value, long alignment) {
         return (value + alignment - 1) & -alignment;
     }
+
+    public static <T> T[] mergeTs(T[] arr1, T[] arr2) {
+        T[] a = Arrays.copyOf(arr1, arr1.length + arr2.length);
+        System.arraycopy(arr1, 0, a, 0, arr1.length);
+        System.arraycopy(arr2, 0, a, arr1.length, arr2.length);
+        return a;
+    }
 }

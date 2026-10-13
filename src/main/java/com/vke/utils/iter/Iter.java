@@ -1,6 +1,7 @@
 package com.vke.utils.iter;
 
 import com.carrotsearch.hppc.cursors.ObjectCursor;
+import com.vke.core.ui.Widgets;
 import com.vke.utils.functionalinterface.FaultyFunction;
 import com.vke.utils.tuple.Pair;
 import com.vke.utils.functionalinterface.FaultyRunnable;
@@ -18,6 +19,10 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public interface Iter<T> extends Iterable<T> {
+    static <T> Iter<T> fusedImmediately() {
+        return Option::none;
+    }
+
     @NotNull Option<T> next();
 
     @Override

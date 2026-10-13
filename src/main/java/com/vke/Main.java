@@ -9,8 +9,16 @@ import com.vke.core.VKEngine;
 import com.vke.core.logger.CoreLogger;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.scene.SceneApp;
+import com.vke.core.ui.Widgets;
+import com.vke.core.ui.signal.Adapter;
+import com.vke.core.ui.signal.Signal;
+import com.vke.utils.Utils;
+import com.vke.utils.iter.Iter;
 
 import java.io.IOException;
+import java.util.function.Supplier;
+
+import static com.vke.core.ui.Widgets.*;
 
 public class Main {
 
@@ -30,5 +38,8 @@ public class Main {
         if (renderdoc.get()) Thread.sleep(5000);
 
         engine.start(new SceneApp("main"));
+
+        var text = new Signal<>("my text");
+        var btn = button("width", 100, text, "text", eval(() -> "Hello Mr: " + text.read()));
     }
 }
