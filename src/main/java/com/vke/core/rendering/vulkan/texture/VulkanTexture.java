@@ -7,7 +7,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
-import com.vke.core.file.png.Pixels;
+import com.vke.core.file.png.PngPixels;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
@@ -15,7 +15,6 @@ import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
-import com.vke.utils.io.Disposable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vma.Vma;
@@ -114,7 +113,7 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public VulkanTexture upload(Pixels pixels) {
+    public VulkanTexture upload(PngPixels pixels) {
         var alloc = new AutoHeapAllocator();
 
         GeneralBuffer cpuBuf = new GeneralBuffer(pixels.argbToByteBuffer(alloc), true);

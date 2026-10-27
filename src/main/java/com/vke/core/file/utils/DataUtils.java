@@ -271,4 +271,8 @@ public class DataUtils {
         }
         return out;
     }
+
+    public static boolean readFlag(InputStream stream) throws IOException {
+        return (readU8(stream) & 1) == 1;
+    }
 }

@@ -21,7 +21,7 @@ public class PngFile {
     };
 
     private final PngInfo pngInfo;
-    private final Pixels output;
+    private final PngPixels output;
 
     public PngFile(InputStream inputStream) throws IOException {
         this(inputStream, false);
@@ -69,7 +69,7 @@ public class PngFile {
         }
     }
 
-    public Pixels getOutput() {
+    public PngPixels getOutput() {
         return output;
     }
 

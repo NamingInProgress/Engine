@@ -6,11 +6,11 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class Pixels {
+public class PngPixels {
     private final PngInfo info;
     private final int[] pixels;
 
-    public Pixels(PngInfo info) {
+    public PngPixels(PngInfo info) {
         this.info = info;
         this.pixels = new int[info.width * info.height];
     }

@@ -9,6 +9,15 @@ public class BitPackerUtils {
         return unpackUXBE(source, n, 0x0F, 4);
     }
 
+    public static boolean[] unpackU1(int source, int n) {
+        int[] ints = unpackUXLE(source, n, 0x01, 1);
+        boolean[] bools = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            bools[i] = ints[i] == 1;
+        }
+        return bools;
+    }
+
     public static int[] unpackUXLE(long source, int n, int mask, int shiftBy) {
         int[] out = new int[n];
         for (int i = 0; i < n; i++) {
