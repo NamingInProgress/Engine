@@ -41,10 +41,10 @@ public class LdrBitmap implements Bitmap {
     }
 
     private void setPixelARGB_0(int i, int argb) {
-        rgbaBytes[i] = (byte) ((argb >>> 24) & 0xFF);
-        rgbaBytes[i + 1] = (byte) (argb & 0xFF);
-        rgbaBytes[i + 2] = (byte) ((argb >>> 8) & 0xFF);
-        rgbaBytes[i + 3] = (byte) ((argb >>> 16) & 0xFF);
+        rgbaBytes[i] = (byte) ((argb >>> 8) & 0xFF);
+        rgbaBytes[i + 1] = (byte) ((argb >>> 16) & 0xFF);
+        rgbaBytes[i + 2] = (byte) ((argb >>> 24) & 0xFF);
+        rgbaBytes[i + 3] = (byte) (argb & 0xFF);
     }
 
     private int getIndex(int x, int y) {
