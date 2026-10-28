@@ -17,9 +17,9 @@ import com.vke.core.FileIdentifier;
 import com.vke.utils.io.Disposable;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public interface RenderDevice extends Disposable {
-
     BackendType backend();
     DeviceCapabilities capabilities();
 
@@ -42,4 +42,8 @@ public interface RenderDevice extends Disposable {
     /** SWAPCHAIN **/
     Swapchain createSwapchain(Swapchain.Description info);
 
+    ByteBuffer allocateManaged(int size);
+    ByteBuffer allocate(int size);
+
+    void freeAllocation(ByteBuffer buffer);
 }

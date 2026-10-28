@@ -47,6 +47,7 @@ import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
@@ -363,6 +364,21 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public VulkanSwapchain createSwapchain(Swapchain.Description info) {
         return new VulkanSwapchain(info, context);
+    }
+
+    @Override
+    public ByteBuffer allocate(int size) {
+        return MemoryUtil.memAlloc(size);
+    }
+
+    @Override
+    public void freeAllocation(ByteBuffer buffer) {
+        MemoryUtil.memFree(buffer);
+    }
+
+    @Override
+    public ByteBuffer allocateManaged(int size) {
+        return alloc.alloc(size).getHeapObject();
     }
 
     public VulkanFrame[] createFrames() {

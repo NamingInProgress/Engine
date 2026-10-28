@@ -7,8 +7,6 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
-import com.vke.core.file.png.PngPixels;
-import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
@@ -21,6 +19,7 @@ import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.vulkan.*;
 
+import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.HashMap;
 import java.util.Objects;
@@ -113,10 +112,8 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public VulkanTexture upload(PngPixels pixels) {
-        var alloc = new AutoHeapAllocator();
-
-        GeneralBuffer cpuBuf = new GeneralBuffer(pixels.argbToByteBuffer(alloc), true);
+    public VulkanTexture upload(ByteBuffer pixels) {
+        GeneralBuffer cpuBuf = new GeneralBuffer(pixels, true);
         StagedBuffer buf = new StagedBuffer(ctx, cpuBuf,
                 new BufferUsage(BufferUsage.Bits.TRANSFER_SRC),
                 MemoryUsage.Bits.CPU_TO_GPU.into());
@@ -133,8 +130,6 @@ public class VulkanTexture implements Texture {
         }, buf::free);
 
         // TODO: generate mips
-
-        alloc.close();
         return this;
     }
 

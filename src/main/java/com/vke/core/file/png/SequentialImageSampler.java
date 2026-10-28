@@ -2,13 +2,15 @@ package com.vke.core.file.png;
 
 import com.vke.core.file.png.chunks.scanlines.Scanline;
 import com.vke.core.file.zlib.ZlibDecompressor;
+import com.vke.core.image.Bitmap;
+import com.vke.core.image.LdrBitmap;
 
 import java.io.IOException;
 
 public class SequentialImageSampler {
-    public static PngPixels sample(PngInfo info, ZlibDecompressor idat, int[][] palette) throws IOException {
+    public static Bitmap sample(PngInfo info, ZlibDecompressor idat, int[][] palette) throws IOException {
         byte[] samples = unfilterIdatDataSequential(info, idat);
-        PngPixels output = new PngPixels(info);
+        LdrBitmap output = new LdrBitmap(info.width, info.height, info.flipVertically);
         readSamples(info, output, samples, palette);
         return output;
     }
@@ -38,7 +40,7 @@ public class SequentialImageSampler {
         return imageData;
     }
 
-    public static void readSamples(PngInfo info, PngPixels output, byte[] samples, int[][] palette) {
+    public static void readSamples(PngInfo info, LdrBitmap output, byte[] samples, int[][] palette) {
         int cursor = 0;
         int size = info.width * info.height;
 

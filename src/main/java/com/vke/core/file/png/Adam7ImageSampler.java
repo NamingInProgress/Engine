@@ -2,6 +2,8 @@ package com.vke.core.file.png;
 
 import com.vke.core.file.png.chunks.scanlines.Scanline;
 import com.vke.core.file.zlib.ZlibDecompressor;
+import com.vke.core.image.Bitmap;
+import com.vke.core.image.LdrBitmap;
 
 import java.io.IOException;
 
@@ -16,7 +18,7 @@ public class Adam7ImageSampler {
             {0, 1, 1, 2}
     };
 
-    public static PngPixels sample(PngInfo info, ZlibDecompressor decompressor, int[][] palette) throws IOException {
+    public static Bitmap sample(PngInfo info, ZlibDecompressor decompressor, int[][] palette) throws IOException {
         decompressor.parseHeader();
 
         byte[] samples = new byte[info.width * info.height * info.getPixelStride()];
@@ -63,7 +65,7 @@ public class Adam7ImageSampler {
             }
         }
 
-        PngPixels output = new PngPixels(info);
+        LdrBitmap output = new LdrBitmap(info.width, info.height, info.flipVertically);
         SequentialImageSampler.readSamples(info, output, samples, palette);
         return output;
     }

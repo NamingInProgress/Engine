@@ -3,6 +3,7 @@ package com.vke.core.file.png;
 import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.png.chunks.*;
 import com.vke.core.file.zlib.ZlibDecompressor;
+import com.vke.core.image.Bitmap;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class PngFile {
     };
 
     private final PngInfo pngInfo;
-    private final PngPixels output;
+    private final Bitmap output;
 
     public PngFile(InputStream inputStream) throws IOException {
         this(inputStream, false);
@@ -69,7 +70,7 @@ public class PngFile {
         }
     }
 
-    public PngPixels getOutput() {
+    public Bitmap getOutput() {
         return output;
     }
 

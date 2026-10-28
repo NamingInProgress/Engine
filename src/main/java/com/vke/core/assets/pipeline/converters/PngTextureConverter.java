@@ -61,8 +61,7 @@ public class PngTextureConverter implements AssetConverter {
         PngFile png = input.getAssetData().getDataAs();
         PngInfo info = png.getPngInfo();
         Renderer renderer = context.service(Services.RENDERER);
-        RenderDevice device = renderer.getDevice();
-        Texture.TextureDesc desc = Texture.TextureDesc.builder()
+        Texture.TextureDescriptorBuilder builder = Texture.TextureDesc.builder()
                 .width(info.width)
                 .height(info.height)
                 .format(textureFormat)
@@ -71,10 +70,9 @@ public class PngTextureConverter implements AssetConverter {
                 .generateMips(generateMips)
                 .mipLevels(mipLevels)
                 .usage(usage)
-                .type(TextureType.TEX_2D)
-                .build();
-        Texture texture = device.createTexture(desc);
-        texture.upload(png.getOutput());
+                .type(TextureType.TEX_2D);
+
+        Texture texture = png.getOutput().createTexture2D(renderer, builder);
         return new AssetData(Protocols.TEXTURE, texture);
     }
 }
