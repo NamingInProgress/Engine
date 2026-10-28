@@ -5,6 +5,8 @@ import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import java.nio.ByteBuffer;
 
 public class LdrBitmap implements Bitmap {
+    private static final int CHANNELS = 4;
+
     private final int width, height;
     private final boolean flipVertically;
     private final byte[] rgbaBytes;
@@ -13,7 +15,7 @@ public class LdrBitmap implements Bitmap {
         this.width = width;
         this.height = height;
         this.flipVertically = flipVertically;
-        this.rgbaBytes = new byte[width * height * 4];
+        this.rgbaBytes = new byte[width * height * CHANNELS];
     }
 
     public void setPixelRGBA(int x, int y, int rgba) {
@@ -21,14 +23,14 @@ public class LdrBitmap implements Bitmap {
     }
 
     public void setPixelRGBA(int i, int rgba) {
-        setPixelRGBA_0(maybeFlipIndex(i), rgba);
+        setPixelRGBA_0(processIndex(i), rgba);
     }
 
     private void setPixelRGBA_0(int i, int rgba) {
-        rgbaBytes[i] = (byte) (rgba & 0xFF);
-        rgbaBytes[i + 1] = (byte) ((rgba >>> 8) & 0xFF);
-        rgbaBytes[i + 2] = (byte) ((rgba >>> 16) & 0xFF);
-        rgbaBytes[i + 3] = (byte) ((rgba >>> 24) & 0xFF);
+        rgbaBytes[i] = (byte) (rgba >>> 24);
+        rgbaBytes[i + 1] = (byte) (rgba >>> 16);
+        rgbaBytes[i + 2] = (byte) (rgba >>> 8);
+        rgbaBytes[i + 3] = (byte) rgba;
     }
 
     public void setPixelARGB(int x, int y, int argb) {
@@ -37,32 +39,29 @@ public class LdrBitmap implements Bitmap {
     }
 
     public void setPixelARGB(int i, int argb) {
-        setPixelARGB_0(maybeFlipIndex(i), argb);
+        setPixelARGB_0(processIndex(i), argb);
     }
 
     private void setPixelARGB_0(int i, int argb) {
-        rgbaBytes[i] = (byte) ((argb >>> 8) & 0xFF);
-        rgbaBytes[i + 1] = (byte) ((argb >>> 16) & 0xFF);
-        rgbaBytes[i + 2] = (byte) ((argb >>> 24) & 0xFF);
-        rgbaBytes[i + 3] = (byte) (argb & 0xFF);
+        rgbaBytes[i] = (byte) (argb >>> 16);
+        rgbaBytes[i + 1] = (byte) (argb >>> 8);
+        rgbaBytes[i + 2] = (byte) argb;
+        rgbaBytes[i + 3] = (byte) (argb >>> 24);
     }
 
     private int getIndex(int x, int y) {
-        if (flipVertically) {
-            return x + (height - y) * width;
-        } else {
-            return x + y * width;
-        }
+        if (flipVertically) y = height - 1 - y;
+        return (x + y * width) * CHANNELS;
     }
 
-    private int maybeFlipIndex(int i) {
+    private int processIndex(int i) {
         if (flipVertically) {
             int x = i % width;
             int y = i / width;
 
             i = (height - 1 - y) * width + x;
         }
-        return i;
+        return i * CHANNELS;
     }
 
     @Override
@@ -87,7 +86,7 @@ public class LdrBitmap implements Bitmap {
 
     @Override
     public int pixelStride() {
-        return 4*4;
+        return CHANNELS;
     }
 
     @Override
