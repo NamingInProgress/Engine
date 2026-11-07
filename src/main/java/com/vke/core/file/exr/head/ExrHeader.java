@@ -3,6 +3,7 @@ package com.vke.core.file.exr.head;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.head.attr.*;
 import com.vke.core.file.utils.DataUtils;
+import com.vke.utils.IntUtils;
 import com.vke.utils.io.BytesInFrontOfInputStream;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,8 +25,8 @@ public class ExrHeader {
 
     public final @Nullable TileDescAttr tiles;
 
-    public ExrHeader(ExrDecoder dec, InputStream stream, ExrDecoder decoder) throws IOException {
-        this.decoder = decoder;
+    public ExrHeader(ExrDecoder dec, InputStream stream) throws IOException {
+        this.decoder = dec;
         this.attrs = new ExrAttrMap();
 
         int next;
@@ -62,20 +63,67 @@ public class ExrHeader {
     }
 
     public int computeOffsetCount() throws IOException {
+        ExrHeaderHead head = decoder.head;
         IntAttr attr = (IntAttr) attrs.get("chunkCount");
-        if (!decoder.head.isMultipart) {
+        if (!head.isMultipart) {
             //case 1
             if (attr != null) {
                 return attr.value;
             } else {
+                int w = dataWindow.yMax - dataWindow.yMin + 1;
                 //FUCKKK I DONT WANNA DO THIS
+                if (head.isSingleTile) {
+                    //tiles
+                    if (tiles == null) {
+                        throw new IOException("For tile images, the attribute 'tiles' must be available!");
+                    }
 
+                    int h = dataWindow.xMax - dataWindow.xMin + 1;
+
+                    ExrLevelMode lvlm = tiles.levelMode;
+                    ExrRoundingMode rm = tiles.roundingMode;
+                    int count = 0;
+                    switch (lvlm) {
+                        case ONE_LEVEL -> {
+                            int x = IntUtils.fastCeilDivPositive(w, tiles.xSize);
+                            int y = IntUtils.fastCeilDivPositive(h, tiles.ySize);
+                            count += x * y;
+                        }
+                        case MIPMAP_LEVELS -> {
+                            for (int l = 0; l < lvlm.numberOfLevelsX(w, h, rm); l++) {
+                                int lw = ExrLevelMode.levelSize(w, l, rm);
+                                int lh = ExrLevelMode.levelSize(h, l, rm);
+                                int x = IntUtils.fastCeilDivPositive(lw, tiles.xSize);
+                                int y = IntUtils.fastCeilDivPositive(lh, tiles.ySize);
+                                count += x * y;
+                            }
+                        }
+                        case RIPMAP_LEVELS -> {
+                            for (int lx = 0; lx < lvlm.numberOfLevelsX(w, h, rm); lx++) {
+                                for (int ly = 0; ly < lvlm.numberOfLevelsY(w, h, rm); ly++) {
+                                    int lw = ExrLevelMode.levelSize(w, lx, rm);
+                                    int lh = ExrLevelMode.levelSize(h, ly, rm);
+                                    int x = IntUtils.fastCeilDivPositive(lw, tiles.xSize);
+                                    int y = IntUtils.fastCeilDivPositive(lh, tiles.ySize);
+                                    count += x * y;
+                                }
+                            }
+                        }
+                    }
+                    return count;
+                } else {
+                    //scanlines
+                    int scanlines = compression.compression.numberOfScanlinesPerBlock();
+                    return IntUtils.fastCeilDivPositive(w, scanlines);
+                }
             }
         } else {
             //case 2
             if (attr == null) {
                 throw new IOException("When file is multipart, the 'chunkCount' attribute must be present! And guess what, it is NOT RIGHT NOW GET OUUTT!!");
             }
+
+            return attr.value;
         }
     }
 }

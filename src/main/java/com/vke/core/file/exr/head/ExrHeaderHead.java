@@ -30,6 +30,8 @@ public class ExrHeaderHead {
         this.hasLongNames = flags[1];
         this.hasDeepData = flags[2];
         this.isMultipart = flags[3];
+
+        if (hasDeepData) throw new IOException("DeepData files are currently not supported and are also pointless for a game engine. will implement this in the future probably.");
         DataUtils.popConfig();
     }
 }

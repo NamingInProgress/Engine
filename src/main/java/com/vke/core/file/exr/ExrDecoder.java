@@ -1,7 +1,10 @@
 package com.vke.core.file.exr;
 
 import com.vke.api.logger.Logger;
+import com.vke.core.file.exr.head.ExrHeader;
 import com.vke.core.file.exr.head.ExrHeaderHead;
+import com.vke.core.file.exr.head.ExrMultiPartHeader;
+import com.vke.core.file.exr.head.ExrSinglePartHeader;
 import com.vke.core.file.exr.head.attr.*;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.core.logger.LoggerFactory;
@@ -14,6 +17,7 @@ public class ExrDecoder {
     public static final Logger LOGGER = LoggerFactory.get("EXR Decoder");
 
     public final ExrHeaderHead head;
+    public final ExrPart[] parts;
 
     private final HashMap<String, ExrAttr.Factory> attrFactories;
 
@@ -21,6 +25,18 @@ public class ExrDecoder {
         this.attrFactories = new HashMap<>();
         registerAttrs();
         this.head = new ExrHeaderHead(stream);
+
+        if (head.isMultipart) {
+            ExrMultiPartHeader headers = new ExrMultiPartHeader(this, stream);
+            this.parts = new ExrPart[headers.headerCount()];
+            for (int i = 0; i < headers.headerCount(); i++) {
+                ExrHeader header = headers.getHeader(i);
+                parts[i] = new ExrPart(header, stream);
+            }
+        } else {
+            ExrSinglePartHeader header = new ExrSinglePartHeader(this, stream);
+            this.parts = new ExrPart[] { new ExrPart(header, stream) };
+        }
     }
 
     public final String readExrStringNull(InputStream stream) throws IOException {

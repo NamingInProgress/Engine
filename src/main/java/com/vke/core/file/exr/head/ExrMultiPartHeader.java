@@ -29,4 +29,8 @@ public class ExrMultiPartHeader implements ExrHeaders {
         }
         return headers.get(index);
     }
+
+    public int headerCount() {
+        return headers.size();
+    }
 }

@@ -16,8 +16,6 @@ public enum ExrCompression implements IntEnum {
     HTJ2K256(10),
     HTJ2K32(11);
 
-    public static final ExrCompression[] SUPPORTED = new ExrCompression[] {};
-
     public final int repr;
 
     ExrCompression(int repr) {
@@ -34,5 +32,21 @@ public enum ExrCompression implements IntEnum {
         return true;
     }
 
-
+    @SuppressWarnings("all") //for the cases with same value but imo this looks cleaner
+    public int numberOfScanlinesPerBlock() {
+        return switch (this) {
+            case NO -> 1;
+            case RLE -> 1;
+            case ZIPS -> 1;
+            case ZIP -> 16;
+            case PIZ -> 32;
+            case PXR24 -> 16;
+            case B44 -> 32;
+            case B44A -> 32;
+            case DWAA -> 32;
+            case DWAB -> 256;
+            case HTJ2K256 -> 256;
+            case HTJ2K32 -> 32;
+        };
+    }
 }
