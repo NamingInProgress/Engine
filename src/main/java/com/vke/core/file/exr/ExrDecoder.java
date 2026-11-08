@@ -1,10 +1,10 @@
 package com.vke.core.file.exr;
 
 import com.vke.api.logger.Logger;
-import com.vke.core.file.exr.head.ExrHeader;
-import com.vke.core.file.exr.head.ExrHeaderHead;
-import com.vke.core.file.exr.head.ExrMultiPartHeader;
-import com.vke.core.file.exr.head.ExrSinglePartHeader;
+import com.vke.core.file.exr.decompress.ExrDecompressor;
+import com.vke.core.file.exr.decompress.ExrNoneDecompressor;
+import com.vke.core.file.exr.decompress.ExrZipDecompressor;
+import com.vke.core.file.exr.head.*;
 import com.vke.core.file.exr.head.attr.*;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.core.logger.LoggerFactory;
@@ -12,6 +12,7 @@ import com.vke.core.logger.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ExrDecoder {
     public static final Logger LOGGER = LoggerFactory.get("EXR Decoder");
@@ -20,6 +21,11 @@ public class ExrDecoder {
     public final ExrPart[] parts;
 
     private final HashMap<String, ExrAttr.Factory> attrFactories;
+
+    private static final Map<ExrCompression, ExrDecompressor> DECOMPRESSORS = Map.of(
+            ExrCompression.NO, new ExrNoneDecompressor(),
+            ExrCompression.ZIP, new ExrZipDecompressor()
+    );
 
     public ExrDecoder(InputStream stream) throws IOException {
         this.attrFactories = new HashMap<>();
@@ -90,5 +96,9 @@ public class ExrDecoder {
         registerAttr("v2f", V2fAttr::new);
         registerAttr("v3i", V3fAttr::new);
         registerAttr("v3f", V3fAttr::new);
+    }
+
+    public ExrDecompressor getDecompressor(ExrCompression cmpr) {
+        return DECOMPRESSORS.get(cmpr);
     }
 }

@@ -13,4 +13,8 @@ public class IntUtils {
     public static int fastiLogFloor2(int v) {
         return 31 - Integer.numberOfLeadingZeros(v);
     }
+
+    public static boolean isPowerOf2(int v) {
+        return v > 0 && (v & (v - 1)) == 0;
+    }
 }

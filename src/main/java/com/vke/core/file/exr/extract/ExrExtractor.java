@@ -1,8 +1,10 @@
 package com.vke.core.file.exr.extract;
 
 import com.vke.core.file.exr.ExrDecoder;
+import com.vke.core.file.exr.decompress.ExrDecompressor;
 import com.vke.core.file.exr.head.ExrCompression;
 import com.vke.core.file.utils.DataUtils;
+import com.vke.utils.io.PositionedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,17 +26,23 @@ public abstract class ExrExtractor {
         }
     }
 
-    protected byte[] decompress(int length, ExrCompression cmpr) {
+    protected byte[] decompress(int length, ExrCompression cmpr) throws IOException {
         byte[] dst = new byte[length];
         decompress(dst, 0, length, cmpr);
         return dst;
     }
 
-    protected void decompress(byte[] dst, ExrCompression cmpr) {
+    protected void decompress(byte[] dst, ExrCompression cmpr) throws IOException {
         decompress(dst, 0, dst.length, cmpr);
     }
 
-    protected void decompress(byte[] dst, int start, int length, ExrCompression cmpr) {
-
+    protected long decompress(byte[] dst, int start, int length, ExrCompression cmpr) throws IOException {
+        ExrDecompressor decomp = decoder.getDecompressor(cmpr);
+        if (decomp == null) {
+            throw new IOException("No decompressor found for compression method " + cmpr);
+        }
+        PositionedInputStream pStream = new PositionedInputStream(stream);
+        decomp.decompress(pStream, dst, start, length);
+        return pStream.getPosition();
     }
 }

@@ -70,7 +70,7 @@ public class ExrHeader {
             if (attr != null) {
                 return attr.value;
             } else {
-                int w = dataWindow.yMax - dataWindow.yMin + 1;
+                int w = dataWindow.width();
                 //FUCKKK I DONT WANNA DO THIS
                 if (head.isSingleTile) {
                     //tiles
@@ -78,7 +78,7 @@ public class ExrHeader {
                         throw new IOException("For tile images, the attribute 'tiles' must be available!");
                     }
 
-                    int h = dataWindow.xMax - dataWindow.xMin + 1;
+                    int h = dataWindow.height();
 
                     ExrLevelMode lvlm = tiles.levelMode;
                     ExrRoundingMode rm = tiles.roundingMode;
@@ -125,5 +125,27 @@ public class ExrHeader {
 
             return attr.value;
         }
+    }
+
+    public int computeScanBlockByteSize(int yPos, int height) {
+        int size = 0;
+        int w = dataWindow.width();
+        for (ExrChannel channel : chlist.channels.values()) {
+            int ySamp = channel.ySampling();
+            int facy = height;
+            if (ySamp != 1) {
+                facy = 0;
+                for (int y = 0; y < height; y++) {
+                    if ((y + yPos) % ySamp == 0) {
+                        facy++;
+                    }
+                }
+            }
+
+            ExrPixelType pxType = channel.pixelType();
+            int facx = IntUtils.fastCeilDivPositive(w, channel.xSampling());
+            size += pxType.byteSize * facx * facy;
+        }
+        return size;
     }
 }

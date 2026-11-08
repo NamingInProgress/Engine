@@ -1,8 +1,10 @@
 package com.vke.core.image;
 
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
+import com.vke.core.color.RgbColor;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class LdrBitmap implements Bitmap {
     private static final int CHANNELS = 4;
@@ -16,6 +18,15 @@ public class LdrBitmap implements Bitmap {
         this.height = height;
         this.flipVertically = flipVertically;
         this.rgbaBytes = new byte[width * height * CHANNELS];
+    }
+
+    public void fill(RgbColor color) {
+        for (int i = 0; i < rgbaBytes.length; i += 4) {
+            rgbaBytes[i] = (byte) color.r();
+            rgbaBytes[i + 1] = (byte) color.g();
+            rgbaBytes[i + 2] = (byte) color.b();
+            rgbaBytes[i + 3] = (byte) color.a();
+        }
     }
 
     public void setPixelRGBA(int x, int y, int rgba) {

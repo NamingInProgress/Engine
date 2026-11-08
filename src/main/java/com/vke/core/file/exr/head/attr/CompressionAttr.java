@@ -16,12 +16,6 @@ public class CompressionAttr implements ExrAttr {
         assertSize(size, 1);
         int repr = DataUtils.readU8(stream);
         this.compression = IntEnum.fromInt(ExrCompression.values(), repr);
-        if (Utils.TRUE) return;
-        for (ExrCompression supported : ExrCompression.SUPPORTED) {
-            if (supported == compression) {
-                return;
-            }
-        }
-        throw new IOException("Compression method (" + compression + ") is currently not in the list of currently support exr compression methods. the list in question:\n" + Arrays.toString(ExrCompression.SUPPORTED));
+        //throw new IOException("Compression method (" + compression + ") is currently not in the list of currently support exr compression methods. the list in question:\n" + Arrays.toString(ExrCompression.SUPPORTED));
     }
 }

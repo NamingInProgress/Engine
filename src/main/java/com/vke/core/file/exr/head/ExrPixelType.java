@@ -2,17 +2,17 @@ package com.vke.core.file.exr.head;
 
 import com.vke.api.rendering.abstraction.renderer.IntEnum;
 
-import java.util.Arrays;
-
 public enum ExrPixelType implements IntEnum {
-    UINT(0),
-    HALF(1),
-    FLOAT(2);
+    UINT(0, 4),
+    HALF(1, 2),
+    FLOAT(2, 4);
 
     public final int repr;
+    public final int byteSize;
 
-    ExrPixelType(int repr) {
+    ExrPixelType(int repr, int byteSize) {
         this.repr = repr;
+        this.byteSize = byteSize;
     }
 
     @Override

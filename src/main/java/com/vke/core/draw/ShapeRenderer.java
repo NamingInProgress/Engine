@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unchecked")
 public class ShapeRenderer<T extends Vertex> implements Drawable {
-
     private static final float[] DEFAULT_UV = { 0,0,1,1 };
     private final VertexConsumer<T> consumer;
     private final VertexFactory<T> factory;

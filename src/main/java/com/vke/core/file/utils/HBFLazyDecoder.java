@@ -50,7 +50,8 @@ public abstract class HBFLazyDecoder<S extends HBFDecodeSource<LazyT>, LazyT, Co
                 if (state == 0) {
                     source.parseHeader();
                     state++;
-                } else if (state == 1) {
+                }
+                if (state == 1) {
                     LazyT next = source.nextByte();
                     if (!isFinal(next)) {
                         return next;

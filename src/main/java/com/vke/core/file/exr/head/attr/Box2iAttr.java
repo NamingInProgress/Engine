@@ -15,4 +15,16 @@ public class Box2iAttr implements ExrAttr {
         this.xMax = DataUtils.readU32LittleEndian(stream);
         this.yMax = DataUtils.readU32LittleEndian(stream);
     }
+
+    public int width() {
+        return xMax - xMin + 1;
+    }
+
+    public int height() {
+        return yMax - yMin + 1;
+    }
+
+    public boolean needsBg(Box2iAttr view) {
+        return view.xMin < xMin || view.yMin < yMin || view.xMax > xMax || view.yMax > yMax;
+    }
 }

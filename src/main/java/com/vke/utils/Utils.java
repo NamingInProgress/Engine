@@ -377,4 +377,13 @@ public class Utils {
             throw new RuntimeException(e);
         }
     }
+
+    public static @Nullable String findNullCulprit(Object...  nullablesAndTheirNames) {
+        for (int i = 0; i < nullablesAndTheirNames.length; i += 2) {
+            Object nullable = nullablesAndTheirNames[i];
+            String name = nullablesAndTheirNames[i + 1].toString();
+            if (nullable == null) return name;
+        }
+        return null;
+    }
 }

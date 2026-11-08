@@ -4,6 +4,8 @@ import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.ExrPart;
+import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
+import com.vke.core.image.Bitmap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,5 +18,8 @@ public class ExrBasicTest {
         ExrDecoder decoder = new ExrDecoder(testImageStream);
         ExrPart part = decoder.parts[0];
         System.out.println(Arrays.toString(part.offsetTable()));
+
+        ExrScanlineBitmapExtractor ext = new ExrScanlineBitmapExtractor(decoder, testImageStream, 0);
+        Bitmap bitmap = ext.readIntoBitmap(false);
     }
 }
