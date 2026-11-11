@@ -31,8 +31,26 @@ public class ExrZipDecompressor implements ExrDecompressor {
                     dst[start + i] = (byte) (d & 0xFF);
                 }
             }
+            interleave(dst, start, length);
         } catch (DecodeException e) {
             throw new IOException("Decoding error: " + e.getMessage());
+        }
+    }
+
+    private static void interleave(byte[] dst, int start, int length) {
+        byte[] tmp = new byte[length];
+        System.arraycopy(dst, start, tmp, 0, length);
+
+        int firstHalf = 0;
+        int secondHalf = (length + 1) / 2;
+        int out = start;
+        int end = start + length;
+
+        while (out < end) {
+            dst[out++] = tmp[firstHalf++];
+            if (out < end) {
+                dst[out++] = tmp[secondHalf++];
+            }
         }
     }
 }

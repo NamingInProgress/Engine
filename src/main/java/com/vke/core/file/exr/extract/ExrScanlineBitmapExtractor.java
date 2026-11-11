@@ -1,12 +1,21 @@
 package com.vke.core.file.exr.extract;
 
+import com.vke.core.VKEngine;
 import com.vke.core.color.RgbColor;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.head.ExrHeader;
 import com.vke.core.file.exr.head.attr.Box2iAttr;
+import com.vke.core.file.exr.out.ExrBitmap;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.core.image.Bitmap;
 import com.vke.core.image.LdrBitmap;
+import com.vke.core.profiler.DummyProfilerImpl;
+import com.vke.core.profiler.ProfilerPrinter;
+import com.vke.core.profiler.service.Profiler;
+import com.vke.core.profiler.service.ProfilerImpl;
+import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
+import com.vke.core.rendering.vulkan.swapchain.SwapchainUtils;
+import com.vke.utils.console.AnsiColors;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,13 +30,13 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
         this.header = decoder.parts[targetPart].header();
     }
 
-    public Bitmap readIntoBitmap(boolean flipVertically) throws IOException {
+    public Bitmap readIntoBitmap(boolean flipVertically, VKEngine engine) throws IOException {
         Box2iAttr dataWindow = header.dataWindow;
         Box2iAttr dispWindow = header.displayWindow;
-        LdrBitmap bitmap = new LdrBitmap(dispWindow.width(), dispWindow.height(), flipVertically);
+        ExrBitmap bitmap = new ExrBitmap(header.chlist, dataWindow.width(), dataWindow.height(), flipVertically);
         if (dataWindow.needsBg(dispWindow)) {
-            System.out.println("filling bg");
-            bitmap.fill(RgbColor.VKE);
+            //todo
+            //bitmap.fill(RgbColor.VKE);
         }
 
         int w = dataWindow.width();
@@ -35,27 +44,32 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
 
         System.out.println("w: " + w + ",h: " + h);
 
+        ProfilerImpl profiler = new ProfilerImpl(engine);
+        profiler.defaultSettings(ProfilerPrinter.Type.PIE_CHART);
+        profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
+        profiler.beginFrame();
         more = true;
+        boolean first = true;
         while (more) {
+
+            if (first) profiler.begin("read scans", AnsiColors.RED);
             readScanlines();
+            if (first) profiler.end();
             if (part != targetPart) {
                 continue;
             }
 
+            if (first) profiler.begin("write scans", AnsiColors.YELLOW);
+            //todo: handle x and y sampling
+            int scanlineSize = w * header.computePixelStride();
             for (int scan = 0; scan < blockScans; scan++) {
                 int scanY = yPos + scan;
-                for (int x = 0; x < w; x++) {
-                    int r = samples[x];
-                    //int g = samples[x * 4 + 1];
-                    //int b = samples[x * 4 + 2];
-                    //int a = samples[x * 4 + 3];
-                    //int rgba = DataUtils.abcd(r, g, b, a);
-                    int rgba = DataUtils.abcd(r, r, r, 255);
-                    //todo: replace LdrBitmap with a custom ExrBitmap and then make it vulkan compatible also
-                    bitmap.setPixelRGBA(x, scanY, rgba);
-                }
+                bitmap.setScanline(scanY, samples, scan * scanlineSize);
             }
+            if (first) profiler.end();
+            first = false;
         }
+        profiler.endFrame();
 
         return bitmap;
     }

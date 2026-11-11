@@ -70,7 +70,7 @@ public class ExrHeader {
             if (attr != null) {
                 return attr.value;
             } else {
-                int w = dataWindow.width();
+                int h = dataWindow.height();
                 //FUCKKK I DONT WANNA DO THIS
                 if (head.isSingleTile) {
                     //tiles
@@ -78,7 +78,7 @@ public class ExrHeader {
                         throw new IOException("For tile images, the attribute 'tiles' must be available!");
                     }
 
-                    int h = dataWindow.height();
+                    int w = dataWindow.width();
 
                     ExrLevelMode lvlm = tiles.levelMode;
                     ExrRoundingMode rm = tiles.roundingMode;
@@ -114,7 +114,7 @@ public class ExrHeader {
                 } else {
                     //scanlines
                     int scanlines = compression.compression.numberOfScanlinesPerBlock();
-                    return IntUtils.fastCeilDivPositive(w, scanlines);
+                    return IntUtils.fastCeilDivPositive(h, scanlines);
                 }
             }
         } else {
@@ -145,6 +145,14 @@ public class ExrHeader {
             ExrPixelType pxType = channel.pixelType();
             int facx = IntUtils.fastCeilDivPositive(w, channel.xSampling());
             size += pxType.byteSize * facx * facy;
+        }
+        return size;
+    }
+
+    public int computePixelStride() {
+        int size = 0;
+        for (ExrChannel channel : chlist.channels.values()) {
+            size += channel.pixelType().byteSize;
         }
         return size;
     }

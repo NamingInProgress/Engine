@@ -21,4 +21,14 @@ public class ChlistAttr implements ExrAttr {
             next = DataUtils.readU8(stream);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (ExrChannel ch : channels.values()) {
+            builder.append(ch.name());
+            builder.append(" ");
+        }
+        return builder.toString().trim();
+    }
 }

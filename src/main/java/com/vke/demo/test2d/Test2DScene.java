@@ -2,7 +2,9 @@ package com.vke.demo.test2d;
 
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageTiling;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageUsage;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.SampleCount;
 import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
@@ -27,20 +29,23 @@ public class Test2DScene extends Scene {
     @Override
     public void onLoad() throws Exception {
         try {
-            FileIdentifier fid = FileIdentifier.of("lol:BrightRings.exr");
+            FileIdentifier fid = FileIdentifier.of("lol:Blobbies.exr");
             InputStream testImageStream = fid.openInputStream();
             ExrDecoder decoder = new ExrDecoder(testImageStream);
             ExrPart part = decoder.parts[0];
             System.out.println(Arrays.toString(part.offsetTable()));
 
-            System.out.println("channels = " + part.header().chlist.channels);
+            System.out.println("channels = " + part.header().chlist);
 
             ExrScanlineBitmapExtractor ext = new ExrScanlineBitmapExtractor(decoder, testImageStream, 0);
-            Bitmap bitmap = ext.readIntoBitmap(false);
+            Bitmap bitmap = ext.readIntoBitmap(false, context.getEngine());
 
             Renderer renderer = context.service(Services.RENDERER);
 
             var builder = new Texture.TextureDescriptorBuilder()
+                    .sampleCount(SampleCount.X1)
+                    .mipLevels(1)
+                    .tiling(ImageTiling.OPTIMAL)
                     .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
                     .width(part.header().displayWindow.width())
                     .height(part.header().displayWindow.height());

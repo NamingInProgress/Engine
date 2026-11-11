@@ -7,6 +7,7 @@ import com.vke.api.window.WindowCreateInfo;
 import com.vke.config.ConfigurationOption;
 import com.vke.core.EngineCreateInfo;
 import com.vke.core.VKEngine;
+import com.vke.core.event.events.ServiceLoadEvent;
 import com.vke.core.logger.CoreLogger;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.rendering.vulkan.debug.DebugLogFeature;
@@ -22,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
-        createInfo.releaseMode = true;
+        createInfo.releaseMode = false;
         createInfo.vulkanCreateInfo.framesInFlight = 3;
         //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("BEAR test!");
