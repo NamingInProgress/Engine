@@ -58,23 +58,21 @@ public class InflatingDevice {
         }
 
         try {
-            int decoded = 0;
-            while (true) {
-                if (currentBlock == null) {
-                    currentBlock = DeflateBlock.createNextBlock(bitStream, window);
-                }
+            if (currentBlock == null) {
+                currentBlock = DeflateBlock.createNextBlock(bitStream, window);
+            }
 
-                decoded += currentBlock.inflateBytes(bitStream, dst, start + decoded, length, checksum);
-                if (decoded < length) {
-                    if (currentBlock.bFinal()) {
-                        finished = true;
-                        return decoded;
-                    } else {
-                        currentBlock = null;
-                    }
+            int decoded = currentBlock.inflateBytes(bitStream, dst, start, length, checksum);
+            if (decoded == -1) {
+                if (currentBlock.bFinal()) {
+                    finished = true;
+                    return -1;
                 } else {
-                    return decoded;
+                    currentBlock = null;
+                    return 0;
                 }
+            } else {
+                return decoded;
             }
         } catch (IOException e) {
             throw new InflatingException("Inflation failed because of IO:" + e.getMessage());

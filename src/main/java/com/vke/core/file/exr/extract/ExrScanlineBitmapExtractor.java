@@ -1,21 +1,15 @@
 package com.vke.core.file.exr.extract;
 
 import com.vke.core.VKEngine;
-import com.vke.core.color.RgbColor;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.head.ExrHeader;
 import com.vke.core.file.exr.head.attr.Box2iAttr;
 import com.vke.core.file.exr.out.ExrBitmap;
-import com.vke.core.file.utils.DataUtils;
 import com.vke.core.image.Bitmap;
-import com.vke.core.image.LdrBitmap;
-import com.vke.core.profiler.DummyProfilerImpl;
-import com.vke.core.profiler.ProfilerPrinter;
-import com.vke.core.profiler.service.Profiler;
 import com.vke.core.profiler.service.ProfilerImpl;
-import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
-import com.vke.core.rendering.vulkan.swapchain.SwapchainUtils;
-import com.vke.utils.console.AnsiColors;
+import com.vke.utils.Stopwatch;
+import com.vke.utils.console.PrettyTable;
+import com.vke.utils.console.StringTable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +17,8 @@ import java.io.InputStream;
 public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
     private final int targetPart;
     private final ExrHeader header;
+
+    public static ProfilerImpl PROFILER;
 
     public ExrScanlineBitmapExtractor(ExrDecoder decoder, InputStream stream, int targetPart) {
         super(decoder, stream);
@@ -44,32 +40,46 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
 
         System.out.println("w: " + w + ",h: " + h);
 
-        ProfilerImpl profiler = new ProfilerImpl(engine);
-        profiler.defaultSettings(ProfilerPrinter.Type.TABLE);
-        profiler.withDisplayTypes(ProfilerPrinter.Type.TABLE);
-        profiler.beginFrame();
-        more = true;
-        boolean first = true;
-        while (more) {
+        Stopwatch readWatch = new Stopwatch();
+        Stopwatch writeWatch = new Stopwatch();
+        Stopwatch totalWatch = new Stopwatch();
 
-            if (first) profiler.begin("read scans", AnsiColors.RED);
+        totalWatch.start();
+        more = true;
+        while (more) {
+            readWatch.start();
             readScanlines();
-            if (first) profiler.end();
+            readWatch.stop();
             if (part != targetPart) {
                 continue;
             }
 
-            if (first) profiler.begin("write scans", AnsiColors.YELLOW);
             //todo: handle x and y sampling
+            writeWatch.start();
             int scanlineSize = w * header.computePixelStride();
             for (int scan = 0; scan < blockScans; scan++) {
                 int scanY = yPos + scan;
                 bitmap.setScanline(scanY, samples, scan * scanlineSize);
             }
-            if (first) profiler.end();
-            first = false;
+            writeWatch.stop();
         }
-        profiler.endFrame();
+        totalWatch.stop();
+
+        PrettyTable table = new PrettyTable();
+        table.column("operation");
+        table.column("time (ms)");
+        table.newRow();
+        table.column("read scans");
+        table.column(readWatch.getMillis());
+        table.newRow();
+        table.column("write scans");
+        table.column(writeWatch.getMillis());
+        table.newRow();
+        table.column("total");
+        table.column(totalWatch.getMillis());
+
+
+        System.out.println(table);
 
         return bitmap;
     }

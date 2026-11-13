@@ -50,23 +50,7 @@ public class FixedBlock implements DeflateBlock {
 
     @Override
     public int inflateBytes(BitInputStream inputStream, byte[] dst, int start, int length, @Nullable Checksum32 checksum) throws IOException {
-        //todo: make lz77 decoder have a method for bulk decoding, this can be used in the active copy path for example.
-        //for huffman, i have no clue yet on how to bulk decode, but maybe its not even necessary. important thing for now is that
-        //the lz copy thing is optimized and that the huffman loop is inside the decoder so we have so many less interface calls.
-        //i hope that these changes will speed up the process significantly
-        if (decoder.isFinished()) return -1;
-        for (int i = 0; i < length; i++) {
-            if (decoder.isFinished()) {
-                return i;
-            }
-            int b = decoder.decodeNextByte(inputStream);
-            if (b == -1) {
-                return i;
-            }
-            if (checksum != null) checksum.nextByte(b);
-            dst[start + i] = (byte) b;
-        }
-        return length;
+        return decoder.decodeNextBytes(inputStream, dst, start, length, checksum);
     }
 
     @Override

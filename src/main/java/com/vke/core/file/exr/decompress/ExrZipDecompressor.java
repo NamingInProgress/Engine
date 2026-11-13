@@ -3,6 +3,8 @@ package com.vke.core.file.exr.decompress;
 import com.vke.api.file.ByteDecoder;
 import com.vke.api.file.DecodeException;
 import com.vke.api.file.Decoders;
+import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
+import com.vke.core.profiler.service.ProfilerImpl;
 
 import java.io.EOFException;
 import java.io.IOException;

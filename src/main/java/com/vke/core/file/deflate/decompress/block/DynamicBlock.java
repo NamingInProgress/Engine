@@ -35,19 +35,7 @@ public class DynamicBlock implements DeflateBlock {
             initialize(inputStream);
             initialized = true;
         }
-        if (decoder.isFinished()) return -1;
-        for (int i = 0; i < length; i++) {
-            if (decoder.isFinished()) {
-                return i;
-            }
-            int b = decoder.decodeNextByte(inputStream);
-            if (b == -1) {
-                return i;
-            }
-            if (checksum != null) checksum.nextByte(b);
-            dst[start + i] = (byte) b;
-        }
-        return length;
+        return decoder.decodeNextBytes(inputStream, dst, start, length, checksum);
     }
 
     private void initialize(BitInputStream bitStream) throws IOException {
