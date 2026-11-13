@@ -1,13 +1,13 @@
 package com.vke.core.file.deflate.decompress.block;
 
-import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.DeflateBlock;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.deflate.decompress.lz77.Lz77Decoder;
 import com.vke.core.file.deflate.decompress.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,12 +30,24 @@ public class DynamicBlock implements DeflateBlock {
     }
 
     @Override
-    public int nextByte(BitInputStream in) throws IOException {
+    public int inflateBytes(BitInputStream inputStream, byte[] dst, int start, int length, @Nullable Checksum32 checksum) throws IOException {
         if (!initialized) {
-            initialize(in);
+            initialize(inputStream);
             initialized = true;
         }
-        return decoder.decodeNextByte(in);
+        if (decoder.isFinished()) return -1;
+        for (int i = 0; i < length; i++) {
+            if (decoder.isFinished()) {
+                return i;
+            }
+            int b = decoder.decodeNextByte(inputStream);
+            if (b == -1) {
+                return i;
+            }
+            if (checksum != null) checksum.nextByte(b);
+            dst[start + i] = (byte) b;
+        }
+        return length;
     }
 
     private void initialize(BitInputStream bitStream) throws IOException {
@@ -149,11 +161,6 @@ public class DynamicBlock implements DeflateBlock {
         //System.out.println("===== HEADER DONE =====");
 
         this.decoder = new Lz77Decoder(literalLengthCodeLengths, distanceCodeLengths, windowReference);
-    }
-
-    @Override
-    public boolean isFinished() {
-        return decoder.isFinished();
     }
 
     @Override

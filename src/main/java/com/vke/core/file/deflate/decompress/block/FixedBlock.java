@@ -1,9 +1,11 @@
 package com.vke.core.file.deflate.decompress.block;
 
 import com.vke.core.file.deflate.decompress.DeflateBlock;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
 import com.vke.core.file.deflate.decompress.lz77.Lz77Decoder;
 import com.vke.core.file.deflate.decompress.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.input.BitInputStream;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,13 +49,24 @@ public class FixedBlock implements DeflateBlock {
     }
 
     @Override
-    public int nextByte(BitInputStream inputStream) throws IOException {
-        return decoder.decodeNextByte(inputStream);
-    }
-
-    @Override
-    public boolean isFinished() {
-        return decoder.isFinished();
+    public int inflateBytes(BitInputStream inputStream, byte[] dst, int start, int length, @Nullable Checksum32 checksum) throws IOException {
+        //todo: make lz77 decoder have a method for bulk decoding, this can be used in the active copy path for example.
+        //for huffman, i have no clue yet on how to bulk decode, but maybe its not even necessary. important thing for now is that
+        //the lz copy thing is optimized and that the huffman loop is inside the decoder so we have so many less interface calls.
+        //i hope that these changes will speed up the process significantly
+        if (decoder.isFinished()) return -1;
+        for (int i = 0; i < length; i++) {
+            if (decoder.isFinished()) {
+                return i;
+            }
+            int b = decoder.decodeNextByte(inputStream);
+            if (b == -1) {
+                return i;
+            }
+            if (checksum != null) checksum.nextByte(b);
+            dst[start + i] = (byte) b;
+        }
+        return length;
     }
 
     @Override

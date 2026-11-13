@@ -2,7 +2,7 @@ package com.vke.test;
 
 import com.carrotsearch.hppc.ByteArrayList;
 import com.vke.core.FileIdentifier;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
+import com.vke.core.file.io.bit.input.BasicBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
 
 import java.io.*;
@@ -26,7 +26,7 @@ public class ZlibTest {
                 deflater
         );
 
-        ZlibDecompressor decompressor = new ZlibDecompressor(new ShittyBitInputStream(rawData));
+        ZlibDecompressor decompressor = new ZlibDecompressor(new BasicBitInputStream(rawData));
         decompressor.parseHeader();
         ByteArrayList bal = new ByteArrayList();
         while(true) {

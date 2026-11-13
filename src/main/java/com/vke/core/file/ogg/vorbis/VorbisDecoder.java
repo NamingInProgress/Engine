@@ -5,7 +5,7 @@ import com.vke.core.audio.pcm.PCMInfo;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
 import com.vke.core.file.io.bit.input.BitInputStream;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
+import com.vke.core.file.io.bit.input.BasicBitInputStream;
 import com.vke.core.file.ogg.OggPacketReader;
 import com.vke.core.file.ogg.vorbis.data.VorbisAudioPacketDecoder;
 import com.vke.core.file.ogg.vorbis.header.CommentHeader;
@@ -81,7 +81,7 @@ public class VorbisDecoder implements AudioDecoder {
     private void setupPacket() throws IOException {
         byte[] packet = oggDecoder.readNextPacket();
         this.stream = new ByteArrayInputStream(packet);
-        this.bitStream = new ShittyBitInputStream(stream);
+        this.bitStream = new BasicBitInputStream(stream);
         this.bitStream.setOrdering(BitOrdering.LSB_FIRST);
     }
 

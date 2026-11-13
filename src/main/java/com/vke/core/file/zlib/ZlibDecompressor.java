@@ -6,12 +6,12 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
-import com.vke.core.file.utils.HBFDecodeSource;
+import com.vke.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ZlibDecompressor implements HBFDecodeSource<Integer> {
+public class ZlibDecompressor {
     private final BitInputStream stream;
     private InflatingDevice device;
     private int cm;
@@ -24,7 +24,6 @@ public class ZlibDecompressor implements HBFDecodeSource<Integer> {
         this.adler = new Adler();
     }
 
-    @Override
     public void parseHeader() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         int cmf = stream.readBits(8);
@@ -61,17 +60,10 @@ public class ZlibDecompressor implements HBFDecodeSource<Integer> {
         stream.appendData(toAppend);
     }
 
-    @Override
-    public Integer nextByte() throws IOException {
-        if (device.isFinished()) return -1;
-        try {
-            return device.inflateNextByte();
-        } catch (InflatingException e) {
-            throw new IOException(e);
-        }
+    public int decompressBytes(byte[] dst, int start, int length) throws IOException {
+        return Utils.chainExceptions(() -> device.inflate(dst, start, length));
     }
 
-    @Override
     public void parseFooter() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         stream.alignToByte();

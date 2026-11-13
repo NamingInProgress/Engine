@@ -7,11 +7,10 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
-import com.vke.core.file.utils.HBFDecodeSource;
 
 import java.io.IOException;
 
-public class GzipDecompressor implements HBFDecodeSource<Integer> {
+public class GzipDecompressor {
     private static final int FTEXT    = 0x01;
     private static final int FHCRC    = 0x02;
     private static final int FEXTRA   = 0x04;
@@ -34,7 +33,6 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
         this.inflatingDevice = new InflatingDevice(crc32, stream);
     }
 
-    @Override
     public void parseHeader() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         int id1 = stream.readBits(8);
@@ -77,7 +75,6 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
         }
     }
 
-    @Override
     public void parseFooter() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         long crc32 = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
@@ -92,8 +89,7 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
     }
 
 
-    @Override
-    public Integer nextByte() throws IOException {
+    public int decompressBytes(byte[] dst, int start, int length) throws IOException {
         if (compressionMethod != CompressionMethod.DEFLATE) {
             throw new IOException("Illegal compression method used! Only Deflate can be used with gzip!");
         }
@@ -101,7 +97,7 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
             return -1;
         }
         try {
-            return inflatingDevice.inflateNextByte();
+            return inflatingDevice.inflate(dst, start, length);
         } catch (InflatingException e) {
             throw new IOException(e);
         }

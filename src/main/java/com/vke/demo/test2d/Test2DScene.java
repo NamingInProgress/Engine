@@ -1,5 +1,6 @@
 package com.vke.demo.test2d;
 
+import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageTiling;
@@ -15,6 +16,7 @@ import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
+import com.vke.utils.Utils;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -50,7 +52,11 @@ public class Test2DScene extends Scene {
                     .width(part.header().displayWindow.width())
                     .height(part.header().displayWindow.height());
 
-            this.texture = bitmap.createTexture2D(renderer, builder);
+            if (Utils.TRUE) {
+                this.texture = bitmap.createTexture2D(renderer, builder);
+            } else {
+                this.texture = R.textures.get("vke:png.png").acquire(context);
+            }
             renderer.renderSystem().textureManager().registerTexture(texture);
 
         } catch (Exception e) {

@@ -45,8 +45,8 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
         System.out.println("w: " + w + ",h: " + h);
 
         ProfilerImpl profiler = new ProfilerImpl(engine);
-        profiler.defaultSettings(ProfilerPrinter.Type.PIE_CHART);
-        profiler.withDisplayTypes(ProfilerPrinter.Type.PIE_CHART);
+        profiler.defaultSettings(ProfilerPrinter.Type.TABLE);
+        profiler.withDisplayTypes(ProfilerPrinter.Type.TABLE);
         profiler.beginFrame();
         more = true;
         boolean first = true;

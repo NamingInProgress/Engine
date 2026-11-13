@@ -158,6 +158,11 @@ public class OldGoodBitInputStream implements BitInputStream {
     }
 
     @Override
+    public int readBytes(byte[] dst, int start, int length) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setOrdering(BitOrdering ordering) {
         this.ordering = ordering;
     }

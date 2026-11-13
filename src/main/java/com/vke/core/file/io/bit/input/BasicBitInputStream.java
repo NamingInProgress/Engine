@@ -3,12 +3,11 @@ package com.vke.core.file.io.bit.input;
 import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.io.bit.BitOrdering;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 
-public class ShittyBitInputStream implements BitInputStream {
+public class BasicBitInputStream implements BitInputStream {
     private final ArrayDeque<InputStream> input;
 
     private int buffer;
@@ -27,7 +26,7 @@ public class ShittyBitInputStream implements BitInputStream {
         this.ordering = ordering;
     }
 
-    public ShittyBitInputStream(InputStream in) {
+    public BasicBitInputStream(InputStream in) {
         this.buffer = 0;
         this.bitsLeft = 0;
         this.input = new ArrayDeque<>();
@@ -37,6 +36,25 @@ public class ShittyBitInputStream implements BitInputStream {
     @Override
     public void appendData(InputStream toAppend) {
         input.addLast(toAppend);
+    }
+
+    @Override
+    public int readBytes(byte[] dst, int start, int length) throws IOException {
+        int bitsToSkip = bitsLeft % 8;
+        if (bitsToSkip != 0) {
+            throw new IOException("BitInputStream is not aligned to bytes!");
+        }
+        int read = 0;
+        while (read < length && !input.isEmpty()) {
+            InputStream current = input.getFirst();
+            int readNow = current.read(dst, start + read, length - read);
+            if (readNow == -1) {
+                input.removeFirst();
+                continue;
+            }
+            read += readNow;
+        }
+        return read;
     }
 
     private int read() throws IOException {

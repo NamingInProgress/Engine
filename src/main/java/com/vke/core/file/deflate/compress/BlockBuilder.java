@@ -3,13 +3,11 @@ package com.vke.core.file.deflate.compress;
 import com.vke.core.file.deflate.compress.huffman.HuffmanCodeGenerator;
 import com.vke.core.file.deflate.compress.lz77.Lz77Symbol;
 import com.vke.core.file.deflate.compress.lz77.SlidingWindow;
-import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.block.DynamicBlock;
 import com.vke.core.file.deflate.decompress.block.FixedBlock;
 import com.vke.core.file.deflate.decompress.huffman.Code;
 import com.vke.core.file.deflate.decompress.lz77.Lz77Consts;
 import com.vke.core.file.io.bit.BitOrdering;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.io.bit.output.BitOutputStream;
 import com.vke.core.file.io.bit.output.GoodBitOutputStream;
 

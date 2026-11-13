@@ -3,9 +3,11 @@ package com.vke.core.file.deflate.decompress;
 import com.vke.core.file.deflate.decompress.block.DynamicBlock;
 import com.vke.core.file.deflate.decompress.block.FixedBlock;
 import com.vke.core.file.deflate.decompress.block.UncompressedBlock;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
 import com.vke.core.file.deflate.decompress.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -14,9 +16,7 @@ public interface DeflateBlock {
     int TYPE_FIXED = 1;
     int TYPE_DYNAMIC = 2;
 
-    int nextByte(BitInputStream inputStream) throws IOException;
-
-    boolean isFinished();
+    int inflateBytes(BitInputStream inputStream, byte[] dst, int start, int length, @Nullable Checksum32 checksum) throws IOException;
 
     boolean bFinal();
 

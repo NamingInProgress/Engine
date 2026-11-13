@@ -1,38 +1,50 @@
 package com.vke.core.file.decoders;
 
-import com.carrotsearch.hppc.ByteArrayList;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
-import com.vke.core.file.utils.HBFLazyDecoder;
+import com.vke.api.file.ByteDecoder;
+import com.vke.api.file.DecodeException;
+import com.vke.core.file.io.bit.input.BasicBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
 
+import java.io.IOException;
 import java.io.InputStream;
 
-public class ZlibDecoder extends HBFLazyDecoder<ZlibDecompressor, Integer, byte[]> {
+public class ZlibDecoder implements ByteDecoder {
     public static final String KEY = "zlib";
-    private ByteArrayList collection;
+    private ZlibDecompressor zlib;
+    private boolean headerParsed;
+    private boolean finished;
 
     @Override
-    protected ZlibDecompressor fromStream(InputStream stream) {
-        return new ZlibDecompressor(new ShittyBitInputStream(stream));
+    public void setSource(InputStream stream) {
+        this.zlib = new ZlibDecompressor(new BasicBitInputStream(stream));
+        this.headerParsed = false;
+        this.finished = false;
     }
 
     @Override
-    protected boolean isFinal(Integer element) {
-        return element == -1;
-    }
-
-    @Override
-    protected void startCollecting() {
-        collection = new ByteArrayList();
-    }
-
-    @Override
-    protected void addNext(Integer element) {
-        collection.add(element.byteValue());
-    }
-
-    @Override
-    protected byte[] combine() {
-        return collection.toArray();
+    public int decode(byte[] dst, int start, int length) throws DecodeException {
+        if (finished) {
+            return -1;
+        }
+        if (zlib == null) {
+            throw new DecodeException("No source has been set yet! Please set a source first before decoding can start...");
+        }
+        try {
+            if (!headerParsed) {
+                zlib.parseHeader();
+                headerParsed = true;
+            }
+            int read = zlib.decompressBytes(dst, start, length);
+            if (read == -1) {
+                zlib.parseFooter();
+                finished = true;
+                return read;
+            }
+            return read;
+        } catch (IOException e) {
+            DecodeException ex = new DecodeException(e.getMessage());
+            ex.setStackTrace(e.getStackTrace());
+            throw ex;
+        }
     }
 }

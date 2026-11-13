@@ -17,4 +17,6 @@ public interface BitInputStream {
     default void appendData(InputStream toAppend) {
         throw new UnsupportedOperationException();
     }
+
+    int readBytes(byte[] dst, int start, int length) throws IOException;
 }
