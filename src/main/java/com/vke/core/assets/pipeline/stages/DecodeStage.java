@@ -7,7 +7,6 @@ import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.PipelineContext;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.utils.Utils;
 
 public class DecodeStage extends ParameterizedStage {
     public static final String STAGE = "decode";
@@ -31,7 +30,7 @@ public class DecodeStage extends ParameterizedStage {
         }
 
         if (anyDecoder == null) {
-            anyDecoder = Decoders.find(using);
+            anyDecoder = Decoders.make(using);
         }
         if (anyDecoder == null) {
             throw new AssetException("Cannot find decoder " + using);

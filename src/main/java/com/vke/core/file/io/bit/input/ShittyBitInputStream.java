@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
 
-public class BasicBitInputStream implements BitInputStream {
+public class ShittyBitInputStream implements BitInputStream {
     private final ArrayDeque<InputStream> input;
 
     private int buffer;
@@ -26,7 +26,7 @@ public class BasicBitInputStream implements BitInputStream {
         this.ordering = ordering;
     }
 
-    public BasicBitInputStream(InputStream in) {
+    public ShittyBitInputStream(InputStream in) {
         this.buffer = 0;
         this.bitsLeft = 0;
         this.input = new ArrayDeque<>();

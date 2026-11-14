@@ -6,6 +6,7 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
+import com.vke.utils.Stopwatch;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
@@ -61,7 +62,13 @@ public class ZlibDecompressor {
     }
 
     public int decompressBytes(byte[] dst, int start, int length) throws IOException {
-        return Utils.chainExceptions(() -> device.inflate(dst, start, length));
+        int read;
+        try {
+            read = device.inflate(dst, start, length);
+        } catch (InflatingException e) {
+            throw new IOException(e);
+        }
+        return read;
     }
 
     public void parseFooter() throws IOException {

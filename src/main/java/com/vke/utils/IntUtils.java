@@ -17,4 +17,14 @@ public class IntUtils {
     public static boolean isPowerOf2(int v) {
         return v > 0 && (v & (v - 1)) == 0;
     }
+
+    public static int longToIntPositive(long v) {
+        if (v <= 0) {
+            return 0;
+        }
+        if (v >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) v;
+    }
 }

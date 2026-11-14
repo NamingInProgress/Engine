@@ -10,6 +10,7 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
+import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.ExrPart;
 import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
@@ -40,7 +41,11 @@ public class Test2DScene extends Scene {
             System.out.println("channels = " + part.header().chlist);
 
             ExrScanlineBitmapExtractor ext = new ExrScanlineBitmapExtractor(decoder, testImageStream, 0);
+
+            HMSymbolDecoder.LOOKUP = 0;
+            HMSymbolDecoder.TREE = 0;
             Bitmap bitmap = ext.readIntoBitmap(false, context.getEngine());
+            System.out.println("lookup: " + HMSymbolDecoder.LOOKUP + ", tree: " + HMSymbolDecoder.TREE);
 
             Renderer renderer = context.service(Services.RENDERER);
 

@@ -1,6 +1,6 @@
 package com.vke.core.file.png;
 
-import com.vke.core.file.io.bit.input.BasicBitInputStream;
+import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.png.chunks.*;
 import com.vke.core.file.zlib.ZlibDecompressor;
 import com.vke.core.image.Bitmap;
@@ -42,7 +42,7 @@ public class PngFile {
         pngInfo.flipVertically = flipVertically;
 
         int[][] palette = null;
-        ZlibDecompressor idatDecompressor = new ZlibDecompressor(new BasicBitInputStream(null));
+        ZlibDecompressor idatDecompressor = new ZlibDecompressor(new ShittyBitInputStream(null));
 
         loop:
         while (true) {

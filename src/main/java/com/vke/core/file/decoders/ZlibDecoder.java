@@ -2,8 +2,9 @@ package com.vke.core.file.decoders;
 
 import com.vke.api.file.ByteDecoder;
 import com.vke.api.file.DecodeException;
-import com.vke.core.file.io.bit.input.BasicBitInputStream;
+import com.vke.core.file.io.bit.input.FastBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
+import com.vke.utils.io.LimitedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,11 @@ public class ZlibDecoder implements ByteDecoder {
 
     @Override
     public void setSource(InputStream stream) {
-        this.zlib = new ZlibDecompressor(new BasicBitInputStream(stream));
+        if (stream instanceof LimitedInputStream limited) {
+            this.zlib = new ZlibDecompressor(new FastBitInputStream(stream, limited.getLimit()));
+        } else {
+            this.zlib = new ZlibDecompressor(new FastBitInputStream(stream));
+        }
         this.headerParsed = false;
         this.finished = false;
     }

@@ -4,7 +4,7 @@ import com.vke.core.file.deflate.decompress.check.Checksum32;
 import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.deflate.decompress.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.input.BitInputStream;
-import com.vke.core.file.io.bit.input.BasicBitInputStream;
+import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,14 +22,14 @@ public class InflatingDevice {
 
     public InflatingDevice(Checksum32 checksum, InputStream toBeInflated) {
         this.checksum = checksum;
-        this.bitStream = new BasicBitInputStream(toBeInflated);
+        this.bitStream = new ShittyBitInputStream(toBeInflated);
         this.windowSize = SLIDING_WINDOW_SIZE;
         this.window = new SlidingWindow(windowSize);
     }
 
     public InflatingDevice(Checksum32 checksum, InputStream toBeInflated, int windowSize) {
         this.checksum = checksum;
-        this.bitStream = new BasicBitInputStream(toBeInflated);
+        this.bitStream = new ShittyBitInputStream(toBeInflated);
         this.windowSize = windowSize;
         this.window = new SlidingWindow(windowSize);
     }

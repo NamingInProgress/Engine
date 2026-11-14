@@ -3,8 +3,6 @@ package com.vke.core.file.exr.decompress;
 import com.vke.api.file.ByteDecoder;
 import com.vke.api.file.DecodeException;
 import com.vke.api.file.Decoders;
-import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
-import com.vke.core.profiler.service.ProfilerImpl;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -14,7 +12,7 @@ public class ExrZipDecompressor implements ExrDecompressor {
     @Override
     public void decompress(InputStream stream, byte[] dst, int start, int length) throws IOException {
         try {
-            ByteDecoder zlib = Decoders.find("zlib");
+            ByteDecoder zlib = Decoders.make("zlib");
             if (zlib == null) throw new IOException("No zlib decoder found");
             zlib.setSource(stream);
 
@@ -40,7 +38,7 @@ public class ExrZipDecompressor implements ExrDecompressor {
                 }
             }
         } catch (DecodeException e) {
-            throw new IOException("Decoding error: " + e.getMessage());
+            throw new IOException("Decoding error", e);
         }
     }
 }
