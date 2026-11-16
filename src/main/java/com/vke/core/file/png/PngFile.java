@@ -4,6 +4,7 @@ import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.png.chunks.*;
 import com.vke.core.file.zlib.ZlibDecompressor;
 import com.vke.core.image.Bitmap;
+import com.vke.utils.Stopwatch;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,6 +30,8 @@ public class PngFile {
     }
 
     public PngFile(InputStream inputStream, boolean flipVertically) throws IOException {
+        Stopwatch pngWatch = new Stopwatch();
+        pngWatch.start();
         if (!verifySignature(inputStream)) {
             throw new IOException("Illegal PNG file received!");
         }
@@ -68,6 +71,9 @@ public class PngFile {
         } else {
             output = SequentialImageSampler.sample(pngInfo, idatDecompressor, palette);
         }
+
+        pngWatch.stop();
+        System.out.println("PNG TOOK " + pngWatch.getMillis() + "MS TO LOAD");
     }
 
     public Bitmap getOutput() {
