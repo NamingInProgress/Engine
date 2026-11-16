@@ -14,9 +14,5 @@ public interface BitInputStream {
 
     void alignToByte() throws IOException;
 
-    default void appendData(InputStream toAppend) {
-        throw new UnsupportedOperationException();
-    }
-
     int readBytes(byte[] dst, int start, int length) throws IOException;
 }

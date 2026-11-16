@@ -33,7 +33,6 @@ public class ShittyBitInputStream implements BitInputStream {
         if (in != null) input.addLast(in);
     }
 
-    @Override
     public void appendData(InputStream toAppend) {
         input.addLast(toAppend);
     }

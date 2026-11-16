@@ -1,9 +1,10 @@
 package com.vke.utils.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 
-/// Not hyper optimized due to it mainly being used in header parsing
 public class BytesInFrontOfInputStream extends InputStream {
     private final InputStream parent;
     private final byte[] prefix;
@@ -29,5 +30,23 @@ public class BytesInFrontOfInputStream extends InputStream {
             prefixDone = true;
         }
         return next;
+    }
+
+    @Override
+    public int read(@NotNull byte[] b, int off, int len) throws IOException {
+        if (prefixDone) {
+            return parent.read(b, off, len);
+        }
+        int prefLen = prefix.length;
+        int toRead = Math.min(prefLen - prefixCursor, len);
+
+        System.arraycopy(prefix, prefixCursor, b, off, toRead);
+
+        prefixCursor += toRead;
+        if (prefixCursor >= prefix.length) {
+            prefixDone = true;
+        }
+
+        return toRead;
     }
 }

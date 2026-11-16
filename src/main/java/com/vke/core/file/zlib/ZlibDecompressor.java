@@ -57,10 +57,6 @@ public class ZlibDecompressor {
         device = new InflatingDevice(adler, stream, windowSize);
     }
 
-    public void appendData(InputStream toAppend) {
-        stream.appendData(toAppend);
-    }
-
     public int decompressBytes(byte[] dst, int start, int length) throws IOException {
         int read;
         try {

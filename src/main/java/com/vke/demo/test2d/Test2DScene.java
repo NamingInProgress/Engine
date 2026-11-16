@@ -32,7 +32,7 @@ public class Test2DScene extends Scene {
     @Override
     public void onLoad() throws Exception {
         try {
-            FileIdentifier fid = FileIdentifier.of("lol:Blobbies.exr");
+            FileIdentifier fid = FileIdentifier.of("lol:BrightRings.exr");
             InputStream testImageStream = fid.openInputStream();
             ExrDecoder decoder = new ExrDecoder(testImageStream);
             ExrPart part = decoder.parts[0];
