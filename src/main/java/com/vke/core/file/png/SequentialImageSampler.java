@@ -16,7 +16,6 @@ public class SequentialImageSampler {
     }
 
     private static byte[] unfilterIdatDataSequential(PngInfo pngInfo, ZlibDecompressor decompressor) throws IOException {
-        decompressor.parseHeader();
         int bytesPerPixel = pngInfo.getPixelStride();
         int scanlineLength = bytesPerPixel * pngInfo.width;
 

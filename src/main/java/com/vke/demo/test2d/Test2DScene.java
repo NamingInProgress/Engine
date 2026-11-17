@@ -1,5 +1,6 @@
 package com.vke.demo.test2d;
 
+import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageTiling;
@@ -9,12 +10,14 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
+import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.ExrPart;
 import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
+import com.vke.utils.Utils;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -29,7 +32,7 @@ public class Test2DScene extends Scene {
     @Override
     public void onLoad() throws Exception {
         try {
-            FileIdentifier fid = FileIdentifier.of("lol:Blobbies.exr");
+            FileIdentifier fid = FileIdentifier.of("lol:BrightRings.exr");
             InputStream testImageStream = fid.openInputStream();
             ExrDecoder decoder = new ExrDecoder(testImageStream);
             ExrPart part = decoder.parts[0];
@@ -38,7 +41,11 @@ public class Test2DScene extends Scene {
             System.out.println("channels = " + part.header().chlist);
 
             ExrScanlineBitmapExtractor ext = new ExrScanlineBitmapExtractor(decoder, testImageStream, 0);
+
+            HMSymbolDecoder.LOOKUP = 0;
+            HMSymbolDecoder.TREE = 0;
             Bitmap bitmap = ext.readIntoBitmap(false, context.getEngine());
+            System.out.println("lookup: " + HMSymbolDecoder.LOOKUP + ", tree: " + HMSymbolDecoder.TREE);
 
             Renderer renderer = context.service(Services.RENDERER);
 
@@ -50,7 +57,11 @@ public class Test2DScene extends Scene {
                     .width(part.header().displayWindow.width())
                     .height(part.header().displayWindow.height());
 
-            this.texture = bitmap.createTexture2D(renderer, builder);
+            if (Utils.TRUE) {
+                this.texture = bitmap.createTexture2D(renderer, builder);
+            } else {
+                this.texture = R.textures.get("vke:png.png").acquire(context);
+            }
             renderer.renderSystem().textureManager().registerTexture(texture);
 
         } catch (Exception e) {

@@ -7,31 +7,30 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
-import com.vke.core.file.utils.HBFDecodeSource;
+import com.vke.core.file.utils.WrappingDecompressor;
 
 import java.io.IOException;
 
-public class GzipDecompressor implements HBFDecodeSource<Integer> {
+public class GzipDecompressor extends WrappingDecompressor {
     private static final int FTEXT    = 0x01;
     private static final int FHCRC    = 0x02;
     private static final int FEXTRA   = 0x04;
     private static final int FNAME    = 0x08;
     private static final int FCOMMENT = 0x10;
 
-    private BitInputStream stream;
-    private InflatingDevice inflatingDevice;
+    private final BitInputStream stream;
+    private InflatingDevice device;
 
     private CompressionMethod compressionMethod;
     private int flags;
     private int lastModified;
     private int os;
 
-    private Crc32 crc32;
+    private final Crc32 crc32;
 
     public GzipDecompressor(BitInputStream stream) {
         this.stream = stream;
         this.crc32 = new Crc32();
-        this.inflatingDevice = new InflatingDevice(crc32, stream);
     }
 
     @Override
@@ -75,6 +74,8 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
             stream.readBits(8);
             stream.readBits(8);
         }
+
+        this.device = new InflatingDevice(crc32, stream);
     }
 
     @Override
@@ -91,17 +92,21 @@ public class GzipDecompressor implements HBFDecodeSource<Integer> {
         }
     }
 
+    @Override
+    protected boolean isFinished() {
+        return device != null && device.isFinished();
+    }
 
     @Override
-    public Integer nextByte() throws IOException {
+    public int decompressBytes(byte[] dst, int start, int length) throws IOException {
         if (compressionMethod != CompressionMethod.DEFLATE) {
             throw new IOException("Illegal compression method used! Only Deflate can be used with gzip!");
         }
-        if (inflatingDevice.isFinished()) {
+        if (device.isFinished()) {
             return -1;
         }
         try {
-            return inflatingDevice.inflateNextByte();
+            return device.inflate(dst, start, length);
         } catch (InflatingException e) {
             throw new IOException(e);
         }

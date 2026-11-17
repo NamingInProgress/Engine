@@ -1,5 +1,6 @@
 package com.vke.core.file.png;
 
+import com.vke.core.file.io.bit.input.FastBitInputStream;
 import com.vke.core.file.io.bit.input.ShittyBitInputStream;
 import com.vke.core.file.png.chunks.*;
 import com.vke.core.file.zlib.ZlibDecompressor;
@@ -9,6 +10,8 @@ import com.vke.utils.Stopwatch;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.util.Vector;
 
 public class PngFile {
     private static final byte[] SIGNATURE = {
@@ -45,8 +48,8 @@ public class PngFile {
         pngInfo.flipVertically = flipVertically;
 
         int[][] palette = null;
-        ZlibDecompressor idatDecompressor = new ZlibDecompressor(new ShittyBitInputStream(null));
 
+        Vector<InputStream> streams = new Vector<>();
         loop:
         while (true) {
             PngChunk chunk = PngChunk.readNextChunk(inputStream);
@@ -54,7 +57,7 @@ public class PngFile {
                 case IEND _:
                     break loop;
                 case IDAT idat:
-                    idatDecompressor.appendData(new ByteArrayInputStream(idat.getZlibData()));
+                    streams.add(new ByteArrayInputStream(idat.getZlibData()));
                     continue;
                 case PLTE plte:
                     palette = plte.getPalette();
@@ -64,6 +67,8 @@ public class PngFile {
             }
         }
 
+        InputStream streamSequence = new SequenceInputStream(streams.elements());
+        ZlibDecompressor idatDecompressor = new ZlibDecompressor(new FastBitInputStream(streamSequence));
 
         if (pngInfo.interlacingMethod == PngInfo.InterlacingMethod.Adam7) {
             //then i hate my life

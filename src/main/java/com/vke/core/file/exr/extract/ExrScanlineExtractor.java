@@ -43,7 +43,7 @@ public abstract class ExrScanlineExtractor extends ExrExtractor {
         if (samples == null || samples.length < uncompressedSize) {
             samples = new byte[uncompressedSize];
         }
-        long bytesRead = decompress(samples, 0, uncompressedSize, cmpr);
+        long bytesRead = decompress(samples, 0, uncompressedSize, cmpr, dataSize);
         if (bytesRead < dataSize) {
             int remaining = (int) (dataSize - bytesRead);
             stream.skipNBytes(remaining);

@@ -1,23 +1,16 @@
 package com.vke.core.file.exr.extract;
 
 import com.vke.core.VKEngine;
-import com.vke.core.color.RgbColor;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.head.ExrHeader;
 import com.vke.core.file.exr.head.attr.Box2iAttr;
 import com.vke.core.file.exr.out.ExrBitmap;
-import com.vke.core.file.utils.DataUtils;
+import com.vke.core.file.zlib.ZlibDecompressor;
 import com.vke.core.image.Bitmap;
-import com.vke.core.image.LdrBitmap;
-import com.vke.core.profiler.DummyProfilerImpl;
-import com.vke.core.profiler.ProfilerPrinter;
-import com.vke.core.profiler.service.Profiler;
 import com.vke.core.profiler.service.ProfilerImpl;
-import com.vke.core.rendering.vulkan.extent.VulkanExtentUtils;
-import com.vke.core.rendering.vulkan.swapchain.SwapchainUtils;
 import com.vke.utils.Stopwatch;
-import com.vke.utils.console.AnsiColors;
 import com.vke.utils.console.PrettyTable;
+import com.vke.utils.console.StringTable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,16 +39,10 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
 
         System.out.println("w: " + w + ",h: " + h);
 
-        Stopwatch readWatch = new Stopwatch();
-        Stopwatch writeWatch = new Stopwatch();
-        Stopwatch totalWatch = new Stopwatch();
 
-        totalWatch.start();
         more = true;
         while (more) {
-            readWatch.start();
             readScanlines();
-            readWatch.stop();
             if (part != targetPart) {
                 continue;
             }
@@ -67,9 +54,7 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor {
                 int scanY = yPos + scan;
                 bitmap.setScanline(scanY, samples, scan * scanlineSize);
             }
-            writeWatch.stop();
         }
-        totalWatch.stop();
 
         PrettyTable table = new PrettyTable();
         table.column("operation");

@@ -30,7 +30,7 @@ public class DecodeStage extends ParameterizedStage {
         }
 
         if (anyDecoder == null) {
-            anyDecoder = Decoders.find(using);
+            anyDecoder = Decoders.make(using);
         }
         if (anyDecoder == null) {
             throw new AssetException("Cannot find decoder " + using);
@@ -43,9 +43,7 @@ public class DecodeStage extends ParameterizedStage {
         FileIdentifier identifier = data.getUnresolved();
 
         try {
-            if (anyDecoder instanceof LazyDecoder<?>) {
-                throw new AssetException("Lazy decoders are not supported in the <decode> stage! Using decoder " + using);
-            } else if (anyDecoder instanceof Decoder<?> decoder) {
+            if (anyDecoder instanceof Decoder<?> decoder) {
                 Object decoded = decoder.decode(context, identifier);
                 stageElement.setData(new AssetData(toName, decoded));
             }

@@ -23,19 +23,23 @@ public class Scanline {
         this.filteredBytes = new byte[pixelStride * width];
         this.unfilteredBytes = new byte[pixelStride * width];
 
-        int filterByte = data.nextByte();
+        byte[] filterByteBuf = new byte[1];
+        data.decompress(filterByteBuf, 0, 1);
+        int filterByte = filterByteBuf[0];
+
         FilterMethod[] availableFilters = FilterMethod.values();
         if (filterByte < 0 || filterByte >= availableFilters.length) {
             throw new IOException("Illegal Filter byte found at scanline: " + filterByte);
         }
         this.filterMethod = availableFilters[filterByte];
 
-        for (int i = 0; i < filteredBytes.length; i++) {
-            int next = data.nextByte();
-            if (next < 0) {
+        int length = filteredBytes.length;
+        for (int n = 0; n < length;) {
+            int read = data.decompress(filteredBytes, n, length - n);
+            if (read == -1) {
                 throw new IOException("Unexpected EOF!");
             }
-            filteredBytes[i] = (byte) next;
+            n += read;
         }
 
         unfilter();

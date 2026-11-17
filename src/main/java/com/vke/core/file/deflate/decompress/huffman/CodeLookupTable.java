@@ -17,20 +17,19 @@ public class CodeLookupTable {
             // since the prefixes are unique, meaning that no code is a prefix of another one, we can simply
             // add all the remaining bit patterns.
             int len = code.codeLength();
+            if (len == 0) {
+                //unused
+                continue;
+            }
             if (len > bitLength) {
                 //this code is too chonky and cannot be handled by this lookup table
                 continue;
             }
             int lsbToMsbCode = Integer.reverse(code.code()) >>> (32 - len);
-            int missingBits = bitLength - len;
-            if (missingBits == 0) {
-                //fast path
-                lookup[lsbToMsbCode] = code;
-                continue;
-            }
-            for (int i = 0; i < missingBits; i++) {
-                int index = lsbToMsbCode | (i << code.codeLength());
-                ////System.out.println("code: " + Utils.intToBinStr(lsbToMsbCode) + ", length: " + len + ", index: " + Utils.intToBinStr(index) + ", missing: " + missingBits);
+            int missingBitCopies = 1 << (bitLength - len);
+            for (int i = 0; i < missingBitCopies; i++) {
+                int index = lsbToMsbCode | (i << len);
+                ////System.out.println("code: " + Utils.intToBinStr(lsbToMsbCode) + ", length: " + len + ", index: " + Utils.intToBinStr(index) + ", missing: " + missingBitCopies);
                 if (Utils.verifyArrayIndex(index, lookup)) {
                     lookup[index] = code;
                 } else {
@@ -43,19 +42,6 @@ public class CodeLookupTable {
 
     /// bits are supposed in LSB order!
     public Code tryLookupCode(int bits) {
-        Code c = lookup[bits];
-        if (c == null) return null;
-        if (c.codeLength() == 0) return null;
-
-        int len = c.codeLength();
-        if (len > bitLength) {
-            return null;
-        }
-        int actualCode = BitUtils.lowBits(bits, len);
-        int rev = Integer.reverse(actualCode) >>> (32 - len);
-        if (rev != c.code()) {
-            return null;
-        }
-        return c;
+        return lookup[bits];
     }
 }

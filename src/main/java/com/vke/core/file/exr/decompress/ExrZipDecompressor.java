@@ -1,9 +1,8 @@
 package com.vke.core.file.exr.decompress;
 
+import com.vke.api.file.ByteDecoder;
 import com.vke.api.file.DecodeException;
 import com.vke.api.file.Decoders;
-import com.vke.api.file.LazyArray;
-import com.vke.api.file.LazyDecoder;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -13,44 +12,33 @@ public class ExrZipDecompressor implements ExrDecompressor {
     @Override
     public void decompress(InputStream stream, byte[] dst, int start, int length) throws IOException {
         try {
-            LazyDecoder<Integer> decoder = Decoders.find("zlib");
+            ByteDecoder zlib = Decoders.make("zlib");
+            if (zlib == null) throw new IOException("No zlib decoder found");
+            zlib.setSource(stream);
 
-            if (decoder == null) throw new IOException("No zlib decoder found");
-            LazyArray<Integer> arr = decoder.decodeLazy(stream);
-
-            for (int i = 0; i < length; i++) {
-                Integer b = arr.next();
-                if (b == null || b == -1) {
-                    throw new EOFException(String.format("Inflating stopped too early! (%d out of %d read)", i + 1, length));
+            byte[] tmp = new byte[length];
+            for (int n = 0; n < length;) {
+                int read = zlib.decode(tmp, n, length - n);
+                if (read == -1) {
+                    throw new EOFException(String.format("Inflating stopped too early! (%d out of %d read)", n + 1, length));
                 }
-                if (i == 0) {
-                    dst[start] = (byte) (b & 0xFF);
+                n += read;
+            }
+            int half = (length + 1) / 2;
+            byte last = tmp[0];
+            dst[0] = last;
+            for (int i = 1; i < length; i++) {
+                int d = tmp[i] + last - 128;
+                byte b = (byte) (d & 0xFF);
+                last = b;
+                if (i < half) {
+                    dst[start + i * 2] = b;
                 } else {
-                    int last = dst[start + i - 1];
-                    int d = b + last - 128;
-                    dst[start + i] = (byte) (d & 0xFF);
+                    dst[start + (i - half) * 2 + 1] = b;
                 }
             }
-            interleave(dst, start, length);
         } catch (DecodeException e) {
-            throw new IOException("Decoding error: " + e.getMessage());
-        }
-    }
-
-    private static void interleave(byte[] dst, int start, int length) {
-        byte[] tmp = new byte[length];
-        System.arraycopy(dst, start, tmp, 0, length);
-
-        int firstHalf = 0;
-        int secondHalf = (length + 1) / 2;
-        int out = start;
-        int end = start + length;
-
-        while (out < end) {
-            dst[out++] = tmp[firstHalf++];
-            if (out < end) {
-                dst[out++] = tmp[secondHalf++];
-            }
+            throw new IOException("Decoding error", e);
         }
     }
 }

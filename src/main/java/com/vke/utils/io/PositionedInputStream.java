@@ -20,6 +20,15 @@ public class PositionedInputStream extends InputStream {
         return a;
     }
 
+    @Override
+    public int read(byte[] dst, int off, int len) throws IOException {
+        int read = inner.read(dst, off, len);
+        if (read > 0) {
+            position += read;
+        }
+        return read;
+    }
+
     public long getPosition() {
         return position;
     }

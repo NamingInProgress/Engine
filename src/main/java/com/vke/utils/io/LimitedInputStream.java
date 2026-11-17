@@ -22,4 +22,22 @@ public class LimitedInputStream extends InputStream {
         }
         return next;
     }
+
+    @Override
+    public int read(byte[] dst, int off, int len) throws IOException {
+        int remaining = limit - cursor;
+        if (remaining <= 0) {
+            return -1;
+        }
+        int toRead = Math.min(len, remaining);
+        int read = parent.read(dst, off, toRead);
+        if (read > 0) {
+            cursor += read;
+        }
+        return read;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
 }

@@ -1,5 +1,7 @@
 package com.vke.api.file;
 
+import java.io.IOException;
+
 public class DecodeException extends Exception {
     public DecodeException() {
     }
@@ -18,5 +20,11 @@ public class DecodeException extends Exception {
 
     public DecodeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public static DecodeException ofIO(IOException e) {
+        DecodeException ex = new DecodeException(e.getMessage());
+        ex.setStackTrace(e.getStackTrace());
+        return ex;
     }
 }

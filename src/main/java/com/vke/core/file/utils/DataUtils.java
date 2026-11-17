@@ -240,30 +240,6 @@ public class DataUtils {
         outputStream.write(read);
     }
 
-    public static byte[] deflate(byte[] data) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(data.length / 2);
-        DeflatingDevice device = new DeflatingDevice(out, 64);
-        device.deflateNext(data);
-        device.finish();
-        return out.toByteArray();
-    }
-
-    public static byte[] inflate(byte[] deflated) throws InflatingException {
-        return inflate(deflated, null);
-    }
-
-    public static byte[] inflate(byte[] deflated, @Nullable Checksum32 checksum) throws InflatingException {
-        ByteArrayInputStream in = new ByteArrayInputStream(deflated);
-        InflatingDevice device = new InflatingDevice(checksum, in);
-        ByteArrayList out = new ByteArrayList(deflated.length);
-        while (!device.isFinished()) {
-            int n = device.inflateNextByte();
-            if (n == -1) break;
-            out.add((byte) n);
-        }
-        return out.toArray();
-    }
-
     public static int[] readU8N(int n, InputStream stream) throws IOException {
         int[] out = new int[n];
         for (int i = 0; i < n; i++) {
