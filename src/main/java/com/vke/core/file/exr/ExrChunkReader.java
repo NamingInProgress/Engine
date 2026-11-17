@@ -9,6 +9,7 @@ import com.vke.core.file.utils.DataUtils;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.utils.Utils;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -115,15 +116,27 @@ public class ExrChunkReader {
     public void readAllChunks() throws IOException {
         int finishedExtractors = 0;
         while (finishedExtractors < extractorCount) {
-            int part = nextChunkPart();
-            ExrExtractor extractor = extractors[part];
-            if (extractor != null) {
-                extractor.readChunk(part);
-                if (extractor.isFinished()) {
-                    finishedExtractors++;
+            try {
+                int part = nextChunkPart();
+                ExrExtractor extractor = extractors[part];
+                if (extractor != null) {
+                    extractor.readChunk(part);
+                    if (extractor.isSatisfied()) {
+                        finishedExtractors++;
+                    }
+                } else {
+                    skipChunk(part);
                 }
-            } else {
-                skipChunk(part);
+            } catch (EOFException eof) {
+                break;
+            }
+        }
+        if (finishedExtractors < extractorCount) {
+            for (int part = 0; part < extractors.length; part++) {
+                ExrExtractor extractor = extractors[part];
+                if (!extractor.isSatisfied()) {
+                    logger.error("The input is exhausted, but the extractor for part %d is not yet satisfied!", part);
+                }
             }
         }
     }

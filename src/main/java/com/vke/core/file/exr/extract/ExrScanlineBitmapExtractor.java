@@ -36,7 +36,7 @@ public class ExrScanlineBitmapExtractor extends ExrScanlineExtractor implements 
     }
 
     @Override
-    protected void onScanlinesRead(int part) throws IOException {
+    protected void onScanlinesRead(int part) {
         ExrHeader header = decoder.parts[part].header();
 
         if (bitmap == null) {

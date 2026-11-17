@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implements ExrExtractor {
-    protected boolean more;
+    private boolean satisfied;
     protected int yPos;
 
     protected byte[] samples;
@@ -26,7 +26,6 @@ public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implemen
     @Override
     public void readChunk(int part) throws IOException {
         scani = 0;
-        more = true;
         ExrHeader header = decoder.parts[part].header();
         ExrCompression cmpr = header.compression.compression;
         yPos = DataUtils.readU32LittleEndian(stream);
@@ -34,8 +33,7 @@ public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implemen
         blockScans = Math.min(cmpr.numberOfScanlinesPerBlock(), yMax - yPos + 1);
         totalScanlines += blockScans;
         if (totalScanlines >= header.dataWindow.height()) {
-            more = false;
-            return;
+            satisfied = true;
         }
         int dataSize = DataUtils.readU32LittleEndian(stream);
         int uncompressedSize = header.computeScanBlockByteSize(yPos, blockScans);
@@ -52,4 +50,9 @@ public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implemen
     }
 
     protected abstract void onScanlinesRead(int part) throws IOException;
+
+    @Override
+    public boolean isSatisfied() {
+        return satisfied;
+    }
 }
