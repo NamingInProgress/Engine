@@ -5,19 +5,18 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class BytesInFrontOfInputStream extends InputStream {
-    private final InputStream parent;
+public class BytesInFrontOfInputStream extends InputStreamWrapper {
     private final byte[] prefix;
     private int prefixCursor;
     private boolean prefixDone;
 
     public BytesInFrontOfInputStream(InputStream parent, byte[] prefix) {
-        this.parent = parent;
+        super(parent);
         this.prefix = prefix;
     }
 
     public BytesInFrontOfInputStream(InputStream parent, byte prefix) {
-        this.parent = parent;
+        super(parent);
         this.prefix = new byte[] { prefix };
     }
 

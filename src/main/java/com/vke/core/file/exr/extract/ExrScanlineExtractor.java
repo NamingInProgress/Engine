@@ -8,9 +8,8 @@ import com.vke.core.file.utils.DataUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
-public abstract class ExrScanlineExtractor extends ExrExtractor {
+public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implements ExrExtractor {
     protected boolean more;
-    protected int part;
     protected int yPos;
 
     protected byte[] samples;
@@ -24,10 +23,10 @@ public abstract class ExrScanlineExtractor extends ExrExtractor {
         super(decoder, stream);
     }
 
-    public void readScanlines() throws IOException {
+    @Override
+    public void readChunk(int part) throws IOException {
         scani = 0;
         more = true;
-        part = (int) nextChunk();
         ExrHeader header = decoder.parts[part].header();
         ExrCompression cmpr = header.compression.compression;
         yPos = DataUtils.readU32LittleEndian(stream);
@@ -43,10 +42,14 @@ public abstract class ExrScanlineExtractor extends ExrExtractor {
         if (samples == null || samples.length < uncompressedSize) {
             samples = new byte[uncompressedSize];
         }
-        long bytesRead = decompress(samples, 0, uncompressedSize, cmpr, dataSize);
+        long bytesRead = decoder.decompress(samples, 0, uncompressedSize, cmpr, dataSize);
         if (bytesRead < dataSize) {
             int remaining = (int) (dataSize - bytesRead);
             stream.skipNBytes(remaining);
         }
+
+        onScanlinesRead(part);
     }
+
+    protected abstract void onScanlinesRead(int part) throws IOException;
 }

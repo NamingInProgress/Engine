@@ -3,13 +3,12 @@ package com.vke.utils.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class LimitedInputStream extends InputStream {
-    private final InputStream parent;
+public class LimitedInputStream extends InputStreamWrapper {
     private final int limit;
     private int cursor;
 
     public LimitedInputStream(InputStream parent, int limit) {
-        this.parent = parent;
+        super(parent);
         this.limit = limit;
     }
 

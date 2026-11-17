@@ -4,10 +4,14 @@ import com.vke.api.logger.Logger;
 import com.vke.core.file.exr.decompress.ExrDecompressor;
 import com.vke.core.file.exr.decompress.ExrNoneDecompressor;
 import com.vke.core.file.exr.decompress.ExrZipDecompressor;
+import com.vke.core.file.exr.extract.ExrBitmapExtractor;
+import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
 import com.vke.core.file.exr.head.*;
 import com.vke.core.file.exr.head.attr.*;
 import com.vke.core.file.utils.DataUtils;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.utils.io.LimitedInputStream;
+import com.vke.utils.io.PositionedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +21,7 @@ import java.util.Map;
 public class ExrDecoder {
     public static final Logger LOGGER = LoggerFactory.get("EXR Decoder");
 
+    private final InputStream stream;
     public final ExrHeaderHead head;
     public final ExrPart[] parts;
 
@@ -28,6 +33,7 @@ public class ExrDecoder {
     );
 
     public ExrDecoder(InputStream stream) throws IOException {
+        this.stream = stream;
         this.attrFactories = new HashMap<>();
         registerAttrs();
         this.head = new ExrHeaderHead(stream);
@@ -70,6 +76,15 @@ public class ExrDecoder {
         this.attrFactories.put(type, factory);
     }
 
+    public ExrChunkReader createChunkReader() {
+        return new ExrChunkReader(parts, head, stream);
+    }
+
+    public ExrBitmapExtractor createBitmapExtractor(boolean flipVertically) {
+        //todo
+        return new ExrScanlineBitmapExtractor(this, stream, flipVertically);
+    }
+
     protected void registerAttrs() {
         registerAttr("int", IntAttr::new);
         registerAttr("float", FloatAttr::new);
@@ -100,5 +115,26 @@ public class ExrDecoder {
 
     public ExrDecompressor getDecompressor(ExrCompression cmpr) {
         return DECOMPRESSORS.get(cmpr);
+    }
+
+    public byte[] decompress(int length, ExrCompression cmpr, int streamLimit) throws IOException {
+        byte[] dst = new byte[length];
+        decompress(dst, 0, length, cmpr, streamLimit);
+        return dst;
+    }
+
+    public void decompress(byte[] dst, ExrCompression cmpr, int streamLimit) throws IOException {
+        decompress(dst, 0, dst.length, cmpr, streamLimit);
+    }
+
+    public long decompress(byte[] dst, int start, int length, ExrCompression cmpr, int streamLimit) throws IOException {
+        ExrDecompressor decomp = getDecompressor(cmpr);
+        if (decomp == null) {
+            throw new IOException("No decompressor found for compression method " + cmpr);
+        }
+        PositionedInputStream pStream = new PositionedInputStream(stream);
+        LimitedInputStream limited = new LimitedInputStream(pStream, streamLimit);
+        decomp.decompress(limited, dst, start, length);
+        return pStream.getPosition();
     }
 }

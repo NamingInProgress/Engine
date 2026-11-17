@@ -11,8 +11,10 @@ import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
+import com.vke.core.file.exr.ExrChunkReader;
 import com.vke.core.file.exr.ExrDecoder;
 import com.vke.core.file.exr.ExrPart;
+import com.vke.core.file.exr.extract.ExrBitmapExtractor;
 import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.graph2.GraphContext;
@@ -34,17 +36,14 @@ public class Test2DScene extends Scene {
         try {
             FileIdentifier fid = FileIdentifier.of("lol:BrightRings.exr");
             InputStream testImageStream = fid.openInputStream();
+
             ExrDecoder decoder = new ExrDecoder(testImageStream);
-            ExrPart part = decoder.parts[0];
-            System.out.println(Arrays.toString(part.offsetTable()));
+            ExrChunkReader chunkReader = decoder.createChunkReader();
+            ExrBitmapExtractor bitmapExtractor = decoder.createBitmapExtractor(false);
+            chunkReader.assignExtractor(0, bitmapExtractor);
+            chunkReader.readAllChunks();
+            Bitmap bitmap = bitmapExtractor.getBitmap();
 
-            System.out.println("channels = " + part.header().chlist);
-
-            ExrScanlineBitmapExtractor ext = new ExrScanlineBitmapExtractor(decoder, testImageStream, 0);
-
-            HMSymbolDecoder.LOOKUP = 0;
-            HMSymbolDecoder.TREE = 0;
-            Bitmap bitmap = ext.readIntoBitmap(false, context.getEngine());
             System.out.println("lookup: " + HMSymbolDecoder.LOOKUP + ", tree: " + HMSymbolDecoder.TREE);
 
             Renderer renderer = context.service(Services.RENDERER);
@@ -54,8 +53,8 @@ public class Test2DScene extends Scene {
                     .mipLevels(1)
                     .tiling(ImageTiling.OPTIMAL)
                     .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
-                    .width(part.header().displayWindow.width())
-                    .height(part.header().displayWindow.height());
+                    .width(bitmap.width())
+                    .height(bitmap.height());
 
             if (Utils.TRUE) {
                 this.texture = bitmap.createTexture2D(renderer, builder);

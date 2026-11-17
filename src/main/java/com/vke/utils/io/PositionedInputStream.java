@@ -3,17 +3,16 @@ package com.vke.utils.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PositionedInputStream extends InputStream {
-    private final InputStream inner;
+public class PositionedInputStream extends InputStreamWrapper {
     private long position;
 
     public PositionedInputStream(InputStream stream) {
-        this.inner = stream;
+        super(stream);
     }
 
     @Override
     public int read() throws IOException {
-        int a = inner.read();
+        int a = parent.read();
         if (a != -1) {
             position++;
         }
@@ -22,7 +21,7 @@ public class PositionedInputStream extends InputStream {
 
     @Override
     public int read(byte[] dst, int off, int len) throws IOException {
-        int read = inner.read(dst, off, len);
+        int read = parent.read(dst, off, len);
         if (read > 0) {
             position += read;
         }
