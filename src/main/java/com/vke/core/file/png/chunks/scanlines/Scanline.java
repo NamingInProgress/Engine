@@ -24,7 +24,7 @@ public class Scanline {
         this.unfilteredBytes = new byte[pixelStride * width];
 
         byte[] filterByteBuf = new byte[1];
-        data.decompressBytes(filterByteBuf, 0, 1);
+        data.decompress(filterByteBuf, 0, 1);
         int filterByte = filterByteBuf[0];
 
         FilterMethod[] availableFilters = FilterMethod.values();
@@ -35,7 +35,7 @@ public class Scanline {
 
         int length = filteredBytes.length;
         for (int n = 0; n < length;) {
-            int read = data.decompressBytes(filteredBytes, n, length - n);
+            int read = data.decompress(filteredBytes, n, length - n);
             if (read == -1) {
                 throw new IOException("Unexpected EOF!");
             }

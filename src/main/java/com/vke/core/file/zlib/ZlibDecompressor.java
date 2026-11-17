@@ -6,13 +6,14 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
+import com.vke.core.file.utils.WrappingDecompressor;
 import com.vke.utils.Stopwatch;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ZlibDecompressor {
+public class ZlibDecompressor extends WrappingDecompressor {
     private final BitInputStream stream;
     private InflatingDevice device;
     private int cm;
@@ -25,6 +26,7 @@ public class ZlibDecompressor {
         this.adler = new Adler();
     }
 
+    @Override
     public void parseHeader() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         int cmf = stream.readBits(8);
@@ -57,6 +59,7 @@ public class ZlibDecompressor {
         device = new InflatingDevice(adler, stream, windowSize);
     }
 
+    @Override
     public int decompressBytes(byte[] dst, int start, int length) throws IOException {
         int read;
         try {
@@ -67,6 +70,7 @@ public class ZlibDecompressor {
         return read;
     }
 
+    @Override
     public void parseFooter() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         stream.alignToByte();
@@ -75,5 +79,10 @@ public class ZlibDecompressor {
         if (adler != computedAdler) {
             throw new IOException(String.format("Adler32 mismatch: expected=%08d actual=%08d", adler, computedAdler));
         }
+    }
+
+    @Override
+    protected boolean isFinished() {
+        return device != null && device.isFinished();
     }
 }

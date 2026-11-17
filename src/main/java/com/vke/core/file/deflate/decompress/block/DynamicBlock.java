@@ -155,5 +155,10 @@ public class DynamicBlock implements DeflateBlock {
     public boolean bFinal() {
         return bFinal;
     }
+
+    @Override
+    public boolean isFinished() {
+        return decoder.isFinished();
+    }
 }
 

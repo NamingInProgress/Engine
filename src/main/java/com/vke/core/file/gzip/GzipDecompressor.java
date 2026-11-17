@@ -7,32 +7,33 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
+import com.vke.core.file.utils.WrappingDecompressor;
 
 import java.io.IOException;
 
-public class GzipDecompressor {
+public class GzipDecompressor extends WrappingDecompressor {
     private static final int FTEXT    = 0x01;
     private static final int FHCRC    = 0x02;
     private static final int FEXTRA   = 0x04;
     private static final int FNAME    = 0x08;
     private static final int FCOMMENT = 0x10;
 
-    private BitInputStream stream;
-    private InflatingDevice inflatingDevice;
+    private final BitInputStream stream;
+    private InflatingDevice device;
 
     private CompressionMethod compressionMethod;
     private int flags;
     private int lastModified;
     private int os;
 
-    private Crc32 crc32;
+    private final Crc32 crc32;
 
     public GzipDecompressor(BitInputStream stream) {
         this.stream = stream;
         this.crc32 = new Crc32();
-        this.inflatingDevice = new InflatingDevice(crc32, stream);
     }
 
+    @Override
     public void parseHeader() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         int id1 = stream.readBits(8);
@@ -73,8 +74,11 @@ public class GzipDecompressor {
             stream.readBits(8);
             stream.readBits(8);
         }
+
+        this.device = new InflatingDevice(crc32, stream);
     }
 
+    @Override
     public void parseFooter() throws IOException {
         stream.setOrdering(BitOrdering.LSB_FIRST);
         long crc32 = BitStreamUtils.readLittleEndian32(stream) & 0xffffffffL;
@@ -88,16 +92,21 @@ public class GzipDecompressor {
         }
     }
 
+    @Override
+    protected boolean isFinished() {
+        return device != null && device.isFinished();
+    }
 
+    @Override
     public int decompressBytes(byte[] dst, int start, int length) throws IOException {
         if (compressionMethod != CompressionMethod.DEFLATE) {
             throw new IOException("Illegal compression method used! Only Deflate can be used with gzip!");
         }
-        if (inflatingDevice.isFinished()) {
+        if (device.isFinished()) {
             return -1;
         }
         try {
-            return inflatingDevice.inflate(dst, start, length);
+            return device.inflate(dst, start, length);
         } catch (InflatingException e) {
             throw new IOException(e);
         }

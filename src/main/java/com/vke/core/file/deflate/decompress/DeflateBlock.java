@@ -20,6 +20,8 @@ public interface DeflateBlock {
 
     boolean bFinal();
 
+    boolean isFinished();
+
     static DeflateBlock createNextBlock(BitInputStream inputStream, SlidingWindow window) throws IOException {
         inputStream.setOrdering(BitOrdering.LSB_FIRST);
         boolean bFinal = inputStream.readBits(1) == 1;

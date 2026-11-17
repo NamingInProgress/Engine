@@ -33,8 +33,6 @@ public class PngFile {
     }
 
     public PngFile(InputStream inputStream, boolean flipVertically) throws IOException {
-        Stopwatch pngWatch = new Stopwatch();
-        pngWatch.start();
         if (!verifySignature(inputStream)) {
             throw new IOException("Illegal PNG file received!");
         }
@@ -48,7 +46,6 @@ public class PngFile {
         pngInfo.flipVertically = flipVertically;
 
         int[][] palette = null;
-        //todo: use fastbitinputstream
 
         Vector<InputStream> streams = new Vector<>();
         loop:
@@ -77,8 +74,6 @@ public class PngFile {
         } else {
             output = SequentialImageSampler.sample(pngInfo, idatDecompressor, palette);
         }
-        pngWatch.stop();
-        System.out.println("PNG TOOK " + pngWatch.getMillis() + "MS TO LOAD");
     }
 
     public Bitmap getOutput() {

@@ -2,6 +2,7 @@ package com.vke.core.file.io.bit.input;
 
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.utils.IntUtils;
+import com.vke.utils.io.LimitedInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,14 @@ public class FastBitInputStream implements BitInputStream {
     public FastBitInputStream(InputStream input) {
         this.input = input;
         this.limit = Long.MAX_VALUE;
+    }
+
+    public static FastBitInputStream withLimitRespect(InputStream stream) {
+        if (stream instanceof LimitedInputStream limited) {
+            return new FastBitInputStream(limited, limited.getLimit());
+        } else {
+            return new FastBitInputStream(stream);
+        }
     }
 
     @Override

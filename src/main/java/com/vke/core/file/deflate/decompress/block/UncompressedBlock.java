@@ -53,4 +53,9 @@ public class UncompressedBlock implements DeflateBlock {
     public boolean bFinal() {
         return bFinal;
     }
+
+    @Override
+    public boolean isFinished() {
+        return bytesRead >= length;
+    }
 }
