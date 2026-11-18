@@ -52,6 +52,7 @@ import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
+import com.vke.utils.Utils;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.exception.Unreachable;
 import org.lwjgl.system.Configuration;
@@ -284,8 +285,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getImageSemaphore(),
                     frameData.frame.getTransferSemaphore(),
                     frameData.frame.getRenderFence(),
-                    QueueType.GRAPHICS,
-                    false
+                    QueueType.GRAPHICS
             ));
 
             frameData.frame.getPresentFence().waitForFence();
@@ -314,8 +314,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getTransferSemaphore(),
                     frameData.frame.getPresentSemaphore(),
                     frameData.frame.getPresentFence(),
-                    QueueType.PRESENT,
-                    false
+                    QueueType.PRESENT
             ));
 
             swapchain.present(frameData.frame.getPresentSemaphore());
@@ -327,8 +326,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getImageSemaphore(),
                     frameData.frame.getPresentSemaphore(),
                     frameData.frame.getRenderFence(),
-                    QueueType.GRAPHICS,
-                    false
+                    QueueType.GRAPHICS
             ));
 
             swapchain.present(frameData.frame.getPresentSemaphore());
@@ -340,35 +338,36 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.frameCounter.nextFrame();
     }
 
-    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
-        this.immediateSubmit(consumer, () -> {});
-    }
-
-    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer, Runnable finisher) {
-        immediateSubmit((stack, cmd) -> {
-            consumer.accept(stack, cmd);
-            return finisher;
-        });
-    }
-
-    public void immediateSubmit(BiFunction<MemoryStack, VulkanCmdBuffers, Runnable> func) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanFence fence = immediateFrame.getRenderFence();
-            VulkanCmdBuffers cmd = immediateFrame.getBuffers();
-
-            fence.reset();
-            cmd.reset();
-
-            cmd.beginImmediate();
-            Runnable finisher = func.apply(stack, cmd);
-            cmd.endImmediate();
-
-            device.submit(cmd, CommandBuffer.SubmitInfo.immediate(fence));
-
-            fence.waitForFence();
-            finisher.run();
-        }
-    }
+//    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
+//        this.immediateSubmit(consumer, () -> {});
+//    }
+//
+//    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer, Runnable finisher) {
+//        immediateSubmit((stack, cmd) -> {
+//            consumer.accept(stack, cmd);
+//            return finisher;
+//        });
+//    }
+//
+//    public void immediateSubmit(BiFunction<MemoryStack, VulkanCmdBuffers, Runnable> func) {
+//        try (MemoryStack stack = MemoryStack.stackPush()) {
+//            VulkanFence fence = immediateFrame.getRenderFence();
+//            VulkanCmdBuffers cmd = immediateFrame.getBuffers();
+//
+//            fence.reset();
+//            cmd.reset();
+//
+//            cmd.beginImmediate();
+//            Runnable finisher = func.apply(stack, cmd);
+//            cmd.endImmediate();
+//
+//            //device.submit(cmd, CommandBuffer.SubmitInfo.immediate(fence));
+//            if (Utils.TRUE) throw new RuntimeException("Old code bruh");
+//
+//            fence.waitForFence();
+//            finisher.run();
+//        }
+//    }
 
     private int calculateBindlessTexturesCount() {
         int devImgs = device.capabilities().maxBindlessSampledImages;

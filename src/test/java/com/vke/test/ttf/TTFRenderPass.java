@@ -67,6 +67,6 @@ public class TTFRenderPass extends RenderPass {
 
         TextRenderer tx = context.get("tx");
 
-        tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, RgbColor.VKE.getComponents()), stencil, depth);
+        //tx.render(cmd, new CommandBuffer.AttachmentInfo(colorOut, LoadOp.CLEAR, StoreOp.STORE, RgbColor.VKE.getComponents()), stencil, depth);
     }
 }

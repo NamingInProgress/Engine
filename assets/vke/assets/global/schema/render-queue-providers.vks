@@ -1,0 +1,11 @@
+{
+    typedefs: {
+        queue-provider: {
+            !name: string;
+            !class: string;
+        };
+    };
+    schema: {
+        queue-providers: [queue-provider];
+    };
+}

@@ -1,6 +1,7 @@
 package com.vke.core.rendering.vulkan.device;
 
 import com.vke.api.event.EventBus;
+import com.vke.api.rendering.abstraction.renderer.commands.ImmediateSubmit;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
@@ -19,10 +20,13 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.FileIdentifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
+import com.vke.core.file.png.Pixels;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.rendering.vulkan.VKEvents;
+import com.vke.core.rendering.vulkan.command.ImmediateCommandPoolManager;
+import com.vke.core.rendering.vulkan.texture.VulkanTextureUploadQueue;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
@@ -78,9 +82,12 @@ public class VulkanRenderDevice implements RenderDevice {
     private long debugMessenger, surface;
     private long vmaAllocator;
 
-    private VulkanQueue graphicsQueue, presentQueue, computeQueue;
+    private final VulkanQueue graphicsQueue, presentQueue, computeQueue;
 
     private final DeviceCapabilities cachedCapabilities;
+
+    private final VulkanTextureUploadQueue textureUploadQueue;
+    private final ImmediateCommandPoolManager immediateSubmitManager;
 
     // Engine infos
     private final EngineCreateInfo engineCreateInfo;
@@ -118,6 +125,8 @@ public class VulkanRenderDevice implements RenderDevice {
         this.graphicsQueue = logicalDevice.getQueue(QueueType.GRAPHICS);
         this.presentQueue = logicalDevice.getQueue(QueueType.PRESENT);
         this.computeQueue = logicalDevice.getQueue(QueueType.COMPUTE);
+        this.textureUploadQueue = new VulkanTextureUploadQueue(context);
+        this.immediateSubmitManager = new ImmediateCommandPoolManager(context);
     }
 
     private void initInstance() {
@@ -297,10 +306,7 @@ public class VulkanRenderDevice implements RenderDevice {
         return shader;
     }
 
-    @Override
-    public VulkanCmdBuffers createCommandBuffer() {
-        throw new RuntimeException("Non VulkanFrame Command Buffers are not implemented yet!");
-    }
+
 
     @Override
     public void submit(CommandBuffer buffers, CommandBuffer.SubmitInfo info) {
@@ -317,15 +323,23 @@ public class VulkanRenderDevice implements RenderDevice {
             VkSemaphoreSubmitInfo.Buffer waitInfo = null;
             VkSemaphoreSubmitInfo.Buffer signalInfo = null;
 
-            if (!info.isImmediate()) {
+            if (info.getWaitSemaphore() != null) {
                 waitInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
-                signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
 
                 if (info.getType() == QueueType.GRAPHICS) {
                     waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
-                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
                 } else {
                     waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT));
+                }
+            }
+
+            if (info.getSignalSemaphore() != null) {
+                signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
+
+                if (info.getType() == QueueType.GRAPHICS) {
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+                } else {
+
                     signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT));
                 }
             }
@@ -356,6 +370,21 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
+    public ImmediateSubmit immediateSubmit() {
+        return immediateSubmitManager.immediate(QueueType.TRANSFER);
+    }
+
+    @Override
+    public ImmediateSubmit immediateSubmit(QueueType qt) {
+        return immediateSubmitManager.immediate(qt);
+    }
+
+    @Override
+    public ImmediateSubmit immediateSubmit(QueueType qt, boolean useSignalSemaphore) {
+        return immediateSubmitManager.immediate(qt, useSignalSemaphore);
+    }
+
+    @Override
     public void waitIdle() {
         VK14.vkDeviceWaitIdle(this.logicalDevice.getDevice());
     }
@@ -363,6 +392,21 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public VulkanSwapchain createSwapchain(Swapchain.Description info) {
         return new VulkanSwapchain(info, context);
+    }
+
+    @Override
+    public void _queueTextureUpload(VulkanTexture texture, Pixels pixels) {
+        textureUploadQueue.enqueue(texture, pixels);
+    }
+
+    @Override
+    public boolean _queueTextureEmpty() {
+        return textureUploadQueue.isEmpty();
+    }
+
+    @Override
+    public void _queueTextureExecute() {
+        textureUploadQueue.execute();
     }
 
     public VulkanFrame[] createFrames() {

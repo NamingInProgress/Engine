@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class MeshInstance {
+public final class MeshInstance implements RenderKeyable {
     private final int entityId;
     private StaticMesh mesh;
     private float[] mat;
@@ -75,4 +75,8 @@ public final class MeshInstance {
     }
 
 
+    @Override
+    public int key() {
+        return mesh.key();
+    }
 }

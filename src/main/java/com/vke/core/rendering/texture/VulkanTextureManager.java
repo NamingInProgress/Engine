@@ -89,4 +89,8 @@ public class VulkanTextureManager implements TextureManager, EventListener {
         this.sampler = sampler;
     }
 
+    @Override
+    public int priority() {
+        return -1000;
+    }
 }

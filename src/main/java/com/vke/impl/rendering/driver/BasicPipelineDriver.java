@@ -3,7 +3,7 @@ package com.vke.impl.rendering.driver;
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
-import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.pipeline.driver.PipelineDriver;
 
 public class BasicPipelineDriver extends PipelineDriver {
 

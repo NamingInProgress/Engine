@@ -45,6 +45,8 @@ public class GlfwWindow implements Window {
         if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
             GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11);
 
+        glfwSetErrorCallback((error, description) -> System.err.println("GLFW error " + error + " : " + GLFWErrorCallback.getDescription(description)));;
+
         if (!glfwInit()) {
             engine.getLogger().fatal("Failed to init GLFW!");
             throw new IllegalStateException("Failed to initialize GLFW!");

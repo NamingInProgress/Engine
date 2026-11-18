@@ -12,6 +12,7 @@ import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.impl.ecs.mesh.StaticMeshC;
+import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.*;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
@@ -151,6 +152,16 @@ public class DemoScene extends Scene {
             floor.getTransform().changeScaleXYZ(50, 1, 50);
             CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
             ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
+
+
+//            EmptyGameObject text = new EmptyGameObject(context);
+//            text.spawn();
+//            text.addComponents(BasicTextC.ID);
+//            CRef<BasicTextC> textC = text.getComponent(BasicTextC.ID);
+//            textC.with((c, idx) -> {
+//                c.setText(idx, "Hello world!");
+//                c.setFontScale(idx, 42);
+//            });
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }
@@ -163,6 +174,8 @@ public class DemoScene extends Scene {
         cam.control(new FreecamController(context));
 
         cam.getTransform().addChild(spotLight);
+        cam.getTransform().setXYZ(0, 0, 0);
+        cam.getTransform().setRotationXYZ(0, -90, 0);
 
         getRenderSystem().frameDataManager().setCamera(cam);
 

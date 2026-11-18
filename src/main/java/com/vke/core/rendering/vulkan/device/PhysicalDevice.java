@@ -41,7 +41,7 @@ public class PhysicalDevice implements Disposable {
         props2 = alloc.allocStruct(VkPhysicalDeviceProperties2.SIZEOF, VkPhysicalDeviceProperties2::new);
         props2.sType$Default();
         props2.pNext(driverProps.address());
-        VK14.vkGetPhysicalDeviceProperties2(vk, props2);
+        //VK14.vkGetPhysicalDeviceProperties2(vk, props2);
 
         try(MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer pExtCount = stack.mallocInt(1);

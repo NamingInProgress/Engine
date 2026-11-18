@@ -1,5 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer;
 
+import com.vke.api.rendering.abstraction.renderer.commands.ImmediateSubmit;
+import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
@@ -14,6 +16,8 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.core.FileIdentifier;
+import com.vke.core.file.png.Pixels;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.utils.io.Disposable;
 
 import java.io.IOException;
@@ -33,13 +37,20 @@ public interface RenderDevice extends Disposable {
     RenderPipeline createRenderPipeline(RenderPipelineData data);
     ComputePipeline createComputePipeline(ComputePipelineData data);
 
-    /** COMMAND BUFFERS **/
-    CommandBuffer createCommandBuffer();
+    /** IMMEDIATE **/
+    ImmediateSubmit immediateSubmit();
+    ImmediateSubmit immediateSubmit(QueueType qt);
+    ImmediateSubmit immediateSubmit(QueueType qt, boolean useSignalSemaphore);
 
     void submit(CommandBuffer cmd, CommandBuffer.SubmitInfo info);
     void waitIdle();
 
     /** SWAPCHAIN **/
     Swapchain createSwapchain(Swapchain.Description info);
+
+    /** TEXTURE MANAGEMENT **/
+    void _queueTextureUpload(VulkanTexture texture, Pixels pixels);
+    boolean _queueTextureEmpty();
+    void _queueTextureExecute();
 
 }

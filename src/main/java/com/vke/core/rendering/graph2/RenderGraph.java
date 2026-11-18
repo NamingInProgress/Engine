@@ -95,6 +95,7 @@ public class RenderGraph {
             RenderPass.LOGGER.error("Class '%s' should have a constructor that is compatible with the spec!", clazz);
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             RenderPass.LOGGER.error("Class '%s' cannot be instantiated!", clazz);
+            throw new RuntimeException(e);
         }
 
         return null;

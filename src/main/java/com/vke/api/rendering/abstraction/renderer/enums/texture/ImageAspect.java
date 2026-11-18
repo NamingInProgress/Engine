@@ -36,14 +36,17 @@ public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
     public ImageAspect resolve(Format format) {
         if (this != AUTO) return this;
         ImageAspect aspect;
-        if (format.isDepth()) {
+        if (!format.isDepth() && !format.isStencil()) {
+            aspect = new ImageAspect(Bits.COLOR);
+        } else if (format.isDepth()) {
             aspect = new ImageAspect(ImageAspect.Bits.DEPTH);
             if (format.isStencil()) {
                 aspect.or(ImageAspect.Bits.STENCIL);
             }
         } else {
-            aspect = new ImageAspect(ImageAspect.Bits.COLOR);
+            aspect = new ImageAspect(ImageAspect.Bits.STENCIL);
         }
+
         return aspect;
     }
 

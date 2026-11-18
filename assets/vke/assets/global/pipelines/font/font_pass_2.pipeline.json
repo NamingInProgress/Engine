@@ -5,12 +5,14 @@
   "attachments": [
     {
       "type": "COLOR",
+      "format": "RGBA16F",
       "blendEnable": true
     },
     {
       "type": "DEPTH_STENCIL",
       "format": "DEPTH32F_STENCIL8",
       "depthTestEnable": true,
+      "depthWriteEnable": false,
       "stencilTestEnable": true,
       "frontOperation": {
         "compareOp": "NOT_EQUAL",

@@ -2,21 +2,19 @@ package com.vke.core.rendering.font;
 
 import com.vke.api.assets.r.R;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
-import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.pipeline.driver.PipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
-import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.ValueResource;
 import com.vke.core.rendering.transform.MatrixStack;
-import org.joml.Matrix4f;
 
 public class TextRendererPass2Driver extends PipelineDriver {
 
-    private final BufferResource matrices;
+    protected final BufferResource matrices;
 
     private MatrixStack matrixStack;
 
     public TextRendererPass2Driver(RenderSystem sys) {
         super(sys, R.pipelines.get("vke:font_pass_2.pipeline.json"));
-        this.matrices = p.resource("u_MatrixStack");
+        this.matrices = p.resource("u_TextMatrixStack1");
     }
 
     public void setMatrixStack(MatrixStack stack) {
@@ -25,7 +23,8 @@ public class TextRendererPass2Driver extends PipelineDriver {
 
     @Override
     public void use() {
-        matrices.write(writer -> matrixStack.upload(writer));
+        if (matrixStack != null)
+            matrices.write(writer -> matrixStack.upload(writer));
         bind();
         bindPushConstants();
         bindDescriptorSets();

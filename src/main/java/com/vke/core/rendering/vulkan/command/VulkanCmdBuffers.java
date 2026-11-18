@@ -54,7 +54,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     private boolean recording, rendering;
 
-    public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
+    public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool) {
         this.poolHandle = pool.getHandle();
         this.setsMgr = ctx.renderer().getEngineSetsManager();
         this.ctx = ctx;
@@ -186,19 +186,19 @@ public class VulkanCmdBuffers implements CommandBuffer {
         }
     }
 
-    public void beginImmediate() {
-        this.recording = true;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
-                    .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-            VK14.vkBeginCommandBuffer(this.vk, beginInfo);
-        }
-    }
-
-    public void endImmediate() {
-        this.recording = false;
-        VK14.vkEndCommandBuffer(vk);
-    }
+//    public void beginImmediate() {
+//        this.recording = true;
+//        try (MemoryStack stack = MemoryStack.stackPush()) {
+//            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
+//                    .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+//            VK14.vkBeginCommandBuffer(this.vk, beginInfo);
+//        }
+//    }
+//
+//    public void endImmediate() {
+//        this.recording = false;
+//        VK14.vkEndCommandBuffer(vk);
+//    }
 
     @Override
     public void end() {

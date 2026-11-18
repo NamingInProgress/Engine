@@ -24,28 +24,18 @@ public interface CommandBuffer extends Disposable {
     class SubmitInfo {
 
         private final QueueType type;
-        private final boolean immediate;
         private final Semaphore wait, signal;
         private final Fence fence;
 
-        public SubmitInfo(Semaphore waitSemaphore, Semaphore signalSemaphore, Fence fence, QueueType queueType, boolean immediate) {
+        public SubmitInfo(Semaphore waitSemaphore, Semaphore signalSemaphore, Fence fence, QueueType queueType) {
             this.type = queueType;
-            this.immediate = immediate;
             this.wait = waitSemaphore;
             this.signal = signalSemaphore;
             this.fence = fence;
         }
 
-        public static SubmitInfo immediate(Fence fence) {
-            return new SubmitInfo(null, null, fence, QueueType.TRANSFER, true);
-        }
-
         public QueueType getType() {
             return type;
-        }
-
-        public boolean isImmediate() {
-            return immediate;
         }
 
         public Semaphore getWaitSemaphore() {
