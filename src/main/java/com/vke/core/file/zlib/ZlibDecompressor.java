@@ -6,12 +6,14 @@ import com.vke.core.file.deflate.exc.InflatingException;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
 import com.vke.core.file.io.bit.BitStreamUtils;
-import com.vke.core.file.utils.HBFDecodeSource;
+import com.vke.core.file.utils.WrappingDecompressor;
+import com.vke.utils.Stopwatch;
+import com.vke.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ZlibDecompressor implements HBFDecodeSource<Integer> {
+public class ZlibDecompressor extends WrappingDecompressor {
     private final BitInputStream stream;
     private InflatingDevice device;
     private int cm;
@@ -57,18 +59,15 @@ public class ZlibDecompressor implements HBFDecodeSource<Integer> {
         device = new InflatingDevice(adler, stream, windowSize);
     }
 
-    public void appendData(InputStream toAppend) {
-        stream.appendData(toAppend);
-    }
-
     @Override
-    public Integer nextByte() throws IOException {
-        if (device.isFinished()) return -1;
+    public int decompressBytes(byte[] dst, int start, int length) throws IOException {
+        int read;
         try {
-            return device.inflateNextByte();
+            read = device.inflate(dst, start, length);
         } catch (InflatingException e) {
             throw new IOException(e);
         }
+        return read;
     }
 
     @Override
@@ -80,5 +79,10 @@ public class ZlibDecompressor implements HBFDecodeSource<Integer> {
         if (adler != computedAdler) {
             throw new IOException(String.format("Adler32 mismatch: expected=%08d actual=%08d", adler, computedAdler));
         }
+    }
+
+    @Override
+    protected boolean isFinished() {
+        return device != null && device.isFinished();
     }
 }

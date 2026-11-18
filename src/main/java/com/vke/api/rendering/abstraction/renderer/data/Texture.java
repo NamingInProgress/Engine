@@ -3,11 +3,12 @@ package com.vke.api.rendering.abstraction.renderer.data;
 import com.vke.api.rendering.abstraction.draw.QuadTexture;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
-import com.vke.core.file.png.Pixels;
 import com.vke.core.rendering.vulkan.extent.Extent2D;
 import com.vke.core.rendering.vulkan.extent.Extent3D;
+import com.vke.utils.Utils;
 import com.vke.utils.io.Disposable;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -152,8 +153,10 @@ public interface Texture extends Disposable, QuadTexture {
         }
 
         public TextureDesc build() {
-            if (width == 0 || height == 0 || format == null || usage == null || type == null)
-                throw new IllegalStateException("Cannot build image without one of these: width, height, format, usage, type");
+            String missing = Utils.findNullCulprit(width, "width", height, "height", format, "format", usage, "usage", type, "type");
+            if (missing != null) {
+                throw new IllegalStateException("Cannot build image without all the parameters, missing: " + missing);
+            }
             return new TextureDesc(width, height, depth, mipLevels, arrayLayers,
                     format, usage, samples, type, memUsage, tiling, generateMips);
         }
@@ -162,7 +165,7 @@ public interface Texture extends Disposable, QuadTexture {
 
     float[] DEFAULT_UVWH = new float[]{ 0, 0, 1, 1 };
 
-    Texture upload(Pixels pixels);
+    Texture upload(ByteBuffer pixels);
 
     default int width() { return description().width; }
     default int height() { return description().height; }

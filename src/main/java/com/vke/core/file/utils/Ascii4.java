@@ -26,6 +26,10 @@ public class Ascii4 {
         this.combined = (a << 24) | (b << 16) | (c << 8) | d;
     }
 
+    public static Ascii4 ofBytes(int a, int b, int c, int d) {
+        return new Ascii4((byte) a, (byte) b, (byte) c, (byte) d);
+    }
+
     public int toInt() {
         return combined;
     }

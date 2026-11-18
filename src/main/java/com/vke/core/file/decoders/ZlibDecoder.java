@@ -1,38 +1,29 @@
 package com.vke.core.file.decoders;
 
-import com.carrotsearch.hppc.ByteArrayList;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
-import com.vke.core.file.utils.HBFLazyDecoder;
+import com.vke.api.file.ByteDecoder;
+import com.vke.api.file.DecodeException;
+import com.vke.core.file.io.bit.input.FastBitInputStream;
 import com.vke.core.file.zlib.ZlibDecompressor;
+import com.vke.utils.io.LimitedInputStream;
 
+import java.io.IOException;
 import java.io.InputStream;
 
-public class ZlibDecoder extends HBFLazyDecoder<ZlibDecompressor, Integer, byte[]> {
+public class ZlibDecoder implements ByteDecoder {
     public static final String KEY = "zlib";
-    private ByteArrayList collection;
+    private ZlibDecompressor zlib;
 
     @Override
-    protected ZlibDecompressor fromStream(InputStream stream) {
-        return new ZlibDecompressor(new ShittyBitInputStream(stream));
+    public void setSource(InputStream stream) {
+        this.zlib = new ZlibDecompressor(FastBitInputStream.withLimitRespect(stream));
     }
 
     @Override
-    protected boolean isFinal(Integer element) {
-        return element == -1;
-    }
-
-    @Override
-    protected void startCollecting() {
-        collection = new ByteArrayList();
-    }
-
-    @Override
-    protected void addNext(Integer element) {
-        collection.add(element.byteValue());
-    }
-
-    @Override
-    protected byte[] combine() {
-        return collection.toArray();
+    public int decode(byte[] dst, int start, int length) throws DecodeException {
+        try {
+            return zlib.decompress(dst, start, length);
+        } catch (IOException e) {
+            throw DecodeException.ofIO(e);
+        }
     }
 }

@@ -20,7 +20,7 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.FileIdentifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
-import com.vke.core.file.png.Pixels;
+import com.vke.core.image.Bitmap;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
@@ -51,6 +51,7 @@ import com.vke.utils.tuple.Pair;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.Vma;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.util.vma.VmaVulkanFunctions;
@@ -306,8 +307,6 @@ public class VulkanRenderDevice implements RenderDevice {
         return shader;
     }
 
-
-
     @Override
     public void submit(CommandBuffer buffers, CommandBuffer.SubmitInfo info) {
         if (!(buffers instanceof VulkanCmdBuffers cmd)) throw new IllegalStateException("Provided non vulkan command buffers object to vulkan render device!");
@@ -339,7 +338,6 @@ public class VulkanRenderDevice implements RenderDevice {
                 if (info.getType() == QueueType.GRAPHICS) {
                     signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
                 } else {
-
                     signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT));
                 }
             }
@@ -395,7 +393,7 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public void _queueTextureUpload(VulkanTexture texture, Pixels pixels) {
+    public void _queueTextureUpload(VulkanTexture texture, Bitmap pixels) {
         textureUploadQueue.enqueue(texture, pixels);
     }
 
@@ -407,6 +405,21 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public void _queueTextureExecute() {
         textureUploadQueue.execute();
+    }
+
+    @Override
+    public ByteBuffer allocate(int size) {
+        return MemoryUtil.memAlloc(size);
+    }
+
+    @Override
+    public void freeAllocation(ByteBuffer buffer) {
+        MemoryUtil.memFree(buffer);
+    }
+
+    @Override
+    public ByteBuffer allocateManaged(int size) {
+        return alloc.alloc(size).getHeapObject();
     }
 
     public VulkanFrame[] createFrames() {

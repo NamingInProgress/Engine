@@ -117,6 +117,8 @@ public abstract class AbstractVertexConsumer<T extends Vertex> implements Vertex
 
         this.currentVertexCount = 0;
         this.currentIndexCount = 0;
+
+
     }
 
     @Override

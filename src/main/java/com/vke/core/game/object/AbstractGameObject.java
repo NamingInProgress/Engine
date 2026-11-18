@@ -46,6 +46,11 @@ public abstract class AbstractGameObject implements GameObject {
     protected abstract ComponentMask createMask();
 
     @Override
+    public Context getContext() {
+        return ctx;
+    }
+
+    @Override
     public int entityId() {
         return entityId;
     }

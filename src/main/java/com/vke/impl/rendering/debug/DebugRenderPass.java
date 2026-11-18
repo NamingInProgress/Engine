@@ -18,7 +18,8 @@ import java.util.List;
 
 public class DebugRenderPass extends RenderPass {
 
-    private VertexConsumer<DebugVertex> vc;
+    private VertexConsumer<DebugVertex> vcLines;
+    private VertexConsumer<DebugVertex> vcTris;
     private BasicPipelineDriver triangleDriver, linesDriver;
 
     private GraphTexture colorOut;
@@ -30,7 +31,8 @@ public class DebugRenderPass extends RenderPass {
 
     @Override
     public void onLoad() {
-        this.vc = sys.vcp().get(DebugVertex.TEMPLATE);
+        this.vcLines = sys.vcp().get(DebugVertex.TEMPLATE);
+        this.vcTris = sys.vcp().get(DebugVertex.TEMPLATE);
         this.triangleDriver = new BasicPipelineDriver(sys, R.pipelines.get("debug_3d_tri.pipeline.json"));
         this.linesDriver = new BasicPipelineDriver(sys, R.pipelines.get("debug_3d_lines.pipeline.json"));
 
@@ -43,12 +45,12 @@ public class DebugRenderPass extends RenderPass {
         this.beginRendering(cmd, List.of(colorOut), depthOut, RgbColor.VKE, RgbColor.WHITE);
 
         triangleDriver.use();
-        DebugContext.tri_commands.forEach(c -> c.draw(vc));
-        vc.draw();
+        DebugContext.tri_commands.forEach(c -> c.draw(vcTris));
+        vcTris.draw();
 
         linesDriver.use();
-        DebugContext.line_commands.forEach(c -> c.draw(vc));
-        vc.draw();
+        DebugContext.line_commands.forEach(c -> c.draw(vcLines));
+        vcLines.draw();
 
         DebugContext.clear();
 

@@ -36,7 +36,7 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void onAssetException(AssetDesc desc, Throwable exception) {
-
+        context.getLogger().error("Asset error for: %s", exception, desc.name());
     }
 
     @Override

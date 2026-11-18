@@ -8,14 +8,15 @@ import com.vke.core.Identifier;
 import com.vke.core.audio.pcm.reader.PCMReader;
 import com.vke.core.audio.playback.PlaybackState;
 import com.vke.core.audio.source.AudioClip;
-import com.vke.utils.types.AbstractPositionable;
+import com.vke.core.game.object.GameObjectTransform;
 
 import java.io.IOException;
 import java.util.List;
 
-public class VkeSpeaker extends AbstractPositionable implements Speaker {
+public class VkeSpeaker implements Speaker {
     private final Context context;
     private final Mixer3D mixer;
+    private GameObjectTransform transform;
 
     private float gain;
 
@@ -77,5 +78,15 @@ public class VkeSpeaker extends AbstractPositionable implements Speaker {
     @Override
     public void free() {
 
+    }
+
+    @Override
+    public void setTransform(GameObjectTransform transform) {
+        this.transform = transform;
+    }
+
+    @Override
+    public GameObjectTransform getTransform() {
+        return transform;
     }
 }

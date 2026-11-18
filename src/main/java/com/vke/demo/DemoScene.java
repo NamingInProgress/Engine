@@ -1,6 +1,7 @@
 package com.vke.demo;
 
 import com.vke.api.assets.r.R;
+import com.vke.api.audio.playback.PlayingAudio;
 import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
@@ -8,6 +9,12 @@ import com.vke.api.scene.Scene;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
+import com.vke.core.audio.playback.service.AudioManagerMaster;
+import com.vke.core.audio.playback2d.service.AudioManager2D;
+import com.vke.core.audio.playback3d.Ear;
+import com.vke.core.audio.playback3d.Speaker;
+import com.vke.core.audio.playback3d.service.AudioManager3D;
+import com.vke.core.audio.source.ToneGenerator;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
@@ -26,9 +33,11 @@ import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
 import com.vke.impl.gameobject.SpotLightGameObject;
+import com.vke.impl.gameobject.convenientapi.GameAudio;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -137,6 +146,11 @@ public class DemoScene extends Scene {
             ref2.with((c, idx) -> c.setMaterial(idx, mat));
             bear2.getTransform().setXYZ(30, 0, 0);
 
+            bear1.getTransform().addChild(bear2);
+
+            PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
+            audio.setLooping(true);
+
             cube = new EmptyGameObject(context);
             cube.spawn();
             cube.addComponents(StaticMeshC.ID);
@@ -176,6 +190,8 @@ public class DemoScene extends Scene {
         cam.getTransform().addChild(spotLight);
         cam.getTransform().setXYZ(0, 0, 0);
         cam.getTransform().setRotationXYZ(0, -90, 0);
+
+        GameAudio.setEar(cam);
 
         getRenderSystem().frameDataManager().setCamera(cam);
 
@@ -246,7 +262,7 @@ public class DemoScene extends Scene {
             poss[1] = y;
         }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-//        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);

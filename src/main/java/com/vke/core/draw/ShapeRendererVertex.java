@@ -10,7 +10,7 @@ import pl.epsi.Type;
 public class ShapeRendererVertex implements Vertex {
 
     public static final ShapeRendererVertex TEMPLATE = null;
-    public static final VertexFactory FACTORY = ShapeRendererVertex::new;
+    public static final VertexFactory<ShapeRendererVertex> FACTORY = ShapeRendererVertex::new;
 
     @Type.Float3
     private float x, y, z;

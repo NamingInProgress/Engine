@@ -14,20 +14,23 @@ public class JavaAudioDevice implements AudioDevice {
         this.array = new byte[2 * channels * PlaybackState.BLOCK_SIZE];
 
         this.format = new AudioFormat(
-             AudioFormat.Encoding.PCM_SIGNED,
+                AudioFormat.Encoding.PCM_SIGNED,
                 PlaybackState.SAMPLE_RATE,
                 16,
                 channels,
                 channels * 2,
                 PlaybackState.SAMPLE_RATE,
                 false
-
         );
 
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             this.line = (SourceDataLine) AudioSystem.getLine(info);
-            line.open(format);
+
+            int bufferFrames = PlaybackState.BLOCK_SIZE * 4;
+            int bufferBytes = bufferFrames * channels * 2;
+
+            line.open(format, bufferBytes);
             line.start();
         } catch (LineUnavailableException e) {
             throw new AudioException(e);

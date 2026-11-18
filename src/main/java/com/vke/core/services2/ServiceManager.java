@@ -65,6 +65,7 @@ public class ServiceManager implements Disposable {
         Set<String> names = loadedServices.stream().map(Service::getId).collect(Collectors.toSet());
         while (!loadedServices.isEmpty()) {
             List<Service> toRemove = new ArrayList<>();
+            //noone will notice psst
             services:
             for (ServiceImpl service : loadedServices) {
                 List<String> dependencies = service.dependencies();

@@ -1,13 +1,13 @@
 package com.vke.core.file.deflate.decompress.block;
 
-import com.vke.core.file.deflate.decompress.BitUtils;
 import com.vke.core.file.deflate.decompress.DeflateBlock;
+import com.vke.core.file.deflate.decompress.check.Checksum32;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.deflate.decompress.lz77.Lz77Decoder;
 import com.vke.core.file.deflate.decompress.lz77.SlidingWindow;
 import com.vke.core.file.io.bit.input.BitInputStream;
 import com.vke.core.file.io.bit.BitOrdering;
-import com.vke.core.file.io.bit.input.ShittyBitInputStream;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,12 +30,12 @@ public class DynamicBlock implements DeflateBlock {
     }
 
     @Override
-    public int nextByte(BitInputStream in) throws IOException {
+    public int inflateBytes(BitInputStream inputStream, byte[] dst, int start, int length, @Nullable Checksum32 checksum) throws IOException {
         if (!initialized) {
-            initialize(in);
+            initialize(inputStream);
             initialized = true;
         }
-        return decoder.decodeNextByte(in);
+        return decoder.decodeNextBytes(inputStream, dst, start, length, checksum);
     }
 
     private void initialize(BitInputStream bitStream) throws IOException {
@@ -152,13 +152,13 @@ public class DynamicBlock implements DeflateBlock {
     }
 
     @Override
-    public boolean isFinished() {
-        return decoder.isFinished();
+    public boolean bFinal() {
+        return bFinal;
     }
 
     @Override
-    public boolean bFinal() {
-        return bFinal;
+    public boolean isFinished() {
+        return decoder.isFinished();
     }
 }
 

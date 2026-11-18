@@ -9,6 +9,7 @@ import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.utils.functionalinterface.FaultySupplier;
 import com.vke.utils.io.SegmentedPath;
 import com.vke.utils.iter.Iter;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
@@ -364,5 +365,25 @@ public class Utils {
         System.arraycopy(arr1, 0, a, 0, arr1.length);
         System.arraycopy(arr2, 0, a, arr1.length, arr2.length);
         return a;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T, E extends Throwable> T ARGHH(String message, E... gitignore) throws E {
+        Class<E> clazz = (Class<E>) gitignore.getClass().getComponentType();
+        try {
+            Constructor<E> constructor = clazz.getDeclaredConstructor(String.class);
+            throw constructor.newInstance(message);
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static @Nullable String findNullCulprit(Object...  nullablesAndTheirNames) {
+        for (int i = 0; i < nullablesAndTheirNames.length; i += 2) {
+            Object nullable = nullablesAndTheirNames[i];
+            String name = nullablesAndTheirNames[i + 1].toString();
+            if (nullable == null) return name;
+        }
+        return null;
     }
 }

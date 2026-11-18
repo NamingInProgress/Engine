@@ -16,11 +16,12 @@ import com.vke.api.rendering.abstraction.renderer.pipeline.RenderPipeline;
 import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.core.FileIdentifier;
-import com.vke.core.file.png.Pixels;
+import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.utils.io.Disposable;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public interface RenderDevice extends Disposable {
 
@@ -48,8 +49,12 @@ public interface RenderDevice extends Disposable {
     /** SWAPCHAIN **/
     Swapchain createSwapchain(Swapchain.Description info);
 
+    ByteBuffer allocateManaged(int size);
+    ByteBuffer allocate(int size);
+
+    void freeAllocation(ByteBuffer buffer);
     /** TEXTURE MANAGEMENT **/
-    void _queueTextureUpload(VulkanTexture texture, Pixels pixels);
+    void _queueTextureUpload(VulkanTexture texture, Bitmap pixels);
     boolean _queueTextureEmpty();
     void _queueTextureExecute();
 
