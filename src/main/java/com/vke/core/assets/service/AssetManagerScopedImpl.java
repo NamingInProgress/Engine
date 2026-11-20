@@ -50,6 +50,7 @@ public class AssetManagerScopedImpl implements AssetManager {
             base.globalBundle.extendBundle(afterPhase);
         });
         base.globalBundle.extendBundle(globalBundle);
+        base.globalBundle.global = true;
 
         // ===== IMPORTANT ====== DO NOT REMOVE OR MOVE ======
         //i cant do anything about this, after here the renderer will load shaders twice becuase it will get

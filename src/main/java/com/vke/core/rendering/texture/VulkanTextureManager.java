@@ -16,12 +16,14 @@ import com.vke.core.rendering.vulkan.service.VulkanRenderer;
 import com.vke.core.services2.Services;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public class VulkanTextureManager implements TextureManager, EventListener {
 
     public static int BINDLESS_TEXTURES_COUNT;
 
-    private final HashMap<Texture, Integer> textures = new HashMap<>();
+    private final Map<Texture, Integer> textures = new IdentityHashMap<>();
     private final Texture[] bindlessTextures;
     private CISArrayHandle BINDLESS_HANDLE;
     private final EngineDescriptorSetsManager mgr;
@@ -75,7 +77,8 @@ public class VulkanTextureManager implements TextureManager, EventListener {
     public int texture(Texture tex) {
         if (tex == null) return -1;
         int id = textures.getOrDefault(tex, -1);
-        if (id == -1) ctx.getLogger().warn("Failed to acquire texture ID for texture " + tex + ", was it registered?");
+        if (id == -1)
+            ctx.getLogger().warn("Failed to acquire texture ID for texture " + tex + ", was it registered?");
         return id;
     }
 
@@ -89,8 +92,8 @@ public class VulkanTextureManager implements TextureManager, EventListener {
         this.sampler = sampler;
     }
 
-    @Override
-    public int priority() {
-        return -1000;
-    }
+//    @Override
+//    public int priority() {
+//        return -1000;
+//    }
 }

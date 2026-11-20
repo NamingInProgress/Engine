@@ -45,7 +45,7 @@ public class EventBusImpl extends ServiceImpl implements EventBus {
                     Class<? extends Event> eventClass = (Class<? extends Event>) params[0];
                     ArrayList<CallableHandler> listeners = handlers.computeIfAbsent(eventClass, _ -> new ArrayList<>());
                     listeners.add(new CallableHandler(instance, ReflectUtils.asMethodHandle(subscriber)));
-                    listeners.sort(Comparator.comparingInt((e) -> e.instance().priority()));
+                    //listeners.sort(Comparator.comparingInt((e) -> e.instance().priority()));
                 }
             } catch (IllegalAccessException iae) {
                 engine.throwException(iae, "EventBus");

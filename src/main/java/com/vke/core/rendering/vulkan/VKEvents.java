@@ -50,4 +50,6 @@ public class VKEvents {
 
     }
 
+    public static class Loaded extends Event {}
+
 }

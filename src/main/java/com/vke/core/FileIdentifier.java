@@ -14,6 +14,7 @@ import com.vke.utils.iter.helpers.Option;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class FileIdentifier {
     private final boolean isJavaEmbed;
@@ -142,6 +143,18 @@ public class FileIdentifier {
     @Override
     public String toString() {
         return toPath().toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        FileIdentifier that = (FileIdentifier) o;
+        return isJavaEmbed == that.isJavaEmbed && Objects.equals(path, that.path) && Objects.equals(prefix, that.prefix);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isJavaEmbed, path, prefix);
     }
 
     public static void registerSerializers() {

@@ -1,6 +1,5 @@
 package com.vke.core.rendering.vulkan.command;
 
-import com.vke.api.rendering.abstraction.DelayedDestroyer;
 import com.vke.api.rendering.abstraction.renderer.commands.ImmediateSubmit;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
@@ -8,19 +7,17 @@ import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
 import com.vke.utils.io.Disposable;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class ImmediateCommandPoolManager implements Disposable {
 
     private final VulkanRenderSystem sys;
 
-    private final HashMap<QueueType, CommandPool> pools = new HashMap<>();
-
-    private final DelayedDestroyer<VulkanCmdBuffers> destroyer;
+    private final Map<QueueType, CommandPool> pools = new EnumMap<>(QueueType.class);
 
     public ImmediateCommandPoolManager(VulkanRenderSystem sys) {
         this.sys = sys;
-        this.destroyer = new DelayedDestroyer<>(sys);
     }
 
     public ImmediateSubmit immediate(QueueType qt) {
@@ -28,7 +25,11 @@ public class ImmediateCommandPoolManager implements Disposable {
     }
 
     public ImmediateSubmit immediate(QueueType qt, boolean useSignal) {
-        return new ImmediateSubmit(sys.device(), qt, getBuffers(qt), new VulkanFence(sys),
+        return immediate(qt, useSignal, true);
+    }
+
+    public ImmediateSubmit immediate(QueueType qt, boolean useSignal, boolean useFence) {
+        return new ImmediateSubmit(sys.device(), qt, getBuffers(qt), useFence ? new VulkanFence(sys) : null,
                 useSignal ? VulkanSemaphore.createSemaphore(sys) : null
         );
     }
@@ -41,14 +42,11 @@ public class ImmediateCommandPoolManager implements Disposable {
      */
     public VulkanCmdBuffers getBuffers(QueueType type) {
         CommandPool pool = pools.computeIfAbsent(type, (qt) -> new CommandPool(sys, qt));
-        VulkanCmdBuffers buf = new VulkanCmdBuffers(sys, pool);
-        destroyer.scheduleDestroy(buf);
-        return buf;
+        return new VulkanCmdBuffers(sys, pool);
     }
 
     @Override
     public void free() {
-        destroyer.free();
         pools.values().forEach(Disposable::free);
     }
 

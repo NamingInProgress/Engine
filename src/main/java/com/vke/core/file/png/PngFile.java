@@ -78,7 +78,7 @@ public class PngFile {
         }
 
         pngWatch.stop();
-        System.out.println("PNG TOOK " + pngWatch.getMillis() + "MS TO LOAD");
+//        System.out.println("PNG TOOK " + pngWatch.getMillis() + "MS TO LOAD");
     }
 
     public Bitmap getOutput() {

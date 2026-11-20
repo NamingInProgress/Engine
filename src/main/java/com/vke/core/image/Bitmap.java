@@ -16,11 +16,11 @@ public interface Bitmap {
     int pixelStride();
 
     default Texture createTexture2D(Renderer renderer, Texture.TextureDescriptorBuilder partiallyFilledBuilder) {
-        int size = width() * height() * pixelStride();
+//        int size = width() * height() * pixelStride();
         RenderDevice device = renderer.getDevice();
-        ByteBuffer buffer = device.allocate(size);
-        uploadIntoBytebuffer(buffer);
-        buffer.flip();
+//        ByteBuffer buffer = device.allocate(size);
+//        uploadIntoBytebuffer(buffer);
+//        buffer.flip();
         Texture.TextureDesc desc = partiallyFilledBuilder
                 .format(dataFormat())
                 .width(width())
@@ -29,8 +29,9 @@ public interface Bitmap {
                 .build();
 
         Texture texture = device.createTexture(desc);
-        texture.upload(buffer);
-        device.freeAllocation(buffer);
+//        texture.upload(buffer);
+//        device.freeAllocation(buffer);
+        texture.upload(this);
         return texture;
     }
 

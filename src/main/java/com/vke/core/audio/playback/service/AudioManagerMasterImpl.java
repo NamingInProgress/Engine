@@ -22,7 +22,9 @@ public class AudioManagerMasterImpl extends ServiceImpl implements AudioManagerM
     @Override
     protected void onInitialize() {
         try {
+            System.out.println("init java audio");
             AudioDevice device = new JavaAudioDevice(MasterMixer.CHANNELS);
+            System.out.println("java audio done");
             this.controller = new PlaybackController(device);
             this.controller.start();
         } catch (AudioException e) {

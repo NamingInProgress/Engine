@@ -9,6 +9,7 @@ import com.vke.core.audio.pcm.reader.PCMReader;
 import com.vke.core.audio.playback.PlaybackState;
 import com.vke.core.audio.source.AudioClip;
 import com.vke.core.game.object.GameObjectTransform;
+import com.vke.utils.Stopwatch;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +39,13 @@ public class VkeSpeaker implements Speaker {
     @Override
     public PlayingAudio play(AssetHandle<AudioClip> audio) {
         try {
-            return play(audio.acquire(context));
+            Stopwatch watch = new Stopwatch();
+            System.out.println("starting watch");
+            watch.start();
+            AudioClip clip = audio.acquire(context);
+            watch.stop();
+            System.out.println("aquire took " + watch.getMillis());
+            return play(clip);
         } catch (IOException e) {
             context.getLogger().error("When playing audio " + audio.getMeta().getAssetName(), e);
             return null;

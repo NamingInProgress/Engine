@@ -25,7 +25,21 @@ public class JavaAudioDevice implements AudioDevice {
 
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-            this.line = (SourceDataLine) AudioSystem.getLine(info);
+//            this.line = (SourceDataLine) AudioSystem.getLine(info);
+
+            SourceDataLine selectedLine = null;
+
+            for (Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
+                if (mixerInfo.getName().toLowerCase().contains("default")) {
+                    Mixer mixer = AudioSystem.getMixer(mixerInfo);
+                    if (mixer.isLineSupported(info)) {
+                        selectedLine = (SourceDataLine) mixer.getLine(info);
+                        break;
+                    }
+                }
+            }
+
+            this.line = (selectedLine != null) ? selectedLine : (SourceDataLine) AudioSystem.getLine(info);
 
             int bufferFrames = PlaybackState.BLOCK_SIZE * 4;
             int bufferBytes = bufferFrames * channels * 2;

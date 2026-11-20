@@ -14,12 +14,14 @@ import com.vke.core.audio.playback.service.AudioManagerMaster;
 import com.vke.core.audio.playback2d.Mixer2D;
 import com.vke.core.audio.source.AudioClip;
 import com.vke.core.services2.Services;
+import com.vke.utils.Stopwatch;
 
 import java.io.IOException;
 import java.util.List;
 
 public class AudioManager2DBaseImpl extends ScopedServiceImpl<AudioManager2DScopedImpl> implements AudioManager2D {
     private Mixer2D mixer;
+    private AudioManagerMaster audioManagerMaster;
 
     public AudioManager2DBaseImpl(VKEngine engine) {
         super(Services.AUDIO_MANAGER_2D, engine);
@@ -33,7 +35,7 @@ public class AudioManager2DBaseImpl extends ScopedServiceImpl<AudioManager2DScop
     @Override
     protected void onInitialize() {
         this.mixer = new Mixer2D(MasterMixer.CHANNELS);
-        AudioManagerMaster audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
+        audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
         audioManagerMaster.mixer(mixer);
     }
 
@@ -88,7 +90,6 @@ public class AudioManager2DBaseImpl extends ScopedServiceImpl<AudioManager2DScop
 
     @Override
     public void free() {
-        AudioManagerMaster audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
         audioManagerMaster.removeMixer(mixer);
     }
 }

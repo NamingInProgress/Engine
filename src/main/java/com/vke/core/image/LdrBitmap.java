@@ -77,7 +77,7 @@ public class LdrBitmap implements Bitmap {
 
     @Override
     public Format dataFormat() {
-        return Format.RGBA8;
+        return null;
     }
 
     @Override
