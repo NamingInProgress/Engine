@@ -6,18 +6,18 @@
     {
       "type": "DEPTH_STENCIL",
       "format": "DEPTH32F_STENCIL8",
-      "depthTestEnable": true,
-      "depthWriteEnable": true,
+      "depthTestEnable": false,
+      "depthWriteEnable": false,
       "stencilTestEnable": true,
       "frontOperation": {
-        "compareOp": "NOT_EQUAL",
-        "passOp": "KEEP",
+        "compareOp": "ALWAYS",
+        "passOp": "INVERT",
         "failOp": "KEEP",
         "depthFailOp": "KEEP"
       },
       "backOperation": {
-        "compareOp": "NOT_EQUAL",
-        "passOp": "KEEP",
+        "compareOp": "ALWAYS",
+        "passOp": "INVERT",
         "failOp": "KEEP",
         "depthFailOp": "KEEP"
       }

@@ -160,7 +160,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
                         .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
                         .loadOp(info.stencilAttachment().loadOp().getIntVal())
                         .storeOp(info.stencilAttachment().storeOp().getIntVal())
-                        .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
+                        .clearValue((v) -> v.depthStencil().stencil((int) info.stencilAttachment().clearColor()[0]));
             }
 
             VkRect2D area = VkRect2D.calloc(stack);
@@ -170,7 +170,15 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 area.extent(extent -> extent.set(tex.width(), tex.height()));
             } else {
                 area.offset(offset -> offset.set(0, 0));
-                area.extent(swapchain.getExtent());
+                if (depth != null) {
+                    var tex = info.depthAttachment().tex();
+                    area.extent(extent -> extent.set(tex.width(), tex.height()));
+                } else if (stencil != null) {
+                    var tex = info.stencilAttachment().tex();
+                    area.extent(extent -> extent.set(tex.width(), tex.height()));
+                } else {
+                    area.extent(swapchain.getExtent());
+                }
             }
 
             VkRenderingInfo renderInfo = VkRenderingInfo.calloc(stack)

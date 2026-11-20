@@ -10,6 +10,6 @@
         <texture name="gbuf_mesh_uvs" type="color" format="RG16F"/>
 
         <!-- Text -->
-        <texture name="stencilOut" type="stencil" format="STENCIL8"/>
+<!--        <texture name="stencilOut" type="stencil" format="STENCIL8"/>-->
     </outputs>
 </render-pass>

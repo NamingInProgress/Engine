@@ -12,7 +12,7 @@
       "type": "DEPTH_STENCIL",
       "format": "DEPTH32F_STENCIL8",
       "depthTestEnable": true,
-      "depthWriteEnable": false,
+      "depthWriteEnable": true,
       "stencilTestEnable": true,
       "frontOperation": {
         "compareOp": "NOT_EQUAL",

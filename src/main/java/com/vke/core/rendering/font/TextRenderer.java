@@ -246,7 +246,6 @@ public class TextRenderer implements Drawable {
                 new CommandBuffer.AttachmentInfo(depth.extract(), LoadOp.LOAD, StoreOp.STORE),
                 CommandBuffer.AttachmentInfo.stencil(stencil.extract())
         ));
-//        pass.beginRendering(cmd, List.of(), depth, stencil, List.of(), RgbColor.WHITE, RgbColor.BLACK);
 
         if (overrideMatrixIndex == -1) {
             pass1.setMatrixStack(matrixStack);

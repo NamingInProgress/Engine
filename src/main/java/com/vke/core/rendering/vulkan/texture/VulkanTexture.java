@@ -39,7 +39,7 @@ public class VulkanTexture implements Texture {
 
     private VulkanImageView defaultView;
     private ImageState state = ImageState.UNDEFINED; // [mipLevel][arrayLayer]
-    private ImageAspect aspect = ImageAspect.AUTO;
+    private ImageAspect aspect = ImageAspect.FULL_AUTO;
 
     public VulkanTexture(VulkanRenderSystem ctx, long handle, TextureDesc desc, ImageAspect aspect) {
         this.desc = desc;
@@ -115,21 +115,6 @@ public class VulkanTexture implements Texture {
     @Override
     public VulkanTexture upload(Bitmap bm) {
         device._queueTextureUpload(this, bm);
-//        GeneralBuffer cpuBuf = new GeneralBuffer(pixels, true);
-//        StagedBuffer buf = new StagedBuffer(ctx, cpuBuf,
-//                new BufferUsage(BufferUsage.Bits.TRANSFER_SRC),
-//                MemoryUsage.Bits.CPU_TO_GPU.into());
-//
-//        device.getRenderer().immediateSubmit((stack, cmd) -> {
-//            transition(cmd, ImageState.TRANSFER_DST);
-//
-//            return buf.uploadViaStaging(() -> {}, stack, cmd);
-//        });
-//
-//        device.getRenderer().immediateSubmit((stack, cmd) -> {
-//            cmd.copyBufferToImage(buf.getGpuBuffer(), this, 0, 0);
-//            transition(cmd, ImageState.GENERAL_SHADER_READ);
-//        }, buf::free);
 
         // TODO: generate mips
         return this;

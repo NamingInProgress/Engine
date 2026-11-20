@@ -10,6 +10,7 @@ import com.vke.core.rendering.rp.BasicTextInstance;
 import com.vke.core.rendering.rp2.queue.RenderQueue;
 import com.vke.core.rendering.rp2.queue.RenderQueueExecutor;
 import com.vke.core.rendering.rp2.queue.impl.BasicRenderQueue;
+import org.joml.Matrix4f;
 
 public class BasicTextExecutor extends RenderQueueExecutor<BasicTextInstance> {
 
@@ -24,7 +25,7 @@ public class BasicTextExecutor extends RenderQueueExecutor<BasicTextInstance> {
     public void onLoad(RenderSystem sys, RenderPass pass) {
         colorOut = pass.searchOutputTexture("colorOut");
         depthOut = pass.searchOutputTexture("depthOut");
-        stencilOut = pass.searchOutputTexture("stencilOut");
+        stencilOut = pass.searchOutputTexture("depthOut");
 
         this.tx = new TextRenderer(sys);
         this.buf = tx.getMatrixBuffer();
