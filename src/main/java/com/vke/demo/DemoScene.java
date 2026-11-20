@@ -135,37 +135,37 @@ public class DemoScene extends Scene {
                     prefab.toMesh(SceneVertexFormat.MESH_VERTEX_FACTORY)
             );
 
-//            bear1 = new EmptyGameObject(context);
-//            bear1.spawn();
-//            bear1.addComponents(StaticMeshC.ID);
-//            CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
-//            ref.with((c, i) -> c.setMesh(i, MESH));
-//
-//            EmptyGameObject bear2 = bear1.duplicate();
-//            CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
-//            ref2.with((c, idx) -> c.setMaterial(idx, mat));
-//            bear2.getTransform().setXYZ(30, 0, 0);
-//
-//            bear1.getTransform().addChild(bear2);
+            bear1 = new EmptyGameObject(context);
+            bear1.spawn();
+            bear1.addComponents(StaticMeshC.ID);
+            CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
+            ref.with((c, i) -> c.setMesh(i, MESH));
 
-//            PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
-//            audio.setLooping(true);
+            EmptyGameObject bear2 = bear1.duplicate();
+            CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
+            ref2.with((c, idx) -> c.setMaterial(idx, mat));
+            bear2.getTransform().setXYZ(30, 0, 0);
 
-//            cube = new EmptyGameObject(context);
-//            cube.spawn();
-//            cube.addComponents(StaticMeshC.ID);
-//            cube.getTransform().setXYZ(-30, 0, 0);
-//            cube.getTransform().changeScaleXYZ(5, 5, 5);
-//            CRef<StaticMeshC> ref3 = cube.getComponent(StaticMeshC.ID);
-//            ref3.with((c, idx) -> c.setMaterial(idx, cubeMat));
-//
-//            EmptyGameObject floor = new EmptyGameObject(context);
-//            floor.spawn();
-//            floor.addComponents(StaticMeshC.ID);
-//            floor.getTransform().setXYZ(0, -25, 0);
-//            floor.getTransform().changeScaleXYZ(50, 1, 50);
-//            CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
-//            ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
+            bear1.getTransform().addChild(bear2);
+
+            PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
+            audio.setLooping(true);
+
+            cube = new EmptyGameObject(context);
+            cube.spawn();
+            cube.addComponents(StaticMeshC.ID);
+            cube.getTransform().setXYZ(-30, 0, 0);
+            cube.getTransform().changeScaleXYZ(5, 5, 5);
+            CRef<StaticMeshC> ref3 = cube.getComponent(StaticMeshC.ID);
+            ref3.with((c, idx) -> c.setMaterial(idx, cubeMat));
+
+            EmptyGameObject floor = new EmptyGameObject(context);
+            floor.spawn();
+            floor.addComponents(StaticMeshC.ID);
+            floor.getTransform().setXYZ(0, -25, 0);
+            floor.getTransform().changeScaleXYZ(50, 1, 50);
+            CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
+            ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
 
 
             text = new EmptyGameObject(context);
@@ -265,7 +265,7 @@ public class DemoScene extends Scene {
             poss[1] = y;
         }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-        //bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);
