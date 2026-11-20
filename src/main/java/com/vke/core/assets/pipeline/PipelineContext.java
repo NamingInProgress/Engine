@@ -8,32 +8,14 @@ import com.vke.api.logger.Logger;
 import com.vke.core.Context;
 import com.vke.core.ContextWrapper;
 import com.vke.core.assets.AssetException;
-import com.vke.core.assets.pipeline.apis.AssetCache;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetProcessor;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.converters.*;
-import com.vke.core.assets.pipeline.converters.audio.preload.WavAudioPreloadConverter;
-import com.vke.core.assets.pipeline.converters.pipeline.ConfigComputePipelineConverter;
-import com.vke.core.assets.pipeline.converters.pipeline.ConfigRenderPipelineConverter;
-import com.vke.core.assets.pipeline.protocols.*;
-import com.vke.core.assets.pipeline.protocols.audio.AudioPreloadProtocol;
-import com.vke.core.assets.pipeline.protocols.audio.WavPreloadProtocol;
-import com.vke.core.assets.pipeline.protocols.mesh.MeshprefabProtocol;
-import com.vke.core.assets.pipeline.protocols.mesh.ObjProtocol;
-import com.vke.core.assets.pipeline.protocols.meta.FileProtocol;
 import com.vke.core.assets.pipeline.protocols.meta.MetaProtocol;
-import com.vke.core.assets.pipeline.protocols.pipeline.ComputePipelineProtocol;
-import com.vke.core.assets.pipeline.protocols.pipeline.RenderPipelineProtocol;
-import com.vke.core.assets.pipeline.protocols.shader.ComputeShaderProtocol;
-import com.vke.core.assets.pipeline.protocols.shader.FragmentShaderProtocol;
-import com.vke.core.assets.pipeline.protocols.shader.VertexShaderProtocol;
-import com.vke.core.assets.pipeline.protocols.texture.PngProtocol;
-import com.vke.core.assets.pipeline.protocols.texture.TextureProtocol;
 import com.vke.core.assets.pipeline.stages.*;
 import com.vke.api.parsing.config.node.ConfigNode;
 import com.vke.core.logger.LoggerFactory;
-import com.vke.core.mesh.MeshPrefabCache;
 import pl.epsi.SearchAnnotation;
 
 import java.lang.reflect.InvocationTargetException;
@@ -47,9 +29,6 @@ public class PipelineContext extends ContextWrapper {
     @SearchAnnotation(target = Protocol.class)
     private static final List<Class<? extends AssetProtocol<?>>> PROTOCOLS = null;
 
-    @SearchAnnotation(target = Cache.class)
-    private static final List<Class<? extends AssetCache>> CACHES = null;
-
     @SearchAnnotation(target = Converter.class)
     private static final List<Class<? extends AssetConverter>> CONVERTERS = null;
 
@@ -59,7 +38,6 @@ public class PipelineContext extends ContextWrapper {
     private final Context vkeContext;
     private final HashMap<String, StageFactory> registryRegistry;
     private final HashMap<String, AssetProtocol<?>> protocolRegistry;
-    private final HashMap<String, AssetCache> cacheRegistry;
     private final HashMap<String, HashMap<String, AssetConverter>> converterRegistry;
     private final HashMap<String, AssetProcessor> processorRegistry;
 
@@ -68,7 +46,6 @@ public class PipelineContext extends ContextWrapper {
         this.vkeContext = vkeContext;
         this.registryRegistry = new HashMap<>();
         this.protocolRegistry = new HashMap<>();
-        this.cacheRegistry = new HashMap<>();
         this.converterRegistry = new HashMap<>();
         this.processorRegistry = new HashMap<>();
 
@@ -79,7 +56,6 @@ public class PipelineContext extends ContextWrapper {
         try {
             registerProtocols();
             registerConverters();
-            registerCacheHandlers();
             registerProcessors();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Make sure all asset handlers registered via annotations have a no-arg constructor!", e);
@@ -90,7 +66,6 @@ public class PipelineContext extends ContextWrapper {
         registerStage(StageFilter.STAGE, StageFilter::new);
         registerStage(RenameStage.STAGE, RenameStage::new);
         registerStage(DecodeStage.STAGE, DecodeStage::new);
-        registerStage(CacheAssetStage.STAGE, CacheAssetStage::new);
         registerStage(ProcessStage.STAGE, ProcessStage::new);
         registerStage(FilterElseStage.STAGE, FilterElseStage::new);
         registerStage(LogStage.STAGE, LogStage::new);
@@ -129,19 +104,6 @@ public class PipelineContext extends ContextWrapper {
         }
     }
 
-    public void registerCacheHandler(AssetCache cacheHandler) {
-        this.cacheRegistry.put(cacheHandler.getTargetProtocol(), cacheHandler);
-    }
-
-    @SuppressWarnings("all") // stfu intellij it gets ✨ COMPILE TIME COLLECTED ✨
-    public void registerCacheHandlers() throws NoSuchMethodException, InvocationTargetException,
-            InstantiationException, IllegalAccessException {
-        if (CACHES == null) return;
-        for (Class<? extends AssetCache> cache : CACHES) {
-            registerCacheHandler(cache.getDeclaredConstructor().newInstance());
-        }
-    }
-
     public void registerProcessor(AssetProcessor processor) {
         this.processorRegistry.put(processor.getName(), processor);
     }
@@ -173,10 +135,6 @@ public class PipelineContext extends ContextWrapper {
         HashMap<String, AssetConverter> second = converterRegistry.get(fromName);
         if (second == null) return null;
         return second.get(toName);
-    }
-
-    public AssetCache getCacheHandler(String protocol) {
-        return cacheRegistry.get(protocol);
     }
 
     public Context context() {

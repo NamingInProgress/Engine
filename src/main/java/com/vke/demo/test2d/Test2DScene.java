@@ -10,6 +10,8 @@ import com.vke.api.scene.Scene;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
+import com.vke.core.color.Color;
+import com.vke.core.color.RgbColor;
 import com.vke.core.file.deflate.decompress.huffman.HMSymbolDecoder;
 import com.vke.core.file.exr.ExrChunkReader;
 import com.vke.core.file.exr.ExrDecoder;
@@ -34,33 +36,13 @@ public class Test2DScene extends Scene {
     @Override
     public void onLoad() throws Exception {
         try {
-            FileIdentifier fid = FileIdentifier.of("lol:BrightRings.exr");
-            InputStream testImageStream = fid.openInputStream();
-
-            ExrDecoder decoder = new ExrDecoder(testImageStream);
-            ExrChunkReader chunkReader = decoder.createChunkReader();
-            ExrBitmapExtractor bitmapExtractor = decoder.createBitmapExtractor(false);
-            chunkReader.assignExtractor(0, bitmapExtractor);
-            chunkReader.readAllChunks();
-            Bitmap bitmap = bitmapExtractor.getBitmap();
-
-            System.out.println("lookup: " + HMSymbolDecoder.LOOKUP + ", tree: " + HMSymbolDecoder.TREE);
-
-            Renderer renderer = context.service(Services.RENDERER);
-
-            var builder = new Texture.TextureDescriptorBuilder()
-                    .sampleCount(SampleCount.X1)
-                    .mipLevels(1)
-                    .tiling(ImageTiling.OPTIMAL)
-                    .usage(new ImageUsage(ImageUsage.Bits.SAMPLED_BIT, ImageUsage.Bits.TRANSFER_SRC_BIT, ImageUsage.Bits.TRANSFER_DST_BIT))
-                    .width(bitmap.width())
-                    .height(bitmap.height());
-
             if (Utils.TRUE) {
-                this.texture = bitmap.createTexture2D(renderer, builder);
+                this.texture = R.textures.get("vke:Blobbies.exr").acquire(context);
             } else {
                 this.texture = R.textures.get("vke:png.png").acquire(context);
             }
+
+            Renderer renderer = context.service(Services.RENDERER);
             renderer.renderSystem().textureManager().registerTexture(texture);
 
         } catch (Exception e) {
@@ -71,7 +53,6 @@ public class Test2DScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         super.onPrepareRendering(context);
-
         context.put("texture", texture);
     }
 

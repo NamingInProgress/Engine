@@ -103,8 +103,6 @@ public class HMSymbolDecoder {
         return codes;
     }
 
-    public static long LOOKUP, TREE;
-
     public int decodeSymbol(BitInputStream bitStream) throws IOException {
         bitStream.setOrdering(bitOrdering);
         int nextBits = bitStream.peekBits(maxUsedCodeLength);
@@ -116,7 +114,6 @@ public class HMSymbolDecoder {
             tried = upperTable.tryLookupCode(slowBits);
         }
         if (tried == null) {
-            TREE++;
             //since we didnt match the bits to any of the entries in the lookup tables,
             //we have to "walk the tree" manually here
             //instead of reconstructing the large tree, we can simply read 1 bit
@@ -146,7 +143,6 @@ public class HMSymbolDecoder {
             //}
             //System.out.println(BitUtils.intToBinStr(prefix) + " len " + maxUsedCodeLength);
         } else {
-            LOOKUP++;
             int len = tried.codeLength();
             bitStream.readBits(len);
         }

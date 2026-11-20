@@ -35,6 +35,7 @@ public class LazyAssetHandle<T> implements AssetHandle<T> {
         }
         AssetManager manager = context.service(Services.ASSET_MANAGER);
         AssetHandle<T> assetHandle = manager.getAsset(identifier);
+
         if (assetHandle == null) {
             throw new IOException(String.format("Tried to get asset handle for \"%s\", but it doesnt exist!", identifier));
         }

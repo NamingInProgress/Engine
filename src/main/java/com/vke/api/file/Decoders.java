@@ -1,9 +1,6 @@
 package com.vke.api.file;
 
-import com.vke.core.file.decoders.GzipDecoder;
-import com.vke.core.file.decoders.ObjDecoder;
-import com.vke.core.file.decoders.PngDecoder;
-import com.vke.core.file.decoders.ZlibDecoder;
+import com.vke.core.file.decoders.*;
 import com.vke.core.file.wav.WAVDecoder;
 
 import java.util.HashMap;
@@ -22,6 +19,7 @@ public class Decoders {
         decoders.put(WAVDecoder.KEY, WAVDecoder::new);
         decoders.put(PngDecoder.KEY, PngDecoder::new);
         decoders.put(ObjDecoder.KEY, ObjDecoder::new);
+        decoders.put(ExrBmpDecoder.KEY, ExrBmpDecoder::new);
     }
 
     @SuppressWarnings("unchecked")

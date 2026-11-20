@@ -38,7 +38,7 @@ public class DecodeStage extends ParameterizedStage {
 
         AssetData data = stageElement.getAssetData();
         if (data.isResolved()) {
-            throw new AssetException("The <decode> stage can only be used  for unresolved assets! Make sure that no filter requests data from the asset beforehand, so it doesnt get loaded in!");
+            throw new AssetException("The <decode> stage can only be used for unresolved assets! Make sure that no filter requests data from the asset beforehand, so it doesnt get loaded in!");
         }
         FileIdentifier identifier = data.getUnresolved();
 

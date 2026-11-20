@@ -17,9 +17,7 @@ public class ExrAttributeField {
 
     public ExrAttributeField(ExrDecoder dec, InputStream stream) throws IOException {
         this.name = dec.readExrStringNull(stream);
-        System.out.print(name);
         this.type = dec.readExrStringNull(stream);
-        System.out.println(" of " + type);
         this.size = DataUtils.readU32LittleEndian(stream);
         ExrAttr.Factory factory = dec.getAttrFactory(type);
         if (factory != null) {

@@ -26,7 +26,7 @@ public class AssetManagerBaseImpl extends ScopedServiceImpl<AssetManagerScopedIm
     private TaskProcessor loadingThread;
     private BundleLoadingCallback.List loadingCallbacks;
     private HashMap<String, Bundle> loadedBundles;
-    private Object loadedBundlesLock;
+    private final Object loadedBundlesLock = new Object();
 
     Bundle globalBundle;
     HashMap<String, Bundle> allBundles;
@@ -44,7 +44,6 @@ public class AssetManagerBaseImpl extends ScopedServiceImpl<AssetManagerScopedIm
         this.allBundles = new HashMap<>();
         this.globalBundle = new Bundle(engine);
         this.loadedBundles = new HashMap<>();
-        this.loadedBundlesLock = new Object();
     }
 
     public PipelineContext getPipelineContext() {
