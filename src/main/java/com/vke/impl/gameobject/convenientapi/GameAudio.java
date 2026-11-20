@@ -18,9 +18,7 @@ public class GameAudio {
     private static final IdentityHashMap<GameObject, Speaker> speakers = new IdentityHashMap<>();
 
     private static AudioManager3D getManager(GameObject o) {
-        System.out.println("audio service");
         AudioManager3D m = o.getContext().service(Services.AUDIO_MANAGER_3D);
-        System.out.println("audio service end");
         return m;
     }
 

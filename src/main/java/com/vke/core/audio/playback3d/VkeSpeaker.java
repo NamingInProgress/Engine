@@ -40,11 +40,9 @@ public class VkeSpeaker implements Speaker {
     public PlayingAudio play(AssetHandle<AudioClip> audio) {
         try {
             Stopwatch watch = new Stopwatch();
-            System.out.println("starting watch");
             watch.start();
             AudioClip clip = audio.acquire(context);
             watch.stop();
-            System.out.println("aquire took " + watch.getMillis());
             return play(clip);
         } catch (IOException e) {
             context.getLogger().error("When playing audio " + audio.getMeta().getAssetName(), e);
