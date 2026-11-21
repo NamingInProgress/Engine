@@ -50,8 +50,8 @@ public class PipelinedLoader implements AssetProtocol.Loader {
             Utils.chainExceptions(() -> {
                 byte[] hash = FileUtils.hash(identifier);
 
-                FileIdentifier bundlePath = identifier.reconstructBundleName(meta.getBundleName());
-                FileIdentifier cachePath = bundlePath.extend(HexFormat.of().formatHex(hash) + ".bin");
+                FileIdentifier bundlePath = identifier.reconstructBundleName(meta.getBundleName()).addCachePath();
+                FileIdentifier cachePath = bundlePath.extend(HexFormat.of().formatHex(hash) + ".vkeasset");
 
                 if (!cachePath.existsFile()) {
                     Files.createDirectories(bundlePath.toPath());
@@ -59,6 +59,7 @@ public class PipelinedLoader implements AssetProtocol.Loader {
                     CacheHandler.CacheBlob blob = new CacheHandler.CacheBlob(identifier, element.getAssetName(), hash, assetProtocol.getProtocolName());
                     Serializer.saveObject(blob, saver);
                     assetProtocol.serializeData(data.getDataAs(), saver);
+                    saver.flush();
                 }
 
                 return null;

@@ -4,27 +4,24 @@ import com.vke.api.assets.Protocols;
 import com.vke.api.assets.anot.Converter;
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
-import com.vke.api.rendering.abstraction.renderer.RenderDevice;
 import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
 import com.vke.core.Context;
-import com.vke.core.EngineCreateInfo;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetConverter;
 import com.vke.core.assets.pipeline.apis.AssetData;
-import com.vke.core.file.png.PngFile;
-import com.vke.core.file.png.PngInfo;
+import com.vke.core.image.Bitmap;
 import com.vke.core.parsing.config.utils.EmptyConfigObject;
 import com.vke.core.services2.Services;
 import com.vke.utils.iter.helpers.Option;
 
 @Converter
-public class PngTextureConverter implements AssetConverter {
+public class BitmapTextureConverter implements AssetConverter {
     @Override
     public String from() {
-        return Protocols.PNG;
+        return Protocols.BITMAP;
     }
 
     @Override
@@ -34,6 +31,8 @@ public class PngTextureConverter implements AssetConverter {
 
     @Override
     public AssetData performConversion(Context context, StageElement input, ConfigArrayNode arguments) throws AssetException {
+        Bitmap bitmap = input.getAssetData().getDataAs();
+
         ConfigNode meta = input.getMetaAttributes().getAssetConfig();
 
         if (meta == null) meta = new EmptyConfigObject();
@@ -58,12 +57,10 @@ public class PngTextureConverter implements AssetConverter {
 
         if (generateMips && mipLevels <= 0) throw new IllegalStateException("If a texture turns on generate-mips, mip-count must be greater than 0!");
 
-        PngFile png = input.getAssetData().getDataAs();
-        PngInfo info = png.getPngInfo();
         Renderer renderer = context.service(Services.RENDERER);
         Texture.TextureDescriptorBuilder builder = Texture.TextureDesc.builder()
-                .width(info.width)
-                .height(info.height)
+                .width(bitmap.width())
+                .height(bitmap.height())
                 .format(textureFormat)
                 .sampleCount(textureSampleCount)
                 .tiling(textureTiling)
@@ -72,7 +69,7 @@ public class PngTextureConverter implements AssetConverter {
                 .usage(usage)
                 .type(TextureType.TEX_2D);
 
-        Texture texture = png.getOutput().createTexture2D(renderer, builder);
+        Texture texture = bitmap.createTexture2D(renderer, builder);
         return new AssetData(Protocols.TEXTURE, texture);
     }
 }

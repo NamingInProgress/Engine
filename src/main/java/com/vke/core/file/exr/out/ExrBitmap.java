@@ -95,6 +95,10 @@ public class ExrBitmap implements Bitmap {
     private record UsedChannel(ExrChannel channel, int global_idx) {}
 
     public void setScanline(int y, byte[] scanline, int start) {
+        setShortScanline(0, y, scanline, start, width);
+    }
+
+    public void setShortScanline(int x, int y, byte[] scanline, int start, int width) {
         if (y < 0) return;
         int pixel_i = y * width * pixelStride();
         int byte_i = start;
@@ -110,8 +114,9 @@ public class ExrBitmap implements Bitmap {
             }
             int chOffset = chtype.ordinal() * targetPxType.byteSize;
             ExrPixelType pxtype = pxTypes[ch];
-            int pixel_i_inner = pixel_i + chOffset;
-            for (int x = 0; x < width; x++) {
+            int pixel_i_inner = pixel_i + chOffset + x * pixelStride();
+            for (int xRel = 0; xRel < width; xRel++) {
+                //TODO use xPos
                 toTarget(scanline, byte_i, pxtype);
                 System.arraycopy(chBuf, 0, rgb_a_bytes, pixel_i_inner, targetPxType.byteSize);
                 byte_i += pxtype.byteSize;
@@ -120,8 +125,9 @@ public class ExrBitmap implements Bitmap {
         }
         if (!alphaFound) {
             int chOffset = ChType.A.ordinal() * targetPxType.byteSize;
-            int pixel_i_inner = pixel_i + chOffset;
-            for (int x = 0; x < width; x++) {
+            int pixel_i_inner = pixel_i + chOffset + x * pixelStride();
+            for (int xRel = 0; xRel < width; xRel++) {
+                //todo here too
                 //default alpha value
                 switch (targetPxType) {
                     case UINT -> {

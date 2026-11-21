@@ -139,6 +139,8 @@ public class AssetMetaAttributes {
         }
 
         public boolean isAccepted(String phaseName) {
+            if (banned.contains("*")) return false;
+            if (allowed.contains("*")) return true;
             if (containsAllow) {
                 return allowed.contains(phaseName) && !banned.contains(phaseName);
             }

@@ -2,6 +2,8 @@ package com.vke.api.serializer;
 
 import com.vke.core.serializer.SaveException;
 
+import java.io.IOException;
+
 public interface Saver {
     void saveByte(byte v) throws SaveException;
 
@@ -98,4 +100,6 @@ public interface Saver {
     default void saveRaw(byte[] rawData) throws SaveException {
         for (byte b : rawData) saveByte(b);
     }
+
+    void flush() throws IOException;
 }

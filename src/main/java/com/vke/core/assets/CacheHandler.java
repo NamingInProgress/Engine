@@ -87,10 +87,10 @@ public class CacheHandler {
 
         @Override
         public CacheBlob load(Loader loader) throws LoadException {
-            FileIdentifier original = Serializer.loadObject(FileIdentifier.class, loader);
-            Identifier assetName = Serializer.loadObject(Identifier.class, loader);
+            FileIdentifier original = Serializer.loadObject(FileIdentifier.class, loader, false);
+            Identifier assetName = Serializer.loadObject(Identifier.class, loader, false);
             byte[] hash = loader.loadByteArray();
-            String protocol = Serializer.loadObject(String.class, loader);
+            String protocol = Serializer.loadObject(String.class, loader, false);
             return new CacheBlob(original, assetName, hash, protocol);
         }
     }

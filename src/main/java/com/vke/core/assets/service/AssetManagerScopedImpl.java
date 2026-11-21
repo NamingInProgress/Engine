@@ -39,7 +39,7 @@ public class AssetManagerScopedImpl implements AssetManager {
     }
 
     @Override
-    public void initAssets() {
+    public synchronized void initAssets() {
         if (init) return;
         init = true;
         initPipeline();

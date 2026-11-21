@@ -25,7 +25,6 @@ public class JavaAudioDevice implements AudioDevice {
 
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-//            this.line = (SourceDataLine) AudioSystem.getLine(info);
 
             SourceDataLine selectedLine = null;
 
@@ -52,7 +51,7 @@ public class JavaAudioDevice implements AudioDevice {
                 Mixer m = AudioSystem.getMixer(infoItem);
                 for (Line l : m.getSourceLines()) {
                     if (l == this.line) {
-                        System.out.println("Using audio line '%s'".formatted(infoItem.getName()));
+                        AudioDevice.LOGGER.info("Using audio line '%s'", infoItem.getName());
                         break outer;
                     }
                 }

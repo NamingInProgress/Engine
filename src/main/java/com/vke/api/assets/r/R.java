@@ -5,6 +5,7 @@ import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.core.audio.source.AudioClip;
+import com.vke.core.image.Bitmap;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
@@ -16,6 +17,7 @@ public class R {
     public static Category<RenderPipeline> pipelines = new Category<>();
     public static Category<ComputePipeline> compute_pipelines = new Category<>();
     public static Category<Texture> textures = new Category<>();
+    public static Category<Bitmap> bitmaps = new Category<>();
     public static Category<Boolean> booleans = new Category<>();
     public static Category<Float> numbers = new Category<>();
     public static Category<String> strings = new Category<>();

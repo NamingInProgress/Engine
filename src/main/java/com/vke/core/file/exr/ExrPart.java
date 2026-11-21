@@ -1,6 +1,8 @@
 package com.vke.core.file.exr;
 
 import com.vke.core.file.exr.head.ExrHeader;
+import com.vke.core.file.exr.head.ExrHeaderHead;
+import com.vke.core.file.exr.head.attr.StringAttr;
 import com.vke.core.file.utils.DataUtils;
 
 import java.io.IOException;
@@ -15,5 +17,40 @@ public record ExrPart(ExrHeader header, long[] offsetTable) {
         }
         //set your java to 25 bear
         this(header, offsetTable);
+    }
+
+    public ImageType getImageType(ExrHeaderHead head) {
+        if (head.isMultipart) {
+            StringAttr typeAttr = (StringAttr) header.attrs.get("type");
+            String value = typeAttr.value;
+            return switch (value) {
+                case "scanlineimage" -> ImageType.Scanline;
+                case "tiledimage" -> ImageType.Tile;
+                case "deepscanline" -> ImageType.DeepScan;
+                case "deeptile" -> ImageType.DeepTile;
+                default -> throw new IllegalArgumentException(value);
+            };
+        } else {
+            if (head.isSingleTile) {
+                if (head.hasDeepData) {
+                    return ImageType.DeepTile;
+                } else {
+                    return ImageType.Tile;
+                }
+            } else {
+                if (head.hasDeepData) {
+                    return ImageType.DeepScan;
+                } else {
+                    return ImageType.Scanline;
+                }
+            }
+        }
+    }
+
+    public enum ImageType {
+        Scanline,
+        Tile,
+        DeepScan,
+        DeepTile
     }
 }

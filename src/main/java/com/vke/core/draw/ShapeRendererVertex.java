@@ -36,5 +36,4 @@ public class ShapeRendererVertex implements Vertex {
         this.matId = matId;
         this.texture = texture;
     }
-
 }

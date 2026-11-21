@@ -11,6 +11,11 @@ public class BinaryLoader implements Loader {
     private final InputStream stream;
     private boolean closed = false;
 
+    public static final int BUFFER_SIZE = 4096 * 4;
+    private final byte[] buffer = new byte[BUFFER_SIZE];
+    private int bufferLength, bufferPointer;
+    private boolean inputExhausted;
+
     public BinaryLoader(InputStream stream) {
         this.stream = stream;
     }
@@ -20,15 +25,22 @@ public class BinaryLoader implements Loader {
         if (closed) {
             throw new LoadException("Stream closed manually prior to read call!");
         }
-        return Utils.chainExceptions(() -> {
-            int next = stream.read();
-            if (next < 0) {
-                throw new LoadException(
-                        "Tried to load byte from BinaryLoader, but the data is insufficient!"
-                );
+
+        try {
+            if (bufferPointer >= bufferLength) {
+                if (inputExhausted) {
+                    throw new LoadException("No more bytes available!");
+                }
+                bufferLength = stream.readNBytes(buffer, 0, BUFFER_SIZE);
+                if (bufferLength < BUFFER_SIZE) {
+                    inputExhausted = true;
+                }
+                bufferPointer = 0;
             }
-            return (byte) next;
-        });
+            return buffer[bufferPointer++];
+        } catch (IOException e) {
+            throw new LoadException(e);
+        }
     }
 
     public void close() throws IOException {

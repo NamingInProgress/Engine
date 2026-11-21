@@ -6,6 +6,7 @@ import com.vke.core.file.exr.decompress.ExrNoneDecompressor;
 import com.vke.core.file.exr.decompress.ExrZipDecompressor;
 import com.vke.core.file.exr.extract.ExrBitmapExtractor;
 import com.vke.core.file.exr.extract.ExrScanlineBitmapExtractor;
+import com.vke.core.file.exr.extract.ExrTileBitmapExtractor;
 import com.vke.core.file.exr.head.*;
 import com.vke.core.file.exr.head.attr.*;
 import com.vke.core.file.utils.DataUtils;
@@ -80,9 +81,15 @@ public class ExrDecoder {
         return new ExrChunkReader(parts, head, stream);
     }
 
-    public ExrBitmapExtractor createBitmapExtractor(boolean flipVertically) {
+    public ExrBitmapExtractor createBitmapExtractor(int part, boolean flipVertically) {
         //todo
-        return new ExrScanlineBitmapExtractor(this, stream, flipVertically);
+        ExrPart.ImageType imageType = parts[part].getImageType(head);
+        return switch (imageType) {
+            case Scanline -> new ExrScanlineBitmapExtractor(this, stream, flipVertically);
+            case Tile -> new ExrTileBitmapExtractor(this, stream, flipVertically);
+            case DeepScan -> null;
+            case DeepTile -> null;
+        };
     }
 
     protected void registerAttrs() {

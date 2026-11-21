@@ -19,6 +19,7 @@ import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.api.parsing.config.node.*;
 import com.vke.core.color.Color;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.utils.Utils;
 import com.vke.utils.io.FileUtils;
 import com.vke.utils.iter.helpers.Option;
 
@@ -39,7 +40,6 @@ public class BundleCollector {
                 readBundleXml(context, bundle, bundleKey, document);
             } catch (IOException e) {
                 context.throwException(e, "BundleVCL");
-                System.exit(67);
             }
         }
         try {
@@ -51,6 +51,7 @@ public class BundleCollector {
                         Option<CacheHandler.CachedAsset> maybeAsset = CacheHandler.handleCachedFile(pipeline.getContext(), file, bundleKey);
                         if (maybeAsset.isSome()) {
                             CacheHandler.CachedAsset asset = maybeAsset.unwrap();
+                            PipelineContext.ASSET_PIPELINE_LOGGER.debug("Loaded cache asset: %s -> %s", file, asset.originalName());
                             processedFiles.add(asset.originalName());
                             bundle.addAsset(asset.handle().getMeta().getAssetName(), asset.handle());
                         }
@@ -59,7 +60,7 @@ public class BundleCollector {
             }
 
             pipeline.forEachPhase(phase -> {
-                PipelineContext.ASSET_PIPELINE_LOGGER.info("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
+                PipelineContext.ASSET_PIPELINE_LOGGER.debug("Running Phase '" + phase.getName() + "' (pseudo) for bundle: " + ident);
 
                 for (FileIdentifier file : ident.walkFiles()) {
                     if (file.equals(bundleVCLIdent)) continue;

@@ -51,31 +51,12 @@ public class ExrChunkReader {
     }
 
     private void skipChunk(int part) throws IOException {
-        ExrHeader header = parts[part].header();
-        if (head.isMultipart) {
-            StringAttr typeAttr = (StringAttr) header.attrs.get("type");
-            String value = typeAttr.value;
-            switch (value) {
-                case "scanlineimage" -> skipScanline();
-                case "tiledimage" -> skipTile();
-                case "deepscanline" -> skipDeepScan();
-                case "deeptile" -> skipDeepTile();
-                default -> logger.fatal("Unrecognized type!!! This is faulty -> %s", value);
-            }
-        } else {
-            if (head.isSingleTile) {
-                if (head.hasDeepData) {
-                    skipDeepTile();
-                } else {
-                    skipTile();
-                }
-            } else {
-                if (head.hasDeepData) {
-                    skipDeepScan();
-                } else {
-                    skipScanline();
-                }
-            }
+        ExrPart.ImageType imageType = parts[part].getImageType(head);
+        switch (imageType) {
+            case Scanline -> skipScanline();
+            case Tile -> skipTile();
+            case DeepScan -> skipDeepScan();
+            case DeepTile -> skipDeepTile();
         }
     }
 

@@ -77,7 +77,7 @@ public class FileIdentifier {
     }
 
     public FileIdentifier reconstructBundleName(String bundleKey) {
-        return new FileIdentifier(isJavaEmbed, new Identifier(path.getNamespace(), bundleKey), prefix);
+        return new FileIdentifier(isJavaEmbed, new Identifier(path.getNamespace(), "assets/" + bundleKey), prefix);
     }
 
     public Path toPath() {
@@ -147,8 +147,7 @@ public class FileIdentifier {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        FileIdentifier that = (FileIdentifier) o;
+        if (!(o instanceof FileIdentifier that)) return false;
         return isJavaEmbed == that.isJavaEmbed && Objects.equals(path, that.path) && Objects.equals(prefix, that.prefix);
     }
 
