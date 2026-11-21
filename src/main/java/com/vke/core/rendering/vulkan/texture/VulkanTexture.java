@@ -7,6 +7,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
@@ -38,7 +39,7 @@ public class VulkanTexture implements Texture {
 
     private VulkanImageView defaultView;
     private ImageState state = ImageState.UNDEFINED; // [mipLevel][arrayLayer]
-    private ImageAspect aspect = ImageAspect.AUTO;
+    private ImageAspect aspect = ImageAspect.FULL_AUTO;
 
     public VulkanTexture(VulkanRenderSystem ctx, long handle, TextureDesc desc, ImageAspect aspect) {
         this.desc = desc;
@@ -112,22 +113,8 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
-    public VulkanTexture upload(ByteBuffer pixels) {
-        GeneralBuffer cpuBuf = new GeneralBuffer(pixels, true);
-        StagedBuffer buf = new StagedBuffer(ctx, cpuBuf,
-                new BufferUsage(BufferUsage.Bits.TRANSFER_SRC),
-                MemoryUsage.Bits.CPU_TO_GPU.into());
-
-        device.getRenderer().immediateSubmit((stack, cmd) -> {
-            transition(cmd, ImageState.TRANSFER_DST);
-
-            return buf.uploadViaStaging(() -> {}, stack, cmd);
-        });
-
-        device.getRenderer().immediateSubmit((stack, cmd) -> {
-            cmd.copyBufferToImage(buf.getGpuBuffer(), this, 0, 0);
-            transition(cmd, ImageState.GENERAL_SHADER_READ);
-        }, buf::free);
+    public VulkanTexture upload(Bitmap bm) {
+        device._queueTextureUpload(this, bm);
 
         // TODO: generate mips
         return this;

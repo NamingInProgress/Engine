@@ -1,6 +1,10 @@
 package com.vke.core.rendering.vulkan.device;
 
 import com.vke.api.event.EventBus;
+import com.vke.api.rendering.abstraction.BasicRenderAllocator;
+import com.vke.api.rendering.abstraction.renderer.commands.ImmediateSubmit;
+import com.vke.api.rendering.abstraction.renderer.data.IRenderAllocator;
+import com.vke.api.rendering.abstraction.renderer.shader.Shader;
 import com.vke.api.rendering.vulkan.pipeline.ComputePipelineData;
 import com.vke.api.rendering.vulkan.pipeline.RenderPipelineData;
 import com.vke.api.rendering.abstraction.renderer.RenderDevice;
@@ -19,10 +23,13 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.FileIdentifier;
 import com.vke.core.VKEngine;
 import com.vke.core.assets.pipeline.protocols.shader.ShaderPreprocessor;
+import com.vke.core.image.Bitmap;
 import com.vke.core.logger.LoggerFactory;
 import com.vke.core.memory.AutoHeapAllocator;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.rendering.vulkan.VKEvents;
+import com.vke.core.rendering.vulkan.command.ImmediateCommandPoolManager;
+import com.vke.core.rendering.vulkan.texture.VulkanTextureUploadQueue;
 import com.vke.core.services2.Services;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
@@ -79,9 +86,13 @@ public class VulkanRenderDevice implements RenderDevice {
     private long debugMessenger, surface;
     private long vmaAllocator;
 
-    private VulkanQueue graphicsQueue, presentQueue, computeQueue;
+    private final VulkanQueue graphicsQueue, presentQueue, computeQueue, transferQueue;
 
     private final DeviceCapabilities cachedCapabilities;
+
+    private final VulkanTextureUploadQueue textureUploadQueue;
+    private final ImmediateCommandPoolManager immediateSubmitManager;
+    private final BasicRenderAllocator renderAllocator;
 
     // Engine infos
     private final EngineCreateInfo engineCreateInfo;
@@ -119,6 +130,10 @@ public class VulkanRenderDevice implements RenderDevice {
         this.graphicsQueue = logicalDevice.getQueue(QueueType.GRAPHICS);
         this.presentQueue = logicalDevice.getQueue(QueueType.PRESENT);
         this.computeQueue = logicalDevice.getQueue(QueueType.COMPUTE);
+        this.transferQueue = logicalDevice.getQueue(QueueType.TRANSFER);
+        this.textureUploadQueue = new VulkanTextureUploadQueue(context);
+        this.immediateSubmitManager = new ImmediateCommandPoolManager(context);
+        this.renderAllocator = new BasicRenderAllocator();
     }
 
     private void initInstance() {
@@ -299,11 +314,6 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
-    public VulkanCmdBuffers createCommandBuffer() {
-        throw new RuntimeException("Non VulkanFrame Command Buffers are not implemented yet!");
-    }
-
-    @Override
     public void submit(CommandBuffer buffers, CommandBuffer.SubmitInfo info) {
         if (!(buffers instanceof VulkanCmdBuffers cmd)) throw new IllegalStateException("Provided non vulkan command buffers object to vulkan render device!");
         long pFence = info.getFence() == null ? VK14.VK_NULL_HANDLE : ((VulkanFence) info.getFence()).getHandle();
@@ -318,15 +328,22 @@ public class VulkanRenderDevice implements RenderDevice {
             VkSemaphoreSubmitInfo.Buffer waitInfo = null;
             VkSemaphoreSubmitInfo.Buffer signalInfo = null;
 
-            if (!info.isImmediate()) {
+            if (info.getWaitSemaphore() != null) {
                 waitInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
-                signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
 
                 if (info.getType() == QueueType.GRAPHICS) {
                     waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
-                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
                 } else {
                     waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT));
+                }
+            }
+
+            if (info.getSignalSemaphore() != null) {
+                signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
+
+                if (info.getType() == QueueType.GRAPHICS) {
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+                } else {
                     signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT));
                 }
             }
@@ -357,6 +374,11 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
+    public ImmediateSubmit immediateSubmit(QueueType qt, boolean useSignalSemaphore, boolean useFence) {
+        return immediateSubmitManager.immediate(qt, useSignalSemaphore, useFence);
+    }
+
+    @Override
     public void waitIdle() {
         VK14.vkDeviceWaitIdle(this.logicalDevice.getDevice());
     }
@@ -364,6 +386,18 @@ public class VulkanRenderDevice implements RenderDevice {
     @Override
     public VulkanSwapchain createSwapchain(Swapchain.Description info) {
         return new VulkanSwapchain(info, context);
+    }
+
+    public void _queueTextureUpload(VulkanTexture texture, Bitmap pixels) {
+        textureUploadQueue.enqueue(texture, pixels);
+    }
+
+    public boolean _queueTextureEmpty() {
+        return textureUploadQueue.isEmpty();
+    }
+
+    public void _queueTextureExecute() {
+        textureUploadQueue.execute();
     }
 
     @Override
@@ -377,6 +411,11 @@ public class VulkanRenderDevice implements RenderDevice {
     }
 
     @Override
+    public IRenderAllocator allocator() {
+        return renderAllocator;
+    }
+
+    @Override
     public ByteBuffer allocateManaged(int size) {
         return alloc.alloc(size).getHeapObject();
     }
@@ -385,18 +424,16 @@ public class VulkanRenderDevice implements RenderDevice {
         VulkanFrame[] frames = new VulkanFrame[vulkanCreateInfo.framesInFlight];
 
         for (int i = 0; i < vulkanCreateInfo.framesInFlight; i++) {
-            frames[i] = new VulkanFrame(context, getRenderer().getFrameCounter());
+            frames[i] = new VulkanFrame(context);
         }
 
         return frames;
     }
 
-    public VulkanFrame createImmediateFrame() {
-        return new VulkanFrame(context, getRenderer().getFrameCounter(), true);
-    }
-
     @Override
     public void free() {
+        renderAllocator.close();
+        immediateSubmitManager.free();
         KHRSurface.vkDestroySurfaceKHR(instance, surface, null);
         Vma.vmaDestroyAllocator(vmaAllocator);
         if (debugMessenger != VK14.VK_NULL_HANDLE)
@@ -451,5 +488,9 @@ public class VulkanRenderDevice implements RenderDevice {
 
     public VulkanQueue getComputeQueue() {
         return computeQueue;
+    }
+
+    public VulkanQueue getTransferQueue() {
+        return transferQueue;
     }
 }

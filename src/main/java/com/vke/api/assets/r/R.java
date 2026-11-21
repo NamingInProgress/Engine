@@ -1,5 +1,6 @@
 package com.vke.api.assets.r;
 
+import com.vke.api.font.FontFace;
 import com.vke.api.parsing.config.schema.ConfigSchema;
 import com.vke.api.rendering.abstraction.renderer.pipeline.ComputePipeline;
 import com.vke.api.rendering.pbr.Material;
@@ -27,4 +28,5 @@ public class R {
     public static Category<AudioClip> audios = new Category<>();
     public static Category<ConfigSchema> schemas = new Category<>();
     public static Category<Material> materials = new Category<>();
+    public static Category<FontFace> fonts = new Category<>();
 }

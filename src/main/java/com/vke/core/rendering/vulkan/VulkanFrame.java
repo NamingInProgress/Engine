@@ -1,6 +1,5 @@
 package com.vke.core.rendering.vulkan;
 
-import com.vke.api.rendering.FrameCounter;
 import com.vke.core.rendering.vulkan.command.CommandPool;
 import com.vke.api.rendering.abstraction.renderer.enums.QueueType;
 import com.vke.core.rendering.vulkan.command.VulkanCmdBuffers;
@@ -19,22 +18,17 @@ public class VulkanFrame implements Disposable {
     private VulkanFence renderFence, presentFence;
     private final VulkanRenderSystem sys;
 
-    private final boolean separatePresentQueue, immediate;
+    private final boolean separatePresentQueue;
 
-    public VulkanFrame(VulkanRenderSystem sys, FrameCounter fc) {
-        this(sys, fc, false);
-    }
-
-    public VulkanFrame(VulkanRenderSystem sys, FrameCounter fc, boolean immediate) {
+    public VulkanFrame(VulkanRenderSystem sys) {
         this.sys = sys;
-        this.immediate = immediate;
-        pool = new CommandPool(sys, immediate ? QueueType.TRANSFER : QueueType.GRAPHICS);
-        buffers = new VulkanCmdBuffers(sys, pool, fc);
+        pool = new CommandPool(sys, QueueType.GRAPHICS);
+        buffers = new VulkanCmdBuffers(sys, pool);
 
         VulkanRenderDevice dev = sys.device();
-        if (dev.isSeparateGraphicsPresent() && !immediate) {
+        if (dev.isSeparateGraphicsPresent()) {
             this.presentPool = new CommandPool(sys, QueueType.PRESENT);
-            this.presentBuffers = new VulkanCmdBuffers(sys, presentPool, fc);
+            this.presentBuffers = new VulkanCmdBuffers(sys, presentPool);
             this.separatePresentQueue = true;
         } else {
             this.presentPool = null;
@@ -42,18 +36,16 @@ public class VulkanFrame implements Disposable {
             this.separatePresentQueue = false;
         }
 
-        setupSyncStructures(immediate);
+        setupSyncStructures();
     }
 
-    private void setupSyncStructures(boolean immediate) {
+    private void setupSyncStructures() {
         try {
-            if (!immediate) {
-                imageSemaphore = VulkanSemaphore.createSemaphore(sys);
-                presentSemaphore = VulkanSemaphore.createSemaphore(sys);
-                if (separatePresentQueue) {
-                    presentTransferComplete = VulkanSemaphore.createSemaphore(sys);
-                    presentFence = new VulkanFence(sys);
-                }
+            imageSemaphore = VulkanSemaphore.createSemaphore(sys);
+            presentSemaphore = VulkanSemaphore.createSemaphore(sys);
+            if (separatePresentQueue) {
+                presentTransferComplete = VulkanSemaphore.createSemaphore(sys);
+                presentFence = new VulkanFence(sys);
             }
 
             renderFence = new VulkanFence(sys);
@@ -106,7 +98,7 @@ public class VulkanFrame implements Disposable {
         buffers.free();
         pool.free();
 
-        if (sys.device().isSeparateGraphicsPresent() && !immediate) {
+        if (sys.device().isSeparateGraphicsPresent()) {
             presentTransferComplete.free();
             presentFence.free();
             presentBuffers.free();

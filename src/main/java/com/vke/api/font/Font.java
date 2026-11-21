@@ -17,7 +17,7 @@ public interface Font {
      */
     float kern(int beforeIndex, int currentIndex);
 
-    record Metadata(int numGlyphs, int unitsPerEm, SpacingInfo spacingInfo, CaretInfo caretInfo) {}
+    record Metadata(int numGlyphs, int unitsPerEm, int style, SpacingInfo spacingInfo, CaretInfo caretInfo) {}
 
     record SpacingInfo(short ascent, short descent, short lineGap, int unscaledLineHeight) {}
     record CaretInfo(short caretRise, short caretRun, short caretOffset) {}

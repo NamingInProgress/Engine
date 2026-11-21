@@ -19,6 +19,7 @@ import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.impl.ecs.mesh.StaticMeshC;
+import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.*;
 import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
@@ -66,7 +67,7 @@ public class DemoScene extends Scene {
     private HierarchyManager hierarchyManager;
 
     private CameraGameObject cam;
-    private EmptyGameObject bear1, cube;
+    private EmptyGameObject bear1, cube, text, sphere, bear2;
 
     public static float[][] positions = {
             {45, -45, 45},
@@ -125,7 +126,7 @@ public class DemoScene extends Scene {
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("bear_smooth.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("sphere.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
             Material cubeMat = R.materials.get("vke:materials/emissive-cube.vcl").acquire(context);
 
@@ -140,12 +141,19 @@ public class DemoScene extends Scene {
             CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
             ref.with((c, i) -> c.setMesh(i, MESH));
 
-            EmptyGameObject bear2 = bear1.duplicate();
+            bear2 = bear1.duplicate();
             CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
             ref2.with((c, idx) -> c.setMaterial(idx, mat));
             bear2.getTransform().setXYZ(30, 0, 0);
 
             bear1.getTransform().addChild(bear2);
+
+            sphere = bear1.duplicate();
+            CRef<StaticMeshC> s2 = sphere.getComponent(StaticMeshC.ID);
+            s2.with((c, idx) -> c.setMaterial(idx, mat));
+            sphere.getTransform().setXYZ(5, 0, 0);
+
+            bear2.getTransform().addChild(sphere);
 
             PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
             audio.setLooping(true);
@@ -165,6 +173,19 @@ public class DemoScene extends Scene {
             floor.getTransform().changeScaleXYZ(50, 1, 50);
             CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
             ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
+
+
+            text = new EmptyGameObject(context);
+            text.spawn();
+            text.addComponents(BasicTextC.ID);
+            CRef<BasicTextC> textC = text.getComponent(BasicTextC.ID);
+            textC.with((c, idx) -> {
+                c.setText(idx, "Hello world!");
+                c.setFontScale(idx, 10);
+            });
+            text.getTransform().setPosition(new Vector3f(0, 0, -5));
+            text.getTransform().setScaleXYZ(0.01f, 0.01f, 0.01f);
+            text.getTransform().setRotationXYZ(0, 90, 0);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }
@@ -177,6 +198,8 @@ public class DemoScene extends Scene {
         cam.control(new FreecamController(context));
 
         cam.getTransform().addChild(spotLight);
+        cam.getTransform().setXYZ(0, 0, 0);
+        cam.getTransform().setRotationXYZ(0, -90, 0);
 
         GameAudio.setEar(cam);
 
@@ -244,15 +267,17 @@ public class DemoScene extends Scene {
 //            if (i == positions.length - 1) {
 //                poss[1] += (float) (20 * Math.max(Math.sin(System.nanoTime() / 1_000_000_000.0), 0.0));
 //            }
-            DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
-                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), RgbColor.RED);
+//            DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
+//                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), RgbColor.RED);
             poss[1] = y;
         }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+        bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
+        bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);
+        DebugContext.boundingBox(new Vector3f(text.getTransform().getPosition()), new Vector3f(text.getTransform().getPosition().add(5, 5, 5)), RgbColor.RED);
     }
 
     private void handleInput() {

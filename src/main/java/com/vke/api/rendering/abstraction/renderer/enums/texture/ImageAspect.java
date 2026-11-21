@@ -7,6 +7,7 @@ import org.lwjgl.vulkan.VK14;
 public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
 
     public static final ImageAspect AUTO = new ImageAspect(Bits.AUTO);
+    public static final ImageAspect FULL_AUTO = new ImageAspect(Bits.FAUTO);
 
     private int mask;
 
@@ -34,16 +35,30 @@ public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
     }
 
     public ImageAspect resolve(Format format) {
-        if (this != AUTO) return this;
+        if (this != AUTO && this != FULL_AUTO) return this;
+
         ImageAspect aspect;
-        if (format.isDepth()) {
-            aspect = new ImageAspect(ImageAspect.Bits.DEPTH);
-            if (format.isStencil()) {
-                aspect.or(ImageAspect.Bits.STENCIL);
+        if (this == AUTO) {
+            if (!format.isDepth() && !format.isStencil()) {
+                aspect = new ImageAspect(Bits.COLOR);
+            } else if (format.isDepth()) {
+                aspect = new ImageAspect(ImageAspect.Bits.DEPTH);
+            } else {
+                aspect = new ImageAspect(ImageAspect.Bits.STENCIL);
             }
         } else {
-            aspect = new ImageAspect(ImageAspect.Bits.COLOR);
+            if (!format.isDepth() && !format.isStencil()) {
+                aspect = new ImageAspect(Bits.COLOR);
+            } else if (format.isDepth()) {
+                aspect = new ImageAspect(Bits.DEPTH);
+                if (format.isStencil()) {
+                    aspect.or(Bits.STENCIL);
+                }
+            } else {
+                aspect = new ImageAspect(Bits.STENCIL);
+            }
         }
+
         return aspect;
     }
 
@@ -53,7 +68,8 @@ public class ImageAspect implements IntBitEnum<ImageAspect, ImageAspect.Bits> {
         DEPTH(VK14.VK_IMAGE_ASPECT_DEPTH_BIT),
         STENCIL(VK14.VK_IMAGE_ASPECT_STENCIL_BIT),
         METADATA(VK14.VK_IMAGE_ASPECT_METADATA_BIT),
-        AUTO(-1);
+        AUTO(-1),
+        FAUTO(-1);
 
         private final int vkHandle;
 

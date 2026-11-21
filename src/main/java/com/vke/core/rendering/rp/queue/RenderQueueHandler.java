@@ -12,7 +12,7 @@ import com.vke.core.FileIdentifier;
 import com.vke.core.Identifier;
 import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.rendering.graph2.renderpass.RenderPass;
-import com.vke.core.rendering.rp.MeshInstance;
+import com.vke.core.rendering.rp.RenderKeyable;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -24,24 +24,27 @@ public class RenderQueueHandler {
     private static final int VKE_RENDER_QUEUE_COUNT = 2;
 
     public final ObjectIntHashMap<Identifier> map = new ObjectIntHashMap<>();
-    public RenderQueueExecutor[] executors = new RenderQueueExecutor[VKE_RENDER_QUEUE_COUNT];
-    public RenderQueue[] queues = new RenderQueue[VKE_RENDER_QUEUE_COUNT];
+    public RenderQueueExecutor<?>[] executors = new RenderQueueExecutor[VKE_RENDER_QUEUE_COUNT];
+    public SortedRenderQueue<?>[] queues = new SortedRenderQueue[VKE_RENDER_QUEUE_COUNT];
     private int count = 0;
 
-    public void enqueue(int queue, MeshInstance mi) {
-        queues[queue].add(mi);
+    @SuppressWarnings("unchecked")
+    public <T extends RenderKeyable> void enqueue(int queue, T mi) {
+        SortedRenderQueue<T> q = (SortedRenderQueue<T>) queues[queue];
+        q.add(mi);
     }
 
     public void clear() {
-        for (RenderQueue queue : queues) {
+        for (SortedRenderQueue<?> queue : queues) {
             queue.clear();
         }
     }
 
-    public void render(CommandBuffer cmd, RenderPass pass) {
+    @SuppressWarnings("unchecked")
+    public <T extends RenderKeyable> void render(CommandBuffer cmd, RenderPass pass) {
         for (int i = 0; i < executors.length; i++) {
-            RenderQueueExecutor executor = executors[i];
-            RenderQueue queue = queues[i];
+            RenderQueueExecutor<T> executor = (RenderQueueExecutor<T>) executors[i];
+            SortedRenderQueue<T> queue = (SortedRenderQueue<T>) queues[i];
             if (executor == null || queue == null) continue;
 
             executor.acceptQueue(queue, cmd, pass);
@@ -49,9 +52,7 @@ public class RenderQueueHandler {
     }
 
     public void onLoad(RenderPass pass) {
-        for (int i = 0; i < executors.length; i++) {
-            RenderQueueExecutor executor = executors[i];
-
+        for (RenderQueueExecutor<?> executor : executors) {
             if (executor == null) continue;
             executor.onLoad(pass);
         }
@@ -72,7 +73,7 @@ public class RenderQueueHandler {
                 Identifier ident = ctx.id(name);
 
                 String className = renderQueue.getString("class");
-                Class<? extends RenderQueueExecutor> executorClass = (Class<? extends RenderQueueExecutor>) Class.forName(className);
+                Class<? extends RenderQueueExecutor<?>> executorClass = (Class<? extends RenderQueueExecutor<?>>) Class.forName(className);
 
                 registerExecutor(ctx, executorClass, ident);
             }
@@ -82,7 +83,7 @@ public class RenderQueueHandler {
 
     }
 
-    private void registerExecutor(Context ctx, Class<? extends RenderQueueExecutor> clazz, Identifier ident) {
+    private void registerExecutor(Context ctx, Class<? extends RenderQueueExecutor<?>> clazz, Identifier ident) {
         if (executors.length == count) {
             executors = Arrays.copyOf(executors, executors.length + 1);
             queues = Arrays.copyOf(queues, executors.length + 1);
@@ -92,7 +93,7 @@ public class RenderQueueHandler {
             var constr = clazz.getConstructor();
             var exec = constr.newInstance();
             executors[count] = exec;
-            queues[count] = new RenderQueue();
+            queues[count] = new SortedRenderQueue<>();
             map.put(ident, count);
             count++;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {

@@ -69,9 +69,9 @@ public class LightManagerImpl implements LightManager {
                 float r = sl.r[i], g = sl.g[i], b = sl.b[i];
                 float inte = sl.intensity[i];
 
-                DebugContext.arrow(new Vector3f(pos.x, pos.y, pos.z), new Vector3f(forward.x, forward.y, forward.z), RgbColor.RED);
-                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1),
-                        new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1), RgbColor.RED);
+//                DebugContext.arrow(new Vector3f(pos.x, pos.y, pos.z), new Vector3f(forward.x, forward.y, forward.z), RgbColor.RED);
+//                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1),
+//                        new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1), RgbColor.RED);
 
                 buf.write(counter++, writer -> {
                     writer.float4(0, 0, 0, 0); // POS + RANGE
@@ -107,8 +107,8 @@ public class LightManagerImpl implements LightManager {
                 float inte = sl.intensity[i];
                 float ica = sl.innerConeCos[i], oca = sl.outerConeCos[i];
 
-                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1), new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1),
-                        RgbColor.RED);
+//                DebugContext.boundingBox(new Vector3f(pos.x - 1, pos.y - 1, pos.z - 1), new Vector3f(pos.x + 1, pos.y + 1, pos.z + 1),
+//                        RgbColor.RED);
 //                DebugContext.arrow(new Vector3f(pos.x, pos.y, pos.z), new Vector3f(forward.x, forward.y, forward.z), RgbColor.GREEN);
                 buf.write(counter++, writer -> {
                     writer.float4(pos.x, pos.y, pos.z, range);

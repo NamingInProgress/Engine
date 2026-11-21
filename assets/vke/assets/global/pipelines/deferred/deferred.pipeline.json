@@ -17,8 +17,8 @@
       "format": "RG16F"
     },
     {
-      "type": "DEPTH",
-      "format": "DEPTH32F",
+      "type": "DEPTH_STENCIL",
+      "format": "DEPTH32F_STENCIL8",
       "depthCompareOperation": "LESS",
       "depthTestEnable": true
     }

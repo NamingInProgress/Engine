@@ -12,6 +12,7 @@ import java.util.List;
 
 public class AudioManager3DBaseImpl extends ScopedServiceImpl<AudioManager3DScopedImpl> implements AudioManager3D {
     private Mixer3D mixer;
+    private AudioManagerMaster audioManagerMaster;
 
     public AudioManager3DBaseImpl(VKEngine engine) {
         super(Services.AUDIO_MANAGER_3D, engine);
@@ -25,7 +26,7 @@ public class AudioManager3DBaseImpl extends ScopedServiceImpl<AudioManager3DScop
     @Override
     protected void onInitialize() {
         this.mixer = new Mixer3D(MasterMixer.CHANNELS);
-        AudioManagerMaster audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
+        audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
         audioManagerMaster.mixer(mixer);
     }
 
@@ -56,7 +57,6 @@ public class AudioManager3DBaseImpl extends ScopedServiceImpl<AudioManager3DScop
 
     @Override
     public void free() {
-        AudioManagerMaster audioManagerMaster = engine.service(Services.AUDIO_MANAGER_MASTER);
         audioManagerMaster.removeMixer(mixer);
     }
 }

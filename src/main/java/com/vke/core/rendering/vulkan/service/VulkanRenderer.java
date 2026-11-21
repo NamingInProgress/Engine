@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.service;
 
+import com.vke.api.event.EventBus;
 import com.vke.api.framable.Framable;
 import com.vke.api.assets.r.R;
 import com.vke.api.logger.Logger;
@@ -35,6 +36,7 @@ import com.vke.core.rendering.reflection2.api.ReflectedShader2;
 import com.vke.core.rendering.reflection2.service.ShaderReflector2;
 import com.vke.core.rendering.texture.VulkanTextureManager;
 import com.vke.core.rendering.vertexconsumer.VulkanVertexConsumerProvider;
+import com.vke.core.rendering.vulkan.VKEvents;
 import com.vke.core.rendering.vulkan.descriptor.ds2.DescriptorSetInstance;
 import com.vke.core.rendering.vulkan.draw.VulkanFrameDataManager;
 import com.vke.core.rendering.vulkan.pbr.VulkanMaterialManager;
@@ -52,6 +54,7 @@ import com.vke.core.rendering.vulkan.pipeline.VulkanPipelineLayout;
 import com.vke.core.rendering.vulkan.swapchain.VulkanSwapchain;
 import com.vke.core.rendering.vulkan.sync.VulkanFence;
 import com.vke.core.rendering.vulkan.sync.VulkanSemaphore;
+import com.vke.utils.Utils;
 import com.vke.utils.console.AnsiColors;
 import com.vke.utils.exception.Unreachable;
 import org.lwjgl.system.Configuration;
@@ -76,8 +79,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private VulkanFrame[] frames;
     private VulkanFence[] imagesInFlight;
     private VulkanSemaphore[] imagePresentInFlight;
-
-    private VulkanFrame immediateFrame;
 
     private EngineDescriptorSetsManager engineSetsManager;
     private VulkanResourceManager resourceManager;
@@ -135,7 +136,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             imagePresentInFlight[i] = VulkanSemaphore.createSemaphore(ctx);
         }
 
-        this.immediateFrame = device.createImmediateFrame();
         this.frames = device.createFrames();
 
         // VKE shader to set default descriptors via reflection instead of hard coding
@@ -166,10 +166,13 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         DefaultRenderAssets.initialize(ctx);
 
         graphManager.onRendererAvailable();
+        ctx.<EventBus>service(Services.EVENT_BUS).fire(new VKEvents.Loaded());
     }
 
     @Override
     public void preFrame() {
+        device._queueTextureExecute();
+
         MemoryStack stack = MemoryStack.stackPush();
 
         VulkanFrame frame = frames[frameCounter.currentIndex()];
@@ -231,10 +234,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         cmd.setScissor(sc);
 
         this.frameData = new FrameData(frame, cmd, stack, imageIndex);
-        Scene currentScene = sceneManager.getCurrentScene();
-        Identifier graphId = currentScene.getGraph();
-        RenderGraph graph = graphManager.getGraph(graphId);
-        currentScene.onPrepareRendering(graph.getContext());
     }
 
     @Override
@@ -242,6 +241,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         Scene currentScene = sceneManager.getCurrentScene();
         Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);
+        currentScene.onPrepareRendering(graph.getContext());
+
         graph.onDraw(currentScene);
     }
 
@@ -283,8 +284,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getImageSemaphore(),
                     frameData.frame.getTransferSemaphore(),
                     frameData.frame.getRenderFence(),
-                    QueueType.GRAPHICS,
-                    false
+                    QueueType.GRAPHICS
             ));
 
             frameData.frame.getPresentFence().waitForFence();
@@ -313,8 +313,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getTransferSemaphore(),
                     frameData.frame.getPresentSemaphore(),
                     frameData.frame.getPresentFence(),
-                    QueueType.PRESENT,
-                    false
+                    QueueType.PRESENT
             ));
 
             swapchain.present(frameData.frame.getPresentSemaphore());
@@ -326,8 +325,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
                     frameData.frame.getImageSemaphore(),
                     frameData.frame.getPresentSemaphore(),
                     frameData.frame.getRenderFence(),
-                    QueueType.GRAPHICS,
-                    false
+                    QueueType.GRAPHICS
             ));
 
             swapchain.present(frameData.frame.getPresentSemaphore());
@@ -337,36 +335,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         frameData.stack().close();
         this.frameCounter.nextFrame();
-    }
-
-    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer) {
-        this.immediateSubmit(consumer, () -> {});
-    }
-
-    public void immediateSubmit(BiConsumer<MemoryStack, VulkanCmdBuffers> consumer, Runnable finisher) {
-        immediateSubmit((stack, cmd) -> {
-            consumer.accept(stack, cmd);
-            return finisher;
-        });
-    }
-
-    public void immediateSubmit(BiFunction<MemoryStack, VulkanCmdBuffers, Runnable> func) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VulkanFence fence = immediateFrame.getRenderFence();
-            VulkanCmdBuffers cmd = immediateFrame.getBuffers();
-
-            fence.reset();
-            cmd.reset();
-
-            cmd.beginImmediate();
-            Runnable finisher = func.apply(stack, cmd);
-            cmd.endImmediate();
-
-            device.submit(cmd, CommandBuffer.SubmitInfo.immediate(fence));
-
-            fence.waitForFence();
-            finisher.run();
-        }
     }
 
     private int calculateBindlessTexturesCount() {
@@ -441,7 +409,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         engineSetsManager.free();
         Arrays.stream(frames).forEach(VulkanFrame::free);
         Arrays.stream(imagePresentInFlight).forEach(VulkanSemaphore::free);
-        this.immediateFrame.free();
         this.swapchain.free();
         this.device.free();
     }

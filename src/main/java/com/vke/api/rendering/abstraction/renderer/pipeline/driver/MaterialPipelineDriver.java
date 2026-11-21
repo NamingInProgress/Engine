@@ -1,8 +1,9 @@
-package com.vke.api.rendering.abstraction.renderer.pipeline;
+package com.vke.api.rendering.abstraction.renderer.pipeline.driver;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.MaterialManager;
+import com.vke.api.rendering.abstraction.renderer.pipeline.Pipeline;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 
 public abstract class MaterialPipelineDriver extends PipelineDriver {

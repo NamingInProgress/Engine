@@ -5,7 +5,7 @@ import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.data.ImageView;
 import com.vke.api.rendering.abstraction.renderer.data.Sampler;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
-import com.vke.api.rendering.abstraction.renderer.pipeline.PipelineDriver;
+import com.vke.api.rendering.abstraction.renderer.pipeline.driver.PipelineDriver;
 import com.vke.api.rendering.abstraction.renderer.pipeline.resource.other.CISResource;
 import com.vke.core.rendering.Samplers;
 

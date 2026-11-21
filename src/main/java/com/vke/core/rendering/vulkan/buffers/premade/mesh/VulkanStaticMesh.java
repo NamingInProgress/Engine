@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.buffers.premade.mesh;
 
+import com.vke.api.rendering.abstraction.renderer.commands.ImmediateSubmit;
 import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.core.mesh.Mesh;
@@ -73,8 +74,12 @@ public class VulkanStaticMesh implements Disposable, StaticMesh {
             );
             self.indices = new StagedBuffer(sys, ibo, indexBufUsage, indexMemUsage);
 
-            self.vertices.uploadViaStaging(vbo::free);
-            self.indices.uploadViaStaging(ibo::free);
+
+            self.vertices.uploadViaStaging();
+            self.indices.uploadViaStaging();
+
+            vbo.free();
+            ibo.free();
 
             return self;
         }

@@ -54,7 +54,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
 
     private boolean recording, rendering;
 
-    public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool, FrameCounter fc) {
+    public VulkanCmdBuffers(VulkanRenderSystem ctx, CommandPool pool) {
         this.poolHandle = pool.getHandle();
         this.setsMgr = ctx.renderer().getEngineSetsManager();
         this.ctx = ctx;
@@ -160,7 +160,7 @@ public class VulkanCmdBuffers implements CommandBuffer {
                         .imageLayout(ImageLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL.getIntVal())
                         .loadOp(info.stencilAttachment().loadOp().getIntVal())
                         .storeOp(info.stencilAttachment().storeOp().getIntVal())
-                        .clearValue((v) -> v.depthStencil().depth(info.stencilAttachment().clearColor()[0]));
+                        .clearValue((v) -> v.depthStencil().stencil((int) info.stencilAttachment().clearColor()[0]));
             }
 
             VkRect2D area = VkRect2D.calloc(stack);
@@ -170,7 +170,15 @@ public class VulkanCmdBuffers implements CommandBuffer {
                 area.extent(extent -> extent.set(tex.width(), tex.height()));
             } else {
                 area.offset(offset -> offset.set(0, 0));
-                area.extent(swapchain.getExtent());
+                if (depth != null) {
+                    var tex = info.depthAttachment().tex();
+                    area.extent(extent -> extent.set(tex.width(), tex.height()));
+                } else if (stencil != null) {
+                    var tex = info.stencilAttachment().tex();
+                    area.extent(extent -> extent.set(tex.width(), tex.height()));
+                } else {
+                    area.extent(swapchain.getExtent());
+                }
             }
 
             VkRenderingInfo renderInfo = VkRenderingInfo.calloc(stack)
@@ -186,19 +194,19 @@ public class VulkanCmdBuffers implements CommandBuffer {
         }
     }
 
-    public void beginImmediate() {
-        this.recording = true;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
-                    .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-            VK14.vkBeginCommandBuffer(this.vk, beginInfo);
-        }
-    }
-
-    public void endImmediate() {
-        this.recording = false;
-        VK14.vkEndCommandBuffer(vk);
-    }
+//    public void beginImmediate() {
+//        this.recording = true;
+//        try (MemoryStack stack = MemoryStack.stackPush()) {
+//            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
+//                    .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+//            VK14.vkBeginCommandBuffer(this.vk, beginInfo);
+//        }
+//    }
+//
+//    public void endImmediate() {
+//        this.recording = false;
+//        VK14.vkEndCommandBuffer(vk);
+//    }
 
     @Override
     public void end() {

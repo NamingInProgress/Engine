@@ -1,5 +1,6 @@
 package com.vke.impl.rendering.queue;
 
+import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.core.color.RgbColor;
@@ -7,13 +8,15 @@ import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.core.rendering.rp.MeshInstance;
-import com.vke.core.rendering.rp.queue.RenderQueue;
-import com.vke.core.rendering.rp.queue.RenderQueueExecutor;
+import com.vke.core.rendering.rp.queue.SortedRenderQueue;
+import com.vke.core.rendering.rp2.queue.RenderQueue;
+import com.vke.core.rendering.rp2.queue.RenderQueueExecutor;
+import com.vke.core.rendering.rp2.queue.impl.InstancingRenderQueue;
 import com.vke.utils.DrawUtils;
 
 import java.util.List;
 
-public class DeferredQueueExecutor extends RenderQueueExecutor {
+public class DeferredQueueExecutor extends RenderQueueExecutor<MeshInstance> {
 
     private GraphTexture colorOut;
 
@@ -24,7 +27,7 @@ public class DeferredQueueExecutor extends RenderQueueExecutor {
     private GraphTexture depthOut;
 
     @Override
-    public void onLoad(RenderPass pass) {
+    public void onLoad(RenderSystem sys, RenderPass pass) {
         colorOut = pass.searchOutputTexture("colorOut");
 
         normal = pass.searchOutputTexture("gbuf_normal");
@@ -35,7 +38,10 @@ public class DeferredQueueExecutor extends RenderQueueExecutor {
     }
 
     @Override
-    public void acceptQueue(RenderQueue queue, CommandBuffer cmd, RenderPass pass) {
+    @SuppressWarnings("unchecked")
+    public void acceptQueue(RenderQueue<MeshInstance> q, CommandBuffer cmd, RenderPass pass) {
+        InstancingRenderQueue<MeshInstance> queue = (InstancingRenderQueue<MeshInstance>) q;
+
         Texture gbuf_normal = normal.extract();
         Texture gbuf_material_idx = matIdx.extract();
         Texture gbuf_mesh_uvs = meshUvs.extract();
@@ -52,7 +58,7 @@ public class DeferredQueueExecutor extends RenderQueueExecutor {
             int key = queue.activeKeys[i];
             int count = queue.bucketSizes[key];
 
-            MeshInstance first = queue.buckets[key][0];
+            MeshInstance first = (MeshInstance) queue.buckets[key][0];
             first.mesh().drawInstanced(count, RenderPipelines.DEFERRED.bucketBaseInstances[key]);
         }
 

@@ -1,7 +1,8 @@
 package com.vke.core.rendering.font;
 
+import com.vke.api.assets.AssetHandle;
 import com.vke.api.font.Font;
-import com.vke.api.font.FontCursor;
+import com.vke.api.font.FontFace;
 import com.vke.api.rendering.abstraction.draw.Drawable;
 import com.vke.api.rendering.abstraction.draw.Vertex;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
@@ -10,17 +11,25 @@ import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.BufferResource;
+import com.vke.api.rendering.abstraction.renderer.pipeline.resource.buf.FieldArrayResource;
 import com.vke.core.color.RgbColor;
 import com.vke.core.font.ttf.Glyph;
 import com.vke.core.font.ttf.GlyphPoint;
+import com.vke.core.rendering.graph2.GraphTexture;
+import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.core.rendering.transform.MatrixStack;
+import com.vke.utils.exception.Unreachable;
 import org.joml.Vector2f;
 import pl.epsi.MakeVertex;
 import pl.epsi.Type;
 
+import java.io.IOException;
 import java.util.List;
 
 public class TextRenderer implements Drawable {
+
+    private final RenderSystem sys;
 
     private final VertexConsumer<BezierVertex> bezier;
     private final VertexConsumer<RegularVertex> regular;
@@ -31,17 +40,19 @@ public class TextRenderer implements Drawable {
     private final TextRendererPass1DriverRegular pass1;
     private final TextRendererPass2Driver pass2;
 
-    private final Font font;
-
     //mutable state
+    private Font font;
     private float baseX, baseY;
     private float r = 1, g = 1, b = 1, a = 1;
     private float z;
-    private float fontSize; // This is **not** the font scale calculated by size / font.unitsPerEm(). This is the size.
-    private float fontScale;
+    private float actualScale;
 
-    public TextRenderer(RenderSystem sys, Font font) {
-        this.font = font;
+    private boolean changedScale = true;
+
+    private int overrideMatrixIndex = -1;
+
+    public TextRenderer(RenderSystem sys) {
+        this.sys = sys;
 
         var provider = sys.vcp();
         this.bezier = provider.get(BezierVertex.TEMPLATE);
@@ -53,36 +64,87 @@ public class TextRenderer implements Drawable {
         this.pass2 = new TextRendererPass2Driver(sys);
     }
 
-    public void accept(FontCursor cursor, boolean reset) {
-        List<FontCursor.GlyphInfo> data = cursor.read();
-        matrixStack.push();
-        for (FontCursor.GlyphInfo datum : data) {
-            if (fontSize != datum.fontSize()) {
-                this.fontSize = datum.fontSize();
-                this.fontScale = fontSize / (float) font.unitsPerEm();
-                matrixStack.pop();
-                matrixStack.push();
-                matrixStack.scale(fontScale);
-            }
-
-            this.baseX = datum.x() / fontScale;
-            this.baseY = datum.y() / fontScale;
-
-            glyph(datum.g());
-        }
-        matrixStack.pop();
-        fontSize = -1;
-
-        if (reset) cursor.reset();
+    public void overrideMatrixIndex(int i) {
+        this.overrideMatrixIndex = i;
     }
 
-    //@ChatGPT("Fix this, no mistakes plz")
+    public void resetOverrideMatrixIndex() { this.overrideMatrixIndex = -1; }
+
+    public void drawText(AssetHandle<FontFace> fontHandle, int fontSize, String fontSelector, String text) {
+        setup(unwrapFontFace(fontHandle), fontSelector, fontSize);
+        write(text);
+    }
+
+    public void drawText(FontFace font, int fontSize, String fontSelector, String text) {
+        setup(font, fontSelector, fontSize);
+        write(text);
+    }
+
+    public void drawText(FontFace font, int fontSize, int fontSelector, String text) {
+        setup(font, fontSelector, fontSize);
+        write(text);
+    }
+
+    private void setup(FontFace ff, int selector, int fontSize) {
+        this.font = ff.get(selector);
+//        this.baseX = 0; // We probably don't want to reset it because then all drawn text would overlap, dump the responsibility to the user
+//        this.baseY = 0;
+        float tempScale = (float) fontSize / font.unitsPerEm();
+        if (tempScale != actualScale) changedScale = true;
+        this.actualScale = tempScale;
+    }
+
+    private void setup(FontFace ff, String selector, int fontSize) {
+        setup(ff, ff.toFlags(selector), fontSize);
+    }
+
+    private FontFace unwrapFontFace(AssetHandle<FontFace> fontHandle) {
+        try {
+            return fontHandle.acquire(sys);
+        } catch (IOException e) {
+            sys.throwException(new RuntimeException("Failed to obtain font face from asset handle: " + fontHandle), "TextRenderer#unwrapFontFace");
+            throw new Unreachable();
+        }
+    }
+
+    private void write(String text) {
+        if (changedScale && overrideMatrixIndex == -1) {
+            matrixStack.push();
+            matrixStack.scale(actualScale);
+        }
+        int lastGlyphIndex = -1;
+        for (int i = 0; i < text.length();) {
+            int codePoint = text.codePointAt(i);
+            Glyph g = font.getGlyph(codePoint);
+
+            if (lastGlyphIndex != -1) {
+                float kernOffset = font.kern(lastGlyphIndex, g.glyphIndex);
+                this.baseX += kernOffset;
+            }
+
+            this.baseX += (g.leftSideBearing);
+
+            lastGlyphIndex = g.glyphIndex;
+
+            glyph(g);
+
+            this.baseX += g.advanceWidth;
+
+            i += Character.charCount(codePoint);
+        }
+
+        if (changedScale && overrideMatrixIndex == -1) {
+            matrixStack.pop();
+            changedScale = false;
+        }
+    }
+
+//    @ChatGPT("Fix this, no mistakes plz")
     private void glyph(Glyph g) {
         Vector2f center = new Vector2f((g.xMin + g.xMax) / 2f, (g.yMin + g.yMax) / 2f);
         int contourStartIndex = 0;
         int[] endPointsOfContours = g.endPointsOfContours;
-        for (int i = 0; i < endPointsOfContours.length; i++) {
-            int contourEndIndex = endPointsOfContours[i];
+        for (int contourEndIndex : endPointsOfContours) {
             int numPoints = contourEndIndex - contourStartIndex + 1;
 
             for (int j = contourStartIndex; j < contourStartIndex + numPoints; j++) {
@@ -112,33 +174,37 @@ public class TextRenderer implements Drawable {
         boundingBox(g);
     }
 
-    public void boundingBox(Glyph g) {
+    private void boundingBox(Glyph g) {
         quad.begin();
         quad.vertices(quad_vert(g.xMin, g.yMin), quad_vert(g.xMax, g.yMin), quad_vert(g.xMax, g.yMax), quad_vert(g.xMin, g.yMax));
         quad.indices(0, 1, 2, 2, 3, 0);
     }
 
-    public void regularTri(Vector2f a, Vector2f b, Vector2f c) {
+    private void regularTri(Vector2f a, Vector2f b, Vector2f c) {
         regular.begin();
         regular.vertices(regular_vert(a), regular_vert(b), regular_vert(c));
         regular.indices(0, 1, 2);
     }
 
-    public void bezierTri(Vector2f a, Vector2f b, Vector2f c) {
+    private void bezierTri(Vector2f a, Vector2f b, Vector2f c) {
         bezier.begin();
         bezier.vertices(bezier_vert(a, 0, 0), bezier_vert(b, 0.5f, 0), bezier_vert(c, 1, 1));
         bezier.indices(0, 1, 2);
     }
 
-    public BezierVertex bezier_vert(Vector2f vec, float u, float v) {
+    private int idx() {
+        return overrideMatrixIndex == -1 ? matrixStack.currentMatrixIndex() : overrideMatrixIndex;
+    }
+
+    private BezierVertex bezier_vert(Vector2f vec, float u, float v) {
         return new BezierVertex(baseX + vec.x, baseY + vec.y, z, u, v, matrixStack.currentMatrixIndex());
     }
 
-    public RegularVertex regular_vert(Vector2f vec) {
+    private RegularVertex regular_vert(Vector2f vec) {
         return new RegularVertex(baseX + vec.x, baseY + vec.y, z, matrixStack.currentMatrixIndex());
     }
 
-    public QuadVertex quad_vert(float x, float y) {
+    private QuadVertex quad_vert(float x, float y) {
         return new QuadVertex(baseX + x, baseY + y, z, r, g, b, a, matrixStack.currentMatrixIndex());
     }
 
@@ -172,39 +238,54 @@ public class TextRenderer implements Drawable {
         this.baseY = yOffset;
     }
 
-    public void render(CommandBuffer cmd, CommandBuffer.AttachmentInfo color, Texture stencil, Texture depth) {
+    public FieldArrayResource getMatrixBuffer() { return this.pass1.buf; }
+
+    public void render(CommandBuffer cmd, RenderPass pass, GraphTexture color, GraphTexture stencil, GraphTexture depth) {
         cmd.beginRendering(new CommandBuffer.RenderingInfo(
                 (CommandBuffer.AttachmentInfo) null,
-                CommandBuffer.AttachmentInfo.depth(depth),
-                CommandBuffer.AttachmentInfo.stencil(stencil)
+                new CommandBuffer.AttachmentInfo(depth.extract(), LoadOp.LOAD, StoreOp.STORE),
+                CommandBuffer.AttachmentInfo.stencil(stencil.extract())
         ));
 
-        pass1.setMatrixStack(matrixStack);
+        if (overrideMatrixIndex == -1) {
+            pass1.setMatrixStack(matrixStack);
+        }
         pass1.use();
 
         regular.draw();
 
-        pass1Bezier.setMatrixStack(matrixStack);
+        if (overrideMatrixIndex == -1) {
+            pass1Bezier.setMatrixStack(matrixStack);
+        }
         pass1Bezier.use();
 
         bezier.draw();
 
         cmd.endRendering();
 
+//        pass.beginRendering(cmd, List.of(color), null, stencil, List.of(RgbColor.VKE), RgbColor.WHITE, RgbColor.BLACK);
         cmd.beginRendering(new CommandBuffer.RenderingInfo(
-                color,
-                new CommandBuffer.AttachmentInfo(depth, LoadOp.LOAD, StoreOp.STORE),
-                new CommandBuffer.AttachmentInfo(stencil, LoadOp.LOAD, StoreOp.STORE)
+                new CommandBuffer.AttachmentInfo(color.extract(), LoadOp.LOAD, StoreOp.STORE),
+                new CommandBuffer.AttachmentInfo(depth.extract(), LoadOp.LOAD, StoreOp.STORE),
+                new CommandBuffer.AttachmentInfo(stencil.extract(), LoadOp.LOAD, StoreOp.STORE)
         ));
 
-        pass2.setMatrixStack(matrixStack);
+        if (overrideMatrixIndex == -1) {
+            pass2.setMatrixStack(matrixStack);
+        }
         pass2.use();
 
         quad.draw();
 
         cmd.endRendering();
 
-        matrixStack.reset();
+        if (overrideMatrixIndex == -1)
+            matrixStack.reset();
+
+        changedScale = true;
+        baseX = 0;
+        baseY = 0;
+        resetOverrideMatrixIndex();
     }
 
     @Override

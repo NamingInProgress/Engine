@@ -84,7 +84,8 @@ public class BundleCollector {
                             PipelineContext.ASSET_PIPELINE_LOGGER.info("Asset '%s' got renamed by their vka config: '%s' -> '%s'", file, element.getAssetName(), overrideName);
                             bundle.addAsset(overrideName, handle);
                         } else {
-                            bundle.addAsset(element.getAssetName(), handle);
+                            Identifier assetName = element.getAssetName();
+                            bundle.addAsset(assetName, handle);
                         }
                     }
                 }
@@ -102,6 +103,7 @@ public class BundleCollector {
         Bundle globalBundle = new Bundle(context);
 
         FileIdentifier globalBundleIdent = context.fid("assets/global");
+        globalBundle.global = true;
         if (globalBundleIdent.existsFile()) {
             Bundle thisOne = getBundle(context, "global", globalBundleIdent, pipeline, afterPhase);
             globalBundle.extendBundle(thisOne);

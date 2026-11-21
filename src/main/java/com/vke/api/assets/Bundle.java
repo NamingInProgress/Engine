@@ -14,6 +14,8 @@ import java.util.Map;
 public final class Bundle implements Disposable {
     private final Context context;
 
+    public boolean global = false;
+
     private final HashMap<Identifier, AssetHandle<?>> assets = new HashMap<>();
 
     public Bundle(Context context) {

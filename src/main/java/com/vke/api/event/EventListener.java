@@ -1,4 +1,3 @@
 package com.vke.api.event;
 
-public interface EventListener {
-}
+public interface EventListener {}

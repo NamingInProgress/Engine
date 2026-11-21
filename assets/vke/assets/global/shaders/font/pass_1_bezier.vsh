@@ -11,9 +11,9 @@ layout (location = 0) out vec2 outBezierPoints;
 layout (std430, set = 2, binding = 0) readonly buffer MatrixStack {
     #DefaultSize(1024)
     mat4 modelMatrices[];
-} u_MatrixStack;
+} u_TextMatrixStack1;
 
 void main() {
-    gl_Position = frameData.camera.projection * frameData.camera.view * u_MatrixStack.modelMatrices[matrixId] * vec4(inPos, 1);
+    gl_Position = frameData.camera.projection * frameData.camera.view * u_TextMatrixStack1.modelMatrices[matrixId] * vec4(inPos, 1);
     outBezierPoints = bezierPoints;
 }

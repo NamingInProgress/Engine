@@ -6,8 +6,9 @@
     {
       "type": "DEPTH_STENCIL",
       "format": "DEPTH32F_STENCIL8",
-      "stencilTestEnable": true,
       "depthTestEnable": false,
+      "depthWriteEnable": false,
+      "stencilTestEnable": true,
       "frontOperation": {
         "compareOp": "ALWAYS",
         "passOp": "INVERT",

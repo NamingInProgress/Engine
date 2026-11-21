@@ -1,8 +1,12 @@
 {
     typedefs: {
+        queue-type: {
+            !name: string;
+        };
         render-queue: {
             !name: string;
             !class: string;
+            !type: queue-type;
         };
     };
     schema: {

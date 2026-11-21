@@ -31,7 +31,8 @@ public class RecyclerArrayList<T> {
         array[len++] = vertex;
     }
 
-    public void add(T... vertices) {
+    @SafeVarargs
+    public final void add(T... vertices) {
         ensureSpace(vertices.length);
         System.arraycopy(vertices, 0, array, len, vertices.length);
         len += vertices.length;
