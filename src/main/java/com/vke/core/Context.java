@@ -5,7 +5,9 @@ import com.vke.api.logger.Logger;
 import com.vke.api.services2.ScopedServiceImpl;
 import com.vke.api.services2.Service;
 import com.vke.api.services2.ServiceAPI;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.logger.LoggerFactory;
+import com.vke.core.services2.Services;
 import com.vke.utils.Infallible;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,5 +56,10 @@ public abstract class Context implements Namespace {
             }
         }
         return (T) service;
+    }
+
+    public void runOnNextFrameSync(Runnable runnable) {
+        FramableManager framableManager = service(Services.FRAMABLE_MANAGER);
+        framableManager.runOnNextFrameSync(runnable);
     }
 }

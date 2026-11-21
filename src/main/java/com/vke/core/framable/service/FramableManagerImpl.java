@@ -8,6 +8,7 @@ import com.vke.core.services2.Services;
 import com.vke.utils.console.AnsiColors;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,8 +22,12 @@ public class FramableManagerImpl extends ServiceImpl implements FramableManager 
     private long targetFrameTimeNs;
     private long lastFrameTime;
 
+    private final Object onNextFrameLock = new Object();
+    private final ArrayDeque<Runnable> onNextFrame;
+
     public FramableManagerImpl(VKEngine engine) {
         super(Services.FRAMABLE_MANAGER, engine);
+        this.onNextFrame = new ArrayDeque<>();
     }
 
     @Override
@@ -51,6 +56,13 @@ public class FramableManagerImpl extends ServiceImpl implements FramableManager 
     }
 
     @Override
+    public void runOnNextFrameSync(Runnable runnable) {
+        synchronized (onNextFrameLock) {
+            onNextFrame.add(runnable);
+        }
+    }
+
+    @Override
     public void handlePossibleFrame() {
         long now = System.nanoTime();
 
@@ -64,6 +76,12 @@ public class FramableManagerImpl extends ServiceImpl implements FramableManager 
         PROFILER.begin("Frame Setup");
         skipThisFrame.setRelease(false);
         glossary.preFrame();
+        synchronized (onNextFrameLock) {
+            while (!onNextFrame.isEmpty()) {
+                Runnable runnable = onNextFrame.poll();
+                runnable.run();
+            }
+        }
         PROFILER.end();
         PROFILER.pop();
         if (!skipThisFrame.get()) {

@@ -2,7 +2,6 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-.kotlin
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -41,4 +40,4 @@ build/
 .DS_Store
 
 #DescriptorSets.md
-/assets/.cache/
+assets/.cache/

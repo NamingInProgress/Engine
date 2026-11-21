@@ -18,6 +18,7 @@ import com.vke.core.audio.source.ToneGenerator;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
+import com.vke.core.game.object.GameObject;
 import com.vke.impl.ecs.mesh.StaticMeshC;
 import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.*;
@@ -34,6 +35,8 @@ import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
 import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.gameobject.convenientapi.GameAudio;
+import com.vke.impl.gameobject.convenientapi.GameMeshes;
+import com.vke.impl.gameobject.convenientapi.GameObjects;
 import com.vke.impl.rendering.debug.DebugContext;
 import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
@@ -48,26 +51,13 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
 
-    public static StaticMesh MESH;
-
-    // Grid configuration
-    private static final int GRID_SIZE_X = 2;
-    private static final int GRID_SIZE_Y = 1;
-    private static final int GRID_SIZE_Z = 1;
-    private static final int TOTAL_INSTANCES = GRID_SIZE_X * GRID_SIZE_Y * GRID_SIZE_Z;
-    private static final float SPACING = 30.0f;
-
-    private final List<Instance> instances = new ArrayList<>(TOTAL_INSTANCES);
-
     private PressableState keyEsc;
     private PressableState keyToggleCursor;
     private PressableState keyLogCamera;
     private boolean lockedCursor = true;
 
-    private HierarchyManager hierarchyManager;
-
     private CameraGameObject cam;
-    private EmptyGameObject bear1, cube, text, sphere, bear2;
+    private GameObject bear1, cube, text, sphere, bear2;
 
     public static float[][] positions = {
             {45, -45, 45},
@@ -90,9 +80,6 @@ public class DemoScene extends Scene {
     @Override
     public void onLoad() {
         loadMeshResources();
-        buildGridInstances();
-
-        hierarchyManager = context.service(Services.HIERARCHY);
 
         PointLightGameObject pointLightBase = new PointLightGameObject(getRenderSystem());
         pointLightBase.spawn();
@@ -126,31 +113,17 @@ public class DemoScene extends Scene {
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("sphere.obj").acquire(context);
-            Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
-            Material cubeMat = R.materials.get("vke:materials/emissive-cube.vcl").acquire(context);
-
-            RenderResourceManager resManager = getRenderSystem().resourceManager();
-            MESH = resManager.uploadStaticMesh(
-                    prefab.toMesh(SceneVertexFormat.MESH_VERTEX_FACTORY)
-            );
-
-            bear1 = new EmptyGameObject(context);
-            bear1.spawn();
-            bear1.addComponents(StaticMeshC.ID);
-            CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
-            ref.with((c, i) -> c.setMesh(i, MESH));
+            bear1 = GameObjects.staticMesh(context);
+            GameMeshes.setMeshStatic(bear1, "vke:sphere.obj");
 
             bear2 = bear1.duplicate();
-            CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
-            ref2.with((c, idx) -> c.setMaterial(idx, mat));
+            GameMeshes.setMaterialStatic(bear2, "vke:materials/bear.vcl");
             bear2.getTransform().setXYZ(30, 0, 0);
 
             bear1.getTransform().addChild(bear2);
 
             sphere = bear1.duplicate();
-            CRef<StaticMeshC> s2 = sphere.getComponent(StaticMeshC.ID);
-            s2.with((c, idx) -> c.setMaterial(idx, mat));
+            GameMeshes.setMaterialStatic(sphere, "vke:materials/bear.vcl");
             sphere.getTransform().setXYZ(5, 0, 0);
 
             bear2.getTransform().addChild(sphere);
@@ -158,26 +131,17 @@ public class DemoScene extends Scene {
             PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
             audio.setLooping(true);
 
-            cube = new EmptyGameObject(context);
-            cube.spawn();
-            cube.addComponents(StaticMeshC.ID);
+            cube = GameObjects.staticMesh(context);
             cube.getTransform().setXYZ(-30, 0, 0);
             cube.getTransform().changeScaleXYZ(5, 5, 5);
-            CRef<StaticMeshC> ref3 = cube.getComponent(StaticMeshC.ID);
-            ref3.with((c, idx) -> c.setMaterial(idx, cubeMat));
+            GameMeshes.setMaterialStatic(cube, "vke:materials/emissive-cube.vcl");
 
-            EmptyGameObject floor = new EmptyGameObject(context);
-            floor.spawn();
-            floor.addComponents(StaticMeshC.ID);
+            GameObject floor = GameObjects.staticMesh(context);
             floor.getTransform().setXYZ(0, -25, 0);
             floor.getTransform().changeScaleXYZ(50, 1, 50);
-            CRef<StaticMeshC> ref4 = floor.getComponent(StaticMeshC.ID);
-            ref4.with((c, idx) -> c.setMaterial(idx, cubeMat));
+            GameMeshes.setMaterialStatic(floor, "vke:materials/emissive-cube.vcl");
 
-
-            text = new EmptyGameObject(context);
-            text.spawn();
-            text.addComponents(BasicTextC.ID);
+            text = GameObjects.basicText(context);
             CRef<BasicTextC> textC = text.getComponent(BasicTextC.ID);
             textC.with((c, idx) -> {
                 c.setText(idx, "Hello world!");
@@ -225,59 +189,14 @@ public class DemoScene extends Scene {
         });
     }
 
-    private void buildGridInstances() {
-        instances.clear();
-
-        // Offset grid to center it around (0, 0, 0)
-        float offsetX = (GRID_SIZE_X - 1) * SPACING * 0.5f;
-        float offsetY = (GRID_SIZE_Y - 1) * SPACING * 0.5f;
-        float offsetZ = (GRID_SIZE_Z - 1) * SPACING * 0.5f;
-
-        for (int x = 0; x < GRID_SIZE_X; x++) {
-            for (int y = 0; y < GRID_SIZE_Y; y++) {
-                for (int z = 0; z < GRID_SIZE_Z; z++) {
-                    Instance instance = new Instance();
-                    instance.position.set(
-                            x * SPACING - offsetX,
-                            y * SPACING - offsetY,
-                            z * SPACING - offsetZ
-                    );
-
-                    instance.matrix.identity().translate(instance.position);//.scale(3, 3, 3);//.rotateXYZ((float) Math.random(), (float) Math.random(), (float) Math.random());
-                    instances.add(instance);
-                    //inst.add(new MeshInstance(instance.matrix, x));
-                }
-            }
-        }
-    }
-
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
 
-        hierarchyManager.updateTransforms();
-        context.put("inst", TOTAL_INSTANCES);
-
-        // Debug visualizers
-        //DebugContext.arrow(new Vector3f(0, 0, 0), new Vector3f(0, 10, 0), Color.RED);
-        //DebugContext.boundingBox(new Vector3f(-5, -5, -5), new Vector3f(5, 5, 5), Color.WHITE);
-        for (int i = 0; i < positions.length; i++) {
-            float[] poss = positions[i];
-            float y = poss[1];
-//            if (i == positions.length - 1) {
-//                poss[1] += (float) (20 * Math.max(Math.sin(System.nanoTime() / 1_000_000_000.0), 0.0));
-//            }
-//            DebugContext.boundingBox(new Vector3f(poss[0] - 1, poss[1] - 1, poss[2] - 1),
-//                    new Vector3f(poss[0] + 1, poss[1] + 1, poss[2] + 1), RgbColor.RED);
-            poss[1] = y;
-        }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
         bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
         bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
-//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
-//        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);
-        DebugContext.boundingBox(new Vector3f(text.getTransform().getPosition()), new Vector3f(text.getTransform().getPosition().add(5, 5, 5)), RgbColor.RED);
     }
 
     private void handleInput() {

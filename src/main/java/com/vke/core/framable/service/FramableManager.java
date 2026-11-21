@@ -10,6 +10,8 @@ public interface FramableManager extends StatefulService<FramableManager.Transfe
     void removeFramable(Framable framable);
     Framable.Glossary getAllFramables();
 
+    void runOnNextFrameSync(Runnable runnable);
+
     void handlePossibleFrame();
     void skipThisFrame();
 }

@@ -18,6 +18,7 @@ import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
 import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
+import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.rendering.DefaultRenderAssets;
 import com.vke.api.rendering.vulkan.descriptors2.handles.UniformHandle;
 import com.vke.api.rendering.vulkan.descriptors2.handles.buf.BufferHandle;
@@ -97,6 +98,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     private FramableManager framableManager;
     private SceneManager sceneManager;
     private GraphManager graphManager;
+    private HierarchyManager hierarchyManager;
 
     private VulkanVertexConsumerProvider vertexConsumerProvider;
 
@@ -119,6 +121,7 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         this.framableManager = baseContext.service(Services.FRAMABLE_MANAGER);
         this.sceneManager = baseContext.service(Services.SCENE_MANAGER);
         this.graphManager = baseContext.service(Services.GRAPH_MANAGER);
+        this.hierarchyManager = baseContext.service(Services.HIERARCHY);
 
         framableManager.registerFramable(this);
 
@@ -241,8 +244,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
         Scene currentScene = sceneManager.getCurrentScene();
         Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);
+        hierarchyManager.updateTransforms();
         currentScene.onPrepareRendering(graph.getContext());
-
         graph.onDraw(currentScene);
     }
 

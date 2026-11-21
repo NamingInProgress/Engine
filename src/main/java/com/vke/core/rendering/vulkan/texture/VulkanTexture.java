@@ -114,7 +114,9 @@ public class VulkanTexture implements Texture {
 
     @Override
     public VulkanTexture upload(Bitmap bm) {
-        device._queueTextureUpload(this, bm);
+        ctx.runOnNextFrameSync(() -> {
+            device._queueTextureUpload(this, bm);
+        });
 
         // TODO: generate mips
         return this;

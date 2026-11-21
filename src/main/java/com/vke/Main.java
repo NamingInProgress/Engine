@@ -24,19 +24,13 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
 //        createInfo.releaseMode = false;
-        createInfo.vulkanCreateInfo.framesInFlight = 3;
-        //createInfo.vsync = true;
         createInfo.windowCreateInfo = new WindowCreateInfo("BEAR test!");
-
-        ConfigurationOption<Boolean> renderdoc = new ConfigurationOption<>("renderdoc", ConfigurationOption.Initializer.BOOLEAN);
 
         VKEngine engine = new VKEngine(createInfo);
         EventBus ev = engine.service(Services.EVENT_BUS);
 //        ev.register(new DebugLogFeature());
 //        ev.register(new DebugMemoryTrackingFeature());
         //engine.PROFILER = engine.service(Services.PROFILER);
-
-        if (renderdoc.get()) Thread.sleep(5000);
 
         engine.start(new SceneApp("main"));
     }

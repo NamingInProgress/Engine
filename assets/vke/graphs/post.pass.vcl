@@ -1,5 +1,5 @@
 <render-pass name="post">
-    <class name="com.vke.core.rendering.graph2.renderpass.PostEffectRenderPass"/>
+    <class name="com.vke.impl.rendering.pass.PostEffectRenderPass"/>
     <outputs>
         <texture name="colorOut" format="RGBA16F"/>
         <texture name="colorOutPing" format="RGBA16F"/>

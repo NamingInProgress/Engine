@@ -30,6 +30,11 @@ public class FramableManagerAPI extends ServiceAPI implements FramableManager {
     }
 
     @Override
+    public void runOnNextFrameSync(Runnable runnable) {
+        getImpl().runOnNextFrameSync(runnable);
+    }
+
+    @Override
     public void handlePossibleFrame() {
         getImpl().handlePossibleFrame();
     }

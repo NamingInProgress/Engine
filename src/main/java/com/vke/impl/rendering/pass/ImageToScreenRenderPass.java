@@ -1,4 +1,4 @@
-package com.vke.core.rendering.graph2.renderpass;
+package com.vke.impl.rendering.pass;
 
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
@@ -9,10 +9,9 @@ import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.RenderGraph;
 import com.vke.core.rendering.graph2.GraphTexture;
-import com.vke.core.rendering.graph2.TextureCategory;
+import com.vke.core.rendering.graph2.renderpass.DataRenderPass;
 import com.vke.core.rendering.pipeline.RenderPipelines;
 import com.vke.utils.DrawUtils;
-import com.vke.utils.Utils;
 import com.vke.utils.exception.Unreachable;
 import com.vke.utils.io.SegmentedPath;
 

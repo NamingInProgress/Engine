@@ -89,7 +89,7 @@ public class GlfwWindow implements Window {
         pos = new Vector2i(
                 (vidMode.width() - pWidth[0]) / 2,
                 (vidMode.height() - pHeight[0]) / 2
-        ).add(x[0], y[0]);
+        );
 
         setPosition(pos.x, pos.y);
 
