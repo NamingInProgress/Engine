@@ -67,7 +67,7 @@ public class DemoScene extends Scene {
     private HierarchyManager hierarchyManager;
 
     private CameraGameObject cam;
-    private EmptyGameObject bear1, cube, text;
+    private EmptyGameObject bear1, cube, text, sphere, bear2;
 
     public static float[][] positions = {
             {45, -45, 45},
@@ -126,7 +126,7 @@ public class DemoScene extends Scene {
 
     private void loadMeshResources() {
         try {
-            MeshPrefab prefab = R.meshprefabs.get("bear_smooth.obj").acquire(context);
+            MeshPrefab prefab = R.meshprefabs.get("sphere.obj").acquire(context);
             Material mat = R.materials.get("vke:materials/bear.vcl").acquire(context);
             Material cubeMat = R.materials.get("vke:materials/emissive-cube.vcl").acquire(context);
 
@@ -141,12 +141,19 @@ public class DemoScene extends Scene {
             CRef<StaticMeshC> ref = bear1.getComponent(StaticMeshC.ID);
             ref.with((c, i) -> c.setMesh(i, MESH));
 
-            EmptyGameObject bear2 = bear1.duplicate();
+            bear2 = bear1.duplicate();
             CRef<StaticMeshC> ref2 = bear2.getComponent(StaticMeshC.ID);
             ref2.with((c, idx) -> c.setMaterial(idx, mat));
             bear2.getTransform().setXYZ(30, 0, 0);
 
             bear1.getTransform().addChild(bear2);
+
+            sphere = bear1.duplicate();
+            CRef<StaticMeshC> s2 = sphere.getComponent(StaticMeshC.ID);
+            s2.with((c, idx) -> c.setMaterial(idx, mat));
+            sphere.getTransform().setXYZ(5, 0, 0);
+
+            bear2.getTransform().addChild(sphere);
 
             PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
             audio.setLooping(true);
@@ -265,7 +272,8 @@ public class DemoScene extends Scene {
             poss[1] = y;
         }
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-        bear1.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
+        bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
+        bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(45, 45, 45), Color.RED);
 //        DebugContext.boundingBox(new Vector3f(0, 0, 0), new Vector3f(-45, -45, -45), Color.BLUE);

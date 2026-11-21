@@ -46,6 +46,17 @@ public class JavaAudioDevice implements AudioDevice {
 
             line.open(format, bufferBytes);
             line.start();
+
+            outer:
+            for (Mixer.Info infoItem : AudioSystem.getMixerInfo()) {
+                Mixer m = AudioSystem.getMixer(infoItem);
+                for (Line l : m.getSourceLines()) {
+                    if (l == this.line) {
+                        System.out.println("Using audio line '%s'".formatted(infoItem.getName()));
+                        break outer;
+                    }
+                }
+            }
         } catch (LineUnavailableException e) {
             throw new AudioException(e);
         }
