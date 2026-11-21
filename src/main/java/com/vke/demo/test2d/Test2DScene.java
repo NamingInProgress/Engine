@@ -36,8 +36,8 @@ public class Test2DScene extends Scene {
     @Override
     public void onLoad() throws Exception {
         try {
-            if (Utils.TRUE) {
-                this.texture = R.textures.get("vke:Blobbies.exr").acquire(context);
+            if (Utils.FALSE) {
+                this.texture = R.textures.get("vke:Ocean.exr").acquire(context);
             } else {
                 this.texture = R.textures.get("vke:png.png").acquire(context);
             }

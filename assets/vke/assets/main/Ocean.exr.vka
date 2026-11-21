@@ -1,0 +1,8 @@
+<asset-meta>
+    <pipeline-config>
+        <phase-filter>
+            <ban-phase>assetss</ban-phase>
+        </phase-filter>
+    </pipeline-config>
+    <asset-config/>
+</asset-meta>

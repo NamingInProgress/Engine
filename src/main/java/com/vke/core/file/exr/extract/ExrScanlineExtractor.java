@@ -36,7 +36,7 @@ public abstract class ExrScanlineExtractor extends ExrAbstractExtractor implemen
             satisfied = true;
         }
         int dataSize = DataUtils.readU32LittleEndian(stream);
-        int uncompressedSize = header.computeScanBlockByteSize(yPos, blockScans);
+        int uncompressedSize = header.computeScanBlockByteSize(0, yPos, header.dataWindow.width(), blockScans);
         if (samples == null || samples.length < uncompressedSize) {
             samples = new byte[uncompressedSize];
         }

@@ -58,7 +58,6 @@ public class InflatingDevice {
             if (decoded > 0) {
                 if (currentBlock.isFinished()) {
                     if (currentBlock.bFinal()) {
-                        System.out.println("FINISHED SET TO TRUE FROM ABOVE");
                         finished = true;
                     } else {
                         currentBlock = null;

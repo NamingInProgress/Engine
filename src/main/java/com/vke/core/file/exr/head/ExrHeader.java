@@ -127,24 +127,16 @@ public class ExrHeader {
         }
     }
 
-    public int computeScanBlockByteSize(int yPos, int height) {
-        int size = 0;
-        int w = dataWindow.width();
-        for (ExrChannel channel : chlist.channels.values()) {
-            int ySamp = channel.ySampling();
-            int facy = height;
-            if (ySamp != 1) {
-                facy = 0;
-                for (int y = 0; y < height; y++) {
-                    if ((y + yPos) % ySamp == 0) {
-                        facy++;
-                    }
-                }
-            }
+    private int countSampledPixels(int pos, int length, int sampling) {
+        return (pos + length - 1) / sampling - (pos - 1) / sampling;
+    }
 
-            ExrPixelType pxType = channel.pixelType();
-            int facx = IntUtils.fastCeilDivPositive(w, channel.xSampling());
-            size += pxType.byteSize * facx * facy;
+    public int computeScanBlockByteSize(int xPos, int yPos, int width, int height) {
+        int size = 0;
+        for (ExrChannel channel : chlist.channels.values()) {
+            int facx = countSampledPixels(xPos, width, channel.xSampling());
+            int facy = countSampledPixels(yPos, height, channel.ySampling());
+            size += channel.pixelType().byteSize * facx * facy;
         }
         return size;
     }

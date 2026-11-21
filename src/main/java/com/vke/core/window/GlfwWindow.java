@@ -80,10 +80,14 @@ public class GlfwWindow implements Window {
             throw new Unreachable();
         }
 
+        long primaryMonitor = glfwGetPrimaryMonitor();
+        int[] x = new int[1]; int[] y = new int[1];
+        glfwGetMonitorPos(primaryMonitor, x, y);
+
         pos = new Vector2i(
                 (vidMode.width() - pWidth[0]) / 2,
                 (vidMode.height() - pHeight[0]) / 2
-        );
+        ).add(x[0], y[0]);
 
         setPosition(pos.x, pos.y);
 

@@ -38,6 +38,6 @@ public class Main {
 
         if (renderdoc.get()) Thread.sleep(5000);
 
-        engine.start(new SceneApp("main"));
+        engine.start(new SceneApp("test2d"));
     }
 }
