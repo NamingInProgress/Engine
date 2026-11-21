@@ -28,7 +28,7 @@ public class Scene2DRenderPass extends RenderPass {
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
         this.beginRendering(cmd, colorList, depth, RgbColor.WHITE, RgbColor.WHITE);
-        List<Scene2dDrawOps> ops = context.get("vke:scene2d:operations");
+        //List<Scene2dDrawOps> ops = context.get("vke:scene2d:operations");
         cmd.endRendering();
     }
 }
