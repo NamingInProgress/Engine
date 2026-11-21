@@ -1,5 +1,5 @@
 <render-pass name="scene">
-    <class name="com.vke.core.rendering.graph2.renderpass.SceneRenderPass"/>
+    <class name="com.vke.impl.rendering.pass.SceneRenderPass"/>
     <inputs>
 
     </inputs>

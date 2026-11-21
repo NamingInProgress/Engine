@@ -13,7 +13,7 @@ import com.vke.core.assets.handles.LazyAssetHandle;
 import com.vke.core.parsing.config.utils.EmptyConfigArray;
 import com.vke.core.parsing.config.utils.GeneralConfigArrayNode;
 import com.vke.core.rendering.graph2.RenderGraph;
-import com.vke.core.rendering.graph2.renderpass.ImageToScreenRenderPass;
+import com.vke.impl.rendering.pass.ImageToScreenRenderPass;
 import com.vke.core.rendering.graph2.renderpass.RenderPass;
 import com.vke.utils.io.SegmentedPath;
 

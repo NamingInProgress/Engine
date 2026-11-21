@@ -13,6 +13,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.core.framable.service.FramableManager;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.vulkan.VKEvents;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VulkanTextureUploadQueue implements EventListener {
-
     private final VulkanRenderSystem sys;
     private final List<QueuedUpload> queue = new ArrayList<>();
     private boolean separateTGQueues;
@@ -36,6 +36,7 @@ public class VulkanTextureUploadQueue implements EventListener {
 
     public VulkanTextureUploadQueue(VulkanRenderSystem sys) {
         this.sys = sys;
+
         sys.<EventBus>service(Services.EVENT_BUS).register(this);
     }
 

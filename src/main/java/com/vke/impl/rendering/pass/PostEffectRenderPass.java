@@ -1,4 +1,4 @@
-package com.vke.core.rendering.graph2.renderpass;
+package com.vke.impl.rendering.pass;
 
 import com.vke.api.parsing.config.node.ConfigArrayNode;
 import com.vke.api.parsing.config.node.ConfigNode;
@@ -11,6 +11,7 @@ import com.vke.core.Identifier;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.RenderGraph;
+import com.vke.core.rendering.graph2.renderpass.DataRenderPass;
 import com.vke.core.rendering.post.PostEffectProvider;
 import com.vke.core.rendering.post.PostProcessEffect;
 import com.vke.core.rendering.post.service.PostProcessManager;

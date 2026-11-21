@@ -39,7 +39,8 @@ public class Test2DScene extends Scene {
             if (Utils.FALSE) {
                 this.texture = R.textures.get("vke:Ocean.exr").acquire(context);
             } else {
-                this.texture = R.textures.get("vke:png.png").acquire(context);
+//                this.texture = R.textures.get("vke:png.png").acquire(context);
+                this.texture = R.textures.get("vke:Blobbies.exr").acquire(context);
             }
 
             Renderer renderer = context.service(Services.RENDERER);
