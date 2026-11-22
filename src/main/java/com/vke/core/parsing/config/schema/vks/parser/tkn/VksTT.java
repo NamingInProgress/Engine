@@ -15,5 +15,6 @@ public enum VksTT {
     Pipe,
     Str,
     QuStr,
-    Number
+    Number,
+    Wildcard
 }

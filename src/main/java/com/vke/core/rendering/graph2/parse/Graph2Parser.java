@@ -41,6 +41,8 @@ public class Graph2Parser {
             parentIdent = context.id(parent);
         }
 
+        ContentResolver contentResolver = new ContentResolver();
+
         ConfigArrayNode inputsArr = node.getArrayOption("inputs").unwrapOrElse(EmptyConfigArray::new);
         ConfigArrayNode outputsArr = node.getArrayOption("outputs").unwrapOrElse(EmptyConfigArray::new);
 

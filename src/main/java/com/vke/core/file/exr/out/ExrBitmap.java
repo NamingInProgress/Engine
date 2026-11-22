@@ -100,6 +100,10 @@ public class ExrBitmap implements Bitmap {
 
     public void setShortScanline(int x, int y, byte[] scanline, int start, int width) {
         if (y < 0) return;
+
+        y = flipVertically ? (height - 1 - y) : y;
+        if (y < 0 || y >= height) return;
+
         int pixel_i = y * width * pixelStride();
         int byte_i = start;
         boolean alphaFound = false;
@@ -116,7 +120,6 @@ public class ExrBitmap implements Bitmap {
             ExrPixelType pxtype = pxTypes[ch];
             int pixel_i_inner = pixel_i + chOffset + x * pixelStride();
             for (int xRel = 0; xRel < width; xRel++) {
-                //TODO use xPos
                 toTarget(scanline, byte_i, pxtype);
                 System.arraycopy(chBuf, 0, rgb_a_bytes, pixel_i_inner, targetPxType.byteSize);
                 byte_i += pxtype.byteSize;
@@ -127,7 +130,6 @@ public class ExrBitmap implements Bitmap {
             int chOffset = ChType.A.ordinal() * targetPxType.byteSize;
             int pixel_i_inner = pixel_i + chOffset + x * pixelStride();
             for (int xRel = 0; xRel < width; xRel++) {
-                //todo here too
                 //default alpha value
                 switch (targetPxType) {
                     case UINT -> {

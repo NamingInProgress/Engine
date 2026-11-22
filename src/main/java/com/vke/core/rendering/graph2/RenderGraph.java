@@ -65,7 +65,7 @@ public class RenderGraph {
     private RenderPass createInstance(RenderPass.Def def) {
         String clazzName = def.clazz();
         if (clazzName == null) {
-            RenderPass.LOGGER.fatal("The RenderPass '%s' in '%s' does NOT have a class assigned to it! Please use a parent with a class or specify it directly!", def.name(), this.def.name());
+            RenderPass.LOGGER.fatal("The RenderPass '%s' of graph '%s' does NOT have a class assigned to it! Please use a parent with a class or specify it directly!", def.name(), this.def.name());
             return null;
         }
         Class<? extends  RenderPass> clazz;
@@ -74,7 +74,7 @@ public class RenderGraph {
             var tmp = (Class<? extends RenderPass>) Class.forName(clazzName);
             clazz = tmp;
         } catch (ClassNotFoundException e) {
-            RenderPass.LOGGER.fatal("The RenderPass '%s' in '%s' does have a class assigned to it, but this class is actually illegal and cant be found! Please check your spelling.", def.name(), this.def.name());
+            RenderPass.LOGGER.fatal("The RenderPass '%s' of graph '%s' does have a class assigned to it (%s), but this class is actually illegal and cant be found! Please check your spelling or consider supplying a valid class name next time.", def.name(), this.def.name(), clazzName);
             return null;
         }
 

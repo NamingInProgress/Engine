@@ -13,7 +13,6 @@ public class EngineCreateInfo {
     public Version applicationVersion;
     public boolean releaseMode;
     public boolean vsync;
-    public RendererType rendererType;
 
     public final String engine = "VkEngine";
     public final Version engineVersion = Version.V1_0_0;
@@ -26,16 +25,5 @@ public class EngineCreateInfo {
         this.applicationVersion = Version.V1_0_0;
         this.releaseMode = true;
         this.applicationNamespace = namespace;
-        this.rendererType = RendererType.Vulkan;
-    }
-
-    public enum RendererType {
-        Vulkan(Services.RENDERER);
-
-        public final String serviceName;
-
-        RendererType(String type) {
-            this.serviceName = type;
-        }
     }
 }

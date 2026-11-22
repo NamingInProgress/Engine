@@ -10,6 +10,7 @@ import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -25,9 +26,9 @@ public class ConfigProtocol implements AssetProtocol<ConfigDocument> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         if (uri.getSelector().equals("field")) {
-            return AssetData.plain(getField(uri.getPath(), data.getDataAs()));
+            return AssetData.plain(getField(uri.getPath(), data.getAssetData().getDataAs()));
         } else {
             throw new AssetException("Illegal selector for protocol 'config': only 'field' is allowed!");
         }

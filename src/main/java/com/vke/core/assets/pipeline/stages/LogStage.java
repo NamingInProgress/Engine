@@ -20,8 +20,10 @@ public class LogStage implements PipelineStage {
 
     private final LogLevel level;
     private final ArrayList<LogPart> parts;
+    private final PipelineContext context;
 
     public LogStage(ConfigNode node, PipelineContext context) throws AssetException {
+        this.context = context;
         this.level = LogLevel.valueOf(node.getStringOption("level").unwrapOr("TRACE").toUpperCase());
 
         ConfigArrayNode partNodesNode = node.asArray();
@@ -50,6 +52,10 @@ public class LogStage implements PipelineStage {
 
     @Override
     public void execute(StageElement stageElement, ExecutionTarget executionTarget) throws AssetException {
+        if (!stageElement.getAssetData().isResolved()) {
+            AssetProtocol<?> protocol = context.getProtocol(stageElement.getProtocol());
+            stageElement.getAssetDataResolved(context, protocol, executionTarget);
+        }
         StringBuilder nameBuilder = new StringBuilder();
         for (LogPart part : parts) {
             String p = part.applyForElement(stageElement);
@@ -63,7 +69,7 @@ public class LogStage implements PipelineStage {
 
     @Override
     public ExecutionTarget executionTarget() {
-        return ExecutionTarget.Pseudo;
+        return ExecutionTarget.Main;
     }
 
     private static abstract sealed class LogPart permits StaticPart, UriPart {
@@ -94,7 +100,7 @@ public class LogStage implements PipelineStage {
 
         @Override
         protected String applyForElement(StageElement element) throws AssetException {
-            return protocol.getField(element.getAssetData(uri.getProtocol()), uri).getData().toString();
+            return protocol.getField(element, uri).getData().toString();
         }
     }
 

@@ -48,8 +48,8 @@ public class ImageToScreenRenderPass extends DataRenderPass {
         cmd.beginRendering(new CommandBuffer.RenderingInfo(CommandBuffer.AttachmentInfo.color(screenTex)));
 
         Texture sourceTex = source.extract();
-        RenderPipelines.FULL_SCREEN.texture(sourceTex);
-        RenderPipelines.FULL_SCREEN.use();
+        RenderPipelines.IMAGE_TO_SCREEN.texture(sourceTex);
+        RenderPipelines.IMAGE_TO_SCREEN.use();
 
         DrawUtils.fullscreenTri(cmd);
 

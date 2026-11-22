@@ -9,6 +9,7 @@ import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -24,7 +25,7 @@ public class VkzProtocol implements AssetProtocol<VkzArchive> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         return null;
     }
 

@@ -107,7 +107,7 @@ public class StageFilter extends CompoundPipelineStage {
 
         AssetData data;
         try {
-            data = dataProtocol.getField(resolvedData, uri);
+            data = dataProtocol.getField(stageElement, uri);
             if (data.getData() == null) {
                 System.out.println(uri.getUri());
             }

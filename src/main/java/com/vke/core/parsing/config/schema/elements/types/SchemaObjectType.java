@@ -10,7 +10,6 @@ import com.vke.core.parsing.config.schema.JsonMarker;
 import com.vke.core.parsing.config.schema.elements.SchemaHeader;
 import com.vke.core.parsing.config.schema.elements.SchemaField;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,7 @@ public class SchemaObjectType extends SchemaType {
     @JsonMarker("fields")
     private final List<SchemaField> fields;
     private boolean hasFieldRules;
+    private boolean usesWildcard;
 
     public SchemaObjectType(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
@@ -29,6 +29,9 @@ public class SchemaObjectType extends SchemaType {
             ConfigArrayNode fieldsArray = Configs.getArray(node, "fields");
             for (ConfigNode fieldNode : fieldsArray.values()) {
                 SchemaField field = new SchemaField(fieldNode, ctx);
+                if (field.isWildcard()) {
+                    usesWildcard = true;
+                }
                 this.fields.add(field);
             }
         } else {
@@ -41,9 +44,11 @@ public class SchemaObjectType extends SchemaType {
         if (node instanceof ConfigObjectNode objectNode) {
             if (!hasFieldRules) return;
 
-            for (String fieldName : objectNode.getDescendants().keySet()) {
-                if (fields.stream().noneMatch(f -> f.getName().equals(fieldName))) {
-                    result.addError(SchemaValidationResult.ValidationError.illegalField(fieldName, path));
+            if (!usesWildcard) {
+                for (String fieldName : objectNode.getDescendants().keySet()) {
+                    if (fields.stream().noneMatch(f -> f.getName().equals(fieldName))) {
+                        result.addError(SchemaValidationResult.ValidationError.illegalField(fieldName, path));
+                    }
                 }
             }
             for (SchemaField fieldDef : fields) {

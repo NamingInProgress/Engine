@@ -29,6 +29,7 @@ public class VksTokenizer {
             case ':' -> new VksT(VksTT.Colon);
             case '!' -> new VksT(VksTT.Exclamation);
             case '|' -> new VksT(VksTT.Pipe);
+            case '*' -> new VksT(VksTT.Wildcard);
             case '.' -> {
                 char dot = source.nextChar();
                 if (dot != '.') {

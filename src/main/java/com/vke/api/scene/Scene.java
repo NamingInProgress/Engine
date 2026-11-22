@@ -7,6 +7,8 @@ import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.renderpass.RenderPass;
+import com.vke.core.scene.env.SceneEnvironment;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
 
 public abstract class Scene implements Disposable {
@@ -17,12 +19,15 @@ public abstract class Scene implements Disposable {
     private final RenderSystem system;
     private Identifier graph;
 
+    private final SceneEnvironment env;
+
     public Scene(Identifier name, Context context) {
         this.name = name;
         this.context = context;
         this.loadingScene = LoadingScene.defaultVke();
-        this.renderer = context.service(context.getEngine().rendererType().serviceName).assumeImplementation();
+        this.renderer = context.service(Services.RENDERER);
         this.system = renderer.renderSystem();
+        this.env = new SceneEnvironment(context);
     }
 
     public RenderSystem getRenderSystem() {
@@ -57,4 +62,13 @@ public abstract class Scene implements Disposable {
     }
 
     public void acceptConfig(ConfigNode node) {}
+
+    public SceneEnvironment getEnvironment() {
+        return env;
+    }
+
+    @Override
+    public void free() {
+        env.free();
+    }
 }

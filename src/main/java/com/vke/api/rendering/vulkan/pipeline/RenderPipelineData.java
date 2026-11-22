@@ -247,7 +247,14 @@ public class RenderPipelineData {
         public Format format;
 
         public AttachmentInfo(ConfigObjectNode c, Format defaultFormat) {
-            this.format = Format.valueOfOption(c.getString(TEXTURE_FORMAT_NAME)).unwrapOr(defaultFormat);
+            Option<String> fmt = c.getStringOption(TEXTURE_FORMAT_NAME);
+            if (fmt.isSome()) {
+                String fmtStr = fmt.unwrap();
+                var available = Iter.of(Format.values()).map(Format::name).collectToList();
+                this.format = Format.valueOfOption(fmtStr).unwrapOrPanic(new IllegalArgumentException("Pipeline attachment format '" + fmtStr + "' is not a known format, please use any of " + available));
+            } else {
+                this.format = defaultFormat;
+            }
         }
     }
 

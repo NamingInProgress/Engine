@@ -42,7 +42,6 @@ public class VulkanResourceManager implements RenderResourceManager {
 
     @Override
     public void free() {
-        Samplers.free();
         toFree.forEach(Disposable::free);
     }
 }

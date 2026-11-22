@@ -41,6 +41,9 @@ public class AnsiColors {
     public static final String BACKGROUND_WHITE = "\033[47m";
     public static final String BACKGROUND_DEFAULT = "\033[49m";
 
+    /** My Colors **/
+    public static final String LIGHT_GRAY = AnsiColors.rgb(133, 133, 133);
+
     public static String rgb(int r, int g, int b) {
         return "\033[38;2;" + r + ";" + g + ";" + b + "m";
     }

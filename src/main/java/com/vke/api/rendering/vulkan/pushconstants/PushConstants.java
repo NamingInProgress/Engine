@@ -27,7 +27,7 @@ public class PushConstants implements Disposable {
         this.layout = layout;
 
         if (layout != null) {
-            this.data = alloc.allocByteBuffer(align16((int) layout.size)).getHeapObject();
+            this.data = alloc.allocByteBuffer((int) layout.size).getHeapObject();
         } else {
             this.data = null;
         }

@@ -2,6 +2,7 @@ package com.vke.api.rendering.abstraction.renderer.data;
 
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
+import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageViewType;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.TextureType;
 import com.vke.utils.io.Disposable;
 
@@ -13,7 +14,7 @@ public interface ImageView extends Disposable {
 
         public final Texture tex;
 
-        public final TextureType type;
+        public final ImageViewType type;
         public final Format format;
 
         public final int baseMip, baseLayer;
@@ -22,7 +23,7 @@ public interface ImageView extends Disposable {
 
         public final ImageAspect aspect;
 
-        public ImageViewDesc(Texture tex, TextureType type, Format format, int baseMip, int mipCount, int baseLayer, int layerCount, ImageAspect aspect) {
+        public ImageViewDesc(Texture tex, ImageViewType type, Format format, int baseMip, int mipCount, int baseLayer, int layerCount, ImageAspect aspect) {
             this.tex = tex;
             this.type = type;
             this.format = format;
@@ -50,7 +51,7 @@ public interface ImageView extends Disposable {
 
         private final Texture tex;
 
-        private TextureType type;
+        private ImageViewType type;
         private Format format;
 
         private int baseMip = 0, mipCount = -1;
@@ -62,7 +63,7 @@ public interface ImageView extends Disposable {
             this.tex = parent;
         }
 
-        public ImageViewDescriptionBuilder type(TextureType type) {
+        public ImageViewDescriptionBuilder type(ImageViewType type) {
             this.type = type;
             return this;
         }
@@ -105,7 +106,7 @@ public interface ImageView extends Disposable {
 
     default Texture parent() { return description().tex; }
 
-    default TextureType type() { return description().type; }
+    default ImageViewType type() { return description().type; }
 
     default int baseMipLevel() { return description().baseMip; }
     default int mipLevelCount() { return description().mipCount; }

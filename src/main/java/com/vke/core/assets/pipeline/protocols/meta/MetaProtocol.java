@@ -29,7 +29,7 @@ public class MetaProtocol implements AssetProtocol<Infallible> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         return null;
     }
 

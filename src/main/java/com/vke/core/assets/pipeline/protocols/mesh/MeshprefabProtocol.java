@@ -5,6 +5,7 @@ import com.vke.api.assets.anot.Protocol;
 import com.vke.api.serializer.Loader;
 import com.vke.api.serializer.Saver;
 import com.vke.api.serializer.Serializer;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.protocols.loader.UnsupportedLoader;
 import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.assets.AssetException;
@@ -23,7 +24,7 @@ public class MeshprefabProtocol implements AssetProtocol<MeshPrefab> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 

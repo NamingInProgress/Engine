@@ -1,0 +1,8 @@
+<asset-meta>
+    <pipeline-config/>
+    <asset-config>
+        <environment-map>
+            <type>spherical</type>
+        </environment-map>
+    </asset-config>
+</asset-meta>

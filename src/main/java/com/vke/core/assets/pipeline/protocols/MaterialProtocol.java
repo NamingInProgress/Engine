@@ -5,6 +5,7 @@ import com.vke.api.assets.anot.Protocol;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
@@ -18,7 +19,7 @@ public class MaterialProtocol implements AssetProtocol<Material> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 

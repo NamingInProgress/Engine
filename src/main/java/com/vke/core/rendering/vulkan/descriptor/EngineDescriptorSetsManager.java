@@ -71,6 +71,10 @@ public class EngineDescriptorSetsManager implements Disposable, Framable {
 
     @Override
     public void preFrame() {
+
+    }
+
+    public void update() {
         toRemoveBindingUpdates.clear();
         for (var entry : scheduledBindingUpdates.entrySet()) {
             if (entry.getValue().anInt > 0) {

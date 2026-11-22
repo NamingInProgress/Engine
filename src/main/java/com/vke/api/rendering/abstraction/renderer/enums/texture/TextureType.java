@@ -5,15 +5,9 @@ import org.lwjgl.vulkan.VK14;
 
 public enum TextureType implements IntEnum {
 
-    TEX_1D(VK14.VK_IMAGE_VIEW_TYPE_1D),
-    TEX_2D(VK14.VK_IMAGE_VIEW_TYPE_2D),
-    TEX_3D(VK14.VK_IMAGE_VIEW_TYPE_3D),
-
-    TEX_1D_ARRAY(VK14.VK_IMAGE_VIEW_TYPE_1D_ARRAY),
-    TEX_2D_ARRAY(VK14.VK_IMAGE_VIEW_TYPE_2D_ARRAY),
-
-    TEX_CUBE(VK14.VK_IMAGE_VIEW_TYPE_CUBE),
-    TEX_CUBE_ARRAY(VK14.VK_IMAGE_VIEW_TYPE_CUBE_ARRAY);
+    TEX_1D(VK14.VK_IMAGE_TYPE_1D),
+    TEX_2D(VK14.VK_IMAGE_TYPE_2D),
+    TEX_3D(VK14.VK_IMAGE_TYPE_3D);
 
     private final int vkHandle;
 
@@ -24,5 +18,13 @@ public enum TextureType implements IntEnum {
     @Override
     public int getIntVal() {
         return this.vkHandle;
+    }
+
+    public ImageViewType defaultViewType() {
+        return switch (this) {
+            case TEX_1D -> ImageViewType.TEX_1D;
+            case TEX_2D -> ImageViewType.TEX_2D;
+            case TEX_3D -> ImageViewType.TEX_3D;
+        };
     }
 }

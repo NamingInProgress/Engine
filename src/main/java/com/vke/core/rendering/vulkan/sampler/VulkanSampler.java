@@ -3,6 +3,7 @@ package com.vke.core.rendering.vulkan.sampler;
 import com.vke.api.rendering.abstraction.renderer.data.Sampler;
 import com.vke.api.rendering.abstraction.renderer.enums.CompareOp;
 import com.vke.api.rendering.abstraction.renderer.enums.Filter;
+import com.vke.api.rendering.abstraction.renderer.enums.SamplerAddressMode;
 import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import org.lwjgl.system.MemoryStack;
@@ -22,22 +23,23 @@ public class VulkanSampler implements Sampler {
     private final VulkanRenderDevice device;
 
     public VulkanSampler(VulkanRenderSystem ctx, Description info) {
-        this(ctx, info.magFilter(), info.minFilter(), info.compareOp());
+        this(ctx, info.magFilter(), info.minFilter(), info.compareOp(), info.U(), info.V());
     }
 
-    public VulkanSampler(VulkanRenderSystem ctx, Filter magFilter, Filter minFilter, CompareOp compareOp) {
+    public VulkanSampler(VulkanRenderSystem ctx, Filter magFilter, Filter minFilter, CompareOp compareOp, SamplerAddressMode uMode, SamplerAddressMode vMode) {
         this.magFilter = magFilter;
         this.minFilter = minFilter;
         this.compareOp = compareOp;
         this.device = ctx.device();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
+
             VkSamplerCreateInfo info = VkSamplerCreateInfo.calloc(stack)
                     .sType$Default()
                     .magFilter(magFilter.getIntVal())
                     .minFilter(minFilter.getIntVal())
-                    .addressModeU(VK14.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
-                    .addressModeV(VK14.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
+                    .addressModeU(uMode.getIntVal())
+                    .addressModeV(vMode.getIntVal())
                     .borderColor(VK14.VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK);
 
             if (compareOp != null) {

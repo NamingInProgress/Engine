@@ -251,6 +251,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public void postFrame() {
+        renderSystem().runOnNextFrameSync(() -> engineSetsManager.update());
+
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
         VulkanTexture swapchainImage = swapchain.getColorImage();
 

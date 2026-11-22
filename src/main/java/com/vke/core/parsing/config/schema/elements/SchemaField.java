@@ -16,12 +16,18 @@ public class SchemaField extends SchemaElement {
     private SchemaType type;
     @JsonMarker("required")
     private boolean required;
+    private boolean isWildcard;
 
     public SchemaField(ConfigNode node, SchemaHeader ctx) {
         super(node, ctx);
-        this.name = Configs.getString(node, "name");
-        this.type = SchemaType.getType(node, ctx);
-        this.required = Configs.getBoolean(node, "required");
+        String typeName = node.getString("type");
+        if ("wildcard".equals(typeName)) {
+            this.isWildcard = true;
+        } else {
+            this.name = Configs.getString(node, "name");
+            this.type = SchemaType.getType(node, ctx);
+            this.required = Configs.getBoolean(node, "required");
+        }
     }
 
     @Override
@@ -41,5 +47,9 @@ public class SchemaField extends SchemaElement {
 
     public boolean isRequired() {
         return required;
+    }
+
+    public boolean isWildcard() {
+        return isWildcard;
     }
 }

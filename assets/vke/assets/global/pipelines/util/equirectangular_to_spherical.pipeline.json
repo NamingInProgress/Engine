@@ -4,11 +4,8 @@
   "polygonMode": "FILL",
   "attachments": [
     {
-      "type": "COLOR"
-    },
-    {
-      "type": "DEPTH",
-      "format": "DEPTH32F"
+      "type": "COLOR",
+      "format": "RGBA16F"
     }
   ],
   "shaders": [
@@ -18,7 +15,7 @@
     },
     {
       "type": "frag",
-      "src": "shaders/util/full_screen.fsh"
+      "src": "shaders/util/equirectangular_to_spherical.fsh"
     }
   ]
 }

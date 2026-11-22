@@ -16,8 +16,8 @@ public enum LogLevel {
 
     public String getColor() {
         return switch(this) {
-            case TRACE -> AnsiColors.BLUE;
-            case DEBUG -> AnsiColors.CYAN;
+            case TRACE -> AnsiColors.LIGHT_GRAY;
+            case DEBUG -> AnsiColors.BLINKING + AnsiColors.BLUE;
             case INFO -> AnsiColors.GREEN;
             case WARN -> AnsiColors.YELLOW;
             case ERROR -> AnsiColors.RED;

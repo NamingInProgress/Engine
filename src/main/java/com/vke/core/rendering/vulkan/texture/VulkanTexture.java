@@ -1,5 +1,6 @@
 package com.vke.core.rendering.vulkan.texture;
 
+import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.data.ImageView;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.BufferUsage;
@@ -92,7 +93,7 @@ public class VulkanTexture implements Texture {
     @Override
     public VulkanImageView defaultView() {
         if (defaultView != null) return defaultView;
-        var description = new ImageView.ImageViewDesc(this, desc.type, format(), 0,
+        var description = new ImageView.ImageViewDesc(this, desc.type.defaultViewType(), format(), 0,
                 desc.mipLevels, 0, desc.arrayLayers, ImageAspect.AUTO);
         this.defaultView = new VulkanImageView(ctx, description);
         this.views.put(description, defaultView);
@@ -101,7 +102,9 @@ public class VulkanTexture implements Texture {
 
     @Override
     public ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer) {
-        var builder = new ImageView.ImageViewDescriptionBuilder(this);
+        var builder = new ImageView.ImageViewDescriptionBuilder(this)
+                .format(format())
+                .type(desc.type.defaultViewType());
         consumer.accept(builder);
         var desc = builder.build();
 
@@ -114,11 +117,7 @@ public class VulkanTexture implements Texture {
 
     @Override
     public VulkanTexture upload(Bitmap bm) {
-        ctx.runOnNextFrameSync(() -> {
-            device._queueTextureUpload(this, bm);
-        });
-
-        // TODO: generate mips
+        device._queueTextureUpload(this, bm);
         return this;
     }
 
@@ -193,6 +192,11 @@ public class VulkanTexture implements Texture {
     @Override
     public void useInShader() {
         transition(ctx.getCurrentCommandBuffer(), ImageState.FRAGMENT_SHADER_READ);
+    }
+
+    @Override
+    public void useInShader(CommandBuffer cmd) {
+        transition((VulkanCmdBuffers) cmd, ImageState.FRAGMENT_SHADER_READ);
     }
 
     public long getHandle() {

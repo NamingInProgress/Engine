@@ -27,7 +27,7 @@ public class VulkanTextureManager implements TextureManager, EventListener {
     private final Texture[] bindlessTextures;
     private CISArrayHandle BINDLESS_HANDLE;
     private final EngineDescriptorSetsManager mgr;
-    private final Context ctx;
+    private final VulkanRenderSystem ctx;
     private final VulkanRenderer renderer;
 
     private Sampler sampler;
@@ -37,7 +37,7 @@ public class VulkanTextureManager implements TextureManager, EventListener {
         bindlessTextures = new Texture[BINDLESS_TEXTURES_COUNT];
         this.mgr = mgr;
         this.ctx = ctx;
-        this.renderer = ctx.service(ctx.getEngine().rendererType().serviceName).assumeImplementation();
+        this.renderer = ctx.renderer();
         this.sampler = Samplers.LINEAR;
 
         EventBus eventBus = ctx.service(Services.EVENT_BUS);
@@ -48,7 +48,9 @@ public class VulkanTextureManager implements TextureManager, EventListener {
     public void onAssetLoad(AssetLoadEvent e) {
         var obj = e.desc.handle().get();
         if (obj instanceof Texture tex) {
-            registerTexture(tex);
+            ctx.runOnNextFrameSync(() -> {
+                registerTexture(tex);
+            });
         }
     }
 
@@ -68,8 +70,10 @@ public class VulkanTextureManager implements TextureManager, EventListener {
 
         bindlessTextures[firstFree] = tex;
         textures.put(tex, firstFree);
+
         BINDLESS_HANDLE.set(firstFree, tex, sampler);
         renderer.scheduleDescriptorUpdate(mgr.ENGINE_PIPELINE_LAYOUT, BINDLESS_HANDLE);
+
         return firstFree;
     }
 

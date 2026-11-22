@@ -9,6 +9,7 @@ import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.Format;
+import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
 import com.vke.core.VKEngine;
 import com.vke.core.color.RgbColor;
@@ -17,6 +18,8 @@ import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.RenderGraph;
 import com.vke.core.rendering.graph2.TextureCategory;
+import com.vke.core.scene.service.SceneManager;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.SegmentedPath;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,11 +38,13 @@ public abstract class RenderPass {
 
     private Texture[] inputs;
     private OutputTexture[] outputs;
+    private final SceneManager scenes;
 
     public RenderPass(RenderSystem sys, RenderGraph graph, Def def) {
         this.sys = sys;
         this.graph = graph;
         this.def = def;
+        this.scenes = sys.service(Services.SCENE_MANAGER);
     }
 
     public GraphTexture searchInputTexture(String name) {
@@ -324,6 +329,10 @@ public abstract class RenderPass {
         }
 
         cmd.beginRendering(new CommandBuffer.RenderingInfo(colorInfos, da, sa));
+    }
+
+    public Scene getCurrenScene() {
+        return scenes.getCurrentScene();
     }
 
     public record InputTextureDef(String name, SegmentedPath source) {}

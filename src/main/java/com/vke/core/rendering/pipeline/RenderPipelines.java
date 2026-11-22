@@ -19,14 +19,14 @@ public class RenderPipelines {
     public static DeferredPipelineDriver DEFERRED;
     public static DeferredLightPassDriver DEFERRED_LIGHT_PASS;
     public static LoadPipelineDriver LOAD;
-    public static FullScreenDriver FULL_SCREEN;
+    public static FullScreenDriver IMAGE_TO_SCREEN;
     public static ShapePipelineDriver SHAPE;
 
     public static void init(RenderSystem context) {
         DEFERRED = new DeferredPipelineDriver(context, PIPELINE_DEFERRED);
         DEFERRED_LIGHT_PASS = new DeferredLightPassDriver(context, PIPELINE_DEFERRED_LIGHT);
         LOAD = new LoadPipelineDriver(context, PIPELINE_LOAD);
-        FULL_SCREEN = new FullScreenDriver(context);
+        IMAGE_TO_SCREEN = new FullScreenDriver(context);
         SHAPE = new ShapePipelineDriver(context);
     }
 

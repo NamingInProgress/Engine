@@ -14,9 +14,16 @@
             </outputs>
         </render-pass>
 
+        <render-pass name="skybox" parent="vke:skybox">
+            <outputs>
+                <texture name="colorOut" source="debug.colorOut"/>
+                <texture name="depthOut" type="depth_stencil" format="DEPTH32F_STENCIL8" source="debug.depthOut"/>
+            </outputs>
+        </render-pass>
+
         <render-pass name="post" parent="vke:post">
             <inputs>
-                <input name="colorIn" source="debug.colorOut"/>
+                <input name="colorIn" source="skybox.colorOut"/>
             </inputs>
             <data>
                 <stages>

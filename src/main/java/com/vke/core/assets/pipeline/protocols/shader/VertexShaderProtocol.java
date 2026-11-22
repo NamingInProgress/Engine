@@ -11,10 +11,12 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 
 @Protocol
@@ -26,7 +28,7 @@ public class VertexShaderProtocol implements AssetProtocol<Shader> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 
@@ -45,8 +47,7 @@ public class VertexShaderProtocol implements AssetProtocol<Shader> {
         public AssetData load(Context context, FileIdentifier identifier, PipelineStage.ExecutionTarget executionTarget) throws AssetException {
             if (!executionTarget.isUsable(PipelineStage.ExecutionTarget.Main)) return null;
 
-            EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-            Renderer renderer = context.service(rendererType.serviceName);
+            Renderer renderer = context.service(Services.RENDERER);
             RenderDevice device = renderer.getDevice();
 
             return Utils.chainExceptions(() ->

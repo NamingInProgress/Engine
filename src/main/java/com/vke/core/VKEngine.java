@@ -129,11 +129,7 @@ public class VKEngine extends Context {
 
     public Iter<Namespace> getAllNamespaces() {
         return getAllNamespacesStr().map(Namespace::of);
-    }
-
-    public EngineCreateInfo.RendererType rendererType() {
-        return createInfo.rendererType;
-    }
+    }// brb gonna uh do stuff so i dont have to leave room later :thumbsup:
 
     public ServiceManager getServiceManager() { return this.serviceManager; }
 

@@ -46,7 +46,8 @@ public class Test2DRenderPass extends RenderPass {
     @Override
     public void execute(CommandBuffer cmd, GraphContext context) {
         cmd.beginRendering(new CommandBuffer.RenderingInfo(List.of(
-                new CommandBuffer.AttachmentInfo(output.extract(), LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })
+                //new CommandBuffer.AttachmentInfo(output.extract(), LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0.2f, 0.3f, 0.3f, 1.0f })
+                new CommandBuffer.AttachmentInfo(output.extract(), LoadOp.CLEAR, StoreOp.STORE, new float[]{ 0, 0, 0, 0 })
         ), null));
 
         RenderPipelines.SHAPE.use();

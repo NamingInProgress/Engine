@@ -5,6 +5,7 @@ import com.vke.api.assets.anot.Protocol;
 import com.vke.api.parsing.config.ConfigDocument;
 import com.vke.core.Context;
 import com.vke.core.FileIdentifier;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.language.Language;
 import com.vke.core.language.LanguageParser;
 import com.vke.core.assets.AssetException;
@@ -22,9 +23,9 @@ public class LangProtocol implements AssetProtocol<Language> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         if (uri.getSelector().equals("key")) {
-            Language language = data.getDataAs();
+            Language language = data.getAssetData(getProtocolName()).getDataAs();
             return AssetData.plain(language.find(uri.getPath()));
         } else {
             throw new AssetException("Illegal selector for protocol 'lang': only 'key' is allowed!");

@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 public interface AssetProtocol<T> {
     String getProtocolName();
-    AssetData getField(AssetData data, AssetUri uri) throws AssetException;
+    AssetData getField(StageElement data, AssetUri uri) throws AssetException;
     Loader getLoader();
     boolean applies(AssetData a, AssetData b, Op op);
 

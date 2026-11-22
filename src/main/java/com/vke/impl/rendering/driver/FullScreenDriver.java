@@ -17,7 +17,7 @@ public class FullScreenDriver extends PipelineDriver {
     private ImageView view;
 
     public FullScreenDriver(RenderSystem sys) {
-        super(sys, R.pipelines.get("full_screen_pass.pipeline.json"));
+        super(sys, R.pipelines.get("image_to_screen.pipeline.json"));
         this.inTex = p.resource("u_InTex");
         this.sampler = Samplers.LINEAR;
     }

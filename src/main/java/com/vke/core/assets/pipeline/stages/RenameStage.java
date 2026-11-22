@@ -81,7 +81,7 @@ public class RenameStage implements PipelineStage {
 
         @Override
         protected String applyForElement(StageElement element) throws AssetException {
-            return protocol.getField(element.getAssetData(uri.getProtocol()), uri).getData().toString();
+            return protocol.getField(element, uri).getData().toString();
         }
     }
 

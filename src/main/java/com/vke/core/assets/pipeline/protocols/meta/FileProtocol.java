@@ -35,8 +35,8 @@ public class FileProtocol implements AssetProtocol<Infallible> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
-        return router.getDataAtSafe(uri.getSegments(), data.getDataAs());
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
+        return router.getDataAtSafe(uri.getSegments(), data);
     }
 
     @Override

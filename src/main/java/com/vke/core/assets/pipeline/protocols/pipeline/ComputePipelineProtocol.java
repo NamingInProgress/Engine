@@ -12,10 +12,12 @@ import com.vke.core.EngineCreateInfo;
 import com.vke.core.FileIdentifier;
 import com.vke.core.assets.AssetException;
 import com.vke.core.assets.pipeline.Op;
+import com.vke.core.assets.pipeline.StageElement;
 import com.vke.core.assets.pipeline.apis.AssetData;
 import com.vke.core.assets.pipeline.apis.AssetProtocol;
 import com.vke.core.assets.pipeline.apis.AssetUri;
 import com.vke.core.assets.pipeline.stages.PipelineStage;
+import com.vke.core.services2.Services;
 import com.vke.utils.Utils;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
     }
 
     @Override
-    public AssetData getField(AssetData data, AssetUri uri) throws AssetException {
+    public AssetData getField(StageElement data, AssetUri uri) throws AssetException {
         throw AssetException.unknownSelector(getProtocolName(), uri.getSelector());
     }
 
@@ -46,8 +48,7 @@ public class ComputePipelineProtocol implements AssetProtocol<ComputePipeline> {
         return Utils.chainExceptions(() -> {
             ComputePipelineData data = ComputePipelineData.fromConfig(configDocument);
 
-            EngineCreateInfo.RendererType rendererType = context.getEngine().rendererType();
-            Renderer renderer = context.service(rendererType.serviceName);
+            Renderer renderer = context.service(Services.RENDERER);
             RenderDevice device = renderer.getDevice();
 
             return new AssetData(Protocols.COMPUTE_PIPELINE, device.createComputePipeline(data));

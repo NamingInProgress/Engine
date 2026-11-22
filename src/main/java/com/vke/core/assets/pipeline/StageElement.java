@@ -48,6 +48,7 @@ public class StageElement {
         if (!d.isResolved() && target != PipelineStage.ExecutionTarget.Pseudo) {
             AssetProtocol.Loader loader = protocol.getLoader();
             d = loader.load(context, d.getUnresolved(), target);
+            setData(d);
         }
         return d;
     }

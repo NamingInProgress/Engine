@@ -47,7 +47,7 @@ public class VulkanTextureUploadQueue implements EventListener {
                 .equals(sys.device().getQueue(QueueType.TRANSFER));
     }
 
-    public void enqueue(VulkanTexture texture, Bitmap pixels) {
+    public synchronized void enqueue(VulkanTexture texture, Bitmap pixels) {
         this.queue.add(new QueuedUpload(texture, pixels));
     }
 
@@ -55,7 +55,7 @@ public class VulkanTextureUploadQueue implements EventListener {
         return queue.isEmpty();
     }
 
-    public void execute() {
+    public synchronized void execute() {
         if (isEmpty()) return;
         if (!loaded) throw new RuntimeException("Tried to execute before loading finished.");
 

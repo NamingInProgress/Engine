@@ -10,6 +10,7 @@ layout (set = 2, binding = 0) uniform sampler2D u_InTex;
 
 void main() {
     vec3 color = vktexture(u_InTex, uv).rgb;
+    color = clamp(color, vec3(0.0), vec3(65504.0));
 
     float brightness = dot(color, vec3(0.2126, 0.7152, 0.0722));
 

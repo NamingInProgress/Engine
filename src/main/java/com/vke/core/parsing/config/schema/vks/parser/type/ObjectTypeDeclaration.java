@@ -26,11 +26,17 @@ public class ObjectTypeDeclaration implements VksTypeDeclaration {
                 parser.next();
                 isRequired = true;
             }
-            String fieldName = parser.parseThing(VksPullParser::parseString);
-            parser.expect(VksTT.Colon);
-            VksTypeDeclaration type = parser.parseThing(VksPullParser::parseTypeDeclaration);
-            parser.expect(VksTT.Semicolon);
-            fields.add(new Field(isRequired, fieldName, type));
+            if (parser.peek(VksTT.Wildcard)) {
+                parser.next();
+                fields.add(Field.WILDCARD);
+                parser.expect(VksTT.Semicolon);
+            } else {
+                String fieldName = parser.parseThing(VksPullParser::parseString);
+                parser.expect(VksTT.Colon);
+                VksTypeDeclaration type = parser.parseThing(VksPullParser::parseTypeDeclaration);
+                parser.expect(VksTT.Semicolon);
+                fields.add(new Field(isRequired, fieldName, type));
+            }
         }
         parser.expect(VksTT.RBrace);
     }
@@ -53,6 +59,7 @@ public class ObjectTypeDeclaration implements VksTypeDeclaration {
     }
 
     public record Field(boolean isRequired, String name, VksTypeDeclaration type) {
+        public static final Field WILDCARD = new Field(false, "", null);
     }
 
     private class FieldsArray implements ConfigArrayNode {
@@ -75,10 +82,14 @@ public class ObjectTypeDeclaration implements VksTypeDeclaration {
         private final Map<String, ConfigNode> map;
 
         public FieldObject(Field field) {
-            map = new HashMap<>();
-            map.put("required", new BooleanConfigValue(field.isRequired()));
-            map.put("name", new StringConfigValue(field.name()));
-            map.putAll(field.type.buildDescendantsMap());
+            if (field == Field.WILDCARD) {
+                map = Map.of("type", new StringConfigValue("wildcard"));
+            } else {
+                map = new HashMap<>();
+                map.put("required", new BooleanConfigValue(field.isRequired()));
+                map.put("name", new StringConfigValue(field.name()));
+                map.putAll(field.type.buildDescendantsMap());
+            }
         }
 
         @Override

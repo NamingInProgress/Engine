@@ -1,0 +1,28 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR",
+      "format": "RGBA16F"
+    },
+    {
+      "type": "DEPTH",
+      "format": "DEPTH32F_STENCIL8",
+      "depthTestEnable": true,
+      "depthWriteEnable": true,
+      "depthCompareOperation": "LEQUAL"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/util/skybox.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/util/skybox.fsh"
+    }
+  ]
+}

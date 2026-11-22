@@ -1,5 +1,7 @@
 package com.vke.core.assets;
 
+import com.vke.api.assets.Protocols;
+
 public class AssetException extends Exception {
     public AssetException(String message) {
         super(message);
@@ -40,6 +42,9 @@ public class AssetException extends Exception {
     }
 
     public static AssetException unknownProtocol(String protocol) {
+        if (Protocols.FILE.equals(protocol)) {
+            throw new RuntimeException("Clean your maven!");
+        }
         String msg = String.format("The protocol '%s' cannot be resolved!", protocol);
         return new AssetException(msg);
     }

@@ -1,6 +1,7 @@
 package com.vke.api.rendering.abstraction.renderer.data;
 
 import com.vke.api.rendering.abstraction.draw.QuadTexture;
+import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
 import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.*;
 import com.vke.core.image.Bitmap;
@@ -33,7 +34,7 @@ public interface Texture extends Disposable, QuadTexture {
         public final Extent3D extent;
 
         public TextureDesc(int width, int height, int depth, int mipLevels, int arrayLayers, Format format, ImageUsage usage,
-                           SampleCount samples, TextureType type, MemoryUsage memUsage, ImageTiling tiling, boolean generateMips) {
+                           SampleCount samples, TextureType type, MemoryUsage memUsage, ImageTiling tiling, boolean generateMips, boolean cubeMap) {
             this.width = width;
             this.height = height;
             this.depth = depth;
@@ -47,7 +48,7 @@ public interface Texture extends Disposable, QuadTexture {
             this.tiling = tiling;
             this.generateMips = generateMips;
             this.extent = new Extent3D(width, height, depth);
-            this.cubeMap = type == TextureType.TEX_CUBE || type == TextureType.TEX_CUBE_ARRAY;
+            this.cubeMap = cubeMap;
         }
 
         @Override
@@ -78,6 +79,7 @@ public interface Texture extends Disposable, QuadTexture {
         private ImageTiling tiling = ImageTiling.OPTIMAL;
 
         private boolean generateMips = false;
+        private boolean cubeMap = false;
 
         public TextureDescriptorBuilder width(int width) {
             this.width = width;
@@ -140,6 +142,11 @@ public interface Texture extends Disposable, QuadTexture {
             return this;
         }
 
+        public TextureDescriptorBuilder cubeMap(boolean cubeMap) {
+            this.cubeMap = cubeMap;
+            return this;
+        }
+
         public TextureDescriptorBuilder size(Extent2D ext) {
             this.width = ext.width;
             this.height = ext.height;
@@ -159,7 +166,7 @@ public interface Texture extends Disposable, QuadTexture {
                 throw new IllegalStateException("Cannot build image without all the parameters, missing: " + missing);
             }
             return new TextureDesc(width, height, depth, mipLevels, arrayLayers,
-                    format, usage, samples, type, memUsage, tiling, generateMips);
+                    format, usage, samples, type, memUsage, tiling, generateMips, cubeMap);
         }
 
     }
@@ -186,6 +193,7 @@ public interface Texture extends Disposable, QuadTexture {
     TextureDesc description();
 
     void useInShader();
+    void useInShader(CommandBuffer cmd);
 
     @Override
     default Texture texture() {

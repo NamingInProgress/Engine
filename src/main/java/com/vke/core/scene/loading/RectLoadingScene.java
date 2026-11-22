@@ -5,6 +5,7 @@ import com.vke.api.scene.LoadingScene;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.services2.Services;
 
 public class RectLoadingScene extends LoadingScene {
 
@@ -16,7 +17,7 @@ public class RectLoadingScene extends LoadingScene {
 
     @Override
     public void onLoad() throws Exception {
-        Renderer renderer = context.service(context.getEngine().rendererType().serviceName);
+        Renderer renderer = context.service(Services.RENDERER);
     }
 
     @Override

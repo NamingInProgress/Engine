@@ -1,35 +1,21 @@
 package com.vke.demo;
 
-import com.vke.api.assets.r.R;
 import com.vke.api.audio.playback.PlayingAudio;
-import com.vke.api.rendering.abstraction.renderer.RenderResourceManager;
-import com.vke.api.rendering.abstraction.renderer.data.StaticMesh;
-import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
-import com.vke.core.audio.playback.service.AudioManagerMaster;
-import com.vke.core.audio.playback2d.service.AudioManager2D;
-import com.vke.core.audio.playback3d.Ear;
-import com.vke.core.audio.playback3d.Speaker;
-import com.vke.core.audio.playback3d.service.AudioManager3D;
-import com.vke.core.audio.source.ToneGenerator;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
 import com.vke.core.game.camera.controllers.FreecamController;
 import com.vke.core.game.object.GameObject;
-import com.vke.impl.ecs.mesh.StaticMeshC;
-import com.vke.impl.ecs.text.BasicTextC;
-import com.vke.impl.gameobject.*;
-import com.vke.core.game.scene.service.HierarchyManager;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
-import com.vke.core.mesh.MeshPrefab;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.services2.Services;
+import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.CameraGameObject;
 import com.vke.impl.gameobject.DirectionalLightGameObject;
 import com.vke.impl.gameobject.PointLightGameObject;
@@ -37,17 +23,11 @@ import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.gameobject.convenientapi.GameAudio;
 import com.vke.impl.gameobject.convenientapi.GameMeshes;
 import com.vke.impl.gameobject.convenientapi.GameObjects;
-import com.vke.impl.rendering.debug.DebugContext;
-import com.vke.impl.rendering.vertex.SceneVertexFormat;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 public class DemoScene extends Scene {
 
@@ -78,7 +58,7 @@ public class DemoScene extends Scene {
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad() throws IOException {
         loadMeshResources();
 
         PointLightGameObject pointLightBase = new PointLightGameObject(getRenderSystem());
@@ -103,10 +83,11 @@ public class DemoScene extends Scene {
 
         DirectionalLightGameObject dirLight = new DirectionalLightGameObject(getRenderSystem());
         dirLight.spawn();
-        dirLight.setColor(RgbColor.BLUE);
-        dirLight.setIntensity(10);
+        dirLight.setColor(RgbColor.WHITE);
+        dirLight.setIntensity(100);
         dirLight.getTransform().setX(20);
-        dirLight.getTransform().setRotationXYZ(-90, 0, 0);
+        //dirLight.getTransform().setRotationXYZ(-90, 0, 0);
+        dirLight.getTransform().setRotation(new Quaternionf(2.256E-1, -4.214E-1, -1.091E-1, -8.716E-1));
 
         setupInputAndCamera();
     }
@@ -128,8 +109,8 @@ public class DemoScene extends Scene {
 
             bear2.getTransform().addChild(sphere);
 
-            PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
-            audio.setLooping(true);
+            //PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
+            //audio.setLooping(true);
 
             cube = GameObjects.staticMesh(context);
             cube.getTransform().setXYZ(-30, 0, 0);
@@ -150,6 +131,8 @@ public class DemoScene extends Scene {
             text.getTransform().setPosition(new Vector3f(0, 0, -5));
             text.getTransform().setScaleXYZ(0.01f, 0.01f, 0.01f);
             text.getTransform().setRotationXYZ(0, 90, 0);
+
+            bear1.getTransform().setScaleXYZ(3, 10, 3);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }
@@ -192,7 +175,6 @@ public class DemoScene extends Scene {
     @Override
     public void onPrepareRendering(GraphContext context) {
         handleInput();
-
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
         bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
         bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
@@ -206,23 +188,22 @@ public class DemoScene extends Scene {
 
         if (keyToggleCursor.wasJustPressed()) {
             lockedCursor = !lockedCursor;
+            Window window = context.getEngine().getWindow();
             if (lockedCursor) {
-                glfwSetInputMode(getRenderSystem().windowHandle(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                window.showCursor();
             } else {
-                getRenderSystem().getEngine().getWindow().hideCursor();
+                window.hideCursor();
             }
         }
 
         if (keyLogCamera.wasJustPressed()) {
             System.out.println("Camera position: " + cam.getTransform().getPosition());
+            System.out.println("Camera rotaton: " + cam.getTransform().getRotation());
+            try {
+                getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-    }
-
-    @Override
-    public void free() {}
-
-    public static class Instance {
-        public final Vector3f position = new Vector3f();
-        public final Matrix4f matrix = new Matrix4f();
     }
 }
