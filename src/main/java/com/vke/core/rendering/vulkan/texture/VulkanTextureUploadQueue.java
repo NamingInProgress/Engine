@@ -108,7 +108,7 @@ public class VulkanTextureUploadQueue implements EventListener {
     public void executeSeparate() {
         VulkanRenderDevice device = sys.device();
         ImmediateSubmit graphics = device.immediateSubmit(QueueType.GRAPHICS);
-        ImmediateSubmit transfer = device.immediateSubmit(QueueType.TRANSFER, true);
+        ImmediateSubmit transfer = device.immediateSubmit(QueueType.TRANSFER, true, false);
         VulkanCmdBuffers tcmd = (VulkanCmdBuffers) transfer.cmd();
         VulkanCmdBuffers gcmd = (VulkanCmdBuffers) graphics.cmd();
 
@@ -122,6 +122,8 @@ public class VulkanTextureUploadQueue implements EventListener {
         for (QueuedUpload q : queue) {
             var bm = q.pxs;
             var t = q.texture;
+
+            System.out.println("Uploading texture: " + t.getHandle());
 
             int size = bm.width() * bm.height() * bm.pixelStride();
             ByteBuffer buffer = device.allocate(size);

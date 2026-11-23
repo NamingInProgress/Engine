@@ -13,6 +13,7 @@ import com.vke.core.rendering.vulkan.descriptor.EngineDescriptorSetsManager;
 import com.vke.core.rendering.Samplers;
 import com.vke.core.rendering.vulkan.service.VulkanRenderSystem;
 import com.vke.core.rendering.vulkan.service.VulkanRenderer;
+import com.vke.core.rendering.vulkan.texture.VulkanTexture;
 import com.vke.core.services2.Services;
 
 import java.util.HashMap;
