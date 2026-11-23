@@ -14,6 +14,8 @@ import com.vke.core.rendering.vulkan.debug.DebugLogFeature;
 import com.vke.core.rendering.vulkan.debug.DebugMemoryTrackingFeature;
 import com.vke.core.scene.SceneApp;
 import com.vke.core.services2.Services;
+import pl.epsi.jenderdoc.JenderDoc;
+import pl.epsi.jenderdoc.RenderDoc;
 
 import java.io.IOException;
 
@@ -22,6 +24,8 @@ public class Main {
     public static final CoreLogger LOG = LoggerFactory.get("VkEngine");
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
+        //System.los ad("/usr/lib/librenderdoc.so");
+        JenderDoc.init();
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("BEAR test!");
@@ -33,5 +37,6 @@ public class Main {
         //engine.PROFILER = engine.service(Services.PROFILER);
 
         engine.start(new SceneApp("main"));
+        RenderDoc.free();
     }
 }

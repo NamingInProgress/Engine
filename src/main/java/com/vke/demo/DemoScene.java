@@ -202,7 +202,7 @@ public class DemoScene extends Scene {
             System.out.println("Camera rotaton: " + cam.getTransform().getRotation());
             try {
                 getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
-                ((VulkanRenderDevice) getRenderSystem().device())._queueTextureExecute();
+//                ((VulkanRenderDevice) getRenderSystem().device())._queueTextureExecute();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
