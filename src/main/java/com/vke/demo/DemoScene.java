@@ -84,7 +84,7 @@ public class DemoScene extends Scene {
         DirectionalLightGameObject dirLight = new DirectionalLightGameObject(getRenderSystem());
         dirLight.spawn();
         dirLight.setColor(RgbColor.WHITE);
-        dirLight.setIntensity(100);
+        dirLight.setIntensity(10);
         dirLight.getTransform().setX(20);
         //dirLight.getTransform().setRotationXYZ(-90, 0, 0);
         dirLight.getTransform().setRotation(new Quaternionf(2.256E-1, -4.214E-1, -1.091E-1, -8.716E-1));
@@ -95,7 +95,7 @@ public class DemoScene extends Scene {
     private void loadMeshResources() {
         try {
             bear1 = GameObjects.staticMesh(context);
-            GameMeshes.setMeshStatic(bear1, "vke:sphere.obj");
+            GameMeshes.setMeshStatic(bear1, "vke:bear.obj");
 
             bear2 = bear1.duplicate();
             GameMeshes.setMaterialStatic(bear2, "vke:materials/bear.vcl");
@@ -132,7 +132,7 @@ public class DemoScene extends Scene {
             text.getTransform().setScaleXYZ(0.01f, 0.01f, 0.01f);
             text.getTransform().setRotationXYZ(0, 90, 0);
 
-            bear1.getTransform().setScaleXYZ(3, 10, 3);
+            bear1.getTransform().setScaleXYZ(1, 1, 1);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }

@@ -69,6 +69,9 @@ public abstract class Color {
                     } else {
                         caller.discard();
                         try {
+                            if (return2.contains(".")) {
+                                floatMode = true;
+                            }
                             float parsed = Float.parseFloat(return2);
                             if (i != chars.length) {
                                 char c = chars[i];
@@ -110,6 +113,7 @@ public abstract class Color {
                     for (; i < chars.length; i++) {
                         c = chars[i];
                         if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == '.' || c == ':') {
+                            if (c == 'f') break;
                             builder.append(c);
                         } else {
                             break;
@@ -199,7 +203,7 @@ public abstract class Color {
                     if (digits == null) {
                         digits = new float[1];
                     } else {
-                        digits = Arrays.copyOf(digits, rawRgbIndex + 1);
+                        digits = Arrays.copyOf(digits, rawRgbIndex);
                     }
                     i--;
                     continue top;
