@@ -328,13 +328,14 @@ public class VulkanRenderDevice implements RenderDevice {
             VkSemaphoreSubmitInfo.Buffer waitInfo = null;
             VkSemaphoreSubmitInfo.Buffer signalInfo = null;
 
+            // TODO: Fix the stage masks
             if (info.getWaitSemaphore() != null) {
                 waitInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
 
                 if (info.getType() == QueueType.GRAPHICS) {
-                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), VK14.VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
                 } else {
-                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT));
+                    waitInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getWaitSemaphore(), VK14.VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
                 }
             }
 
@@ -342,9 +343,9 @@ public class VulkanRenderDevice implements RenderDevice {
                 signalInfo = VkSemaphoreSubmitInfo.calloc(1, stack);
 
                 if (info.getType() == QueueType.GRAPHICS) {
-                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT));
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), VK14.VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
                 } else {
-                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), (int) VK14.VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT));
+                    signalInfo.put(0, VulkanSemaphore.getDefaultSubmitInfo(stack, (VulkanSemaphore) info.getSignalSemaphore(), VK14.VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
                 }
             }
 

@@ -31,7 +31,7 @@ public class VulkanSemaphore implements Semaphore {
         return info;
     }
 
-    public static VkSemaphoreSubmitInfo getDefaultSubmitInfo(MemoryStack stack, VulkanSemaphore semaphore, int VkPipelineStageFlags2) {
+    public static VkSemaphoreSubmitInfo getDefaultSubmitInfo(MemoryStack stack, VulkanSemaphore semaphore, long VkPipelineStageFlags2) {
         VkSemaphoreSubmitInfo submitInfo = VkSemaphoreSubmitInfo.calloc(stack);
         submitInfo.sType$Default();
         submitInfo.stageMask(VkPipelineStageFlags2);

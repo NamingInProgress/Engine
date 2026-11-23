@@ -73,7 +73,8 @@ public class VulkanTexture implements Texture {
                     .arrayLayers(desc.arrayLayers)
                     .samples(desc.samples.getIntVal())
                     .tiling(desc.tiling.getIntVal())
-                    .usage(desc.usage.getIntVal());
+                    .usage(desc.usage.getIntVal())
+                    .sharingMode(VK14.VK_SHARING_MODE_EXCLUSIVE);
 
             if (desc.cubeMap)
                 imageCreateInfo.flags(VK14.VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
