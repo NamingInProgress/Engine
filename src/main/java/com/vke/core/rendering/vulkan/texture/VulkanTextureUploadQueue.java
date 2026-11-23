@@ -108,7 +108,7 @@ public class VulkanTextureUploadQueue implements EventListener {
     public void executeSeparate() {
         VulkanRenderDevice device = sys.device();
         ImmediateSubmit graphics = device.immediateSubmit(QueueType.GRAPHICS);
-        ImmediateSubmit transfer = device.immediateSubmit(QueueType.TRANSFER, true, false);
+        ImmediateSubmit transfer = device.immediateSubmit(QueueType.TRANSFER, true, true);
         VulkanCmdBuffers tcmd = (VulkanCmdBuffers) transfer.cmd();
         VulkanCmdBuffers gcmd = (VulkanCmdBuffers) graphics.cmd();
 
@@ -136,6 +136,8 @@ public class VulkanTextureUploadQueue implements EventListener {
                     MemoryUsage.Bits.CPU_TO_GPU.into());
             stagingBuffers.add(buf);
 
+            //cpuBuf.free();
+
             t.transition(tcmd, ImageState.TRANSFER_DST);
 
             buf.uploadViaStaging(transfer);
@@ -150,15 +152,17 @@ public class VulkanTextureUploadQueue implements EventListener {
                     VK14.VK_ACCESS_2_NONE,
                     ImageLayout.TRANSFER_DST_OPTIMAL,
                     ImageLayout.SHADER_READONLY_OPTIMAL,
-                    0, 1,
-                    0, 1,
+                    0, -1,
+                    0, -1,
                     device.getTransferQueue().familyIndex(),
                     device.getGraphicsQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)
             ), ImageState.FRAGMENT_SHADER_READ);
         }
 
+        System.out.println("Pre transfer close fence buzzwords: " + System.nanoTime());
         transfer.close();
+        System.out.println("Post transfer close fence buzzwords: " + System.nanoTime());
 
         for (QueuedUpload q : queue) {
             var t = q.texture;
@@ -170,8 +174,8 @@ public class VulkanTextureUploadQueue implements EventListener {
                     VK14.VK_ACCESS_2_SHADER_READ_BIT,
                     ImageLayout.TRANSFER_DST_OPTIMAL,
                     ImageLayout.SHADER_READONLY_OPTIMAL,
-                    0, 1,
-                    0, 1,
+                    0, -1,
+                    0, -1,
                     device.getTransferQueue().familyIndex(),
                     device.getGraphicsQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)

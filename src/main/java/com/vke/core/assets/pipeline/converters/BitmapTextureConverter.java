@@ -57,6 +57,10 @@ public class BitmapTextureConverter implements AssetConverter {
 
         if (generateMips && mipLevels <= 0) throw new IllegalStateException("If a texture turns on generate-mips, mip-count must be greater than 0!");
 
+        if (input.getAssetName().toString().equals("vke:textures/material/defaults/default_albedo.png")) {
+            System.out.println();
+        }
+
         Renderer renderer = context.service(Services.RENDERER);
         Texture.TextureDescriptorBuilder builder = Texture.TextureDesc.builder()
                 .width(bitmap.width())

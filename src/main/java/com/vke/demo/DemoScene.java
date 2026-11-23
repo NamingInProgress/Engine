@@ -14,6 +14,7 @@ import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.rendering.graph2.GraphContext;
+import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.CameraGameObject;
@@ -201,6 +202,7 @@ public class DemoScene extends Scene {
             System.out.println("Camera rotaton: " + cam.getTransform().getRotation());
             try {
                 getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+                ((VulkanRenderDevice) getRenderSystem().device())._queueTextureExecute();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

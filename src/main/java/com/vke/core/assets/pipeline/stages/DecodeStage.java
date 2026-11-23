@@ -44,6 +44,9 @@ public class DecodeStage extends ParameterizedStage {
 
         try {
             if (anyDecoder instanceof Decoder<?> decoder) {
+                if (stageElement.getAssetName().toString().equals("vke:textures/material/defaults/default_albedo.png")) {
+                    System.out.println("this is in the decode stage remember to remove");
+                }
                 Object decoded = decoder.decode(context, identifier);
                 stageElement.setData(new AssetData(toName, decoded));
             }

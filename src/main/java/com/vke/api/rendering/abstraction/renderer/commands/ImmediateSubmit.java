@@ -59,6 +59,7 @@ public class ImmediateSubmit implements AutoCloseable, Disposable {
                 fence,
                 queueType
         ));
+
         if (fence != null) {
             fence.waitForFence();
         }

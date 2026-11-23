@@ -239,7 +239,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public void onDraw() {
-        ctx.device()._queueTextureExecute();
         Scene currentScene = sceneManager.getCurrentScene();
         Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);

@@ -27,6 +27,7 @@ public class FreecamController extends AbstractGameObjectController {
     private final PressableState d;
     private final PressableState space;
     private final PressableState shift;
+    private final PressableState sprint;
 
     private final MousePositionState mousePosition;
 
@@ -59,6 +60,7 @@ public class FreecamController extends AbstractGameObjectController {
         d = keyboard.key(Key.D);
         space = keyboard.key(Key.SPACE);
         shift = keyboard.key(Key.LEFT_SHIFT);
+        sprint = keyboard.key(Key.E);
 
         MouseInput mouse = input.mouse();
         mousePosition = mouse.position();
@@ -85,6 +87,11 @@ public class FreecamController extends AbstractGameObjectController {
         Vector3f up      = new Vector3f(0, 1, 0).rotate(rotation);
 
         Vector3f position = transform.getPosition();
+
+        float speed = this.speed;
+        if (sprint.isPressed()) {
+            speed *= 4;
+        }
 
         if (w.isPressed())     position.fma(speed, forward);
         if (s.isPressed())     position.fma(-speed, forward);
