@@ -49,13 +49,11 @@ public class EnvironmentMap implements Disposable {
         this.sys = context;
 
         if (type == MapType.SPHERICAL) {
-            context.runOnNextFrameSync(() -> {
-                try {
-                    mapSpherical(texture);
-                } catch (IOException e) {
-                    context.throwException(e, "EnvironmentMap#mapSpherical");
-                }
-            });
+            try {
+                mapSpherical(texture);
+            } catch (IOException e) {
+                context.throwException(e, "EnvironmentMap#mapSpherical");
+            }
         }
     }
 

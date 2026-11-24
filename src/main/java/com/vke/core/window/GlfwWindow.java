@@ -42,8 +42,8 @@ public class GlfwWindow implements Window {
         this.framableManager = framableManager;
         this.bus = engine.service(Services.EVENT_BUS);
 
-        if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
-            GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11);
+//        if (Utils.getOSType() == OSType.LINUX) // TODO: Remove Later
+//            GLFW.glfwInitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11);
 
         glfwSetErrorCallback((error, description) -> System.err.println("GLFW error " + error + " : " + GLFWErrorCallback.getDescription(description)));;
 

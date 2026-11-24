@@ -23,7 +23,7 @@ public class RenderingCollector {
         this.queueHandler = new RenderQueueCollector(sys); // TODO: Replace with service
 
         registerCollector(new StaticMeshCollector(ecs, queueHandler));
-        registerCollector(new BasicTextCollector(ecs, queueHandler));
+        //registerCollector(new BasicTextCollector(ecs, queueHandler)); // TODO: Fix this
     }
 
     public void registerCollector(AbstractRenderableCollector col) {

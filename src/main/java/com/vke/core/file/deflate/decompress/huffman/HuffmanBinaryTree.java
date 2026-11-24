@@ -1,6 +1,8 @@
 package com.vke.core.file.deflate.decompress.huffman;
 
+import com.vke.api.rendering.vulkan.buffer.CpuBuffer;
 import com.vke.core.file.io.bit.BitOrdering;
+import com.vke.utils.IntUtils;
 
 import java.util.Arrays;
 
@@ -8,6 +10,7 @@ public class HuffmanBinaryTree {
     private int[] value;
     private int[] left;
     private int[] right;
+    private int length;
 
     private int nextNode = 1;
 
@@ -15,6 +18,8 @@ public class HuffmanBinaryTree {
         this.value = new int[1];
         this.left = new int[1];
         this.right = new int[1];
+
+        this.length = 1;
 
         for (Code code : codes) {
             int nodeIndex = 0;
@@ -43,7 +48,7 @@ public class HuffmanBinaryTree {
     }
 
     private int goLeft(int index) {
-        if (index >= left.length || left[index] == 0) {
+        if (index >= length || left[index] == 0) {
             int newIdx = nextNode++;
             grow(newIdx + 1);
             left[index] = newIdx;
@@ -52,7 +57,7 @@ public class HuffmanBinaryTree {
     }
 
     private int goRight(int index) {
-        if (index >= right.length || right[index] == 0) {
+        if (index >= length || right[index] == 0) {
             int newIdx = nextNode++;
             grow(newIdx + 1);
             right[index] = newIdx;
@@ -61,16 +66,23 @@ public class HuffmanBinaryTree {
     }
 
     private void setValue(int index, int value) {
-        if (index >= this.value.length) {
+        if (index >= length) {
             grow(index + 1);
         }
         this.value[index] = value;
     }
 
     private void grow(int minimum) {
-        this.value = Arrays.copyOf(this.value, minimum);
-        this.left = Arrays.copyOf(this.left, minimum);
-        this.right = Arrays.copyOf(this.right, minimum);
+        int cap = value.length + 1;
+
+        while (cap < minimum) {
+            cap = IntUtils.mulByDouble(cap, CpuBuffer.GROWTH_FAC);
+        }
+
+        this.value = Arrays.copyOf(this.value, cap);
+        this.left = Arrays.copyOf(this.left, cap);
+        this.right = Arrays.copyOf(this.right, cap);
+        this.length = minimum;
     }
 
     /**
@@ -97,7 +109,7 @@ public class HuffmanBinaryTree {
     }
 
     private boolean isLeaf(int index) {
-        return index < left.length && left[index] == 0 && right[index] == 0;
+        return index < length && left[index] == 0 && right[index] == 0;
     }
 
     private int extractBit(int bits, int index) {

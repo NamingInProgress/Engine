@@ -57,10 +57,6 @@ public class BitmapTextureConverter implements AssetConverter {
 
         if (generateMips && mipLevels <= 0) throw new IllegalStateException("If a texture turns on generate-mips, mip-count must be greater than 0!");
 
-        if (input.getAssetName().toString().equals("vke:textures/material/defaults/default_albedo.png")) {
-            System.out.println();
-        }
-
         Renderer renderer = context.service(Services.RENDERER);
         Texture.TextureDescriptorBuilder builder = Texture.TextureDesc.builder()
                 .width(bitmap.width())
@@ -73,7 +69,12 @@ public class BitmapTextureConverter implements AssetConverter {
                 .usage(usage)
                 .type(TextureType.TEX_2D);
 
+//        if (input.getPath().toString().equals("assets/vke/assets/main/png.png")) {
+//            System.out.println("png dot png");
+//        }
         Texture texture = bitmap.createTexture2D(renderer, builder);
+//        System.out.println("Created texture: " + texture);
+
         return new AssetData(Protocols.TEXTURE, texture);
     }
 }

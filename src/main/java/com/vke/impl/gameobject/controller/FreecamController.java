@@ -1,4 +1,4 @@
-package com.vke.core.game.camera.controllers;
+package com.vke.impl.gameobject.controller;
 
 import com.vke.api.window.Window;
 import com.vke.core.Context;

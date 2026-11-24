@@ -2,22 +2,28 @@ package com.vke.core.scene.env;
 
 import com.vke.api.assets.AssetHandle;
 import com.vke.api.assets.r.R;
+import com.vke.api.rendering.abstraction.DelayedDestroyer;
+import com.vke.api.rendering.abstraction.renderer.Renderer;
 import com.vke.api.rendering.abstraction.renderer.data.Texture;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.color.Color;
 import com.vke.core.color.RgbColor;
+import com.vke.core.services2.Services;
 import com.vke.utils.io.Disposable;
 
 import java.io.IOException;
 
 public class SceneEnvironment implements Disposable {
     private final Context context;
+    private final DelayedDestroyer<Disposable> freeQueue;
+
     private RgbColor clearColor;
     private EnvironmentMap environmentMap;
 
     public SceneEnvironment(Context context) {
         this.context = context;
+        this.freeQueue = new DelayedDestroyer<>(context.<Renderer>service(Services.RENDERER).renderSystem());
     }
 
     public void setClearColor(Color clearColor) {
@@ -26,7 +32,7 @@ public class SceneEnvironment implements Disposable {
 
     public void setEnvironmentMap(AssetHandle<Texture> map) throws IOException {
         if (environmentMap != null) {
-            environmentMap.free();
+            freeQueue.scheduleDestroy(environmentMap);
         }
         this.environmentMap = EnvironmentMap.ofAssetHandle(context, map);
     }
@@ -56,6 +62,7 @@ public class SceneEnvironment implements Disposable {
 
     @Override
     public void free() {
+        freeQueue.free();
         if (environmentMap != null) {
             environmentMap.free();
         }

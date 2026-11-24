@@ -8,6 +8,7 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.api.rendering.vulkan.memory.VulkanMemoryBarrier;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.vulkan.buffers.StagedBuffer;
 import com.vke.core.rendering.vulkan.buffers.premade.GeneralBuffer;
@@ -136,10 +137,12 @@ public class VulkanTexture implements Texture {
 
     public void transition(VulkanCmdBuffers cmd, ImageState newState, int baseMip, int mipCount, int baseLayer, int layerCount) {
         transition(cmd, new VulkanImageBarrier(
-                state.getStageMask(),
-                newState.getStageMask(),
-                state.getAccessMask(),
-                newState.getAccessMask(),
+                new VulkanMemoryBarrier(
+                        state.getStageMask(),
+                        newState.getStageMask(),
+                        state.getAccessMask(),
+                        newState.getAccessMask()
+                ),
                 state.getLayout(),
                 newState.getLayout(),
                 baseMip,
@@ -149,7 +152,7 @@ public class VulkanTexture implements Texture {
                 aspect), newState);
     }
 
-    public void transition(VulkanCmdBuffers cmd, VulkanImageBarrier barrier, ImageState newState) {
+    public void transition(VulkanCmdBuffers cmd, VulkanImageBarrier barrier, ImageState newState) { // TODO: Move into command buffers?
         try(MemoryStack stack = MemoryStack.stackPush()) {
             VkImageSubresourceRange range = VkImageSubresourceRange.calloc(stack)
                     .aspectMask(barrier.aspect().getIntVal())
@@ -162,14 +165,14 @@ public class VulkanTexture implements Texture {
             VkImageMemoryBarrier2.Buffer barriers = VkImageMemoryBarrier2.calloc(1, stack);
             barriers.get(0)
                     .sType$Default()
-                    .srcStageMask(barrier.srcStage())
-                    .srcAccessMask(barrier.srcAccess())
-                    .dstStageMask(barrier.dstStage())
-                    .dstAccessMask(barrier.dstAccess())
+                    .srcStageMask(barrier.barrier().srcStage())
+                    .srcAccessMask(barrier.barrier().srcAccess())
+                    .dstStageMask(barrier.barrier().dstStage())
+                    .dstAccessMask(barrier.barrier().dstAccess())
                     .oldLayout(barrier.oldLayout().getIntVal())
                     .newLayout(barrier.newLayout().getIntVal())
-                    .srcQueueFamilyIndex(barrier.srcQueueFamily())
-                    .dstQueueFamilyIndex(barrier.dstQueueFamily())
+                    .srcQueueFamilyIndex(barrier.barrier().srcQueueFamily())
+                    .dstQueueFamilyIndex(barrier.barrier().dstQueueFamily())
                     .image(this.handle)
                     .subresourceRange(range);
 

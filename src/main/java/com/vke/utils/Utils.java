@@ -385,4 +385,14 @@ public class Utils {
         }
         return null;
     }
+
+    public static Infallible Infallable() {
+        try {
+            Class<Infallible> a = Infallible.class;
+            var c = a.getDeclaredConstructor();
+            c.setAccessible(true);
+            return c.newInstance();
+        } catch (Exception _) {}
+        return null;
+    }
 }

@@ -1,6 +1,5 @@
 package com.vke.demo.test2d;
 
-import com.vke.api.game.camera.CameraController;
 import com.vke.api.rendering.abstraction.draw.VertexConsumer;
 import com.vke.api.rendering.abstraction.renderer.RenderSystem;
 import com.vke.api.rendering.abstraction.renderer.commands.CommandBuffer;
@@ -9,8 +8,6 @@ import com.vke.api.rendering.abstraction.renderer.enums.LoadOp;
 import com.vke.api.rendering.abstraction.renderer.enums.StoreOp;
 import com.vke.core.draw.ShapeRenderer;
 import com.vke.core.draw.ShapeRendererVertex;
-import com.vke.core.game.camera.controllers.FreecamController;
-import com.vke.core.game.object.controller.GameObjectController;
 import com.vke.core.rendering.graph2.GraphContext;
 import com.vke.core.rendering.graph2.GraphTexture;
 import com.vke.core.rendering.graph2.RenderGraph;

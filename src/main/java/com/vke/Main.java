@@ -14,11 +14,14 @@ import com.vke.core.rendering.vulkan.debug.DebugLogFeature;
 import com.vke.core.rendering.vulkan.debug.DebugMemoryTrackingFeature;
 import com.vke.core.scene.SceneApp;
 import com.vke.core.services2.Services;
+import com.vke.utils.Infallible;
+import com.vke.utils.Utils;
 import pl.epsi.jenderdoc.CaptureOption;
 import pl.epsi.jenderdoc.JenderDoc;
 import pl.epsi.jenderdoc.RenderDoc;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main {
 
@@ -26,11 +29,16 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
 //        System.los ad("/usr/lib/librenderdoc.so");
-        JenderDoc.init();
-        RenderDoc.captureOption(CaptureOption.RefAllResources, 1);
-        RenderDoc.captureOption(CaptureOption.CaptureAllCmdLists, 1);
-        RenderDoc.captureOption(CaptureOption.CaptureCallstacks, 1);
-        RenderDoc.captureOption(CaptureOption.SaveAllInitials, 1);
+//        JenderDoc.init();
+//        RenderDoc.captureOption(CaptureOption.RefAllResources, 1);
+//        RenderDoc.captureOption(CaptureOption.CaptureAllCmdLists, 1);
+//        RenderDoc.captureOption(CaptureOption.CaptureCallstacks, 1);
+//        RenderDoc.captureOption(CaptureOption.SaveAllInitials, 1);
+//        RenderDoc.captureOption(CaptureOption.ApiValidation, 1);
+        //Infallible a = Utils.Infallable();
+        //System.out.println(a);
+
+
         EngineCreateInfo createInfo = new EngineCreateInfo("CUBE", "vke");
         createInfo.releaseMode = false;
         createInfo.windowCreateInfo = new WindowCreateInfo("BEAR test!");
@@ -42,6 +50,6 @@ public class Main {
         //engine.PROFILER = engine.service(Services.PROFILER);
 
         engine.start(new SceneApp("main"));
-        RenderDoc.free();
+//        RenderDoc.free();
     }
 }

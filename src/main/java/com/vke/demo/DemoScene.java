@@ -1,20 +1,18 @@
 package com.vke.demo;
 
-import com.vke.api.audio.playback.PlayingAudio;
 import com.vke.api.scene.Scene;
 import com.vke.api.window.Window;
 import com.vke.core.Context;
 import com.vke.core.Identifier;
 import com.vke.core.color.RgbColor;
 import com.vke.core.ecs.CRef;
-import com.vke.core.game.camera.controllers.FreecamController;
+import com.vke.impl.gameobject.controller.FreecamController;
 import com.vke.core.game.object.GameObject;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.rendering.graph2.GraphContext;
-import com.vke.core.rendering.vulkan.device.VulkanRenderDevice;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.text.BasicTextC;
 import com.vke.impl.gameobject.CameraGameObject;
@@ -24,7 +22,6 @@ import com.vke.impl.gameobject.SpotLightGameObject;
 import com.vke.impl.gameobject.convenientapi.GameAudio;
 import com.vke.impl.gameobject.convenientapi.GameMeshes;
 import com.vke.impl.gameobject.convenientapi.GameObjects;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -91,6 +88,8 @@ public class DemoScene extends Scene {
         dirLight.getTransform().setRotation(new Quaternionf(2.256E-1, -4.214E-1, -1.091E-1, -8.716E-1));
 
         setupInputAndCamera();
+
+        //getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
     }
 
     private void loadMeshResources() {

@@ -12,7 +12,9 @@ import com.vke.api.rendering.abstraction.renderer.enums.buffer.MemoryUsage;
 import com.vke.api.rendering.abstraction.renderer.enums.texture.ImageAspect;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
+import com.vke.api.rendering.vulkan.memory.VulkanBufferBarrier;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.api.rendering.vulkan.memory.VulkanMemoryBarrier;
 import com.vke.core.framable.service.FramableManager;
 import com.vke.core.image.Bitmap;
 import com.vke.core.rendering.vulkan.VKEvents;
@@ -128,7 +130,7 @@ public class VulkanTextureUploadQueue implements EventListener {
             var bm = q.pxs;
             var t = q.texture;
 
-            System.out.println("Uploading texture: " + t.getHandle());
+//            System.out.println("Uploading texture: " + t);
 
             int size = bm.width() * bm.height() * bm.pixelStride();
             ByteBuffer buffer = device.allocate(size);
@@ -147,77 +149,59 @@ public class VulkanTextureUploadQueue implements EventListener {
 
             buf.uploadViaStaging(transfer);
 
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkBufferMemoryBarrier2.Buffer barrier =
-                        VkBufferMemoryBarrier2.calloc(1, stack);
-
-                barrier.get(0)
-                        .sType$Default()
-                        .srcStageMask(VK14.VK_PIPELINE_STAGE_2_COPY_BIT)
-                        .srcAccessMask(VK14.VK_ACCESS_2_TRANSFER_WRITE_BIT)
-                        .dstStageMask(VK14.VK_PIPELINE_STAGE_2_COPY_BIT)
-                        .dstAccessMask(VK14.VK_ACCESS_2_TRANSFER_READ_BIT)
-                        .srcQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
-                        .dstQueueFamilyIndex(VK14.VK_QUEUE_FAMILY_IGNORED)
-                        .buffer(buf.getGpuBuffer().getBuffer())
-                        .offset(0)
-                        .size(VK14.VK_WHOLE_SIZE);
-
-                VkDependencyInfo dependency =
-                        VkDependencyInfo.calloc(stack)
-                                .sType$Default()
-                                .pBufferMemoryBarriers(barrier);
-
-                VK14.vkCmdPipelineBarrier2(
-                        tcmd.getBuffer(),
-                        dependency
-                );
-            }
+            buf.getGpuBuffer().barrier(tcmd, new VulkanBufferBarrier(
+                    new VulkanMemoryBarrier(
+                            VK14.VK_PIPELINE_STAGE_2_COPY_BIT,
+                            VK14.VK_PIPELINE_STAGE_2_COPY_BIT,
+                            VK14.VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                            VK14.VK_ACCESS_2_TRANSFER_READ_BIT
+                    )
+            ));
 
             tcmd.copyBufferToImage(buf.getGpuBuffer(), t, 0, 0);
 
             device.freeAllocation(buffer);
 
             t.transition(tcmd, new VulkanImageBarrier(
-                    VK14.VK_PIPELINE_STAGE_2_COPY_BIT,
-                    VK14.VK_PIPELINE_STAGE_2_NONE,
-                    VK14.VK_ACCESS_2_TRANSFER_WRITE_BIT,
-                    VK14.VK_ACCESS_2_NONE,
+                    new VulkanMemoryBarrier(
+                            VK14.VK_PIPELINE_STAGE_2_COPY_BIT,
+                            VK14.VK_PIPELINE_STAGE_2_NONE,
+                            VK14.VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                            VK14.VK_ACCESS_2_NONE,
+                            device.getTransferQueue().familyIndex(),
+                            device.getGraphicsQueue().familyIndex()
+                    ),
                     ImageLayout.TRANSFER_DST_OPTIMAL,
                     ImageLayout.SHADER_READONLY_OPTIMAL,
                     0, -1,
                     0, -1,
-                    device.getTransferQueue().familyIndex(),
-                    device.getGraphicsQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)
             ), ImageState.FRAGMENT_SHADER_READ);
         }
 
-        System.out.println("Pre transfer close fence buzzwords: " + System.nanoTime());
         transfer.close();
-        device.waitIdle();
-        System.out.println("Post transfer close fence buzzwords: " + System.nanoTime());
 
         for (QueuedUpload q : queue) {
             var t = q.texture;
 
             t.transition(gcmd, new VulkanImageBarrier(
-                    VK14.VK_PIPELINE_STAGE_2_NONE,
-                    VK14.VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
-                    VK14.VK_ACCESS_2_NONE,
-                    VK14.VK_ACCESS_2_SHADER_READ_BIT,
+                    new VulkanMemoryBarrier(
+                            VK14.VK_PIPELINE_STAGE_2_NONE,
+                            VK14.VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
+                            VK14.VK_ACCESS_2_NONE,
+                            VK14.VK_ACCESS_2_SHADER_READ_BIT,
+                            device.getTransferQueue().familyIndex(),
+                            device.getGraphicsQueue().familyIndex()
+                    ),
                     ImageLayout.TRANSFER_DST_OPTIMAL,
                     ImageLayout.SHADER_READONLY_OPTIMAL,
                     0, -1,
                     0, -1,
-                    device.getTransferQueue().familyIndex(),
-                    device.getGraphicsQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)
             ), ImageState.FRAGMENT_SHADER_READ);
         }
 
         graphics.close();
-        device.waitIdle();
 
         for (StagedBuffer stagingBuffer : stagingBuffers) {
             stagingBuffer.free();

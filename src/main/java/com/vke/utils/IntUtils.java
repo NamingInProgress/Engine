@@ -27,4 +27,8 @@ public class IntUtils {
         }
         return (int) v;
     }
+
+    public static int mulByDouble(int value, double fac) {
+        return (int) (((double) value) * fac);
+    }
 }

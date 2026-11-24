@@ -1,20 +1,13 @@
-package com.vke.core.game.camera.controllers;
+package com.vke.impl.gameobject.controller;
 
-import com.vke.api.framable.Framable;
-import com.vke.api.game.camera.Camera;
-import com.vke.api.game.camera.CameraController;
 import com.vke.core.Context;
-import com.vke.core.framable.service.FramableManager;
 import com.vke.core.game.object.GameObjectTransform;
 import com.vke.core.game.object.controller.AbstractGameObjectController;
 import com.vke.core.input.PressableState;
 import com.vke.core.input.keyboard.Key;
 import com.vke.core.input.keyboard.KeyboardInput;
-import com.vke.core.input.mouse.MouseInput;
-import com.vke.core.input.mouse.MousePositionState;
 import com.vke.core.input.service.InputManager;
 import com.vke.core.services2.Services;
-import org.joml.Vector3f;
 
 public class PoopWASDController extends AbstractGameObjectController {
     private static final float DEFAULT_SPEED = 5;

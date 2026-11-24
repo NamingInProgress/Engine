@@ -16,6 +16,7 @@ import com.vke.api.rendering.abstraction.renderer.swapchain.Swapchain;
 import com.vke.api.rendering.vulkan.ImageLayout;
 import com.vke.api.rendering.vulkan.ImageState;
 import com.vke.api.rendering.vulkan.memory.VulkanImageBarrier;
+import com.vke.api.rendering.vulkan.memory.VulkanMemoryBarrier;
 import com.vke.api.scene.Scene;
 import com.vke.core.Identifier;
 import com.vke.core.game.scene.service.HierarchyManager;
@@ -240,6 +241,8 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
     @Override
     public void onDraw() {
         ctx.device()._queueTextureExecute();
+        engineSetsManager.update();
+
         Scene currentScene = sceneManager.getCurrentScene();
         Identifier graphId = currentScene.getGraph();
         RenderGraph graph = graphManager.getGraph(graphId);
@@ -250,8 +253,6 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
     @Override
     public void postFrame() {
-        renderSystem().runOnNextFrameSync(() -> engineSetsManager.update());
-
         VulkanCmdBuffers cmd = frameData.frame().getBuffers();
         VulkanTexture swapchainImage = swapchain.getColorImage();
 
@@ -269,16 +270,18 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
 
         if (device.isSeparateGraphicsPresent()) {
             swapchainImage.transition(cmd, new VulkanImageBarrier(
-                    VK14.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                    0,
+                    new VulkanMemoryBarrier(
+                            VK14.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                            VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                            VK14.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                            VK14.VK_ACCESS_2_NONE,
+                            device.getGraphicsQueue().familyIndex(),
+                            device.getPresentQueue().familyIndex()
+                    ),
                     ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
                     ImageLayout.PRESENT_SRC_KHR,
                     0, 1,
                     0, 1,
-                    device.getGraphicsQueue().familyIndex(),
-                    device.getPresentQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)
             ), ImageState.PRESENT);
 
@@ -298,16 +301,18 @@ public class VulkanRenderer extends ServiceImpl implements Renderer, Framable {
             presentBuffers.begin();
 
             swapchainImage.transition(presentBuffers, new VulkanImageBarrier(
-                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                    0,
-                    0,
+                    new VulkanMemoryBarrier(
+                            VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                            VK14.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                            0,
+                            0,
+                            device.getGraphicsQueue().familyIndex(),
+                            device.getPresentQueue().familyIndex()
+                    ),
                     ImageLayout.COLOR_ATTACHMENT_OPTIMAL,
                     ImageLayout.PRESENT_SRC_KHR,
                     0, 1,
                     0, 1,
-                    device.getGraphicsQueue().familyIndex(),
-                    device.getPresentQueue().familyIndex(),
                     new ImageAspect(ImageAspect.Bits.COLOR)
             ), ImageState.PRESENT);
 

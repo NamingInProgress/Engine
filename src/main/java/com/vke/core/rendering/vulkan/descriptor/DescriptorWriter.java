@@ -72,7 +72,7 @@ public class DescriptorWriter implements Disposable {
             VulkanImageView tex = views[i];
             VulkanSampler sampler = samplers[i];
 
-            if (tex == null || sampler == null) continue;
+            if (tex == null || sampler == null) continue; // TODO: Fix this just continuing
 
             writeCombinedImageSampler(setHandle, binding, tex, sampler, i);
         }

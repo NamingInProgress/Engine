@@ -49,12 +49,12 @@ public class VulkanTextureManager implements TextureManager, EventListener {
     public void onAssetLoad(AssetLoadEvent e) {
         var obj = e.desc.handle().get();
         if (obj instanceof Texture tex) {
-            System.out.println("loaded texture: " + e.desc.name());
+//            if (e.desc.name().toString().equals("vke:png.png")) {
+//                System.out.println("");
+//            }
+//            System.out.println("loaded texture: " + e.desc.name());
             ctx.runOnNextFrameSync(() -> {
-                if ("vke:textures/material/defaults/default_albedo.png".equals(e.desc.name().toString())) {
-                    System.out.println("");
-                }
-                System.out.println("registering " + e.desc.name());
+//                System.out.println("registering " + e.desc.name() + " | " + tex);
                 registerTexture(tex);
             });
         }
