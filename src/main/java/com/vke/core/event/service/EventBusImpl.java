@@ -30,7 +30,7 @@ public class EventBusImpl extends ServiceImpl implements EventBus {
     }
 
     @Override
-    public void register(EventListener instance) {
+    public void register(EventListener instance) { // TODO: Implement event priority but good this time
         List<Method> subscribers = ReflectUtils.getAnnotatedMethods(instance.getClass(), SubscribeEvent.class);
 
         for (Method subscriber : subscribers) {

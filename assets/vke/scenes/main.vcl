@@ -1,7 +1,7 @@
 <scene>
 <!--    <class name="com.vke.test.ttf.TTFTestScene"/>-->
 <!--    <render-graph name="vke:ttf-test"/>-->
-    <class name="com.vke.demo.DemoScene"/>
+    <class name="com.vke.demo.pbr.PbrTestScene"/>
     <render-graph name="vke:demo"/>
     <bundles>
         <bundle name="main"/>

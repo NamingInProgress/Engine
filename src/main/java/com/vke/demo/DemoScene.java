@@ -89,7 +89,7 @@ public class DemoScene extends Scene {
 
         setupInputAndCamera();
 
-        //getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+        getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
     }
 
     private void loadMeshResources() {

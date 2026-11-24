@@ -173,7 +173,7 @@ vec3 calculateLighting(vec3 N, vec3 V, vec3 fragPos, MaterialInputs mat) {
         Lo += (kD * mat.baseColor.xyz / PI + specular) * radiance * NdotL;
     }
 
-    vec3 ambient = vec3(0.3) * mat.baseColor.xyz * mat.occlusion;
+    vec3 ambient = vec3(0.15) * mat.baseColor.xyz * mat.occlusion;
 
     return ambient + Lo + mat.emissive;
 }

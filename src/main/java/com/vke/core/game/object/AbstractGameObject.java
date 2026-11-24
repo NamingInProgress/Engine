@@ -11,6 +11,7 @@ import com.vke.core.game.scene.NodeHierarchy;
 import com.vke.core.services2.Services;
 import com.vke.impl.ecs.TransformC;
 import com.vke.impl.ecs.WorldTransformC;
+import com.vke.utils.StringUtils;
 import com.vke.utils.Utils;
 
 import java.util.Arrays;
@@ -57,7 +58,14 @@ public abstract class AbstractGameObject implements GameObject {
 
     protected void requireSpawned() {
         if (!isSpawned()) {
-            throw new IllegalStateException("This GameObject hsa not been spawned in yet!");
+            EcsManager ecs = getContext().service(Services.ECS);
+            int[] componentIds = components().getComponents();
+            String[] componentNames = new String[componentIds.length];
+            for (int i = 0; i < componentIds.length; i++) {
+                componentNames[i] = ecs.getComponentName(componentIds[i]);
+            }
+            String components = StringUtils.joinNiceLanguage(componentNames, true);
+            throw new IllegalStateException("This GameObject hsa not been spawned in yet! This GameObject has the components " + components);
         }
     }
 

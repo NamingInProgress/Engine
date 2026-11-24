@@ -32,8 +32,8 @@ public class BaseLayer extends MaterialLayer {
 
     public final float normalScale;
 
-    public final float metallic;
-    public final float roughness;
+    public float metallic; // TODO: Fix final
+    public float roughness;
 
     public final float occlusionStrength;
 
