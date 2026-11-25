@@ -47,3 +47,21 @@ vec4 correctColor(vec4 col) {
 vec4 correctColor(vec3 col) {
     return correctColor(vec4(col, 1.0));
 }
+
+const float LIMIT = 65536.0;
+
+float handleChannel(float value) {
+    return isnan(value) ? LIMIT : (isinf(value) ? LIMIT : value);
+}
+
+vec2 handleInvalidValues(vec2 o) {
+    return vec2(handleChannel(o.x), handleChannel(o.y));
+}
+
+vec3 handleInvalidValues(vec3 o) {
+    return vec3(handleChannel(o.x), handleChannel(o.y), handleChannel(o.z));
+}
+
+vec4 handleInvalidValues(vec4 o) {
+    return vec4(handleChannel(o.x), handleChannel(o.y), handleChannel(o.z), handleChannel(o.w));
+}

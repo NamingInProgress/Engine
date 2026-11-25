@@ -72,24 +72,25 @@ public class DemoScene extends Scene {
 
         pointLightBase.destroy();
 
-        spotLight = new SpotLightGameObject(getRenderSystem());
-        spotLight.spawn();
-        spotLight.setColor(new RgbColor(0, 1, 1, 1));
-        spotLight.setIntensity(100);
-        spotLight.setInnerConeAngle(5);
-        spotLight.setOuterConeAngle(30);
+//        spotLight = new SpotLightGameObject(getRenderSystem());
+//        spotLight.spawn();
+//        spotLight.setColor(new RgbColor(0, 1, 1, 1));
+//        spotLight.setIntensity(100);
+//        spotLight.setInnerConeAngle(5);
+//        spotLight.setOuterConeAngle(30);
 
-        DirectionalLightGameObject dirLight = new DirectionalLightGameObject(getRenderSystem());
-        dirLight.spawn();
-        dirLight.setColor(RgbColor.WHITE);
-        dirLight.setIntensity(10);
-        dirLight.getTransform().setX(20);
-        //dirLight.getTransform().setRotationXYZ(-90, 0, 0);
-        dirLight.getTransform().setRotation(new Quaternionf(2.256E-1, -4.214E-1, -1.091E-1, -8.716E-1));
+//        DirectionalLightGameObject dirLight = new DirectionalLightGameObject(getRenderSystem());
+//        dirLight.spawn();
+//        dirLight.setColor(RgbColor.WHITE);
+//        dirLight.setIntensity(10);
+//        dirLight.getTransform().setX(20);
+//        //dirLight.getTransform().setRotationXYZ(-90, 0, 0);
+//        dirLight.getTransform().setRotation(new Quaternionf(2.256E-1, -4.214E-1, -1.091E-1, -8.716E-1));
 
         setupInputAndCamera();
 
         getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+//        getEnvironment().setEnvironmentMap("cubemaps/something.png");
     }
 
     private void loadMeshResources() {
@@ -144,7 +145,7 @@ public class DemoScene extends Scene {
         cam.setIsOrtho(false);
         cam.control(new FreecamController(context));
 
-        cam.getTransform().addChild(spotLight);
+//        cam.getTransform().addChild(spotLight);
         cam.getTransform().setXYZ(0, 0, 0);
         cam.getTransform().setRotationXYZ(0, -90, 0);
 

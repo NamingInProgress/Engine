@@ -71,7 +71,10 @@ public class DeferredQueueExecutor extends RenderQueueExecutor<MeshInstance> {
 
         pass.beginRendering(cmd, List.of(colorOut), RgbColor.BLACK);
 
-        RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_material_idx, gbuf_mesh_uvs, depthOut);
+        var env = pass.getCurrenScene().getEnvironment().getEnvironmentMap();
+
+        RenderPipelines.DEFERRED_LIGHT_PASS.set(gbuf_normal, gbuf_material_idx, gbuf_mesh_uvs, depthOut,
+                env.getIrradianceView(), env.getPrefilterView(), env.getLutMap());
         RenderPipelines.DEFERRED_LIGHT_PASS.use();
 
         DrawUtils.fullscreenTri(cmd);

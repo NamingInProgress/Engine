@@ -1,0 +1,21 @@
+{
+  "topology": "TRIANGLES",
+  "cullMode": "NONE",
+  "polygonMode": "FILL",
+  "attachments": [
+    {
+      "type": "COLOR",
+      "format": "RGBA16F"
+    }
+  ],
+  "shaders": [
+    {
+      "type": "vert",
+      "src": "shaders/util/full_screen.vsh"
+    },
+    {
+      "type": "frag",
+      "src": "shaders/util/pbr/equirectangular_to_spherical.fsh"
+    }
+  ]
+}

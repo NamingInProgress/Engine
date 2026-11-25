@@ -21,17 +21,17 @@
             </outputs>
         </render-pass>
 
-        <render-pass name="post" parent="vke:post">
-            <inputs>
-                <input name="colorIn" source="skybox.colorOut"/>
-            </inputs>
-            <data>
-                <stages>
-                    <stage name="bloom"/>
-                </stages>
-            </data>
-        </render-pass>
+<!--        <render-pass name="post" parent="vke:post">-->
+<!--            <inputs>-->
+<!--                <input name="colorIn" source="skybox.colorOut"/>-->
+<!--            </inputs>-->
+<!--            <data>-->
+<!--                <stages>-->
+<!--                    <stage name="bloom"/>-->
+<!--                </stages>-->
+<!--            </data>-->
+<!--        </render-pass>-->
 
-        <image-to-screen source="post.colorOut"/>
+        <image-to-screen source="skybox.colorOut"/>
     </passes>
 </render-graph>

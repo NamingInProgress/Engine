@@ -106,6 +106,37 @@ public class VulkanCmdBuffers implements CommandBuffer {
     public void beginRendering(RenderingInfo info) {
         if (rendering) throw new IllegalStateException("Tried to begin rendering while rendering!");
 
+        int wdh = info.w();
+        int hgh = info.h();
+        int finalWdh, finalHgh;
+
+        if (wdh == -1) {
+            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
+                wdh = info.colorAttachments().getFirst().tex().width();
+            } else if (info.depthAttachment() != null) {
+                wdh = info.depthAttachment().tex().width();
+            } else if (info.stencilAttachment() != null) {
+                wdh = info.stencilAttachment().tex().width();
+            } else {
+                throw new RuntimeException("bro im not even gonna write an error for this....");
+            }
+        }
+
+        if (hgh == -1) {
+            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
+                hgh = info.colorAttachments().getFirst().tex().height();
+            } else if (info.depthAttachment() != null) {
+                hgh = info.depthAttachment().tex().height();
+            } else if (info.stencilAttachment() != null) {
+                hgh = info.stencilAttachment().tex().height();
+            } else {
+                throw new RuntimeException("bro im not even gonna write an error for this....");
+            }
+        }
+
+        finalWdh = wdh;
+        finalHgh = hgh;
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             this.rendering = true;
 
@@ -134,9 +165,8 @@ public class VulkanCmdBuffers implements CommandBuffer {
                             .clearValue(clearColor);
                 }
 
-                Texture main = info.colorAttachments().getFirst().tex();
-                setViewport(0, 0, main.width(), main.height(), 0, 1);
-                setScissor(0, 0, main.width(), main.height());
+                setViewport(0, 0, wdh, hgh, 0, 1);
+                setScissor(0, 0, wdh, hgh);
             }
 
             VkRenderingAttachmentInfo depth = null;
@@ -164,22 +194,9 @@ public class VulkanCmdBuffers implements CommandBuffer {
             }
 
             VkRect2D area = VkRect2D.calloc(stack);
-            if (info.colorAttachments() != null && !info.colorAttachments().isEmpty()) {
-                Texture tex = info.colorAttachments().getFirst().tex();
-                area.offset(offset -> offset.set(0, 0));
-                area.extent(extent -> extent.set(tex.width(), tex.height()));
-            } else {
-                area.offset(offset -> offset.set(0, 0));
-                if (depth != null) {
-                    var tex = info.depthAttachment().tex();
-                    area.extent(extent -> extent.set(tex.width(), tex.height()));
-                } else if (stencil != null) {
-                    var tex = info.stencilAttachment().tex();
-                    area.extent(extent -> extent.set(tex.width(), tex.height()));
-                } else {
-                    area.extent(swapchain.getExtent());
-                }
-            }
+
+            area.offset(offset -> offset.set(0, 0));
+            area.extent(extent -> extent.set(finalWdh, finalHgh));
 
             VkRenderingInfo renderInfo = VkRenderingInfo.calloc(stack)
                     .sType$Default()
@@ -193,20 +210,6 @@ public class VulkanCmdBuffers implements CommandBuffer {
             VK14.vkCmdBeginRendering(vk, renderInfo);
         }
     }
-
-//    public void beginImmediate() {
-//        this.recording = true;
-//        try (MemoryStack stack = MemoryStack.stackPush()) {
-//            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack)
-//                    .sType$Default().flags(VK14.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-//            VK14.vkBeginCommandBuffer(this.vk, beginInfo);
-//        }
-//    }
-//
-//    public void endImmediate() {
-//        this.recording = false;
-//        VK14.vkEndCommandBuffer(vk);
-//    }
 
     @Override
     public void end() {

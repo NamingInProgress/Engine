@@ -189,7 +189,9 @@ public interface Texture extends Disposable, QuadTexture {
     default Format format() { return description().format; }
 
     ImageView defaultView();
+    ImageView getView(ImageView.ImageViewDesc description);
     ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer);
+    ImageView getViewManaged(Consumer<ImageView.ImageViewDescriptionBuilder> consumer);
     TextureDesc description();
 
     void useInShader();

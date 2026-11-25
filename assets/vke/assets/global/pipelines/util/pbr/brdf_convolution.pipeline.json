@@ -5,7 +5,7 @@
   "attachments": [
     {
       "type": "COLOR",
-      "format": "RGBA16F"
+      "format": "RG16F"
     }
   ],
   "shaders": [
@@ -15,7 +15,7 @@
     },
     {
       "type": "frag",
-      "src": "shaders/util/equirectangular_to_spherical.fsh"
+      "src": "shaders/util/pbr/brdf_convolution.fsh"
     }
   ]
 }

@@ -21,6 +21,7 @@ import java.util.List;
 
 public interface CommandBuffer extends Disposable {
 
+    // TODO: PLEASE FIX THIS FUTURE ME HOLY SWHIT THIS IS SO BAD
     class SubmitInfo {
 
         private final QueueType type;
@@ -54,22 +55,30 @@ public interface CommandBuffer extends Disposable {
 
     record RenderingInfo(List<AttachmentInfo> colorAttachments,
                          @Nullable AttachmentInfo depthAttachment,
-                         @Nullable AttachmentInfo stencilAttachment) {
+                         @Nullable AttachmentInfo stencilAttachment, int w, int h) {
         public RenderingInfo(@Nullable AttachmentInfo... colorAttachments) {
-            this(Arrays.stream(colorAttachments).toList(), null, null);
+            this(Arrays.stream(colorAttachments).toList(), null, null, -1, -1);
+        }
+
+        public RenderingInfo(int w, int h, AttachmentInfo colorAttachment) {
+            this(List.of(colorAttachment), null, null, w, h);
         }
 
         public RenderingInfo(@Nullable List<AttachmentInfo> colorAttachments, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachments, depthAttachment, null);
+            this(colorAttachments, depthAttachment, null, -1, -1);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, null, -1, -1);
         }
 
         public RenderingInfo(@Nullable AttachmentInfo colorAttachment, @Nullable AttachmentInfo depthAttachment,
                              @Nullable AttachmentInfo stencilAttachment) {
-            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment);
+            this(colorAttachment == null ? null : List.of(colorAttachment), depthAttachment, stencilAttachment, -1, -1);
+        }
+
+        public RenderingInfo(List<AttachmentInfo> colorAttachments, AttachmentInfo depthAttachment, AttachmentInfo stencilAttachment) {
+            this(colorAttachments, depthAttachment, stencilAttachment, -1, -1);
         }
     }
 

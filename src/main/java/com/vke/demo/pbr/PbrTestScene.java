@@ -92,6 +92,7 @@ public class PbrTestScene extends Scene {
         lightBase.destroy();
 
         getEnvironment().setEnvironmentMap("cubemaps/something.png");
+//        getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
         setupInputAndCamera();
     }
 

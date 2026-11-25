@@ -29,12 +29,12 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException, ConfigParser.ConfigParseException, IOException, SchemaMismatchException {
 //        System.los ad("/usr/lib/librenderdoc.so");
-//        JenderDoc.init();
-//        RenderDoc.captureOption(CaptureOption.RefAllResources, 1);
-//        RenderDoc.captureOption(CaptureOption.CaptureAllCmdLists, 1);
-//        RenderDoc.captureOption(CaptureOption.CaptureCallstacks, 1);
-//        RenderDoc.captureOption(CaptureOption.SaveAllInitials, 1);
-//        RenderDoc.captureOption(CaptureOption.ApiValidation, 1);
+        JenderDoc.init();
+        RenderDoc.captureOption(CaptureOption.RefAllResources, 1);
+        RenderDoc.captureOption(CaptureOption.CaptureAllCmdLists, 1);
+        RenderDoc.captureOption(CaptureOption.CaptureCallstacks, 1);
+        RenderDoc.captureOption(CaptureOption.SaveAllInitials, 1);
+        RenderDoc.captureOption(CaptureOption.ApiValidation, 1);
         //Infallible a = Utils.Infallable();
         //System.out.println(a);
 
@@ -50,6 +50,6 @@ public class Main {
         //engine.PROFILER = engine.service(Services.PROFILER);
 
         engine.start(new SceneApp("main"));
-//        RenderDoc.free();
+        RenderDoc.free();
     }
 }

@@ -103,17 +103,37 @@ public class VulkanTexture implements Texture {
     }
 
     @Override
+    public ImageView getView(ImageView.ImageViewDesc description) {
+        if (views.containsKey(description)) return views.get(description);
+
+        return new VulkanImageView(ctx, description);
+    }
+
+    @Override
     public ImageView getView(Consumer<ImageView.ImageViewDescriptionBuilder> consumer) {
         var builder = new ImageView.ImageViewDescriptionBuilder(this)
                 .format(format())
                 .type(desc.type.defaultViewType());
         consumer.accept(builder);
+
         var desc = builder.build();
 
-        if (views.containsKey(desc)) return views.get(desc);
+        return getView(desc);
+    }
 
-        var view = new VulkanImageView(ctx, desc);
-        this.views.put(desc, view);
+    @Override
+    public ImageView getViewManaged(Consumer<ImageView.ImageViewDescriptionBuilder> consumer) {
+        var builder = new ImageView.ImageViewDescriptionBuilder(this)
+                .format(format())
+                .type(desc.type.defaultViewType());
+
+        consumer.accept(builder);
+
+        var desc = builder.build();
+        var view = getView(desc);
+
+        if (!views.containsKey(desc)) this.views.put(desc, view);
+
         return view;
     }
 

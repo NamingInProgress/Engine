@@ -18,11 +18,11 @@
   "shaders": [
     {
       "type": "vert",
-      "src": "shaders/util/skybox.vsh"
+      "src": "shaders/util/pbr/skybox.vsh"
     },
     {
       "type": "frag",
-      "src": "shaders/util/skybox.fsh"
+      "src": "shaders/util/pbr/skybox.fsh"
     }
   ]
 }
