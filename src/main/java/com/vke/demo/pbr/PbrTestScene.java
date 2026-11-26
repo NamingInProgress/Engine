@@ -1,5 +1,6 @@
 package com.vke.demo.pbr;
 
+import com.vke.api.assets.r.R;
 import com.vke.api.rendering.pbr.BaseLayer;
 import com.vke.api.rendering.pbr.Material;
 import com.vke.api.scene.Scene;
@@ -48,20 +49,24 @@ public class PbrTestScene extends Scene {
 
         GameMeshes.setMeshStatic(go, context.id("sphere.obj"));
 
-        BaseLayer base = new BaseLayer(RgbColor.RED, BaseLayer.ALBEDO, BaseLayer.NORMAL, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.OCCLUSION, BaseLayer.EMISSIVE, BaseLayer.SPECULAR);
+        BaseLayer base = new BaseLayer(RgbColor.RED, BaseLayer.ALBEDO, BaseLayer.NORMAL, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.OCCLUSION, BaseLayer.EMISSIVE, BaseLayer.SPECULAR);
 
         for (int row = 0; row < nrRows; ++row) {
             for (int col = 0; col < nrColumns; ++col) {
                 BaseLayer m = (BaseLayer) base.copy();
                 GameObject g = go.duplicate();
 
-                m.roughness = Math.clamp((float)col / (float)nrColumns, 0.05f, 1.0f);
-                m.metallic = (float)row / (float)nrRows;
+                m.roughnessScale = Math.clamp((float)col / (float)nrColumns, 0.05f, 1.0f);
+                m.metallicScale = (float)row / (float)nrRows;
 
                 Material mat = new Material(getRenderSystem(), List.of(m));
                 getRenderSystem().materialManager().registerMaterial(mat);
 
-                GameMeshes.setMaterialStatic(g, mat);
+                if (row == 0 && col == 0) {
+                    GameMeshes.setMaterialStatic(g, "vke:materials/rusty_ball.vcl");
+                } else {
+                    GameMeshes.setMaterialStatic(g, mat);
+                }
 
                 g.getTransform().setXYZ(
                         (float)(col - (nrColumns / 2)) * spacing,
@@ -91,8 +96,8 @@ public class PbrTestScene extends Scene {
 
         lightBase.destroy();
 
-        getEnvironment().setEnvironmentMap("cubemaps/something.png");
-//        getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+//        getEnvironment().setEnvironmentMap("cubemaps/something.png");
+        getEnvironment().setEnvironmentMap("cubemaps/output.exr");
         setupInputAndCamera();
     }
 

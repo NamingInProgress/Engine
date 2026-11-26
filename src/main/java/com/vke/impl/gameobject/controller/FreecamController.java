@@ -28,6 +28,7 @@ public class FreecamController extends AbstractGameObjectController {
     private final PressableState space;
     private final PressableState shift;
     private final PressableState sprint;
+    private final PressableState slow;
 
     private final MousePositionState mousePosition;
 
@@ -61,6 +62,7 @@ public class FreecamController extends AbstractGameObjectController {
         space = keyboard.key(Key.SPACE);
         shift = keyboard.key(Key.LEFT_SHIFT);
         sprint = keyboard.key(Key.E);
+        slow = keyboard.key(Key.LEFT_CONTROL);
 
         MouseInput mouse = input.mouse();
         mousePosition = mouse.position();
@@ -91,6 +93,10 @@ public class FreecamController extends AbstractGameObjectController {
         float speed = this.speed;
         if (sprint.isPressed()) {
             speed *= 4;
+        }
+
+        if (slow.isPressed()) {
+            speed /= 16;
         }
 
         if (w.isPressed())     position.fma(speed, forward);

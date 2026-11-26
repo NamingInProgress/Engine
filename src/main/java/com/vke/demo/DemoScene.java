@@ -96,7 +96,7 @@ public class DemoScene extends Scene {
     private void loadMeshResources() {
         try {
             bear1 = GameObjects.staticMesh(context);
-            GameMeshes.setMeshStatic(bear1, "vke:bear.obj");
+            GameMeshes.setMeshStatic(bear1, "vke:bear_smooth.obj");
 
             bear2 = bear1.duplicate();
             GameMeshes.setMaterialStatic(bear2, "vke:materials/bear.vcl");
@@ -177,7 +177,7 @@ public class DemoScene extends Scene {
     public void onPrepareRendering(GraphContext context) {
         handleInput();
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
-        bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
+//        bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
         bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
     }

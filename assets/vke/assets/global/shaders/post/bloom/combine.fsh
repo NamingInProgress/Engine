@@ -16,5 +16,5 @@ void main() {
     vec3 bloomColor = vktexture(u_Blurred, uv).rgb;
 
     // 3. Additive blend
-    outColor = vec4(sceneColor + (bloomColor * 0.04), 1);
+    outColor = vec4(sceneColor + (bloomColor * 0.01), 1);
 }

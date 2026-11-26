@@ -4,23 +4,24 @@ struct Material {
     uint flags;
     int baseColorId;
     int normalId;
-    int metallicRoughnessId;
+    int metallicId;
+    int roughnessId;
     int occlusionId;
     int emissiveId;
     int specularId;
+
     float normalScale;
-
-    vec4 baseAlbedo;
-
     float metallicScale;
     float roughnessScale;
     float occlusionScale;
-    float emissiveScale;
+
+    vec4 baseAlbedo;
     vec4 emissiveColor;
+
+    float emissiveScale;
     float specularScale;
     float pad0;
     float pad1;
-    float pad2;
 };
 
 struct MaterialInputs {
@@ -60,11 +61,12 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv, vec3 normal, vec4 ta
     m.normal.xy *= material.normalScale;
     m.normal = normalize(m.normal);
 
-    vec4 mr = sampleTexture(material.metallicRoughnessId, uv);
+    vec4 metallic = sampleTexture(material.metallicId, uv);
+    vec4 roughness = sampleTexture(material.roughnessId, uv);
 
-    m.roughness = clamp(mr.g * material.roughnessScale, 0.04, 1.0);
+    m.roughness = clamp(roughness.g * material.roughnessScale, 0.04, 1.0);
 
-    m.metallic = clamp(mr.b * material.metallicScale, 0.0, 1.0);
+    m.metallic = clamp(metallic.b * material.metallicScale, 0.0, 1.0);
 
     m.occlusion = sampleTexture(material.occlusionId, uv).r *
         material.occlusionScale;

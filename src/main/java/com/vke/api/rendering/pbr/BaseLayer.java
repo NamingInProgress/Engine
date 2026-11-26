@@ -25,15 +25,16 @@ public class BaseLayer extends MaterialLayer {
     public final RgbColor baseAlbedo;
     public final AssetHandle<Texture> albedo;
     public final AssetHandle<Texture> normal;
-    public final AssetHandle<Texture> metallicRoughness;
+    public final AssetHandle<Texture> metallic;
+    public final AssetHandle<Texture> roughness;
     public final AssetHandle<Texture> occlusionTexture;
     public final AssetHandle<Texture> emissive;
     public final AssetHandle<Texture> specular;
 
     public final float normalScale;
 
-    public float metallic; // TODO: Fix final
-    public float roughness;
+    public float metallicScale; // TODO: Fix final
+    public float roughnessScale;
 
     public final float occlusionStrength;
 
@@ -43,36 +44,37 @@ public class BaseLayer extends MaterialLayer {
     public final float specularScale;
 
     private BaseLayer() {
-        this(RgbColor.WHITE, ALBEDO, NORMAL, METALLIC_ROUGHNESS, OCCLUSION, EMISSIVE, SPECULAR);
+        this(RgbColor.WHITE, ALBEDO, NORMAL, METALLIC_ROUGHNESS, METALLIC_ROUGHNESS, OCCLUSION, EMISSIVE, SPECULAR);
     }
 
     public BaseLayer(BaseLayer copy) {
-        this(copy.baseAlbedo, copy.albedo, copy.normal, copy.metallicRoughness, copy.occlusionTexture, copy.emissive, copy.specular,
-                copy.normalScale, copy.metallic, copy.roughness, copy.occlusionStrength, copy.emissiveColor, copy.emissiveStrength, copy.specularScale);
+        this(copy.baseAlbedo, copy.albedo, copy.normal, copy.metallic, copy.roughness, copy.occlusionTexture, copy.emissive, copy.specular,
+                copy.normalScale, copy.metallicScale, copy.roughnessScale, copy.occlusionStrength, copy.emissiveColor, copy.emissiveStrength, copy.specularScale);
     }
 
     public BaseLayer(RgbColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
-                     AssetHandle<Texture> metallicRoughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
+                     AssetHandle<Texture> metallic, AssetHandle<Texture> roughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
                      AssetHandle<Texture> specular) {
-        this(baseAlbedo, albedo, normal, metallicRoughness, occlusionTexture, emissive, specular, 1.0f, 1.0f,
+        this(baseAlbedo, albedo, normal, metallic, roughness, occlusionTexture, emissive, specular, 1.0f, 1.0f,
                 1.0f, 1.0f, RgbColor.BLACK, 0.0f, 1.0f);
     }
 
     public BaseLayer(RgbColor baseAlbedo, AssetHandle<Texture> albedo, AssetHandle<Texture> normal,
-                     AssetHandle<Texture> metallicRoughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
+                     AssetHandle<Texture> metallic, AssetHandle<Texture> roughness, AssetHandle<Texture> occlusionTexture, AssetHandle<Texture> emissive,
                      AssetHandle<Texture> specular,
-                     float normalScale, float metallic, float roughness, float occlusionStrength, RgbColor emissiveColor, float emissiveStrength,
+                     float normalScale, float metallicScale, float roughnessScale, float occlusionStrength, RgbColor emissiveColor, float emissiveStrength,
                      float specularScale) {
         this.baseAlbedo = baseAlbedo;
         this.albedo = albedo;
         this.normal = normal;
-        this.metallicRoughness = metallicRoughness;
+        this.metallic = metallic;
+        this.roughness = roughness;
         this.occlusionTexture = occlusionTexture;
         this.emissive = emissive;
         this.specular = specular;
         this.normalScale = normalScale;
-        this.metallic = metallic;
-        this.roughness = roughness;
+        this.metallicScale = metallicScale;
+        this.roughnessScale = roughnessScale;
         this.occlusionStrength = occlusionStrength;
         this.emissiveColor = emissiveColor;
         this.emissiveStrength = emissiveStrength;
@@ -83,22 +85,21 @@ public class BaseLayer extends MaterialLayer {
     public void putSelf(RenderSystem sys, BufferSlice encoder) throws IOException {
         encoder.sampler2D(sys, albedo.acquire(sys));
         encoder.sampler2D(sys, normal.acquire(sys));
-        encoder.sampler2D(sys, metallicRoughness.acquire(sys));
+        encoder.sampler2D(sys, metallic.acquire(sys));
+        encoder.sampler2D(sys, roughness.acquire(sys));
         encoder.sampler2D(sys, occlusionTexture.acquire(sys));
         encoder.sampler2D(sys, emissive.acquire(sys));
         encoder.sampler2D(sys, specular.acquire(sys));
 
         encoder.float1(normalScale);
-
-        baseAlbedo.putSelf(encoder);
-
-        encoder.float1(metallic);
-        encoder.float1(roughness);
+        encoder.float1(metallicScale);
+        encoder.float1(roughnessScale);
         encoder.float1(occlusionStrength);
 
-        encoder.float1(emissiveStrength);
+        baseAlbedo.putSelf(encoder);
         emissiveColor.putSelf(encoder);
 
+        encoder.float1(emissiveStrength);
         encoder.float1(specularScale);
     }
 
@@ -108,13 +109,14 @@ public class BaseLayer extends MaterialLayer {
                 baseAlbedo,
                 albedo,
                 normal,
-                metallicRoughness,
+                metallic,
+                roughness,
                 occlusionTexture,
                 emissive,
                 specular,
                 normalScale,
-                metallic,
-                roughness,
+                metallicScale,
+                roughnessScale,
                 occlusionStrength,
                 emissiveColor,
                 emissiveStrength,
@@ -126,11 +128,11 @@ public class BaseLayer extends MaterialLayer {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         BaseLayer baseLayer = (BaseLayer) o;
-        return Float.compare(normalScale, baseLayer.normalScale) == 0 && Float.compare(metallic, baseLayer.metallic) == 0 && Float.compare(roughness, baseLayer.roughness) == 0 && Float.compare(occlusionStrength, baseLayer.occlusionStrength) == 0 && Float.compare(emissiveStrength, baseLayer.emissiveStrength) == 0 && Float.compare(specularScale, baseLayer.specularScale) == 0 && Objects.equals(baseAlbedo, baseLayer.baseAlbedo) && Objects.equals(albedo, baseLayer.albedo) && Objects.equals(normal, baseLayer.normal) && Objects.equals(metallicRoughness, baseLayer.metallicRoughness) && Objects.equals(occlusionTexture, baseLayer.occlusionTexture) && Objects.equals(emissive, baseLayer.emissive) && Objects.equals(specular, baseLayer.specular) && Objects.equals(emissiveColor, baseLayer.emissiveColor);
+        return Float.compare(normalScale, baseLayer.normalScale) == 0 && Float.compare(metallicScale, baseLayer.metallicScale) == 0 && Float.compare(roughnessScale, baseLayer.roughnessScale) == 0 && Float.compare(occlusionStrength, baseLayer.occlusionStrength) == 0 && Float.compare(emissiveStrength, baseLayer.emissiveStrength) == 0 && Float.compare(specularScale, baseLayer.specularScale) == 0 && Objects.equals(baseAlbedo, baseLayer.baseAlbedo) && Objects.equals(albedo, baseLayer.albedo) && Objects.equals(normal, baseLayer.normal) && Objects.equals(metallic, baseLayer.metallic) && Objects.equals(roughness, baseLayer.roughness) && Objects.equals(occlusionTexture, baseLayer.occlusionTexture) && Objects.equals(emissive, baseLayer.emissive) && Objects.equals(specular, baseLayer.specular) && Objects.equals(emissiveColor, baseLayer.emissiveColor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(baseAlbedo, albedo, normal, metallicRoughness, occlusionTexture, emissive, specular, normalScale, metallic, roughness, occlusionStrength, emissiveColor, emissiveStrength, specularScale);
+        return Objects.hash(baseAlbedo, albedo, normal, metallic, roughness, occlusionTexture, emissive, specular, normalScale, metallicScale, roughnessScale, occlusionStrength, emissiveColor, emissiveStrength, specularScale);
     }
 }

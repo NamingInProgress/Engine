@@ -77,10 +77,10 @@ float getAttenuation(Light l, float distance) {
     // ====================================================
 
     // Linear fade from 1.0 at center to 0.0 at range edge
-    float normalizedDist = distance / l.range;
-    attenuation = clamp(1.0 - normalizedDist, 0.0, 1.0);
+//    float normalizedDist = distance / l.range;
+//    attenuation = clamp(1.0 - normalizedDist, 0.0, 1.0);
     // Optional: square it for a slightly nicer curve
-    attenuation *= attenuation;
+//    attenuation *= attenuation;
 
 
     // ====================================================
@@ -90,13 +90,13 @@ float getAttenuation(Light l, float distance) {
 
     // If your hotspot is still too bright, increase minRadius!
     // Try setting it to 10% of your range (light.range * 0.1)
-//    float distSq = distance * distance;
-//    float minRadius = max(l.range * 0.05, 0.5);
-//    float invSqrAtten = 1.0 / max(distSq, minRadius * minRadius);
-//
-//    float distOverRangeSq = distSq / (l.range * l.range);
-//    float window = clamp(1.0 - (distOverRangeSq * distOverRangeSq), 0.0, 1.0);
-//    attenuation = invSqrAtten * (window * window);
+    float distSq = distance * distance;
+    float minRadius = max(l.range * 0.05, 0.5);
+    float invSqrAtten = 1.0 / max(distSq, minRadius * minRadius);
+
+    float distOverRangeSq = distSq / (l.range * l.range);
+    float window = clamp(1.0 - (distOverRangeSq * distOverRangeSq), 0.0, 1.0);
+    attenuation = invSqrAtten * (window * window);
 
     // ====================================================
     return attenuation;

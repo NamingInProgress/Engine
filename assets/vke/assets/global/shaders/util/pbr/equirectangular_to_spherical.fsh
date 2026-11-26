@@ -20,8 +20,8 @@ void main() {
             asin(dir.y) / PI + 0.5
     );
 
-    outColor = vec4(
+    outColor = handleInvalidValues(vec4(
             texture(equirectangularMap, sphericalUV).rgb,
             1.0
-    );
+    ));
 }

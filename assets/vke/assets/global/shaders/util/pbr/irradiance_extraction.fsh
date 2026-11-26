@@ -21,7 +21,7 @@ void main() {
     vec3 right = normalize(cross(normal, up));
     up = normalize(cross(normal, right));
 
-    float sampleDelta = 0.025;
+    float sampleDelta = 0.0025;
     float nr_samples = 0.0;
 
     for (float phi = 0; phi < 2 * PI; phi += sampleDelta) {
@@ -30,7 +30,7 @@ void main() {
 
             vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 
-            irradiance += handleInvalidValues(texture(u_Skybox, sampleVec).rgb * cos(theta) * sin(theta));
+            irradiance += handleInvalidValues(texture(u_Skybox, sampleVec).rgb) * cos(theta) * sin(theta);
             nr_samples++;
         }
     }

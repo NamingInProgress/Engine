@@ -41,7 +41,7 @@ public class ExrHeader {
         this.dataWindow = expectAttr(attrs, "dataWindow");
         this.displayWindow = expectAttr(attrs, "displayWindow");
         this.lineOrder = expectAttr(attrs, "lineOrder");
-        this.pixelAspectRatio = expectAttr(attrs, "pixelAspectRatio");
+        this.pixelAspectRatio = null;//expectAttr(attrs, "pixelAspectRatio");
         this.screenWindowCenter = expectAttr(attrs, "screenWindowCenter");
         this.screenWindowWidth = expectAttr(attrs, "screenWindowWidth");
 
