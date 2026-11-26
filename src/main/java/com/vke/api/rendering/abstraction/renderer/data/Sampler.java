@@ -7,8 +7,11 @@ import com.vke.utils.io.Disposable;
 
 public interface Sampler extends Disposable {
 
-    record Description(Filter magFilter, Filter minFilter, CompareOp compareOp, SamplerAddressMode U, SamplerAddressMode V) {
-        public Description(Filter magFilter, Filter minFilter) { this(magFilter, minFilter, null, SamplerAddressMode.CLAMP_TO_EDGE, SamplerAddressMode.CLAMP_TO_EDGE); }
+    record Description(Filter magFilter, Filter minFilter, CompareOp compareOp,
+                       SamplerAddressMode U, SamplerAddressMode V, SamplerAddressMode W, Filter mipmapFilter) {
+        public Description(Filter magFilter, Filter minFilter) {
+            this(magFilter, minFilter, null, SamplerAddressMode.CLAMP_TO_EDGE, SamplerAddressMode.CLAMP_TO_EDGE, SamplerAddressMode.CLAMP_TO_EDGE, Filter.MIPMAP_LINEAR);
+        }
     }
 
     long getHandle();

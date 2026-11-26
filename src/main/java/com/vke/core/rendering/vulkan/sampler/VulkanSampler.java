@@ -22,14 +22,10 @@ public class VulkanSampler implements Sampler {
 
     private final VulkanRenderDevice device;
 
-    public VulkanSampler(VulkanRenderSystem ctx, Description info) {
-        this(ctx, info.magFilter(), info.minFilter(), info.compareOp(), info.U(), info.V());
-    }
-
-    public VulkanSampler(VulkanRenderSystem ctx, Filter magFilter, Filter minFilter, CompareOp compareOp, SamplerAddressMode uMode, SamplerAddressMode vMode) {
-        this.magFilter = magFilter;
-        this.minFilter = minFilter;
-        this.compareOp = compareOp;
+    public VulkanSampler(VulkanRenderSystem ctx, Description desc) {
+        this.magFilter = desc.magFilter();
+        this.minFilter = desc.minFilter();
+        this.compareOp = desc.compareOp();
         this.device = ctx.device();
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -38,8 +34,12 @@ public class VulkanSampler implements Sampler {
                     .sType$Default()
                     .magFilter(magFilter.getIntVal())
                     .minFilter(minFilter.getIntVal())
-                    .addressModeU(uMode.getIntVal())
-                    .addressModeV(vMode.getIntVal())
+                    .mipmapMode(desc.mipmapFilter().getIntVal()) // todo change thingy
+                    .addressModeU(desc.U().getIntVal())
+                    .addressModeV(desc.V().getIntVal())
+                    .addressModeW(desc.W().getIntVal())
+                    .minLod(0.0f)
+                    .maxLod(VK14.VK_LOD_CLAMP_NONE)
                     .borderColor(VK14.VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK);
 
             if (compareOp != null) {

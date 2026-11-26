@@ -105,7 +105,7 @@ public class EnvironmentMap implements Disposable {
             CommandBuffer cmd = submit.cmd();
 
             texture.useInShader(cmd);
-            sampler.set(texture, Samplers.U_REPEAT_V_CLAMP_LINEAR);
+            sampler.set(texture, Samplers.LINEAR);
 
             for (int i = 0; i < views.length; i++) {
                 ImageView view = views[i];
@@ -167,7 +167,7 @@ public class EnvironmentMap implements Disposable {
         try (ImmediateSubmit s = dev.immediateSubmit(QueueType.GRAPHICS)) {
             CommandBuffer cmd = s.cmd();
 
-            sampler.set(skyboxView, Samplers.U_REPEAT_V_CLAMP_LINEAR);
+            sampler.set(skyboxView, Samplers.LINEAR);
 
             for (int i = 0; i < views.length; i++) {
                 ImageView view = views[i];
@@ -236,7 +236,7 @@ public class EnvironmentMap implements Disposable {
         try (ImmediateSubmit submit = dev.immediateSubmit(QueueType.GRAPHICS)) {
             CommandBuffer cmd = submit.cmd();
 
-            sampler.set(skyboxView, Samplers.U_REPEAT_V_CLAMP_LINEAR);
+            sampler.set(skyboxView, Samplers.LINEAR);
 
             cmd.bindPipeline(prefilter_map_gen);
             cmd.bindDescriptorSets(prefilter_map_gen);

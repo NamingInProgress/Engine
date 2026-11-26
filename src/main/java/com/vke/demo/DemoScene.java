@@ -89,51 +89,53 @@ public class DemoScene extends Scene {
 
         setupInputAndCamera();
 
-        getEnvironment().setEnvironmentMap("cubemaps/testMap.exr");
+        getEnvironment().setEnvironmentMap("cubemaps/output.exr");
 //        getEnvironment().setEnvironmentMap("cubemaps/something.png");
     }
 
     private void loadMeshResources() {
         try {
             bear1 = GameObjects.staticMesh(context);
-            GameMeshes.setMeshStatic(bear1, "vke:bear_smooth.obj");
+            GameMeshes.setMeshStatic(bear1, "vke:bear.obj");
 
-            bear2 = bear1.duplicate();
-            GameMeshes.setMaterialStatic(bear2, "vke:materials/bear.vcl");
-            bear2.getTransform().setXYZ(30, 0, 0);
+//            GameMeshes.setMaterialStatic(bear1, "materials/rusty_ball.vcl");
 
-            bear1.getTransform().addChild(bear2);
-
-            sphere = bear1.duplicate();
-            GameMeshes.setMaterialStatic(sphere, "vke:materials/bear.vcl");
-            sphere.getTransform().setXYZ(5, 0, 0);
-
-            bear2.getTransform().addChild(sphere);
-
-            //PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
-            //audio.setLooping(true);
-
-            cube = GameObjects.staticMesh(context);
-            cube.getTransform().setXYZ(-30, 0, 0);
-            cube.getTransform().changeScaleXYZ(5, 5, 5);
-            GameMeshes.setMaterialStatic(cube, "vke:materials/emissive-cube.vcl");
-
-            GameObject floor = GameObjects.staticMesh(context);
-            floor.getTransform().setXYZ(0, -25, 0);
-            floor.getTransform().changeScaleXYZ(50, 1, 50);
-            GameMeshes.setMaterialStatic(floor, "vke:materials/emissive-cube.vcl");
-
-            text = GameObjects.basicText(context);
-            CRef<BasicTextC> textC = text.getComponent(BasicTextC.ID);
-            textC.with((c, idx) -> {
-                c.setText(idx, "Hello world!");
-                c.setFontScale(idx, 10);
-            });
-            text.getTransform().setPosition(new Vector3f(0, 0, -5));
-            text.getTransform().setScaleXYZ(0.01f, 0.01f, 0.01f);
-            text.getTransform().setRotationXYZ(0, 90, 0);
-
-            bear1.getTransform().setScaleXYZ(1, 1, 1);
+//            bear2 = bear1.duplicate();
+//            GameMeshes.setMaterialStatic(bear2, "vke:materials/bear.vcl");
+//            bear2.getTransform().setXYZ(30, 0, 0);
+//
+//            bear1.getTransform().addChild(bear2);
+//
+//            sphere = bear1.duplicate();
+//            GameMeshes.setMaterialStatic(sphere, "vke:materials/bear.vcl");
+//            sphere.getTransform().setXYZ(5, 0, 0);
+//
+//            bear2.getTransform().addChild(sphere);
+//
+//            //PlayingAudio audio = GameAudio.playAudio(bear2, "preloaded.wav");
+//            //audio.setLooping(true);
+//
+//            cube = GameObjects.staticMesh(context);
+//            cube.getTransform().setXYZ(-30, 0, 0);
+//            cube.getTransform().changeScaleXYZ(5, 5, 5);
+//            GameMeshes.setMaterialStatic(cube, "vke:materials/emissive-cube.vcl");
+//
+//            GameObject floor = GameObjects.staticMesh(context);
+//            floor.getTransform().setXYZ(0, -25, 0);
+//            floor.getTransform().changeScaleXYZ(50, 1, 50);
+//            GameMeshes.setMaterialStatic(floor, "vke:materials/emissive-cube.vcl");
+//
+//            text = GameObjects.basicText(context);
+//            CRef<BasicTextC> textC = text.getComponent(BasicTextC.ID);
+//            textC.with((c, idx) -> {
+//                c.setText(idx, "Hello world!");
+//                c.setFontScale(idx, 10);
+//            });
+//            text.getTransform().setPosition(new Vector3f(0, 0, -5));
+//            text.getTransform().setScaleXYZ(0.01f, 0.01f, 0.01f);
+//            text.getTransform().setRotationXYZ(0, 90, 0);
+//
+//            bear1.getTransform().setScaleXYZ(1, 1, 1);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load scene resources", e);
         }
@@ -178,7 +180,7 @@ public class DemoScene extends Scene {
         handleInput();
 //        bear1.getTransform().setXYZ((float) Math.sin(Math.toRadians(System.nanoTime() / 1_000_000_000)), 0, 0);
 //        bear1.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 1_000_000_0, 0);
-        bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
+//        bear2.getTransform().setRotationXYZ(0, (float) System.nanoTime() / 500_000_0, 0);
 //        cube.getTransform().setRotationXYZ(0, System.nanoTime() / 1_000_000_0, 0);
     }
 

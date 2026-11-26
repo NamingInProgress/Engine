@@ -45,11 +45,22 @@ public class PbrTestScene extends Scene {
 
     @Override
     public void onLoad() throws Exception {
-        GameObject go = GameObjects.staticMesh(context);
+        GameObject go, g1, g2;
+        go = GameObjects.staticMesh(context);
+//        g1 = GameObjects.staticMesh(context);
+//        g2 = GameObjects.staticMesh(context);
+//
+//        GameMeshes.setMeshStatic(go, context.id("models/ball.obj"));
+//        GameMeshes.setMeshStatic(g1, context.id("models/support.obj"));
+//        GameMeshes.setMeshStatic(g2, context.id("models/ring.obj"));
+//
+//        GameMeshes.setMaterialStatic(go, "materials/ball_base.vcl");
+//        GameMeshes.setMaterialStatic(g1, "materials/support.vcl");
+//        GameMeshes.setMaterialStatic(g2, "materials/ring.vcl");
 
-        GameMeshes.setMeshStatic(go, context.id("sphere.obj"));
+        GameMeshes.setMeshStatic(go, "sphere.obj");
 
-        BaseLayer base = new BaseLayer(RgbColor.RED, BaseLayer.ALBEDO, BaseLayer.NORMAL, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.OCCLUSION, BaseLayer.EMISSIVE, BaseLayer.SPECULAR);
+        BaseLayer base = new BaseLayer(RgbColor.WHITE, BaseLayer.ALBEDO, BaseLayer.NORMAL, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.METALLIC_ROUGHNESS, BaseLayer.OCCLUSION, BaseLayer.EMISSIVE, BaseLayer.SPECULAR);
 
         for (int row = 0; row < nrRows; ++row) {
             for (int col = 0; col < nrColumns; ++col) {
@@ -80,7 +91,7 @@ public class PbrTestScene extends Scene {
         PointLightGameObject lightBase = new PointLightGameObject(context);
         lightBase.spawn();
         lightBase.setColor(3, 3, 3);
-        lightBase.setIntensity(10);
+        lightBase.setIntensity(100);
 
         Vector3f[] positions = new Vector3f[]{
                 new Vector3f(-10,  10, 10),
