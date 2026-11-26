@@ -140,7 +140,7 @@ vec3 calculateLighting(vec3 N, vec3 V, vec3 fragPos, MaterialInputs mat) {
 
     vec3 R = reflect(-V, N);
 
-    const float MAX_REFLECTION_LOD = 7.0; // TODO: Make this dynamic
+    const float MAX_REFLECTION_LOD = float(textureQueryLevels(u_PrefilterMap) - 1);
 
     vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), defaultF0(mat.baseColor, mat.metallic), mat.roughness);
 
@@ -153,7 +153,7 @@ vec3 calculateLighting(vec3 N, vec3 V, vec3 fragPos, MaterialInputs mat) {
     vec3 diffuse = irradiance * mat.baseColor.xyz;
 
     vec3 prefilterColor = textureLod(u_PrefilterMap, R, mat.roughness * MAX_REFLECTION_LOD).rgb;
-    vec2 envBRDF = texture(u_BrdfLut, vec2(max(dot(N, V), 0.0), mat.roughness)).rg;
+    vec2 envBRDF = vktexture(u_BrdfLut, vec2(max(dot(N, V), 0.0), mat.roughness)).rg;
     vec3 specular = prefilterColor * (F * envBRDF.x + envBRDF.y);
 
     vec3 ambient = (kD * diffuse + specular) * mat.occlusion;

@@ -55,7 +55,7 @@ MaterialInputs evaluateMaterial(Material material, vec2 uv, vec3 normal, vec4 ta
     vec3 B = cross(N, T) * tangent.w;
     mat3 TBN = mat3(T, B, N);
 
-    vec3 tangentNormal = sampleTexture(material.normalId, fUV).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = sampleTexture(material.normalId, uv).xyz * 2.0 - 1.0;
     m.normal = normalize(TBN * tangentNormal);
 
     m.normal.xy *= material.normalScale;
